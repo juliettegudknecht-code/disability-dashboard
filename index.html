@@ -11112,6 +11112,11 @@ body:not(.dark) .view-subtab-nav,body:not(.dark) .snapshot-determinations{backgr
 /* chart-description callouts: whisper-gray so they still read as callouts on white */
 body:not(.dark) .card .note,body:not(.dark) .card.fig .note{background:transparent!important;color:#3f4d5c!important;box-shadow:none!important;padding-left:0!important;padding-right:0!important}
 body.dark .card .note,body.dark .card.fig .note{background:transparent!important;padding-left:0!important;padding-right:0!important}
+/* Section 618 measures grouped by IDEA part (2026-06-22) */
+.srpart{margin-top:18px;grid-column:1/-1}
+.srpart:first-child{margin-top:2px}
+.srparthd{font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#0f3a5f;padding:0 0 7px;border-bottom:2px solid #e6d84a;margin:0 0 12px}
+body.dark .srparthd{color:#cfe3f5;border-bottom-color:#c9a93a}
 /* SPP indicator tiles + KPI tiles: white with their normal borders */
 body:not(.dark) .spp-tile,body:not(.dark) .snap-stat{background:#ffffff!important}
 
@@ -11415,25 +11420,20 @@ body:not(.dark) #explorer-controls,body:not(.dark) #compare-controls,body:not(.d
   <div class="state-profile-head">
     <div>
       <h3 id="stateRptTitle">Section 618 Measures</h3>
-      <div class="note" id="stateProfileNote">Each measure is drawn from the IDEA Section 618 data collections and is labeled with its IDEA part, age group, and school year.</div>
+      <details class="srcfold compact"><summary>About these measures</summary><div class="srcbody" id="stateProfileNote">Each measure is drawn from the IDEA Section 618 data collections and is labeled with its IDEA part, age group, and school year. Each tile shows this State's value, the national value, and the State's rank.</div></details>
     </div>
   </div>
   <div class="state-insight" id="stateInsight" aria-live="polite"></div>
   <div class="state-profile-grid">
     <div class="state-profile-metrics adv-only">
-      <h3 class="adv-head">Additional Section 618 Measures</h3>
+      <h3 class="adv-head">Measures by collection</h3>
       <div class="stategrid" id="stateReport"></div>
       <details class="srcfold compact"><summary>How ranks are calculated</summary><div class="srcbody">Ranks are out of the reporting units included for each measure. Most Part B child count and educational environment ranks use the 50 States and the District of Columbia. Graduation, dropout, and certification exclude New Mexico when data are suppressed for quality. Assessment proficiency is shown only in the assessment section and is not ranked here because state assessment systems are not directly comparable across states.</div></details>
-    </div>
-    <div class="state-comparewrap adv-only" id="stateMeasurePanel">
-      <h3 id="stateMeasureTitle">New York versus the nation</h3>
-      <div class="note">Groups use different collections and years. Read each group separately.</div><div class="note mini-source" id="stateMeasureSource">Source: IDEA Section 618 collections. Child Count, Educational Environments, and Part C use School Year 2024–25; Exiting and Personnel use School Year 2023–24. Assessment results are excluded because state tests differ.</div>
-      <div class="benchcards" id="stateMeasureCards"></div>
     </div>
   </div>
 </div>
 <div class="state-determinations" id="stateDeterminations" aria-live="polite"></div>
-<div class="state-section-head adv-only" id="stateAdvancedSection"><h3>More Measures</h3><p>How this State's published Part&nbsp;B measures compare with the nation, its child-count trend over time, and a sortable table of all States.</p></div>
+<div class="state-section-head adv-only" id="stateAdvancedSection"><h3>More Measures</h3><details class="srcfold compact"><summary>About this section</summary><div class="srcbody">How this State's published Part&nbsp;B measures compare with the nation, its child-count trend over time, and a sortable table of all States.</div></details></div>
 <div id="officialDisplay" class="adv-only" data-drill-group="states" data-drill-panel="advanced"></div>
 <div class="grid adv-only" data-drill-group="states" data-drill-panel="advanced">
   <div class="card">
@@ -12860,9 +12860,9 @@ const DET_2026={partB:{"Alabama":"Meets requirements","Connecticut":"Meets requi
 function det2026Status(part,name){var m=DET_2026[part]||{};var aliases={'U.S. Virgin Islands':'Virgin Islands','United States Virgin Islands':'Virgin Islands','Commonwealth of Puerto Rico':'Puerto Rico','Republic of the Marshall Islands':'Republic of Marshall Islands'};return m[name]||m[aliases[name]]||null;}
 function det2026Class(status){if(!status)return 'na';if(/Meets/i.test(status))return 'meets';if(/intervention/i.test(status))return 'intervention';return 'assist';}
 function det2026Explain(part,status){if(!status)return part==='partC'?'No 2026 Part C determination is listed for this reporting entity on the Department page.':'No 2026 Part B determination is listed for this reporting entity on the Department page.';if(/Meets/i.test(status))return 'The Department determined that the State meets the requirements and purposes of the Individuals with Disabilities Education Act for this part.';if(/two or more/i.test(status))return 'The Department determined that the State needs assistance for two or more consecutive years in implementing this part of the Individuals with Disabilities Education Act.';if(/one year/i.test(status))return 'The Department determined that the State needs assistance for one year in implementing this part of the Individuals with Disabilities Education Act.';return 'The Department determined that the State needs intervention in implementing this part of the Individuals with Disabilities Education Act.';}
-function renderDeterminations(){var el=document.getElementById('stateDeterminations');if(!el)return;var b=det2026Status('partB',focusState),c=det2026Status('partC',focusState),d=(typeof DD!=='undefined'&&DD[focusState])||{},spp=d.spp||{};function pct1(v){return v==null||isNaN(v)?'N/A':Number(v).toFixed(1)+'%';}function safe(v){return v==null||isNaN(v)?0:Math.max(0,Math.min(100,Number(v)));}function sppTile(ind,title,val,desc,cls){if(val==null||isNaN(val))return '';return '<div class="spp-tile '+cls+'"><div class="spp-badge"><span class="dot"></span>INDICATOR '+ind+'</div><div class="spp-top"><div class="spp-title">'+title+'</div><div class="spp-val">'+pct1(val)+'</div></div><div class="spp-track" aria-hidden="true"><span class="spp-fill" style="width:'+safe(val)+'%"></span></div><div class="spp-desc">'+desc+'</div></div>';}function card(part,ages,status){var cls=det2026Class(status);return '<div class="det-pill '+cls+'"><div class="det-part">'+part+' <span>'+ages+'</span></div><div class="det-status">'+(status||'Not listed')+'</div><div class="det-desc">'+det2026Explain(part==='Part B'?'partB':'partC',status)+'</div></div>';}
-var sppHtml=sppTile('8','Parent Involvement',spp.parent,'Parents reporting that schools facilitated parent involvement.','ind8')+sppTile('14C','Post-School Engagement',spp.postHigherEdOrEmployed,'Former students with IEPs in higher education or competitively employed within 1 year.','ind14')+sppTile('14A','Higher Education',spp.postHigherEd,'Former students with IEPs enrolled in higher education within 1 year.','ind14');
-el.innerHTML='<div class="state-subsection-head"><div><h3>SPP/APR and Determinations</h3><p>Separate from Section 618. Selected indicators and annual determinations.</p></div></div>'+(sppHtml?'<div class="state-spp-grid">'+sppHtml+'</div>':'')+'<div class="det-head"><div><span>2026 IDEA Determinations</span><b>'+focusState+'</b></div><div class="det-links"><a href="'+DET_2026_URL+'" target="_blank" rel="noopener">Official Department letters</a><a href="'+DET_2026_PDF_URL+'" target="_blank" rel="noopener">Determinations fact sheet PDF</a></div></div><div class="det-grid">'+card('Part B','ages 3–21',b)+card('Part C','birth through age 2',c)+'</div><div class="det-note">Determinations are issued annually by the U.S. Department of Education based on State Performance Plan and Annual Performance Report submissions.</div>';}
+function renderDeterminations(){var el=document.getElementById('stateDeterminations');if(!el)return;var b=det2026Status('partB',focusState),c=det2026Status('partC',focusState),d=(typeof DD!=='undefined'&&DD[focusState])||{},spp=d.spp||{};function pct1(v){return v==null||isNaN(v)?'N/A':Number(v).toFixed(1)+'%';}function safe(v){return v==null||isNaN(v)?0:Math.max(0,Math.min(100,Number(v)));}function sppTile(part,ind,title,val,desc,cls){if(val==null||isNaN(val))return '';return '<div class="spp-tile '+cls+'"><div class="spp-badge"><span class="dot"></span>'+part+' · Indicator '+ind+'</div><div class="spp-top"><div class="spp-title">'+title+'</div><div class="spp-val">'+pct1(val)+'</div></div><div class="spp-track" aria-hidden="true"><span class="spp-fill" style="width:'+safe(val)+'%"></span></div><div class="spp-desc">'+desc+'</div></div>';}function card(part,ages,status){var cls=det2026Class(status);return '<div class="det-pill '+cls+'"><div class="det-part">'+part+' <span>'+ages+'</span></div><div class="det-status">'+(status||'Not listed')+'</div><div class="det-desc">'+det2026Explain(part==='Part B'?'partB':'partC',status)+'</div></div>';}
+var sppHtml=sppTile('Part B','8','Parent Involvement',spp.parent,'Parents reporting that schools facilitated parent involvement.','ind8')+sppTile('Part B','14C','Post-School Engagement',spp.postHigherEdOrEmployed,'Former students with IEPs in higher education or competitively employed within 1 year.','ind14')+sppTile('Part B','14A','Higher Education',spp.postHigherEd,'Former students with IEPs enrolled in higher education within 1 year.','ind14');
+el.innerHTML='<div class="state-subsection-head"><div><h3>SPP/APR and Determinations</h3><details class="srcfold compact"><summary>About this section</summary><div class="srcbody">Separate from Section 618. The indicators below are selected Part&nbsp;B SPP/APR measures; the annual determinations cover both Part&nbsp;B (ages 3–21) and Part&nbsp;C (birth through age 2).</div></details></div></div>'+(sppHtml?'<div class="state-spp-grid">'+sppHtml+'</div>':'')+'<div class="det-head"><div><span>2026 IDEA Determinations</span><b>'+focusState+'</b></div><div class="det-links"><a href="'+DET_2026_URL+'" target="_blank" rel="noopener">Official Department letters</a><a href="'+DET_2026_PDF_URL+'" target="_blank" rel="noopener">Determinations fact sheet PDF</a></div></div><div class="det-grid">'+card('Part B','ages 3–21',b)+card('Part C','birth through age 2',c)+'</div><div class="det-note">Determinations are issued annually by the U.S. Department of Education based on State Performance Plan and Annual Performance Report submissions.</div>';}
 function renderSnapshotDeterminations(){var el=document.getElementById('snapshotDeterminations');if(!el)return;var b=det2026Status('partB',focusState),c=det2026Status('partC',focusState);if(!b&&!c){el.hidden=true;el.innerHTML='';return;}el.hidden=false;function pill(part,ages,status){var cls=det2026Class(status);return '<div class="snap-det-pill '+cls+'"><span class="sdp-dot" aria-hidden="true"></span><span class="sdp-text"><span class="sdp-part">'+part+' <em>'+ages+'</em></span><span class="sdp-status">'+(status||'Not listed')+'</span></span></div>';}el.innerHTML='<div class="snap-det-head"><span class="snap-det-eyebrow">2026 IDEA Determination · based on Federal Fiscal Year 2024</span><a class="snap-det-link" href="'+DET_2026_URL+'" target="_blank" rel="noopener">Official determination letter ›</a></div><div class="snap-det-pills">'+pill('Part B','ages 3–21',b)+pill('Part C','birth–age 2',c)+'</div><div class="snap-det-explain">Each year the U.S. Department of Education rates how well '+focusState+' meets the requirements of the Individuals with Disabilities Education Act. '+det2026Explain('partB',b)+'</div>';}
 
 
@@ -12873,14 +12873,23 @@ function renderStateReport(){
  var tt=document.getElementById('stateRptTitle'); if(tt)tt.textContent='Section 618 Measures';
  var note=document.getElementById('stateProfileNote'); if(note)note.innerHTML='Each measure is drawn from the IDEA Section 618 data collections and is labeled with its IDEA part, age group, and school year.';
  var cc=s[4],pe=s[5],grw=((s[4]-s[1])/s[1]*100);
- var _ins=document.getElementById('stateInsight');if(_ins){var _incl=(r.incl!=null?r.incl+'%':'N/A'),_partc=(r.partc!=null?fmt(r.partc):'N/A'),_grad=(r.grad!=null?r.grad+'%':'N/A');_ins.innerHTML='<div class="state-insight-grid"><div class="mini"><b>Part B, ages 3–21</b><span class="snap-num">'+fmt(cc)+'</span><span class="snap-unit">children and students served in School Year 2024–25.</span></div><div class="mini"><b>Enrollment share</b><span class="snap-num">'+pe+'%</span><span class="snap-unit">of public-school enrollment, School Year 2022–23.</span></div><div class="mini"><b>Educational environment</b><span class="snap-num">'+_incl+'</span><span class="snap-unit">of students ages 5–21 spent 80% or more of the day in regular class.</span></div><div class="mini"><b>Part C, birth through age 2</b><span class="snap-num">'+_partc+'</span><span class="snap-unit">infants and toddlers served in School Year 2024–25.</span></div></div>';}
+ var _ins=document.getElementById('stateInsight');if(_ins){var _incl=(r.incl!=null?r.incl+'%':'N/A'),_partc=(r.partc!=null?fmt(r.partc):'N/A');_ins.innerHTML='<div class="state-insight-grid">'
+   +'<div class="srpart"><div class="srparthd">Part B · Ages 3 through 21</div><div class="state-insight-grid">'
+     +'<div class="mini"><b>Children and students served</b><span class="snap-num">'+fmt(cc)+'</span><span class="snap-unit">School Year 2024–25.</span></div>'
+     +'<div class="mini"><b>Share of public-school enrollment</b><span class="snap-num">'+pe+'%</span><span class="snap-unit">School Year 2022–23.</span></div>'
+     +'<div class="mini"><b>In regular class 80% or more of the day</b><span class="snap-num">'+_incl+'</span><span class="snap-unit">ages 5–21, School Year 2024–25.</span></div>'
+   +'</div></div>'
+   +'<div class="srpart"><div class="srparthd">Part C · Birth through age 2</div><div class="state-insight-grid">'
+     +'<div class="mini"><b>Infants and toddlers served</b><span class="snap-num">'+_partc+'</span><span class="snap-unit">School Year 2024–25.</span></div>'
+   +'</div></div>'
+ +'</div>';}
  var _tot24=STATES.reduce(function(a,x){return a+x[4];},0),_tot00=STATES.reduce(function(a,x){return a+x[1];},0);
  var _enr=STATES.reduce(function(a,x){return a+(x[5]?x[4]/(x[5]/100):0);},0);
  var natPE=(_tot24/_enr*100).toFixed(1), natGrw=((_tot24-_tot00)/_tot00*100).toFixed(0);
  function _c(l,v,cm){return '<div class="srcard"><div class="srlab">'+l+'</div><div class="srval">'+v+'</div><div class="srcmp">'+cm+'</div></div>';}
  function _g(t,arr){return '<div class="srgroup"><div class="srgrouphd">'+t+'</div><div class="stategrid">'+arr.join('')+'</div></div>';}
  function _rk(vf,desc){return srRank(focusState,vf,desc);}
- var html='';
+ var html='<div class="srpart"><div class="srparthd">Part B · Ages 3 through 21</div>';
  html+=_g('IDEA Part B Child Count and Educational Environments Collection, School Year 2024–25',[
   _c('Students served, ages 3–21, School Year 2024–25',fmt(cc),'U.S. '+fmt(NAT_RPT.childcount)+' · rank '+_rk(function(x){return x[4];},true)),
   _c('Children and students, ages 3–21, served under IDEA Part B as percent of public-school enrollment',pe+'%','U.S. '+natPE+'% · rank '+_rk(function(x){return x[5];},true)),
@@ -12890,9 +12899,10 @@ function renderStateReport(){
   _c('Dropped out, ages 14–21',(r.dropout!=null?r.dropout+'%':'N/A'),'U.S. '+NAT_RPT.dropout+'% · lower values indicate fewer dropouts')]);
  html+=_g('IDEA Part B Personnel Collection, School Year 2023–24',[
   _c('IDEA Part B special education teachers fully certified, staff FTE',(r.cert!=null?r.cert+'%':'N/A'),'U.S. '+NAT_RPT.cert+'% · School Year 2023–24')]);
+ html+='</div><div class="srpart"><div class="srparthd">Part C · Birth through age 2</div>';
  html+=_g('IDEA Part C Child Count and Settings Collection, School Year 2024–25',[
   _c('Infants and toddlers served, Part C, birth through age 2',(r.partc!=null?fmt(r.partc):'N/A'),'U.S. '+fmt(NAT_RPT.partc)+' · School Year 2024–25')]);
- box.innerHTML=html;
+ html+='</div>';box.innerHTML=html;
  try{renderDeterminations();}catch(e){console.warn('determinations',e);}
  try{renderSnapshotDeterminations();}catch(e){console.warn('snapshot determinations',e);}
 }
@@ -13741,8 +13751,10 @@ function setupPrototype(){
   if(optionsBtn&&optionsBar&&optionsPanel){optionsBtn.addEventListener('click',function(e){e.stopPropagation();const open=!optionsBar.classList.contains('open');optionsBar.classList.toggle('open',open);optionsPanel.hidden=!open;optionsBtn.setAttribute('aria-expanded',open?'true':'false');});document.addEventListener('click',function(e){if(optionsBar.classList.contains('open')&&!e.target.closest('#optionsBar')){optionsBar.classList.remove('open');optionsPanel.hidden=true;optionsBtn.setAttribute('aria-expanded','false');}});}
   const scopeBtn=document.getElementById('scopeBtn');
   function syncScope(){const on=document.body.classList.contains('scope-all');if(scopeBtn){scopeBtn.classList.toggle('on',on);scopeBtn.setAttribute('aria-pressed',on?'true':'false');scopeBtn.textContent=on?'Part B scope: U.S. + entities':'Part B scope: 50 states + DC';}}
-  if(scopeBtn)scopeBtn.addEventListener('click',()=>{toggleScope(!document.body.classList.contains('scope-all'));syncScope();});
+  if(scopeBtn)scopeBtn.addEventListener('click',()=>{var on=!document.body.classList.contains('scope-all');toggleScope(on);try{lsSet('idea618scope',on?'on':'off');}catch(e){}syncScope();});
   try{new MutationObserver(syncScope).observe(document.body,{attributes:true,attributeFilter:['class']});}catch(e){}
+  /* include additional IDEA reporting entities by default wherever the data supports it (national Part B total) */
+  try{ if(localStorage.getItem('idea618scope')!=='off') toggleScope(true); }catch(e){ try{toggleScope(true);}catch(_){} }
   syncScope();
   // state-page Snapshot / Advanced view toggle
   try{initStateView();}catch(e){}
