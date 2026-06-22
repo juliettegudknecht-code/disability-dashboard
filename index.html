@@ -10979,9 +10979,16 @@ body.dark .viewlead{color:#c7d3e0!important}
 .trends-lead{font-size:1.04rem;line-height:1.55;color:#3f5063;max-width:1000px;margin:0 0 18px;font-weight:500}
 body.dark .trends-lead{color:#c7d3e0}
 @media(max-width:680px){.trends-lead{font-size:.98rem}}
-.home-about{font-size:.97rem;line-height:1.6;color:#1f3450;max-width:1000px;margin:0 0 14px;padding:16px 20px;background:#e9f1fb;border:1px solid #c7dbef;border-left:5px solid #14304d;border-radius:12px}
-body.dark .home-about{color:#dbe8f6;background:#12273f;border-color:#2c466a;border-left-color:#73b3e7}
-@media(max-width:680px){.home-about{font-size:.92rem;padding:13px 15px}}
+.home-about{display:flex;gap:16px;align-items:flex-start;max-width:1000px;margin:6px 0 16px;padding:20px 24px;background:#14304d;border:1px solid #0e2438;border-left:6px solid #e6d84a;border-radius:14px;box-shadow:0 6px 18px rgba(16,42,67,.20)}
+.home-about-ic{flex:none;width:46px;height:46px;border-radius:12px;background:#e6d84a;color:#14304d;display:inline-flex;align-items:center;justify-content:center}
+.home-about-ic svg{width:27px;height:27px}
+.home-about-main{min-width:0}
+.home-about-eyebrow{display:block;font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#f1d94f;margin-bottom:7px}
+.home-about-text{margin:0;font-size:1rem;line-height:1.62;color:#e9f1fb;font-weight:500}
+.home-about-text b,.home-about-text strong{color:#ffffff}
+body.dark .home-about{background:#102841;border-color:#0c2034;border-left-color:#e6d84a}
+body.dark .home-about-text{color:#dbe8f6}
+@media(max-width:680px){.home-about{padding:16px 18px;gap:12px}.home-about-text{font-size:.94rem}.home-about-ic{width:40px;height:40px}.home-about-ic svg{width:23px;height:23px}}
 
 
 /* ============================================================
@@ -11103,7 +11110,8 @@ body:not(.dark) .state-insight,body:not(.dark) .state-insight .mini,body:not(.da
 body:not(.dark) .state-comparewrap,body:not(.dark) .state-curated-note,body:not(.dark) .collection-links-note,
 body:not(.dark) .view-subtab-nav,body:not(.dark) .snapshot-determinations{background:#ffffff!important}
 /* chart-description callouts: whisper-gray so they still read as callouts on white */
-body:not(.dark) .card .note,body:not(.dark) .card.fig .note{background:#f5f6f8!important;color:#1f3450!important}
+body:not(.dark) .card .note,body:not(.dark) .card.fig .note{background:transparent!important;color:#3f4d5c!important;box-shadow:none!important;padding-left:0!important;padding-right:0!important}
+body.dark .card .note,body.dark .card.fig .note{background:transparent!important;padding-left:0!important;padding-right:0!important}
 /* SPP indicator tiles + KPI tiles: white with their normal borders */
 body:not(.dark) .spp-tile,body:not(.dark) .snap-stat{background:#ffffff!important}
 
@@ -11407,7 +11415,7 @@ body:not(.dark) #explorer-controls,body:not(.dark) #compare-controls,body:not(.d
   <div class="state-profile-head">
     <div>
       <h3 id="stateRptTitle">Section 618 Measures</h3>
-      <div class="note" id="stateProfileNote">Collections only. Part, age group, and school year are shown.</div>
+      <div class="note" id="stateProfileNote">Each measure is drawn from the IDEA Section 618 data collections and is labeled with its IDEA part, age group, and school year.</div>
     </div>
   </div>
   <div class="state-insight" id="stateInsight" aria-live="polite"></div>
@@ -11425,29 +11433,21 @@ body:not(.dark) #explorer-controls,body:not(.dark) #compare-controls,body:not(.d
   </div>
 </div>
 <div class="state-determinations" id="stateDeterminations" aria-live="polite"></div>
-<div class="state-section-head adv-only" id="stateAdvancedSection"><h3>Additional Measures</h3><p>Grouped by type.</p></div>
+<div class="state-section-head adv-only" id="stateAdvancedSection"><h3>More Measures</h3><p>How this State's published Part&nbsp;B measures compare with the nation, its child-count trend over time, and a sortable table of all States.</p></div>
 <div id="officialDisplay" class="adv-only" data-drill-group="states" data-drill-panel="advanced"></div>
-<div class="grid g2 adv-only" data-drill-group="states" data-drill-panel="advanced">
+<div class="grid adv-only" data-drill-group="states" data-drill-panel="advanced">
   <div class="card">
     <h3 id="statePanelTitle">Child Count Trend</h3>
     <div class="note">IDEA Part B Child Count and Educational Environments Collection, ages 3–21.</div>
     <div class="statline" id="statePanelStats"></div>
     <div class="canvas-box sm"><canvas id="stateTrend"></canvas></div>
   </div>
-  <details class="card state-morefold" id="stateCompareFold" open>
-    <summary>Additional Part B trend comparison bars</summary>
-    <div class="fold-note">Additional Part B child count comparisons.</div>
-    <h3 id="cmpTitle">Additional comparison bars</h3>
-    <div class="note">Blue shows the selected state; orange marks the national value. Years are listed in each measure.</div>
-    <div class="cmp" id="cmpPanel"></div>
-  </details>
 </div>
 <div class="grid adv-only" data-drill-group="states" data-drill-panel="advanced">
-  <details class="card state-morefold" id="st-table" open>
-    <summary>Sortable all-states table</summary>
-    <div class="fold-note">Complete state list.</div>
-    <h3>All States and DC, IDEA Part B Child Count, Ages 3–21, School Years 2000–01 Through 2024–25</h3>
-    <div class="note">IDEA Part B Child Count and Educational Environments Collection, ages 3–21. Sort columns or choose a row.</div>
+  <details class="card state-morefold" id="st-table">
+    <summary>All States and DC: sortable table</summary>
+    <h3>All States and DC, IDEA Part&nbsp;B Child Count, Ages 3–21, School Years 2000–01 Through 2024–25</h3>
+    <div class="note">Sort any column, or choose a row to load that State. IDEA Part&nbsp;B Child Count and Educational Environments Collection, ages 3–21.</div>
     <div class="tablewrap"><table id="stateTable"><thead></thead><tbody></tbody></table></div>
   </details>
 </div>
@@ -11455,6 +11455,9 @@ body:not(.dark) #explorer-controls,body:not(.dark) #compare-controls,body:not(.d
 </div>
 <div class="view" data-view="collections" role="tabpanel" aria-label="Collections">
 <h2 class="section-title" id="more" data-pl="More kinds of data">Data Collections</h2>
+<div class="home-about">
+  <p class="home-about-text">The Office of Special Education Programs (OSEP), within the Office of Special Education and Rehabilitative Services (OSERS), is dedicated to improving results for infants, toddlers, children, and youth with disabilities, ages birth through 21, by providing leadership and financial support to assist States/entities, local districts, and programs. Section&nbsp;618 of IDEA requires that each State/entity submit data about the infants and toddlers, birth through age 2, who receive early intervention services under Part&nbsp;C of IDEA, and students with disabilities, ages 3 through 21, who receive special education and related services under Part&nbsp;B of IDEA.</p>
+</div>
 <p class="viewlead">The full set of public IDEA Section&nbsp;618 data collections, organized by reporting level, IDEA part, collection, and school year. Choose a collection to view its tables, charts, and original source files.</p>
 <section class="collection-tree" id="bycollection" aria-label="IDEA Section 618 collection selector">
   <div class="tree-head compact-tree-head">
@@ -12780,9 +12783,10 @@ function colorMap(){
 /* ============ STATE vs NATION COMPARE ============ */
 const NAT_PE=15.2,NAT_GROWTH=28.4,NAT_TOTAL=8081816,NAT_AVG=Math.round(8081816/STATES.length);
 function renderCompare(){
+ var _cp=document.getElementById('cmpPanel'); if(!_cp) return;
  const s=STATES.find(x=>x[0]===focusState);
  const sg=((s[4]-s[1])/s[1]*100);
- document.getElementById('cmpTitle').innerHTML='<span class="statehl">'+focusState+'</span> versus the nation, IDEA Part B Child Count, School Years 2000–01 Through 2024–25';
+ var _ct=document.getElementById('cmpTitle'); if(_ct)_ct.innerHTML='<span class="statehl">'+focusState+'</span> versus the nation, IDEA Part B Child Count, School Years 2000–01 Through 2024–25';
  const rows=[
   {lab:'Students with disabilities served as percent of public-school enrollment, School Year 2022–23',sv:s[5],nv:NAT_PE,max:22,f:v=>v.toFixed(1)+'%'},
   {lab:'Growth in students with disabilities served, School Years 2000–01 to 2024–25',sv:sg,nv:NAT_GROWTH,max:90,f:v=>(v>=0?'+':'')+v.toFixed(0)+'%'},
@@ -12795,7 +12799,7 @@ function renderCompare(){
  }).join('');
  const rank=[...STATES].sort((a,b)=>b[4]-a[4]).findIndex(x=>x[0]===focusState)+1;
  html+=`<div class="legendrow"><span><span class="sw" style="background:var(--primary)"></span> ${focusState}</span><span><span class="sw" style="background:var(--autism)"></span> National average</span><span>Rank by students served: <b style="color:var(--ink)">#${rank} of ${STATES.length}</b></span><span>Share of U.S. total: <b style="color:var(--ink)">${(s[4]/NAT_TOTAL*100).toFixed(1)}%</b></span></div>`;
- document.getElementById('cmpPanel').innerHTML=html;
+ _cp.innerHTML=html;
 }
 const STATE_RPT={"Wisconsin":{"grad":85.0,"dropout":12.6,"cert":96.9,"incl":79.6,"partc":6446,"math":20.3,"read":17.6},"Arkansas":{"grad":89.1,"dropout":6.8,"cert":87.0,"incl":74.7,"partc":1629,"math":8.7,"read":7.6},"Massachusetts":{"grad":79.1,"dropout":12.9,"cert":89.1,"incl":67.4,"partc":22312,"math":13.2,"read":12.0},"Illinois":{"grad":86.6,"dropout":10.4,"cert":98.1,"incl":53.7,"partc":17530,"math":8.0,"read":10.6},"Alaska":{"grad":64.6,"dropout":30.6,"cert":88.4,"incl":71.5,"partc":897,"math":10.1,"read":9.4},"Florida":{"grad":92.0,"dropout":7.2,"cert":100.0,"incl":78.3,"partc":16153},"South Dakota":{"grad":66.6,"dropout":25.1,"cert":91.3,"incl":77.2,"partc":1168},"New Hampshire":{"grad":85.3,"dropout":8.5,"cert":100.0,"incl":82.1,"partc":2486,"math":12.7,"read":16.8},"Vermont":{"grad":76.7,"dropout":20.8,"cert":88.3,"incl":82.3,"partc":1079,"math":10.1,"read":16.5},"Oklahoma":{"grad":99.5,"dropout":0.0,"cert":98.1,"incl":74.5,"partc":2420,"math":12.5,"read":14.8},"Minnesota":{"grad":91.2,"dropout":8.4,"cert":82.7,"incl":63.0,"partc":6549,"math":25.9,"read":26.6},"Hawaii":{"grad":76.1,"dropout":11.6,"cert":94.9,"incl":54.2,"partc":1370,"math":9.5,"read":11.6},"Alabama":{"grad":81.3,"dropout":2.3,"cert":98.7,"incl":82.2,"partc":4552,"math":9.6,"read":17.6},"Colorado":{"grad":80.0,"dropout":16.3,"cert":92.7,"incl":80.9,"partc":9914,"math":9.7,"read":12.4},"Indiana":{"grad":84.1,"dropout":7.6,"cert":68.7,"incl":77.6,"partc":14276,"math":17.1,"read":15.6},"Nebraska":{"grad":79.4,"dropout":15.3,"cert":90.0,"incl":82.0,"partc":2348,"math":27.3,"read":26.3},"Idaho":{"grad":67.9,"dropout":14.0,"cert":98.9,"incl":67.2,"partc":2082,"math":11.9,"read":14.8},"West Virginia":{"grad":84.1,"dropout":6.4,"cert":80.1,"incl":62.1,"partc":4308,"math":12.7,"read":14.5},"North Dakota":{"grad":75.9,"dropout":22.0,"cert":100.0,"incl":73.4,"partc":2129,"math":14.5,"read":15.7},"Kentucky":{"grad":85.4,"dropout":3.7,"cert":97.9,"incl":76.8,"partc":4783,"math":20.0,"read":23.2},"Washington":{"grad":75.1,"dropout":24.4,"cert":96.5,"incl":66.2,"partc":12585,"math":18.2,"read":21.5},"Delaware":{"grad":87.2,"dropout":8.4,"cert":72.4,"incl":64.6,"partc":1539,"math":9.1,"read":11.5},"New Mexico":{"incl":55.0,"partc":6686,"math":7.5,"read":12.8},"Texas":{"grad":47.3,"dropout":12.8,"cert":75.8,"incl":75.6,"partc":32777,"math":21.6,"read":23.0},"Michigan":{"grad":68.2,"dropout":23.1,"cert":91.2,"incl":73.9,"partc":13308,"math":15.1,"read":19.9},"District of Columbia":{"grad":62.4,"dropout":30.2,"cert":73.2,"incl":63.4,"partc":1216,"math":7.4,"read":10.2},"Connecticut":{"grad":89.3,"dropout":8.4,"cert":94.1,"incl":67.2,"partc":7150,"math":14.1,"read":17.4},"Oregon":{"grad":70.9,"dropout":19.2,"cert":82.8,"incl":77.7,"partc":3915,"math":14.9,"read":18.1},"New York":{"grad":78.6,"dropout":14.0,"cert":82.1,"incl":58.2,"partc":31425,"math":27.7,"read":27.5},"Pennsylvania":{"grad":90.3,"dropout":9.3,"cert":95.1,"incl":61.7,"partc":25269,"math":15.0,"read":20.5},"Ohio":{"grad":71.4,"dropout":16.1,"cert":96.1,"incl":66.4,"partc":14422,"math":19.6,"read":21.9},"Maine":{"grad":80.8,"dropout":18.2,"cert":97.8,"incl":57.4,"partc":1260,"math":17.8,"read":32.9},"Utah":{"grad":67.3,"dropout":17.9,"cert":95.2,"incl":75.1,"partc":4508,"math":14.7,"read":14.7},"Maryland":{"grad":68.6,"dropout":19.9,"cert":86.6,"incl":73.0,"partc":9371,"math":8.0,"read":13.2},"California":{"grad":75.9,"dropout":10.3,"cert":93.3,"incl":63.9,"partc":60457,"math":13.1,"read":16.9},"Mississippi":{"grad":65.6,"dropout":11.1,"cert":99.3,"incl":78.9,"partc":2018,"math":27.5,"read":20.3},"Tennessee":{"grad":77.2,"dropout":5.9,"cert":97.4,"incl":76.5,"partc":9892,"math":10.3,"read":10.8},"Kansas":{"grad":84.0,"dropout":14.9,"cert":86.0,"incl":72.8,"partc":5580,"math":12.4,"read":12.9},"Louisiana":{"grad":66.6,"dropout":15.2,"cert":72.2,"incl":68.3,"partc":6050,"math":18.5,"read":20.9},"Missouri":{"grad":86.6,"dropout":9.2,"cert":92.1,"incl":56.0,"partc":8449,"math":12.7,"read":13.7},"Nevada":{"grad":65.6,"dropout":27.2,"cert":93.8,"incl":59.6,"partc":3455,"math":11.0,"read":13.0},"New Jersey":{"grad":92.5,"dropout":5.5,"cert":100.0,"incl":45.1,"partc":17788,"math":16.4,"read":19.6},"South Carolina":{"grad":59.7,"dropout":20.8,"cert":98.2,"incl":64.8,"partc":8809,"math":18.7,"read":22.1},"Wyoming":{"grad":53.7,"dropout":35.3,"cert":84.7,"incl":80.1,"partc":1165,"math":19.3,"read":21.0},"Montana":{"grad":68.0,"dropout":26.4,"cert":92.5,"incl":60.4,"partc":649,"math":15.4,"read":17.3},"Georgia":{"grad":73.5,"dropout":18.1,"cert":96.2,"incl":60.8,"partc":8669,"math":20.7,"read":18.2},"Iowa":{"grad":76.9,"dropout":20.2,"cert":100.0,"incl":76.9,"partc":3033,"math":28.5,"read":27.1},"North Carolina":{"grad":80.4,"dropout":13.9,"cert":95.0,"incl":71.2,"partc":10120,"math":9.6,"read":7.2},"Rhode Island":{"grad":88.7,"dropout":5.9,"cert":99.8,"incl":72.9,"partc":2021,"math":7.1,"read":6.8},"Arizona":{"grad":79.3,"dropout":20.3,"cert":92.1,"incl":69.8,"partc":6088,"math":13.5,"read":13.7},"Virginia":{"grad":72.5,"dropout":7.7,"cert":91.5,"incl":70.8,"partc":12329,"math":42.3,"read":44.5}};
 const NAT_RPT={"grad":76.9,"dropout":12.5,"cert":91.0,"partc":456434,"childcount":8081816,"incl":69.5,"math":17.1,"read":18.9};
@@ -12867,7 +12871,7 @@ function renderStateReport(){
  var s=STATES.find(function(x){return x[0]===focusState;})||STATES[0];
  var r=STATE_RPT[focusState]||{}; var rpt=function(k){return STATE_RPT[k];};
  var tt=document.getElementById('stateRptTitle'); if(tt)tt.textContent='Section 618 Measures';
- var note=document.getElementById('stateProfileNote'); if(note)note.innerHTML='Collections only. Part, age group, and school year are shown.';
+ var note=document.getElementById('stateProfileNote'); if(note)note.innerHTML='Each measure is drawn from the IDEA Section 618 data collections and is labeled with its IDEA part, age group, and school year.';
  var cc=s[4],pe=s[5],grw=((s[4]-s[1])/s[1]*100);
  var _ins=document.getElementById('stateInsight');if(_ins){var _incl=(r.incl!=null?r.incl+'%':'N/A'),_partc=(r.partc!=null?fmt(r.partc):'N/A'),_grad=(r.grad!=null?r.grad+'%':'N/A');_ins.innerHTML='<div class="state-insight-grid"><div class="mini"><b>Part B, ages 3–21</b><span class="snap-num">'+fmt(cc)+'</span><span class="snap-unit">children and students served in School Year 2024–25.</span></div><div class="mini"><b>Enrollment share</b><span class="snap-num">'+pe+'%</span><span class="snap-unit">of public-school enrollment, School Year 2022–23.</span></div><div class="mini"><b>Educational environment</b><span class="snap-num">'+_incl+'</span><span class="snap-unit">of students ages 5–21 spent 80% or more of the day in regular class.</span></div><div class="mini"><b>Part C, birth through age 2</b><span class="snap-num">'+_partc+'</span><span class="snap-unit">infants and toddlers served in School Year 2024–25.</span></div></div>';}
  var _tot24=STATES.reduce(function(a,x){return a+x[4];},0),_tot00=STATES.reduce(function(a,x){return a+x[1];},0);
@@ -12952,7 +12956,7 @@ function renderOfficialDisplay(){
  if(anyNaep)detail.push('<section class="dd-type-section"><div class="dd-type-kicker">NAEP context</div><h4 class="dd-h">Percent at or Above Proficient, NAEP 2022</h4><div class="dd-tablewrap"><table class="dd-table"><thead><tr><th>Grade and subject</th><th class="dd-c">With disabilities</th><th class="dd-c">Without disabilities</th></tr></thead><tbody>'+rowsNaep+'</tbody></table></div></section>');
  if(anyRace)detail.push('<section class="dd-type-section"><div class="dd-type-kicker">Race and ethnicity</div><h4 class="dd-h">Race and Ethnicity, Students Served Under IDEA Part B, Ages 5–21, Percent Within Each Group, '+d.childYear+'</h4><div class="dd-tablewrap"><table class="dd-table dd-race"><thead>'+raceHead+'</thead><tbody>'+raceRows+'</tbody></table></div></section>');
  var detailHtml=detail.length?'<details class="srcfold dd-detailfold" open><summary>Tables by type, Publication Year '+d.year+'</summary><div class="dd-detailblock"><div class="dd-legend"><span><span class="dd-sw s"></span> '+focusState+'</span><span><span class="dd-sw n"></span> National</span></div>'+detail.join('')+'<div class="dd-src">Source: U.S. Department of Education, Office of Special Education Programs, IDEA Section 618 and published Part B state tables for '+focusState+', Publication Year '+d.year+'. N/A means not available. # means a non-zero value rounded to zero.</div></div></details>':'';
- box.innerHTML='<div class="card dd-card"><div class="dd-banner"><div><h3 style="margin:0">Additional Part B Measures, Publication Year '+d.year+'</h3></div></div>'+chips+(vizHtml?'<div class="dd-visualgrid">'+vizHtml+'</div>':'')+detailHtml+'</div>';
+ box.innerHTML='<div class="card dd-card"><div class="dd-banner"><div><h3 style="margin:0">Published Part B Measures, '+focusState+' vs. the Nation</h3></div></div>'+chips+(vizHtml?'<div class="dd-visualgrid">'+vizHtml+'</div>':'')+detailHtml+'</div>';
  if(vizHtml){if(!hasByCat&&hasEnv)ddVizMode='environment';else if(hasByCat&&ddVizMode==='environment'&&!hasEnv)ddVizMode='identification';setupOfficialDisplayViz(ddVizMode);}else{try{Chart.getChart('officialDisplayChart')?.destroy();}catch(e){}}
  try{syncStateViewMode();}catch(e){}
 }
@@ -13041,7 +13045,7 @@ function renderOfficialDisplayViz(mode){
  }
  if(wrap)wrap.hidden=false;
  var title=document.getElementById('officialDisplayChartTitle');
- if(title)title.textContent=(isEnv?'Educational Environment, IDEA Part B Ages 5–21':'Identification by Primary Disability Category, IDEA Part B Ages 3–21')+', '+focusState+' versus the nation, Publication Year '+d.year;
+ if(title)title.textContent=(isEnv?'By Educational Environment, IDEA Part B Ages 5–21':'By Primary Disability Category, IDEA Part B Ages 3–21')+' · Publication Year '+d.year;
  var note=document.getElementById('officialDisplayChartNote');
  if(note)note.textContent='Published Part B measures for '+focusState+', Publication Year '+d.year+'. Shows the six largest percentage-point differences from the national value.';
  var max=Math.max(2,Math.ceil(Math.max.apply(null,rows.map(function(row){return Math.abs(row.diff);}))*1.1));
@@ -13661,7 +13665,7 @@ function syncStateViewMode(){
  document.body.classList.toggle('snapshot-mode',!adv);
  document.querySelectorAll('[data-state-mode]').forEach(function(b){var on=b.dataset.stateMode===stateViewMode;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});
  var modeMsg=adv?'Advanced':'Snapshot';['stateModeText','globalModeText'].forEach(function(id){var txt=document.getElementById(id);if(txt)txt.textContent=modeMsg;});
- document.querySelectorAll('#stateCompareFold,#st-table,.dd-detailfold').forEach(function(d){if(d&&'open' in d)d.open=true;});
+ document.querySelectorAll('#stateCompareFold,.dd-detailfold').forEach(function(d){if(d&&'open' in d)d.open=true;});
  document.querySelectorAll('.view details.notesfold,.view details.srcfold').forEach(function(d){d.classList.toggle('adv-detail-hidden',!adv);if(!adv&&'open' in d)d.open=false;});
  document.querySelectorAll('.view .supnote,.view .mini-source,.view .fold-note').forEach(function(el){el.classList.toggle('adv-detail-hidden',!adv);});
 }
@@ -13938,14 +13942,13 @@ function buildTrendsOverview(){
       var h2=document.getElementById('trends')||view.querySelector('.section-title');
       var html=`
 <section class="trends-overview" id="trendsOverview">
-  <p class="home-about">The Office of Special Education Programs (OSEP), within the Office of Special Education and Rehabilitative Services (OSERS), is dedicated to improving results for infants, toddlers, children, and youth with disabilities, ages birth through 21, by providing leadership and financial support to assist States/entities, local districts, and programs. Section&nbsp;618 of IDEA requires that each State/entity submit data about the infants and toddlers, birth through age 2, who receive early intervention services under Part&nbsp;C of IDEA, and students with disabilities, ages 3 through 21, who receive special education and related services under Part&nbsp;B of IDEA.</p>
   <details class="lead-fold"><summary>About this page</summary>
   <p class="viewlead" data-folded="1">A 50-year view of how special education has grown and changed across the United States. These national charts follow the number of children and students with disabilities served under IDEA, the share of all students they represent, the primary disability categories reported, and the educational environments where students spend the school day, from School Year 1976–77 through 2024–25. The figures cover the 50 States and the District of Columbia, and come from the IDEA Section&nbsp;618 data that each State and entity reports every year to the Office of Special Education Programs, together with the National Center for Education Statistics (NCES) Digest of Education Statistics for the historical series. Use the section tabs to move between the national snapshot, the trend over time, each category's trend, and category shares; open Explore for a single disability category or State, or Collections for every Section&nbsp;618 data file.</p>
   </details>
   <div class="snapshot-stats">
-    <div class="snap-stat"><span class="snap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11v4c0 1.1 2.2 2 5 2s5-.9 5-2v-4"/><path d="M21 9v4"/></svg></span><div class="snap-frac">1 in 7</div><div class="snap-desc">students in U.S. public schools received special education and related services under IDEA (ages 3–21).</div></div>
+    <div class="snap-stat"><span class="snap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="3.2"/><path d="M22 19v-1a4 4 0 0 0-3-3.87"/><path d="M16 4.13a4 4 0 0 1 0 7.75"/></svg></span><div class="snap-frac">1 in 7</div><div class="snap-desc">students in U.S. public schools received special education and related services under IDEA (ages 3–21).</div></div>
     <div class="snap-stat"><span class="snap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/><path d="M3 21h18"/></svg></span><div class="snap-frac">2 in 3</div><div class="snap-desc">students with disabilities spent 80% or more of the school day in general education classrooms.</div></div>
-    <div class="snap-stat"><span class="snap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="M9 13.5L7.5 21 12 18l4.5 3-1.5-7.5"/></svg></span><div class="snap-frac">3 in 4</div><div class="snap-desc">students with disabilities, ages 14–21, who left school did so with a regular high school diploma.</div></div>
+    <div class="snap-stat"><span class="snap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11v4c0 1.1 2.2 2 5 2s5-.9 5-2v-4"/><path d="M21 9v4"/></svg></span><div class="snap-frac">3 in 4</div><div class="snap-desc">students with disabilities, ages 14–21, who left school did so with a regular high school diploma.</div></div>
   </div>
   <div class="kpis" id="kpis"></div>
   <div class="card fig">
