@@ -10304,11 +10304,11 @@ body.dark .view[data-view="explorer"] .explorer-head.compact-export-head .exp-ex
   color:#0f3a5f!important;
 }
 .view[data-view="states"] .adv-head{
-  padding:10px 12px!important;
-  background:#eef7ff!important;
-  border:1px solid #c6deef!important;
-  border-radius:10px!important;
-  display:inline-block!important;
+  padding:6px 0!important;
+  background:transparent!important;
+  border:none!important;
+  border-radius:0!important;
+  display:block!important;
 }
 .view[data-view="states"] .state-profile-grid{
   display:grid!important;
@@ -10378,10 +10378,10 @@ body.dark .view[data-view="explorer"] .explorer-head.compact-export-head .exp-ex
   font-size:1.08rem!important;
   font-weight:950!important;
   color:#0f3a5f!important;
-  background:#eef7ff!important;
-  border:1px solid #c6deef!important;
-  border-radius:10px!important;
-  padding:10px 12px!important;
+  background:transparent!important;
+  border:none!important;
+  border-radius:0!important;
+  padding:8px 0!important;
   margin-bottom:12px!important;
 }
 .view[data-view="states"] .fold-note{
@@ -11117,6 +11117,22 @@ body.dark .card .note,body.dark .card.fig .note{background:transparent!important
 .srpart:first-child{margin-top:2px}
 .srparthd{font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#0f3a5f;padding:0 0 7px;border-bottom:2px solid #e6d84a;margin:0 0 12px}
 body.dark .srparthd{color:#cfe3f5;border-bottom-color:#c9a93a}
+/* ============================================================
+   Stop stray blue tints (2026-06-22): surfaces, titles, tabs,
+   summaries, and chips are white or neutral gray. Only
+   functional accents (active tabs, bar fills, table headers,
+   swatches) keep their color.
+   ============================================================ */
+body:not(.dark) .view[data-view="states"] nav.state-page-nav{background:#ffffff!important}
+body:not(.dark) details>summary{background-color:transparent!important}
+body:not(.dark) details.card>summary,body:not(.dark) .state-morefold>summary,body:not(.dark) .collection-data-card>summary,body:not(.dark) .collection-graphs-card>summary{background:#ffffff!important}
+body:not(.dark) .yearchips span,body:not(.dark) .yearchips .chip,body:not(.dark) .chip,body:not(.dark) .dd-chip{background:#f3f3f1!important;border-color:#e3e3de!important;color:#33415c!important}
+body:not(.dark) .dd-track,body:not(.dark) .benchtrack,body:not(.dark) .spp-track,body:not(.dark) .track{background:#ebecee!important}
+body:not(.dark) #stateTable tr.sel,body:not(.dark) tr.sel{background:#f5f5f2!important}
+/* titles never carry a tinted background */
+body:not(.dark) .section-title,body:not(.dark) .state-section-head,body:not(.dark) .state-subsection-head,body:not(.dark) .srgrouphd,body:not(.dark) .adv-head,body:not(.dark) #stateMeasureTitle,body:not(.dark) #statePanelTitle,body:not(.dark) #stateRptTitle{background:transparent!important}
+body:not(.dark) .statline div{background:#eeeeec!important}
+body:not(.dark) .collection-card .cc-cta{background:transparent!important}
 /* SPP indicator tiles + KPI tiles: white with their normal borders */
 body:not(.dark) .spp-tile,body:not(.dark) .snap-stat{background:#ffffff!important}
 
@@ -11388,7 +11404,7 @@ body:not(.dark) #explorer-controls,body:not(.dark) #compare-controls,body:not(.d
   </div>
 </div>
 
-<nav class="state-page-nav" aria-label="State Snapshot sections"><span>Sections</span><a href="#stateRankBanner">Snapshot</a><a href="#stateMapSection">Map</a><a href="#stateProfile">Section 618</a><a href="#stateDeterminations">SPP/APR</a><a href="#stateAdvancedSection">More</a></nav>
+<nav class="state-page-nav" aria-label="State Snapshot sections"><span>Sections</span><a href="#stateRankBanner">Snapshot</a><a href="#stateMapSection">Map</a><a href="#stateProfile">Section 618</a><a href="#stateDeterminations">SPP/APR</a></nav>
 <div class="rankbanner state-rank-banner" id="stateRankBanner" data-drill-group="states" data-drill-panel="profile" aria-live="polite"></div>
 <div class="snapshot-determinations" id="snapshotDeterminations" data-drill-group="states" data-drill-panel="profile" aria-live="polite"></div>
 <details class="srcfold state-scope"><summary>Scope</summary><div class="srcbody">The U.S. map and the State rankings cover the 50 States and the District of Columbia. Additional IDEA reporting entities, Puerto Rico, the Bureau of Indian Education, the outlying areas, and the freely associated states, appear in the selector when data are available, but they are shown separately and are not included in the 50 States and DC rankings. Each measure is labeled by collection, IDEA part, age group, and school year.</div></details>
@@ -11432,8 +11448,7 @@ body:not(.dark) #explorer-controls,body:not(.dark) #compare-controls,body:not(.d
     </div>
   </div>
 </div>
-<div class="state-determinations" id="stateDeterminations" aria-live="polite"></div>
-<div class="state-section-head adv-only" id="stateAdvancedSection"><h3>More Measures</h3><details class="srcfold compact"><summary>About this section</summary><div class="srcbody">How this State's published Part&nbsp;B measures compare with the nation, its child-count trend over time, and a sortable table of all States.</div></details></div>
+<div class="state-section-head adv-only" id="stateAdvancedSection"><h3>Trends, comparison &amp; all States</h3><details class="srcfold compact"><summary>About this section</summary><div class="srcbody">How this State's published Part&nbsp;B measures compare with the nation, its child-count trend over time, and a sortable table of all States.</div></details></div>
 <div id="officialDisplay" class="adv-only" data-drill-group="states" data-drill-panel="advanced"></div>
 <div class="grid adv-only" data-drill-group="states" data-drill-panel="advanced">
   <div class="card">
@@ -11451,6 +11466,7 @@ body:not(.dark) #explorer-controls,body:not(.dark) #compare-controls,body:not(.d
     <div class="tablewrap"><table id="stateTable"><thead></thead><tbody></tbody></table></div>
   </details>
 </div>
+<div class="state-determinations" id="stateDeterminations" aria-live="polite"></div>
 
 </div>
 <div class="view" data-view="collections" role="tabpanel" aria-label="Collections">
