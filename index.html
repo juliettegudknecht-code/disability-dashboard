@@ -11783,7 +11783,6 @@ nav.appbar #viewTabs .tab,nav.appbar #viewTabs .navgroup,nav.appbar #viewTabs .n
 <h2 class="section-title" id="gpra">Part B GPRA Performance Analysis</h2>
 <p class="viewlead">The official <abbr title="Government Performance and Results Act">GPRA</abbr> performance measures for the <strong>IDEA Part&nbsp;B Grants to States</strong> program, drawn from the U.S. Department of Education's Fiscal Year 2025 Budget Request (Congressional Justification). Each measure pairs the Department's annual <strong>target</strong> with the <strong>actual</strong> result reported. Every figure shown is taken directly from that document; where a result has not been reported it is shown as a dash (—), and the upcoming year's result is marked <strong>TBD</strong> rather than estimated.</p>
 <div class="gpra-goalbox" id="gpraGoal"></div>
-<div class="gpra-takeaways" id="gpraTakeaways"></div>
 <div class="tbl-toggle gpra-viewtoggle" id="gpraViewToggle" role="group" aria-label="Show GPRA measures as tables or charts">
   <button type="button" data-gv="table" class="on" aria-pressed="true">Tables</button>
   <button type="button" data-gv="chart" aria-pressed="false">Charts</button>
@@ -14344,8 +14343,6 @@ function _setGpraView(v){
 function renderGPRA(){
  var goal=document.getElementById('gpraGoal');
  if(goal)goal.innerHTML='<div class="ey">Program goal</div><p>'+GPRA_DATA.goal+'</p><div class="ey">Objective</div><p>'+GPRA_DATA.objective+'</p>';
- var tk=document.getElementById('gpraTakeaways');
- if(tk)tk.innerHTML='<details class="gpra-takeaways-fold" open><summary><span class="gpra-tk-title">What the numbers show</span></summary><ul>'+GPRA_DATA.takeaways.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul></details>';
  var body=document.getElementById('gpraBody'); if(!body)return;
  try{if(typeof Chart!=='undefined')body.querySelectorAll('canvas').forEach(function(cv){var c=Chart.getChart(cv.id);if(c)c.destroy();});}catch(e){}
  body.innerHTML=GPRA_DATA.groups.map(function(g){
