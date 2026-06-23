@@ -5315,7 +5315,15 @@ body.dark .gpra-takeaways{background:#11192284;border-color:#26323f}
 .gpra-group-head h3{margin:0;font-size:1.1rem;color:var(--ink)}
 .gpra-group-head p{margin:3px 0 0;font-size:.85rem;color:var(--muted);line-height:1.45;max-width:80ch}
 .gpra-card .ey{font-size:.72rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
-.gpra-card h3{margin:0 0 4px;font-size:1rem;line-height:1.25}
+.gpra-card h3{margin:0 0 6px;font-size:1rem;line-height:1.25;padding-right:84px}
+.gpra-dir{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 9px;border-radius:999px;margin:0 0 9px}
+.gpra-dir:before{content:"";width:8px;height:8px;border-radius:50%}
+.gpra-dir.is-good{background:#e7f3ec;color:#15633a;border:1px solid #c4e3cf}
+.gpra-dir.is-good:before{background:#1c7b37}
+.gpra-dir.is-watch{background:#fdeee9;color:#a23c25;border:1px solid #f3cabd}
+.gpra-dir.is-watch:before{background:#df5e44}
+body.dark .gpra-dir.is-good{background:#13311f;color:#8fd3a5;border-color:#2c5a3a}
+body.dark .gpra-dir.is-watch{background:#3a1f17;color:#f0a78e;border-color:#5a3327}
 .gpra-card .note{font-size:.82rem;color:var(--muted);line-height:1.45;margin:0 0 10px}
 .gpra-card .canvas-box{height:260px}
 .gpra-tablewrap .dd-table{font-size:.86rem}
@@ -11335,6 +11343,24 @@ body:not(.dark):not(.hc) #viewTabs .tab.active::after{display:none!important}
 /* explorer control panel + container -> white (ID-level to beat #explorer-controls) */
 body:not(.dark) .explorer-modern,body:not(.dark) .exp-bar,body:not(.dark) .explorer-control-panel,
 body:not(.dark) #explorer-controls,body:not(.dark) #compare-controls,body:not(.dark) #statePick{background:#ffffff!important}
+/* ============================================================
+   Keep Home + Explore packed in the LEFT corner (no stretching
+   to fill the row). Overrides the grid-stretch tab layout.
+   ============================================================ */
+nav.appbar .tabs,nav.appbar #viewTabs{
+  display:flex!important;
+  flex-wrap:wrap;
+  justify-content:flex-start!important;
+  grid-template-columns:none!important;
+  gap:4px 6px!important;
+}
+nav.appbar #viewTabs .tab,nav.appbar #viewTabs .navgroup,nav.appbar #viewTabs .navtrigger{
+  width:auto!important;
+  flex:0 0 auto!important;
+  text-align:left;
+}
+/* the options/scope bar now only carries the selection breadcrumb; hide it when empty */
+.scopebar[hidden]{display:none!important}
 
 </style>
 </head>
@@ -11371,7 +11397,7 @@ body:not(.dark) #explorer-controls,body:not(.dark) #compare-controls,body:not(.d
       <div class="navgroup">
         <button class="tab navtrigger" aria-haspopup="true" aria-expanded="false">Explore <span class="caret">▾</span></button>
         <div class="navmenu" role="menu" aria-label="Explore views">
-          <button class="navitem" role="menuitem" data-view="explorer">Disability Explorer</button>
+          <!-- Disability Explorer temporarily removed from nav (view + code kept intact). -->
           <button class="navitem" role="menuitem" data-view="states">States</button>
           <button class="navitem" role="menuitem" data-view="collections">Collections</button>
           <button class="navitem" role="menuitem" data-view="tables">Tables</button>
@@ -11397,17 +11423,8 @@ body:not(.dark) #explorer-controls,body:not(.dark) #compare-controls,body:not(.d
       <button class="a11ybtn" id="a11yBtn" aria-haspopup="dialog" aria-expanded="false">Access</button>
     </div>
   </div>
-  <div class="scopebar" id="optionsBar">
+  <div class="scopebar" id="optionsBar" hidden>
     <span id="navSelection" class="nav-selection" hidden></span>
-    <button type="button" class="options-toggle" id="optionsToggle" aria-expanded="false" aria-controls="optionsPanel">Options</button>
-    <div class="scope-controls" id="optionsPanel" aria-label="Data tool display options" hidden>
-      <span class="scope-label">Options</span>
-      <div class="scope-group" aria-label="Reporting scope">
-        <span class="scope-k">Reporting scope</span>
-        <button class="scopetoggle" id="scopeBtn" aria-pressed="false" title="Adds Puerto Rico, the Bureau of Indian Education, outlying areas, and freely associated states to the national IDEA Part B child-count total only.">Part B scope: 50 states + DC</button>
-        <span class="scope-help">Affects the national Part B child-count total only. Breakdowns remain 50 states + DC.</span>
-      </div>
-    </div>
   </div>
 </nav>
 <div class="a11ypanel" id="a11yPanel" role="dialog" aria-label="Accessibility options">
@@ -11658,9 +11675,9 @@ body:not(.dark) #explorer-controls,body:not(.dark) #compare-controls,body:not(.d
 <p class="viewlead">The official <abbr title="Government Performance and Results Act">GPRA</abbr> performance measures for the IDEA Part&nbsp;B Grants to States program, drawn from the U.S. Department of Education's Fiscal Year 2025 Budget Request (Congressional Justification). Each measure pairs the Department's annual <strong>target</strong> with the <strong>actual</strong> result reported, so you can see where outcomes for students with disabilities are tracking against the program's goals.</p>
 <div class="gpra-goalbox" id="gpraGoal"></div>
 <div class="gpra-takeaways" id="gpraTakeaways"></div>
-<div class="tbl-toggle gpra-viewtoggle" id="gpraViewToggle" role="group" aria-label="Show GPRA measures as charts or tables">
-  <button type="button" data-gv="chart" class="on" aria-pressed="true">Charts</button>
-  <button type="button" data-gv="table" aria-pressed="false">Tables</button>
+<div class="tbl-toggle gpra-viewtoggle" id="gpraViewToggle" role="group" aria-label="Show GPRA measures as tables or charts">
+  <button type="button" data-gv="table" class="on" aria-pressed="true">Tables</button>
+  <button type="button" data-gv="chart" aria-pressed="false">Charts</button>
 </div>
 <div id="gpraBody"></div>
 <div class="exp-src">Source: U.S. Department of Education, <em>Fiscal Year 2025 Budget Request, Special Education</em>, State Grants: Grants to States, Program Performance Information (printed pp.&nbsp;28–32). NAEP "students with disabilities" includes any student a school classifies as having a disability, including those served under a Section&nbsp;504 plan. A dash (—) means data were not yet available when the budget was published; State-assessment results for 2020 were waived due to the COVID-19 pandemic.</div>
@@ -13452,6 +13469,7 @@ function exportSparksPNG(){
 function injectTools(){
  document.querySelectorAll('.card canvas').forEach(cv=>{
   const card=cv.closest('.card');if(!card||card.querySelector('.cardtools'))return;
+  if(card.classList.contains('tbl-card'))return; // tables have their own Visualize toggle + CSV controls; avoid overlapping the Visualize button
   const bar=document.createElement('div');bar.className='cardtools';
   bar.innerHTML='<button title="Download PNG" aria-label="Download chart as PNG">PNG</button><button title="Download CSV" aria-label="Download chart data as CSV">CSV</button>';
   bar.children[0].onclick=()=>exportPNG(cv.id);bar.children[1].onclick=()=>exportCSV(cv.id);
@@ -13666,7 +13684,8 @@ var TOGGLE_COLL={ccee:1,exitB:1,discB:1,pcSettings:1,pcExit:1};
 var TBL_B_US='US, Outlying Areas, and Freely Associated States';
 var TBL_C_US='US and Outlying Areas';
 var TBL_FI={cnt3_21:0,totalSA:1,reg80:2,reg4079:3,reglt40:4,sepclass:5,sepschool:6,resfac:7,homebound:8,correct:9,private:10,female:11,male:12,elYes:13,elNo:14,aian:15,asian:16,black:17,hisp:18,nhpi:19,two:20,white:21};
-var TBL_COLORS=['#1f6feb','#2e8540','#8250df','#cc5a33','#0b7285','#b5179e'];
+/* OSEP "50 Years of IDEA" Fast Facts palette: teal-blue, forest green, coral, slate, gold, navy. */
+var TBL_COLORS=['#227aa7','#1c7b37','#df5e44','#345065','#c79a1f','#12303b'];
 var TBL_USALL='__USALL__'; /* sentinel: "US, Outlying Areas, and Freely Associated States" national total */
 function _tblPrimary(){ if(tablesPrimary===TBL_USALL)return TBL_USALL; if(tablesPrimary&&CCEE.data[tablesPrimary])return tablesPrimary; return (typeof focusState!=='undefined'&&CCEE.data[focusState])?focusState:'New York';}
 function _tblStates(){var p=_tblPrimary(),arr=[p];tablesExtra.forEach(function(s){if(s!==p&&CCEE.data[s]&&arr.indexOf(s)<0)arr.push(s);});return arr.slice(0,6);}
@@ -13731,7 +13750,8 @@ function _specCard(spec){
 }
 /* ===== Data Tables: per-table "Visualize" charts ===== */
 var _VIZ={}; var _vizDelegated=false;
-var TBL_PIE_COLORS=['#1f6feb','#2e8540','#8250df','#cc5a33','#0b7285','#b5179e','#d6a400','#5a8f3c','#3a6ea5','#a23b72','#0f8b8d','#c1502e','#6b4fbb','#2f7d54'];
+/* OSEP Fast Facts palette extended with tints/shades for many pie slices. */
+var TBL_PIE_COLORS=['#227aa7','#1c7b37','#df5e44','#ebd24a','#345065','#5aa0c4','#6cb389','#12303b','#e89177','#9c7c2a','#2a8f8a','#b8472f','#7fa9c9','#cbeeeb'];
 function _vizNum(spec,col,rk,mi){var t=_stripHtml(spec.metrics[mi].cell(col,rk)).trim();if(!t||t==='N/A')return null;var neg=/^-/.test(t);var n=parseFloat(t.replace(/[^0-9.]/g,''));if(isNaN(n))return null;return neg?-n:n;}
 function _vizCols(spec){var cols=spec.states.slice();if(spec.usKey&&cols.indexOf(spec.usKey)<0)cols.push(spec.usKey);return cols;}
 function _vizColLabel(spec,c){return (c==='__US__'||c===TBL_USALL)?TBL_B_US:c;}
@@ -13752,7 +13772,7 @@ function _renderVizChart(sid){
   var dataRows=spec.rows.filter(function(r){return !r.isTotal;});if(!dataRows.length)dataRows=spec.rows;
   if(!pieType){
    labels=dataRows.map(function(r){return _stripHtml(r.label);});
-   datasets=cols.map(function(c){var color=_tblColor(c,spec.usKey);return {label:_vizColLabel(spec,c),data:dataRows.map(function(r){return _vizNum(spec,c,r.key,0);}),backgroundColor:shade(color,.85),borderColor:color,borderWidth:1,borderRadius:4,maxBarThickness:34};});
+   datasets=cols.map(function(c,ci){var color=TBL_COLORS[ci%TBL_COLORS.length];return {label:_vizColLabel(spec,c),data:dataRows.map(function(r){return _vizNum(spec,c,r.key,0);}),backgroundColor:shade(color,.85),borderColor:color,borderWidth:1,borderRadius:4,maxBarThickness:34};});
    noteTxt=spec.cap;
   }else{
    var pc=cols[0];labels=dataRows.map(function(r){return _stripHtml(r.label);});
@@ -13764,7 +13784,7 @@ function _renderVizChart(sid){
   var fr=spec.rows[st.rowIdx];var frKey=fr.key,frLabel=_stripHtml(fr.label);
   if(!pieType){
    labels=cms.map(function(x){return _stripHtml(x.m.label);});
-   datasets=cols.map(function(c){var color=_tblColor(c,spec.usKey);return {label:_vizColLabel(spec,c),data:cms.map(function(x){return _vizNum(spec,c,frKey,x.i);}),backgroundColor:shade(color,.85),borderColor:color,borderWidth:1,borderRadius:4,maxBarThickness:34};});
+   datasets=cols.map(function(c,ci){var color=TBL_COLORS[ci%TBL_COLORS.length];return {label:_vizColLabel(spec,c),data:cms.map(function(x){return _vizNum(spec,c,frKey,x.i);}),backgroundColor:shade(color,.85),borderColor:color,borderWidth:1,borderRadius:4,maxBarThickness:34};});
    noteTxt=frLabel+' · '+(pct?'percent':'count');
   }else{
    var pc2=cols[0];labels=cms.map(function(x){return _stripHtml(x.m.label);});
@@ -14045,14 +14065,14 @@ var GPRA_DATA={
   'Postsecondary enrollment or employment (77% in 2021) and OSEP’s monitoring response time (314 days in 2022 vs. a 180-day target) both fall short.'
  ]
 };
-var gpraView='chart',_gpraInit=false;
+var gpraView='table',_gpraInit=false;
 function _gpraFmt(v,unit){ if(v==null)return '—'; var n=(unit==='days')?Math.round(v).toLocaleString():(Math.round(v*100)/100); return unit==='%'?n+'%':(unit==='pts'?n+' pts':(unit==='days'?n+' days':''+n)); }
 function _gpraCard(group,m){
  var rowsHtml=m.rows.map(function(r){return '<tr><td>'+r[0]+'</td><td class="dd-c">'+_gpraFmt(r[1],m.unit)+'</td><td class="dd-c">'+_gpraFmt(r[2],m.unit)+'</td></tr>';}).join('');
  var unitLabel=m.unit==='days'?'days':(m.unit==='pts'?'percentage points':'percent');
  return '<div class="gpra-card card" data-gpra-card>'
- +'<div class="ey">'+(m.goodHigh?'Higher is better':'Lower is better')+'</div>'
  +'<h3>'+m.title+'</h3>'
+ +'<div class="gpra-dir '+(m.goodHigh?'is-good':'is-watch')+'">'+(m.goodHigh?'Higher is better':'Lower is better')+'</div>'
  +'<div class="note">'+m.desc+' Shown in '+unitLabel+'.</div>'
  +'<div class="gpra-chartwrap"><div class="canvas-box"><canvas id="gpra_'+m.id+'" aria-label="Target vs. actual chart for '+m.title+'"></canvas></div></div>'
  +'<div class="gpra-tablewrap"><div class="dd-tablewrap"><table class="dd-table"><thead><tr><th>Year</th><th class="dd-c">Target</th><th class="dd-c">Actual</th></tr></thead><tbody>'+rowsHtml+'</tbody></table></div></div>'
@@ -14062,9 +14082,9 @@ function _gpraChart(m){
  var el=document.getElementById('gpra_'+m.id); if(!el||typeof Chart==='undefined')return;
  var old=Chart.getChart(el.id); if(old)old.destroy();
  var labels=m.rows.map(function(r){return ''+r[0];});
- var col=m.goodHigh?'#1f6feb':'#cc5a33';
+ var col=m.goodHigh?'#1c7b37':'#df5e44';
  var cfg={type:'line',data:{labels:labels,datasets:[
-   {label:'Target',data:m.rows.map(function(r){return r[1];}),borderColor:'#9aa6b2',borderDash:[6,4],borderWidth:2,pointRadius:0,pointHitRadius:8,spanGaps:false,fill:false,tension:0},
+   {label:'Target',data:m.rows.map(function(r){return r[1];}),borderColor:'#8aa0b0',borderDash:[6,4],borderWidth:2,pointRadius:0,pointHitRadius:8,spanGaps:false,fill:false,tension:0},
    {label:'Actual',data:m.rows.map(function(r){return r[2];}),borderColor:col,backgroundColor:shade(col,.14),borderWidth:3,pointRadius:4,pointHoverRadius:6,spanGaps:false,fill:false,tension:.25}
  ]},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},
    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:12,font:{size:11,weight:'700'}}},
@@ -14488,7 +14508,9 @@ function setupPrototype(){
   if(scopeBtn)scopeBtn.addEventListener('click',()=>{var on=!document.body.classList.contains('scope-all');toggleScope(on);try{lsSet('idea618scope',on?'on':'off');}catch(e){}syncScope();});
   try{new MutationObserver(syncScope).observe(document.body,{attributes:true,attributeFilter:['class']});}catch(e){}
   /* include additional IDEA reporting entities by default wherever the data supports it (national Part B total) */
-  try{ if(localStorage.getItem('idea618scope')!=='off') toggleScope(true); }catch(e){ try{toggleScope(true);}catch(_){} }
+  // Reporting scope is always on: additional Part B entities are always included in the national total.
+  try{ toggleScope(true); }catch(e){}
+  try{ lsSet('idea618scope','on'); }catch(e){}
   syncScope();
   // state-page Snapshot / Advanced view toggle
   try{initStateView();}catch(e){}
@@ -14615,6 +14637,7 @@ function updateNavSelection(){
     else if(v==='explorer'){ lab='Disability'; val=(typeof expCat!=='undefined'?expCat:'')||''; }
     if(val){ el.hidden=false; el.innerHTML='<span class="ns-k">Selection</span><span class="ns-lab">'+lab+'</span><b class="ns-v"></b>'; el.querySelector('.ns-v').textContent=val; }
     else { el.hidden=true; el.innerHTML=''; }
+    var ob=document.getElementById('optionsBar'); if(ob) ob.hidden=el.hidden; // bar now only carries the selection breadcrumb
   }catch(e){}
 }
 var _stabActive='';
