@@ -11742,7 +11742,7 @@ nav.appbar #viewTabs .tab,nav.appbar #viewTabs .navgroup,nav.appbar #viewTabs .n
 </div>
 <div class="view" data-view="tables" role="tabpanel" aria-label="Data Tables">
 <h2 class="section-title" id="tables">Data Tables</h2>
-<p class="viewlead">Exact figures from the official IDEA Section 618 collections. Pick one or more collections, then compare States side by side or compare disability categories within a State. Switch any table between counts and percentages where it applies, turn it into a chart with the Visualize button, and download your current selection or every State as a CSV. Suppressed and unavailable cells keep the source files' codes (see the key below), and the school year differs by collection and is labeled on every table.</p>
+<p class="viewlead">Exact figures from the official IDEA Section 618 collections. Pick one or more collections, choose whether to compare States or disability categories, then add what you want to see side by side. Any table can switch between counts and percentages, turn into a chart with <strong>Visualize</strong>, or download as a CSV.</p>
 <div class="tables-collrail" role="tablist" aria-label="Data collections">
   <div class="tcr-group"><span class="tcr-label">Part B</span><button type="button" class="tcr-pill on" data-coll="ccee">Child Count &amp; Environments</button><button type="button" class="tcr-pill" data-coll="exitB">Exiting</button><button type="button" class="tcr-pill" data-coll="discB">Discipline</button><button type="button" class="tcr-pill" data-coll="persB">Personnel</button><button type="button" class="tcr-pill" data-coll="asmtB">Assessment</button></div>
   <span class="tcr-sep" aria-hidden="true"></span>
@@ -13457,36 +13457,31 @@ function _chartNote(id){const c=Chart.getChart(id);const card=c&&c.canvas.closes
 function _wrapLines(ctx,text,font,maxW){ctx.font=font;const ws=(text||'').split(/\s+/).filter(Boolean);const out=[];let ln='';
  for(const w of ws){const t=ln?ln+' '+w:w;if(ctx.measureText(t).width>maxW&&ln){out.push(ln);ln=w;}else ln=t;}if(ln)out.push(ln);return out;}
 function _captionedPNG(srcCanvas,title,note,filename,source){
- const cw=srcCanvas.width||900,pad=Math.round(cw*0.045),W=cw+pad*2,FONT='"Source Sans 3", Arial';
- const fEy=Math.max(11,Math.round(cw*0.0155)),fT=Math.max(18,Math.round(cw*0.030)),fN=Math.max(12,Math.round(cw*0.0195)),fS=Math.max(11,Math.round(cw*0.0155));
- const lhT=fT*1.24,lhN=fN*1.4,lhS=fS*1.34,maxW=W-2*pad;
- const m=document.createElement('canvas').getContext('2d');
- const tl=_wrapLines(m,title,'800 '+fT+'px '+FONT,maxW);
- const nl=note?_wrapLines(m,note,'400 '+fN+'px '+FONT,maxW):[];
- const sl=_wrapLines(m,source||SRC_NOTE,'600 '+fS+'px '+FONT,maxW);
- const headH=Math.round(pad*0.85)+fEy+Math.round(fT*0.55)+tl.length*lhT+Math.round(pad*0.7);
- const noteH=nl.length?(Math.round(pad*0.55)+nl.length*lhN):Math.round(pad*0.35);
- const chartTop=headH+noteH;
- const footH=Math.round(pad*0.55)+sl.length*lhS+Math.round(fS*1.7)+Math.round(pad*0.6);
- const cv=document.createElement('canvas');cv.width=W;cv.height=chartTop+srcCanvas.height+footH;
- const ctx=cv.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,cv.width,cv.height);
- ctx.fillStyle='#13354e';ctx.fillRect(0,0,W,headH);
- ctx.fillStyle='#edcf36';ctx.fillRect(0,headH-4,W,4);
- ctx.textBaseline='alphabetic';
- let y=Math.round(pad*0.85)+fEy;
- ctx.fillStyle='#edcf36';ctx.font='800 '+fEy+'px '+FONT;ctx.fillText('IDEA SECTION 618  \u00b7  DATA TOOL',pad,y);
- y+=Math.round(fT*0.55)+fT;
- ctx.fillStyle='#ffffff';ctx.font='800 '+fT+'px '+FONT;tl.forEach((l,i)=>ctx.fillText(l,pad,y+i*lhT));
- if(nl.length){let ny=headH+Math.round(pad*0.55)+fN;ctx.fillStyle='#3a4658';ctx.font='400 '+fN+'px '+FONT;nl.forEach((l,i)=>ctx.fillText(l,pad,ny+i*lhN));}
- ctx.drawImage(srcCanvas,pad,chartTop);
- const fy0=chartTop+srcCanvas.height+Math.round(pad*0.55);
- ctx.strokeStyle='#e3e7ee';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,fy0);ctx.lineTo(W-pad,fy0);ctx.stroke();
- let yy=fy0+Math.round(pad*0.55)+fS;ctx.fillStyle='#6a7382';ctx.font='600 '+fS+'px '+FONT;
- sl.forEach(l=>{ctx.fillText(l,pad,yy);yy+=lhS;});
- const d=new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
- ctx.fillStyle='#9aa3b0';ctx.font='600 '+fS+'px '+FONT;ctx.fillText('Exported · '+d,pad,yy+Math.round(fS*0.4));
- ctx.strokeStyle='#dfe1e6';ctx.lineWidth=2;ctx.strokeRect(1,1,cv.width-2,cv.height-2);
- const a=document.createElement('a');a.href=cv.toDataURL('image/png',1);a.download=filename;a.click();
+ var cw=srcCanvas.width||900,pad=Math.round(cw*0.045),W=cw+pad*2,FONT='"Source Sans 3", Arial';
+ var fT=Math.max(18,Math.round(cw*0.030)),fN=Math.max(12,Math.round(cw*0.018)),fS=Math.max(10,Math.round(cw*0.0135));
+ var lhT=fT*1.22,lhN=fN*1.35,lhS=fS*1.32,maxW=W-2*pad;
+ var m=document.createElement('canvas').getContext('2d');
+ var tl=_wrapLines(m,title,'800 '+fT+'px '+FONT,maxW);
+ var nl=note?_wrapLines(m,note,'600 '+fN+'px '+FONT,maxW):[];
+ var sl=source?_wrapLines(m,source,'400 '+fS+'px '+FONT,maxW):[];
+ var subGap=nl.length?Math.round(fN*0.6):0, ruleGap=Math.round(pad*0.5);
+ var headH=pad+tl.length*lhT+subGap+nl.length*lhN+ruleGap;
+ var footH=sl.length?(Math.round(pad*0.5)+sl.length*lhS+Math.round(pad*0.55)):Math.round(pad*0.5);
+ var cv=document.createElement('canvas');cv.width=W;cv.height=Math.round(headH)+srcCanvas.height+Math.round(footH);
+ var ctx=cv.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,cv.width,cv.height);
+ ctx.textBaseline='top';
+ var y=pad;
+ ctx.fillStyle='#13354e';ctx.font='800 '+fT+'px '+FONT;tl.forEach(function(l){ctx.fillText(l,pad,y);y+=lhT;});
+ if(nl.length){y+=subGap;ctx.fillStyle='#5a6675';ctx.font='600 '+fN+'px '+FONT;nl.forEach(function(l){ctx.fillText(l,pad,y);y+=lhN;});}
+ var ry=Math.round(headH)-Math.round(ruleGap*0.55);
+ ctx.strokeStyle='#c79a1f';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(pad,ry);ctx.lineTo(W-pad,ry);ctx.stroke();
+ ctx.drawImage(srcCanvas,pad,Math.round(headH));
+ if(sl.length){
+  var fy=Math.round(headH)+srcCanvas.height+Math.round(pad*0.35);
+  ctx.strokeStyle='#e3e7ee';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,fy);ctx.lineTo(W-pad,fy);ctx.stroke();
+  var yy=fy+Math.round(pad*0.35);ctx.fillStyle='#717b88';ctx.font='400 '+fS+'px '+FONT;sl.forEach(function(l){ctx.fillText(l,pad,yy);yy+=lhS;});
+ }
+ var a=document.createElement('a');a.href=cv.toDataURL('image/png',1);a.download=filename;a.click();
 }
 function exportPNG(id){const c=Chart.getChart(id);if(!c)return;_captionedPNG(c.canvas,_chartTitle(id),_chartNote(id),id+'.png');}
 function exportCSV(id){const c=Chart.getChart(id);if(!c)return;const ds=c.data.datasets;
@@ -13833,7 +13828,7 @@ function _tblMulti(spec){
  return '<div class="'+(spec.scroll?'dd-tablewrap tbl-scroll':'dd-tablewrap')+'"><table class="dd-table"><thead>'+thead+'</thead><tbody>'+body+'</tbody></table></div>';
 }
 function _tblSlug(s){return (''+s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48);}
-function _specCard(spec){
+function _specCard(spec,openFirst){
  var sid='viz_'+_tblSlug(spec.title);
  spec._sid=sid;
  var multi=spec.metrics.length>1;
@@ -13844,7 +13839,7 @@ function _specCard(spec){
  var _vc=_vizCols(spec);var _hasUS=!!spec.usKey&&_vc.some(function(c){return _vizIsUS(spec,c);});var _hasNon=_vc.some(function(c){return !_vizIsUS(spec,c);});
  var usToggle=(_hasUS&&_hasNon)?('<label class="tbl-viz-ustoggle"><input type="checkbox" data-viz-us="'+sid+'"> Include U.S. total</label>'):'';
  var dlBtns='<div class="tbl-viz-dl"><button type="button" class="tbl-viz-dlbtn" data-viz-png="'+sid+'" title="Save this chart as a PNG image">⤓ PNG</button><button type="button" class="tbl-viz-dlbtn" data-viz-csv="'+sid+'" title="Download this chart\'s data as CSV">⤓ CSV</button></div>';
- return '<details class="card tbl-card" data-viz-card="'+sid+'">'
+ return '<details class="card tbl-card"'+(openFirst?' open':'')+' data-viz-card="'+sid+'">'
  +'<summary class="tbl-card-summary"><span class="tbl-card-sum-title">'+spec.title+'</span><span class="tbl-card-sum-pill '+(spec.part==='C'?'partc':'partb')+'">Part '+spec.part+'</span></summary>'
  +'<div class="tbl-card-body">'
  +'<div class="tbl-card-head"><button type="button" class="tbl-viz-btn" data-viz-toggle="'+sid+'" aria-pressed="false"><span class="tbl-viz-ico" aria-hidden="true"></span><span class="tbl-viz-btn-label">Visualize</span></button></div>'
@@ -13881,13 +13876,15 @@ function _syncVizRow(sid){var spec=window._tblSpecs&&window._tblSpecs[sid];if(!s
 function _vizMeta(sid){
  var spec=window._tblSpecs&&window._tblSpecs[sid];
  var title=spec?_stripHtml(spec.title):'Chart';
- var note='',source=SRC_NOTE;
+ var note='',source='';
  if(spec){
   var pct=(tablesMode==='percent'&&!!TOGGLE_COLL[spec._coll]);
-  note='IDEA Part '+spec.part+(spec.year?' · '+spec.year:'')+' · '+(pct?'Percent':'Count');
-  source=COLL_SRC[spec._coll]||SRC_NOTE;
+  note=(spec.year||'')+(spec.year?' · ':'')+(pct?'Percent':'Count');
+  var fs=COLL_SRC[spec._coll]||'';
+  var mm=fs.match(/[“]([^”]+)[”],?\s*([0-9]{4}-[0-9]{2})/);
+  source=mm?('U.S. Department of Education, Office of Special Education Programs. '+mm[1].replace(/,\s*$/,'')+', '+mm[2]+'.'):(COLL_SRC[spec._coll]||SRC_NOTE);
  }
- return {title:title,note:note,source:source,fname:(spec?_tblSlug(spec.title):sid)+'_idea618'};
+ return {title:title,note:note,source:source,fname:(spec?_tblSlug(spec.title):sid)};
 }
 function _vizPNG(sid){var c=Chart.getChart(sid+'_cv');if(!c)return;var m=_vizMeta(sid);_captionedPNG(c.canvas,m.title,m.note,m.fname+'.png',m.source);}
 function _vizCSV(sid){
@@ -14205,7 +14202,7 @@ function renderTablesView(){
   }
   var specs=byCat?CAT_TBL_SPECS[k]():(TBL_SPECS[k]||function(){return [];})();
   specs.forEach(function(sp){sp._coll=k;sp.src=COLL_SRC[k]||sp.src;allSpecs.push(sp);});
-  return '<section class="tables-collsection">'+head+about+specs.map(_specCard).join('')+'</section>';
+  return '<section class="tables-collsection">'+head+about+specs.map(function(sp,si){return _specCard(sp,si===0);}).join('')+'</section>';
  }).join('');
  window._tblSpecs={}; allSpecs.forEach(function(sp){if(sp._sid)window._tblSpecs[sp._sid]=sp;});
  _setupVizDelegation();
