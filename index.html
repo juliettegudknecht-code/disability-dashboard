@@ -4000,6 +4000,8 @@ body.hc nav.appbar .tab.active{
   flex:none;
   margin-left:auto;
 }
+/* keep Export / Dark / Access on one row, never stacked */
+.appbar-actions{display:flex;align-items:center;gap:8px;flex:none;flex-wrap:nowrap}
 @media(max-width:1080px){nav.appbar .ninner{flex-wrap:wrap;height:auto;padding:8px 16px;gap:8px 12px}
   nav.appbar .tabs{order:3;flex-basis:100%;border-top:1px solid var(--line2);padding-top:6px;
     flex-wrap:wrap;overflow-x:visible;row-gap:2px}
@@ -5255,6 +5257,14 @@ body.dark .dd-export:hover{background:#143b5f}
 .view[data-view="tables"] .tables-toolbar select{padding:8px 11px;border:1px solid #c8cdd4;border-radius:8px;font-size:.92rem;background:#fff;min-width:200px;color:var(--ink)}
 body.dark .view[data-view="tables"] .tables-toolbar select{background:#15202c;border-color:#2f3a48;color:#e6edf5}
 .tbl-statefield{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+/* data notes + suppression key (Tables page) */
+.tbl-key{margin:0 0 16px;padding:11px 14px;border:1px solid #e2e6ec;border-left:4px solid #c79a1f;border-radius:10px;background:#fbfaf5;font-size:.82rem;line-height:1.5;color:var(--ink)}
+.tbl-key .tbl-key-lead{display:block;margin-bottom:4px}
+.tbl-key .tbl-key-lead .tbl-key-dash{font-weight:800}
+.tbl-key .supleg{margin:6px 0}
+.tbl-key .tbl-key-note{display:block;margin-top:6px;font-size:.78rem;color:var(--muted)}
+.dd-na{font-weight:700}
+body.dark .tbl-key{background:#1b1c14;border-color:#2c3340;border-left-color:#c79a1f}
 .tbl-toggle{display:inline-flex;border:1px solid #c8cdd4;border-radius:8px;overflow:hidden}
 .tbl-toggle button{border:0;background:#fff;padding:8px 15px;font-size:.85rem;font-weight:700;color:#3a4a5c;cursor:pointer}
 .tbl-toggle button.on{background:#0b4a82;color:#fff}
@@ -8728,6 +8738,7 @@ nav.appbar .search input{
   nav.appbar .appbar-tools{grid-column:1;justify-self:stretch;justify-content:flex-start!important;max-width:100%;order:3}
   nav.appbar .search{order:1;flex:1 1 100%!important;min-width:0!important;max-width:none!important;width:100%}
   .menuwrap,.plainbtn,.themebtn,.a11ybtn{order:2}
+  nav.appbar .appbar-actions{order:2;justify-content:flex-start}
 }
 @media(max-width:520px){
   nav.appbar .ninner{padding:7px 12px!important}
@@ -11459,9 +11470,8 @@ nav.appbar #viewTabs .tab,nav.appbar #viewTabs .navgroup,nav.appbar #viewTabs .n
       <div class="navgroup">
         <button class="tab navtrigger" aria-haspopup="true" aria-expanded="false">Explore <span class="caret">▾</span></button>
         <div class="navmenu" role="menu" aria-label="Explore views">
-          <!-- Disability Explorer temporarily removed from nav (view + code kept intact). -->
+          <!-- Disability Explorer and Collections removed from nav (views + code kept intact, still reachable via #explorer / #collections). -->
           <button class="navitem" role="menuitem" data-view="states">State Snapshot</button>
-          <button class="navitem" role="menuitem" data-view="collections">Collections</button>
           <button class="navitem" role="menuitem" data-view="tables">Tables</button>
           <button class="navitem" role="menuitem" data-view="gpra">Part B GPRA Analysis</button>
         </div>
@@ -11472,16 +11482,18 @@ nav.appbar #viewTabs .tab,nav.appbar #viewTabs .navgroup,nav.appbar #viewTabs .n
         <input id="searchInput" type="search" placeholder="Search a State, collection, category, performance measure, or topic…" autocomplete="off" aria-label="Search states, state abbreviations, disability categories, data collections, GPRA performance measures, and topics">
         <div class="search-results" id="searchResults" role="listbox" aria-label="Search results"></div>
       </div>
-      <div class="menuwrap">
-        <button class="iconbtn" id="exportBtn" aria-haspopup="true" aria-expanded="false">Export</button>
-        <div class="menu" id="exportMenu" role="menu" aria-label="Export options">
-          <button type="button" role="menuitem" data-act="png">Page PNG</button>
-          <button type="button" role="menuitem" data-act="pdf">Full PDF</button>
-          <button type="button" role="menuitem" data-act="csv">Data CSV</button>
+      <div class="appbar-actions">
+        <div class="menuwrap">
+          <button class="iconbtn" id="exportBtn" aria-haspopup="true" aria-expanded="false">Export</button>
+          <div class="menu" id="exportMenu" role="menu" aria-label="Export options">
+            <button type="button" role="menuitem" data-act="png">Page PNG</button>
+            <button type="button" role="menuitem" data-act="pdf">Full PDF</button>
+            <button type="button" role="menuitem" data-act="csv">Data CSV</button>
+          </div>
         </div>
+        <button class="themebtn" id="themeBtn" aria-pressed="false">Dark</button>
+        <button class="a11ybtn" id="a11yBtn" aria-haspopup="dialog" aria-expanded="false">Access</button>
       </div>
-      <button class="themebtn" id="themeBtn" aria-pressed="false">Dark</button>
-      <button class="a11ybtn" id="a11yBtn" aria-haspopup="dialog" aria-expanded="false">Access</button>
     </div>
   </div>
   <div class="scopebar" id="optionsBar" hidden>
@@ -11743,6 +11755,15 @@ nav.appbar #viewTabs .tab,nav.appbar #viewTabs .navgroup,nav.appbar #viewTabs .n
     <div class="ctrl" id="tablesCatPrimaryCtrl" style="display:none"><label for="tablesCatPrimarySel">Disability category</label><select id="tablesCatPrimarySel" class="tbl-primary" aria-label="Choose the primary disability category"></select></div>
     <div class="ctrl tbl-states" id="tablesCatCompareCtrl" style="display:none"><label for="tablesCatAdd">Compare with</label><div class="tbl-statefield"><div class="tbl-chips" id="tablesCatChips"></div><select id="tablesCatAdd" class="tbl-add" aria-label="Add a disability category to compare"></select></div></div>
   </div>
+</div>
+<div class="tbl-key" id="tablesKey" aria-label="Data notes and suppression key">
+  <span class="tbl-key-lead"><b>Reading the tables.</b> A dash (<b class="tbl-key-dash">–</b>) means a value is not available or was suppressed; <b>0</b> is a reported zero.</span>
+  <span class="supleg" aria-label="Suppression codes used in the source files">
+    <span><b>x</b> suppressed, small cell size</span>
+    <span><b>*</b> suppressed, data-quality concerns</span>
+    <span><b>–</b> data not available</span>
+  </span>
+  <span class="tbl-key-note">As in the original IDEA Section&nbsp;618 files, the Office of Special Education Programs suppresses small or unreliable cells to protect the privacy of individual students. Suppressed cells are treated as zero in national totals, so a few totals are slight undercounts.</span>
 </div>
 <div class="tables-collhead" id="tablesCollHead"></div>
 <div id="tablesBody"></div>
@@ -13774,7 +13795,8 @@ function _tblStatesFor(data){return _tblStates().map(function(c){return c===TBL_
 function _tblColor(c,usKey){ if(c===usKey||c==='__US__'||c===TBL_USALL)return '#7a8794'; var i=_tblStates().indexOf(c); return TBL_COLORS[(i<0?0:i)%TBL_COLORS.length]; }
 function _catFilter(rows){ return tablesCat==='all'?rows:rows.filter(function(r){return r.key===tablesCat;}); }
 var COLL_META={ccee:{name:'Child Count & Educational Environments',part:'B',year:'School Year 2024–25',desc:'Children and students served by primary disability category, and where school-age students learn.'},exitB:{name:'Exiting',part:'B',year:'School Year 2023–24',desc:'How students ages 14–21 left special education.'},discB:{name:'Discipline',part:'B',year:'School Year 2023–24',desc:'Disciplinary removals of students with disabilities, by type.'},persB:{name:'Personnel',part:'B',year:'School Year 2023–24',desc:'Special education staff employed and the share fully certified or qualified.'},asmtB:{name:'Assessment',part:'B',year:'School Year 2023–24',desc:'Participation and proficiency of students with IEPs on State assessments.'},pcSettings:{name:'Child Count & Settings',part:'C',year:'School Year 2024–25',desc:'Infants and toddlers served, by primary early intervention setting.'},pcExit:{name:'Exiting',part:'C',year:'School Year 2023–24',desc:'How infants and toddlers left early intervention.'}};
-function _tNa(){return '<span class="dd-mut">N/A</span>';}
+/* Original 618 files mark unavailable/suppressed cells with a dash; mirror that here (see the key on the Tables page) instead of a bare "N/A". */
+function _tNa(){return '<span class="dd-mut dd-na" title="Not available or suppressed — see the key above">–</span>';}
 function _tN(x){return x==null?_tNa():fmt(x);}
 function _tF(x){return x==null?_tNa():x.toLocaleString(undefined,{maximumFractionDigits:1});}
 function _tPc(x,d){return (x==null||!d)?_tNa():(x/d*100).toFixed(1)+'%';}
@@ -13834,7 +13856,7 @@ function _specCard(spec){
 var _VIZ={}; var _vizDelegated=false;
 /* OSEP Fast Facts palette extended with tints/shades for many pie slices. */
 var TBL_PIE_COLORS=['#227aa7','#1c7b37','#df5e44','#ebd24a','#345065','#5aa0c4','#6cb389','#12303b','#e89177','#9c7c2a','#2a8f8a','#b8472f','#7fa9c9','#cbeeeb'];
-function _vizNum(spec,col,rk,mi){var t=_stripHtml(spec.metrics[mi].cell(col,rk)).trim();if(!t||t==='N/A')return null;var neg=/^-/.test(t);var n=parseFloat(t.replace(/[^0-9.]/g,''));if(isNaN(n))return null;return neg?-n:n;}
+function _vizNum(spec,col,rk,mi){var t=_stripHtml(spec.metrics[mi].cell(col,rk)).trim();if(!t||t==='N/A'||t==='–'||t==='—')return null;var neg=/^-/.test(t);var n=parseFloat(t.replace(/[^0-9.]/g,''));if(isNaN(n))return null;return neg?-n:n;}
 function _vizCols(spec){var cols=spec.states.slice();if(spec.usKey&&cols.indexOf(spec.usKey)<0)cols.push(spec.usKey);return cols;}
 function _vizColLabel(spec,c){return (c==='__US__'||c===TBL_USALL)?TBL_B_US:c;}
 function _vizChartMetrics(spec){var out=[];spec.metrics.forEach(function(m,i){if(!m.noChart)out.push({m:m,i:i});});return out.length?out:spec.metrics.map(function(m,i){return {m:m,i:i};});}
@@ -14117,7 +14139,7 @@ function renderTablesView(){
  box.innerHTML=sel.map(function(k){
   var m=COLL_META[k];
   var head='<div class="tables-collhead"><div class="tch-title">'+m.name+'</div><div class="tch-sub">IDEA Part '+m.part+' · '+m.year+' · '+m.desc+'</div></div>';
-  var about='<details class="tbl-about"><summary>About this data</summary><div class="tbl-about-body"><p>'+m.desc+'</p><p class="tbl-about-meta"><strong>Collection:</strong> IDEA Section 618 '+m.name+' · <strong>IDEA Part '+m.part+'</strong> · '+m.year+'.<br><strong>Source:</strong> U.S. Department of Education, Office of Special Education Programs (OSEP). Figures cover the 50 states, DC, and the additional reporting entities. Cells marked N/A were suppressed or not reported.</p></div></details>';
+  var about='<details class="tbl-about"><summary>About this data</summary><div class="tbl-about-body"><p>'+m.desc+'</p><p class="tbl-about-meta"><strong>Collection:</strong> IDEA Section 618 '+m.name+' · <strong>IDEA Part '+m.part+'</strong> · '+m.year+'.<br><strong>Source:</strong> U.S. Department of Education, Office of Special Education Programs (OSEP). Figures cover the 50 states, DC, and the additional reporting entities. A dash (–) means a value is not available or was suppressed to protect a small number of students; see the key above the tables.</p></div></details>';
   if(byCat && !CAT_TBL_SPECS[k]){
    return '<section class="tables-collsection">'+head+about+'<div class="card tbl-note-card"><div class="note">This collection is not broken out by disability category, so it can’t be compared by category. Switch to <strong>Compare States</strong> above, or choose <strong>Child Count &amp; Environments</strong> or <strong>Discipline</strong> to compare categories.</div></div></section>';
   }
@@ -14130,7 +14152,7 @@ function renderTablesView(){
  allSpecs.forEach(function(sp){if(sp._sid&&_VIZ[sp._sid]&&_VIZ[sp._sid].on)_reapplyViz(sp._sid);});
 }
 function _stripHtml(s){return (''+s).replace(/<[^>]*>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');}
-function _csvCell(html){var t=_stripHtml(html).trim(); return t==='N/A'?'':t;}
+function _csvCell(html){var t=_stripHtml(html).trim(); return (t==='N/A'||t==='–'||t==='—')?'':t;}
 function _csvColLabel(c,sp){return (c===sp.usKey||c==='__US__'||c===TBL_USALL)?TBL_B_US:c;}
 function _buildTablesCSV(colsFor,selectionLabel,fname,specSet){
  try{
@@ -14231,15 +14253,29 @@ function _gpraUpcoming(m){
  var last=m.rows[m.rows.length-1];
  return {year:last[0],target:last[1],actual:last[2]};
 }
+/* For measures whose underlying numbers live in this tool's Data Tables (State
+   assessment proficiency and graduation/exiting), compute the value directly
+   from that data instead of showing TBD. Returns {value, src} or null. */
+function _gpraPredictFrom(m){
+ try{
+  if(m.id==='st_read'){var n=(typeof CCOLL!=='undefined')&&CCOLL.asmtB&&CCOLL.asmtB.national; return (n&&n[2])?{value:n[3]/n[2]*100,src:'the Assessment collection on the Tables page (students with IEPs scoring proficient or above on State reading tests, nationwide, School Year 2023–24)'}:null;}
+  if(m.id==='st_math'){var n2=(typeof CCOLL!=='undefined')&&CCOLL.asmtB&&CCOLL.asmtB.national; return (n2&&n2[0])?{value:n2[1]/n2[0]*100,src:'the Assessment collection on the Tables page (students with IEPs scoring proficient or above on State mathematics tests, nationwide, School Year 2023–24)'}:null;}
+  if(m.id==='grad'){var us=_usKeyOf(CCOLL.exitB.data); var d=us&&CCOLL.exitB.data[us]; if(!d)return null; var reg=d['Graduated with regular high school diploma']; var denom=(d['Graduated with regular high school diploma']||0)+(d['Graduated with an alternate diploma']||0)+(d['Received a certificate']||0)+(d['Dropped out']||0)+(d['Reached maximum age']||0)+(d['Died']||0); return (reg!=null&&denom)?{value:reg/denom*100,src:'the Exiting collection on the Tables page (students ages 14–21 leaving school with a regular diploma as a share of all who left school, nationwide, School Year 2023–24)'}:null;}
+ }catch(e){}
+ return null;
+}
 function _gpraCard(group,m){
  var rowsHtml=m.rows.map(function(r){return '<tr><td>'+r[0]+'</td><td class="dd-c">'+_gpraFmt(r[1],m.unit)+'</td><td class="dd-c">'+_gpraFmt(r[2],m.unit)+'</td></tr>';}).join('');
  var unitLabel=m.unit==='days'?'days':(m.unit==='pts'?'percentage points':'percent');
  var up=_gpraUpcoming(m);
  var known=(up.actual!=null);
- var predVal=known?_gpraFmt(up.actual,m.unit):'TBD';
+ var pf=known?null:_gpraPredictFrom(m);
  var targetTxt=(up.target!=null)?_gpraFmt(up.target,m.unit):'—';
- var predNote=known?'Most recent reported result.':'The actual result for FY'+up.year+' has not been reported yet, so it is shown as TBD (not estimated). Target from the FY2025 Budget Request: '+targetTxt+'.';
- var predBlock='<div class="gpra-predict"><div class="gpra-predict-head"><span class="gpra-predict-k">Predicted measure · FY'+up.year+'</span><span class="gpra-predict-v">'+predVal+'</span></div><div class="gpra-predict-note">'+predNote+'</div></div>';
+ var predVal,predNote;
+ if(known){predVal=_gpraFmt(up.actual,m.unit);predNote='Most recent reported result.';}
+ else if(pf){predVal=_gpraFmt(Math.round(pf.value*10)/10,m.unit);predNote='Predicted from '+pf.src+'. The official FY'+up.year+' result has not been published yet. Target: '+targetTxt+'.';}
+ else{predVal='TBD';predNote='The actual result for FY'+up.year+' has not been reported yet, so it is shown as TBD (not estimated). Target from the FY2025 Budget Request: '+targetTxt+'.';}
+ var predBlock='<div class="gpra-predict'+(pf?' is-derived':'')+'"><div class="gpra-predict-head"><span class="gpra-predict-k">Predicted measure · FY'+up.year+'</span><span class="gpra-predict-v">'+predVal+'</span></div><div class="gpra-predict-note">'+predNote+'</div></div>';
  var noteBlock=m.note?'<details class="gpra-notefold"><summary>Why some years are blank</summary><div class="gpra-note-body">'+m.note+'</div></details>':'';
  var srcBlock=m.src?'<details class="tbl-srcfold gpra-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">'+m.src+'</div></details>':'';
  return '<div class="gpra-card card" data-gpra-card>'
@@ -14262,6 +14298,9 @@ function _gpraChart(m){
    {label:'Target',data:m.rows.map(function(r){return r[1];}),borderColor:'#8aa0b0',borderDash:[6,4],borderWidth:2,pointRadius:0,pointHitRadius:8,spanGaps:false,fill:false,tension:0},
    {label:'Actual',data:m.rows.map(function(r){return r[2];}),borderColor:col,backgroundColor:shade(col,.14),borderWidth:3,pointRadius:4,pointHoverRadius:6,spanGaps:false,fill:false,tension:.25}
  ];
+ var last=m.rows[m.rows.length-1];
+ var pf=(last[2]==null)?_gpraPredictFrom(m):null;
+ if(pf){var predData=m.rows.map(function(r){return null;}); predData[predData.length-1]=Math.round(pf.value*10)/10; datasets.push({label:'Predicted (from Tables data)',data:predData,borderColor:'#c79a1f',backgroundColor:'#c79a1f',pointStyle:'triangle',pointRadius:8,pointHoverRadius:10,showLine:false,spanGaps:false});}
  var cfg={type:'line',data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},
    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:12,font:{size:11,weight:'700'}}},
      tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+(o.parsed.y==null?'not reported':_gpraFmt(o.parsed.y,m.unit));}}}},
