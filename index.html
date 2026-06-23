@@ -5388,6 +5388,8 @@ body.printing #gpraBody .gpra-tablewrap,body.printing #gpraBody .gpra-chartwrap{
 .gpra-predict-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .gpra-predict-k{font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#7a5c00}
 .gpra-predict-v{font-size:1.35rem;font-weight:900;color:#7a5c00;line-height:1}
+.gpra-predict-year{font-size:.72rem;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:#7a5c00;margin-top:4px}
+body.dark .gpra-predict-year{color:#ecd98a}
 .gpra-predict-note{font-size:.74rem;color:#6a5a2e;margin-top:5px;line-height:1.4}
 body.dark .gpra-predict{background:#2c2510;border-color:#5c4d1d;border-left-color:#c79a1f}
 body.dark .gpra-predict-k,body.dark .gpra-predict-v{color:#ecd98a}
@@ -14280,11 +14282,11 @@ function _gpraUpcoming(m){
    from that data instead of showing TBD. Returns {value, src} or null. */
 function _gpraPredictFrom(m){
  try{
-  if(m.id==='naep_read4')return {value:31,src:'the NAEP 2024 Reading Assessment (NCES; students with disabilities, national, percent at or above Basic). This is the NAEP result; the Department has not reported it as the official GPRA actual'};
-  if(m.id==='naep_math8')return {value:28,src:'the NAEP 2024 Mathematics Assessment (NCES; students with disabilities, national, percent at or above Basic). This is the NAEP result; the Department has not reported it as the official GPRA actual'};
-  if(m.id==='st_read'){var n=(typeof CCOLL!=='undefined')&&CCOLL.asmtB&&CCOLL.asmtB.national; return (n&&n[2])?{value:n[3]/n[2]*100,src:'the Assessment collection on the Tables page (students with IEPs scoring proficient or above on State reading tests, nationwide, School Year 2023–24)'}:null;}
-  if(m.id==='st_math'){var n2=(typeof CCOLL!=='undefined')&&CCOLL.asmtB&&CCOLL.asmtB.national; return (n2&&n2[0])?{value:n2[1]/n2[0]*100,src:'the Assessment collection on the Tables page (students with IEPs scoring proficient or above on State mathematics tests, nationwide, School Year 2023–24)'}:null;}
-  if(m.id==='grad'){var us=_usKeyOf(CCOLL.exitB.data); var d=us&&CCOLL.exitB.data[us]; if(!d)return null; var reg=d['Graduated with regular high school diploma']; var denom=(d['Graduated with regular high school diploma']||0)+(d['Graduated with an alternate diploma']||0)+(d['Received a certificate']||0)+(d['Dropped out']||0)+(d['Reached maximum age']||0)+(d['Died']||0); return (reg!=null&&denom)?{value:reg/denom*100,src:'the Exiting collection on the Tables page (students ages 14–21 leaving school with a regular diploma as a share of all who left school, nationwide, School Year 2023–24)'}:null;}
+  if(m.id==='naep_read4')return {value:31,dataYear:'NAEP 2024 assessment',src:'the NAEP 2024 Reading Assessment (NCES; students with disabilities, national, percent at or above Basic). This is the NAEP result; the Department has not reported it as the official GPRA actual'};
+  if(m.id==='naep_math8')return {value:28,dataYear:'NAEP 2024 assessment',src:'the NAEP 2024 Mathematics Assessment (NCES; students with disabilities, national, percent at or above Basic). This is the NAEP result; the Department has not reported it as the official GPRA actual'};
+  if(m.id==='st_read'){var n=(typeof CCOLL!=='undefined')&&CCOLL.asmtB&&CCOLL.asmtB.national; return (n&&n[2])?{value:n[3]/n[2]*100,dataYear:'School Year 2023–24',src:'the Assessment collection on the Tables page (students with IEPs scoring proficient or above on State reading tests, nationwide, School Year 2023–24)'}:null;}
+  if(m.id==='st_math'){var n2=(typeof CCOLL!=='undefined')&&CCOLL.asmtB&&CCOLL.asmtB.national; return (n2&&n2[0])?{value:n2[1]/n2[0]*100,dataYear:'School Year 2023–24',src:'the Assessment collection on the Tables page (students with IEPs scoring proficient or above on State mathematics tests, nationwide, School Year 2023–24)'}:null;}
+  if(m.id==='grad'){var us=_usKeyOf(CCOLL.exitB.data); var d=us&&CCOLL.exitB.data[us]; if(!d)return null; var reg=d['Graduated with regular high school diploma']; var denom=(d['Graduated with regular high school diploma']||0)+(d['Graduated with an alternate diploma']||0)+(d['Received a certificate']||0)+(d['Dropped out']||0)+(d['Reached maximum age']||0)+(d['Died']||0); return (reg!=null&&denom)?{value:reg/denom*100,dataYear:'School Year 2023–24',src:'the Exiting collection on the Tables page (students ages 14–21 leaving school with a regular diploma as a share of all who left school, nationwide, School Year 2023–24)'}:null;}
  }catch(e){}
  return null;
 }
@@ -14300,7 +14302,8 @@ function _gpraCard(group,m){
  else if(pf){predVal=_gpraFmt(Math.round(pf.value*10)/10,m.unit);predNote='Predicted from '+pf.src+'. The official FY'+up.year+' result has not been published yet. Target: '+targetTxt+'.';}
  else{predVal='TBD';predNote='The actual result for FY'+up.year+' has not been reported yet, so it is shown as TBD (not estimated). Target from the FY2025 Budget Request: '+targetTxt+'.';}
  var predLabel=known?('Most recent result · FY'+up.year):('Predicted measure · FY'+up.year);
- var predBlock='<div class="gpra-predict'+(pf?' is-derived':'')+(known?' is-reported':'')+'"><div class="gpra-predict-head"><span class="gpra-predict-k">'+predLabel+'</span><span class="gpra-predict-v">'+predVal+'</span></div><div class="gpra-predict-note">'+predNote+'</div></div>';
+ var yearLine=(pf&&pf.dataYear)?'<div class="gpra-predict-year">Based on '+pf.dataYear+' data</div>':'';
+ var predBlock='<div class="gpra-predict'+(pf?' is-derived':'')+(known?' is-reported':'')+'"><div class="gpra-predict-head"><span class="gpra-predict-k">'+predLabel+'</span><span class="gpra-predict-v">'+predVal+'</span></div>'+yearLine+'<div class="gpra-predict-note">'+predNote+'</div></div>';
  var noteBlock=m.note?'<details class="gpra-notefold"><summary>Why some years are blank</summary><div class="gpra-note-body">'+m.note+'</div></details>':'';
  var srcBlock=m.src?'<details class="tbl-srcfold gpra-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">'+m.src+'</div></details>':'';
  return '<div class="gpra-card card" data-gpra-card>'
