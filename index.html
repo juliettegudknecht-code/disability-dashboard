@@ -5330,6 +5330,25 @@ body.dark .gpra-dir.is-watch{background:#3a1f17;color:#f0a78e;border-color:#5a33
 #gpraBody.gpra-mode-chart .gpra-tablewrap{display:none}
 #gpraBody.gpra-mode-table .gpra-chartwrap{display:none}
 body.printing #gpraBody .gpra-tablewrap,body.printing #gpraBody .gpra-chartwrap{display:block!important}
+/* predicted-measure callout */
+.gpra-predict{margin:12px 0 0;background:#fbf4dd;border:1px solid #e6cf7a;border-left:4px solid #c79a1f;border-radius:10px;padding:11px 14px}
+.gpra-predict-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.gpra-predict-k{font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#7a5c00}
+.gpra-predict-v{font-size:1.35rem;font-weight:900;color:#7a5c00;line-height:1}
+.gpra-predict-note{font-size:.74rem;color:#6a5a2e;margin-top:5px;line-height:1.4}
+body.dark .gpra-predict{background:#2c2510;border-color:#5c4d1d;border-left-color:#c79a1f}
+body.dark .gpra-predict-k,body.dark .gpra-predict-v{color:#ecd98a}
+body.dark .gpra-predict-note{color:#cbb98a}
+.gpra-note{margin:10px 0 0;font-size:.8rem;color:var(--muted);line-height:1.5;background:#f5f6f8;border-radius:8px;padding:9px 12px}
+.gpra-note strong{color:var(--ink)}
+body.dark .gpra-note{background:#161f29}
+.gpra-srcfold{margin-top:10px}
+.gpra-takeaways-fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px}
+.gpra-takeaways-fold>summary::-webkit-details-marker{display:none}
+.gpra-takeaways-fold>summary .gpra-tk-title{font-size:1.02rem;font-weight:800;color:var(--ink)}
+.gpra-takeaways-fold>summary:after{content:"\25BE";margin-left:auto;color:var(--muted);transition:transform .15s ease}
+.gpra-takeaways-fold[open]>summary:after{transform:rotate(180deg)}
+.gpra-takeaways-fold ul{margin:10px 0 0;padding-left:20px}
 .dd-table tr.tbl-total td{font-weight:800;border-top:2px solid #d8dce2;background:#f7f9fb}
 body.dark .dd-table tr.tbl-total td{background:#16202c;border-top-color:#2c3744}
 /* ===== Data Tables: collection rail + header ===== */
@@ -5387,9 +5406,9 @@ body.dark .dd-table tbody td.tbl-gcell{border-left-color:#2a3744}
 body.dark .tcb-fill{opacity:.34}
 .view[data-view="tables"] .dd-table tbody td:first-child{font-weight:600}
 .view[data-view="tables"] .tbl-card{box-shadow:0 1px 2px rgba(16,42,67,.06)}
-/* sticky control bar (frozen to top) + primary state select */
-.view[data-view="tables"] .tables-toolbar{position:sticky;top:var(--appbarH,0);z-index:20;background:#fff;border-bottom:1px solid #e7eaee;padding:10px 0;margin:0 0 4px}
-body.dark .view[data-view="tables"] .tables-toolbar{background:#0f1722;border-bottom-color:#26323f}
+/* control bar (static, so charts and tables are never hidden beneath it) */
+.view[data-view="tables"] .tables-toolbar{position:static;background:#fff;border-bottom:1px solid #e7eaee;padding:10px 0;margin:0 0 10px}
+body.dark .view[data-view="tables"] .tables-toolbar{background:transparent;border-bottom-color:#26323f}
 .tbl-primary{padding:8px 11px;border:1px solid #b7c2cf;border-radius:8px;font-size:.92rem;font-weight:700;background:#fff;color:var(--ink);min-width:175px}
 body.dark .tbl-primary{background:#15202c;border-color:#33404e;color:#e6edf5}
 .tbl-chip-empty{font-size:.82rem;color:var(--muted);font-style:italic}
@@ -11398,7 +11417,7 @@ nav.appbar #viewTabs .tab,nav.appbar #viewTabs .navgroup,nav.appbar #viewTabs .n
         <button class="tab navtrigger" aria-haspopup="true" aria-expanded="false">Explore <span class="caret">▾</span></button>
         <div class="navmenu" role="menu" aria-label="Explore views">
           <!-- Disability Explorer temporarily removed from nav (view + code kept intact). -->
-          <button class="navitem" role="menuitem" data-view="states">States</button>
+          <button class="navitem" role="menuitem" data-view="states">State Snapshot</button>
           <button class="navitem" role="menuitem" data-view="collections">Collections</button>
           <button class="navitem" role="menuitem" data-view="tables">Tables</button>
           <button class="navitem" role="menuitem" data-view="gpra">GPRA Analysis</button>
@@ -11407,7 +11426,7 @@ nav.appbar #viewTabs .tab,nav.appbar #viewTabs .navgroup,nav.appbar #viewTabs .n
     </div>
     <div class="appbar-tools">
       <div class="search" id="searchWrap">
-        <input id="searchInput" type="search" placeholder="Search a State, collection, category, or topic…" autocomplete="off" aria-label="Search states, state abbreviations, disability categories, data collections, and topics">
+        <input id="searchInput" type="search" placeholder="Search a State, collection, category, performance measure, or topic…" autocomplete="off" aria-label="Search states, state abbreviations, disability categories, data collections, GPRA performance measures, and topics">
         <div class="search-results" id="searchResults" role="listbox" aria-label="Search results"></div>
       </div>
       <div class="menuwrap">
@@ -11418,7 +11437,6 @@ nav.appbar #viewTabs .tab,nav.appbar #viewTabs .navgroup,nav.appbar #viewTabs .n
           <button type="button" role="menuitem" data-act="csv">Data CSV</button>
         </div>
       </div>
-      <button class="plainbtn" id="plainBtn" aria-pressed="false" title="Plain language: swap technical terms for everyday words">Plain language</button>
       <button class="themebtn" id="themeBtn" aria-pressed="false">Dark</button>
       <button class="a11ybtn" id="a11yBtn" aria-haspopup="dialog" aria-expanded="false">Access</button>
     </div>
@@ -11657,9 +11675,15 @@ nav.appbar #viewTabs .tab,nav.appbar #viewTabs .navgroup,nav.appbar #viewTabs .n
   <div class="tcr-group"><span class="tcr-label">Part C</span><button type="button" class="tcr-pill" data-coll="pcSettings">Child Count &amp; Settings</button><button type="button" class="tcr-pill" data-coll="pcExit">Exiting</button></div><span class="tcr-hint">Pick one or more</span>
 </div>
 <div class="tables-toolbar">
+  <div class="tbl-toggle tbl-compareby" id="tablesCompareToggle" role="group" aria-label="Compare by State or by disability category">
+    <button type="button" data-cmp="state" class="on" aria-pressed="true">Compare States</button>
+    <button type="button" data-cmp="category" aria-pressed="false">Compare categories</button>
+  </div>
   <div class="ctrl"><label for="tablesStateSel">State</label><select id="tablesStateSel" class="tbl-primary" aria-label="Choose the State"></select></div>
-  <div class="ctrl tbl-states"><label for="tablesStateAdd">Compare with</label><div class="tbl-chips" id="tablesStateChips"></div><select id="tablesStateAdd" class="tbl-add" aria-label="Add a State to compare"></select></div>
+  <div class="ctrl tbl-states" id="tablesStateCompareCtrl"><label for="tablesStateAdd">Compare with</label><div class="tbl-chips" id="tablesStateChips"></div><select id="tablesStateAdd" class="tbl-add" aria-label="Add a State to compare"></select></div>
   <div class="ctrl" id="tablesCatCtrl"><label for="tablesCatSel">Disability category</label><select id="tablesCatSel" class="tbl-primary" aria-label="Filter by disability category"></select></div>
+  <div class="ctrl" id="tablesCatPrimaryCtrl" style="display:none"><label for="tablesCatPrimarySel">Disability category</label><select id="tablesCatPrimarySel" class="tbl-primary" aria-label="Choose the primary disability category"></select></div>
+  <div class="ctrl tbl-states" id="tablesCatCompareCtrl" style="display:none"><label for="tablesCatAdd">Compare with</label><div class="tbl-chips" id="tablesCatChips"></div><select id="tablesCatAdd" class="tbl-add" aria-label="Add a disability category to compare"></select></div>
   <div class="tbl-toggle" id="tablesModeToggle" role="group" aria-label="Show values as percent or count">
     <button type="button" data-tm="percent" class="on" aria-pressed="true">Percent</button>
     <button type="button" data-tm="count" aria-pressed="false">Count</button>
@@ -13677,6 +13701,9 @@ var tablesExtra=[];
 var tablesPrimary='__USALL__';
 var tablesMode='percent';
 var tablesCat='all';
+var tablesCompareBy='state';      /* 'state' | 'category' */
+var tablesCatPrimary='All Disabilities';
+var tablesCatExtra=[];
 var _tablesInit=false;
 var COLL_ORDER=['ccee','exitB','discB','persB','asmtB','pcSettings','pcExit'];
 var BYCAT={ccee:1,discB:1};
@@ -13920,10 +13947,60 @@ function _specPcExit(){
  return {title:'Exiting Early Intervention by Reason (Part C)',part:'C',src:'IDEA Section 618 Part C Exiting Collection, birth through age 2',year:'School Year 2023–24',rowHeader:'Reason for exiting',cap:(tablesMode==='count'?'Counts of infants and toddlers who exited Part C, by reason.':'Each reason as a share of all infants and toddlers who exited Part C.'),rows:rows,metrics:[metric],states:_tblStatesFor(CCOLL.pcExit.data),usKey:_usKeyOf(CCOLL.pcExit.data),scroll:_scroll(1),pie:true};
 }
 var TBL_SPECS={ccee:function(){return [_specChildCount(),_specEnv(),_specRace(),_specSex(),_specEL()];},exitB:function(){return [_specExitB()];},discB:function(){return [_specDiscB()];},persB:function(){return [_specPersB()];},asmtB:function(){return [_specAsmtB()];},pcSettings:function(){return [_specPcSettings()];},pcExit:function(){return [_specPcExit()];}};
+/* ===== Compare BY DISABILITY CATEGORY: columns = categories, for one State ===== */
+function _catStateLabel(st){return (st==='__US__'||st===TBL_USALL)?TBL_B_US:st;}
+function _catStateFor(data){var p=_tblPrimary(); return p===TBL_USALL?(_usKeyOf(data)||'__US__'):p;}
+function _tblCats(){var p=tablesCatPrimary,arr=[p]; tablesCatExtra.forEach(function(c){if(c!==p&&CCEE.cats.indexOf(c)>=0&&arr.indexOf(c)<0)arr.push(c);}); return arr.slice(0,6);}
+function _catCap(st,tail){return 'State: <strong>'+_catStateLabel(st)+'</strong>. '+(tail||'');}
+function _catSpecChildCount(){
+ var st=_catStateFor(CCEE.data),cats=_tblCats();
+ var rows=[{key:'cnt',label:'Children served, ages 3–21'}];
+ var metric={label:'',cell:function(c){var a=CCEE.data[st]&&CCEE.data[st][c]; if(!a)return _tNa(); var v=a[0]; if(tablesMode==='count')return _tN(v); var all=CCEE.data[st]['All Disabilities']?CCEE.data[st]['All Disabilities'][0]:null; return _tPc(v,all);}};
+ return {title:'Child Count by Disability Category',part:'B',src:'IDEA Section 618 Child Count and Educational Environments collection, ages 3–21',year:'School Year 2024–25',rowHeader:'Measure',cap:_catCap(st,tablesMode==='count'?'Number of children and students served under IDEA Part B.':'Each category as a share of all students served.'),rows:rows,metrics:[metric],states:cats,usKey:null,scroll:_scroll(1),pie:true};
+}
+function _catCCEEspec(opts){
+ var st=_catStateFor(CCEE.data),cats=_tblCats();
+ var metric={label:'',cell:function(c,rk){var a=CCEE.data[st]&&CCEE.data[st][c]; if(!a)return _tNa(); var v=a[TBL_FI[rk]]; if(v==null)return _tNa(); if(tablesMode==='count')return _tN(v); return _tPc(v,opts.base(a));}};
+ return {title:opts.title,part:'B',src:opts.src,year:'School Year 2024–25',rowHeader:opts.rowHeader,cap:_catCap(st,opts.cap),rows:opts.rows,metrics:[metric],states:cats,usKey:null,scroll:_scroll(1),pie:opts.pie};
+}
+function _catSpecEnv(){return _catCCEEspec({title:'Educational Environments by Disability Category',src:'IDEA Section 618 Educational Environments collection, school age, ages 5–21',rowHeader:'Educational environment',cap:'School-age students (ages 5–21).',pie:true,base:function(a){return a[TBL_FI.totalSA];},rows:[{key:'reg80',label:'Regular class 80%+'},{key:'reg4079',label:'Regular class 40–79%'},{key:'reglt40',label:'Regular class &lt;40%'},{key:'sepclass',label:'Separate class'},{key:'sepschool',label:'Separate school'},{key:'resfac',label:'Residential facility'},{key:'homebound',label:'Homebound/hospital'},{key:'correct',label:'Correctional facility'},{key:'private',label:'Private (parent placed)'}]});}
+function _catSpecRace(){return _catCCEEspec({title:'Race and Ethnicity by Disability Category',src:'IDEA Section 618 Child Count and Educational Environments collection, school age, ages 5–21',rowHeader:'Race or ethnicity',cap:'School-age students (ages 5–21).',pie:true,base:function(a){return a[TBL_FI.totalSA];},rows:[{key:'aian',label:'Am. Indian/AK Native'},{key:'asian',label:'Asian'},{key:'black',label:'Black'},{key:'hisp',label:'Hispanic/Latino'},{key:'nhpi',label:'NH/Pac. Islander'},{key:'two',label:'Two or more'},{key:'white',label:'White'}]});}
+function _catSpecSex(){return _catCCEEspec({title:'Sex by Disability Category',src:'IDEA Section 618 Child Count and Educational Environments collection, school age, ages 5–21',rowHeader:'Sex',cap:'School-age students (ages 5–21).',pie:true,base:function(a){return (a[TBL_FI.female]!=null&&a[TBL_FI.male]!=null)?a[TBL_FI.female]+a[TBL_FI.male]:null;},rows:[{key:'female',label:'Female'},{key:'male',label:'Male'}]});}
+function _catSpecEL(){return _catCCEEspec({title:'English Learners by Disability Category',src:'IDEA Section 618 Child Count and Educational Environments collection, school age, ages 5–21',rowHeader:'English learner status',cap:'School-age students (ages 5–21).',pie:true,base:function(a){return (a[TBL_FI.elYes]!=null&&a[TBL_FI.elNo]!=null)?a[TBL_FI.elYes]+a[TBL_FI.elNo]:null;},rows:[{key:'elYes',label:'English learner'},{key:'elNo',label:'Not an EL'}]});}
+function _catSpecDisc(){
+ var st=_catStateFor(CCOLL.discB.data),cats=_tblCats();
+ var defs=[{key:'tot',idx:0,label:'Total removals',countOnly:true},{key:'oss10',idx:1,label:'Out-of-school ≤10 days'},{key:'oss10p',idx:2,label:'Out-of-school >10 days'},{key:'iss10',idx:3,label:'In-school ≤10 days'},{key:'iss10p',idx:4,label:'In-school >10 days'},{key:'unil',idx:5,label:'Unilateral to interim'},{key:'hear',idx:6,label:'By hearing officer'}];
+ var map={}; defs.forEach(function(d){map[d.key]=d;});
+ var rows=defs.map(function(d){return {key:d.key,label:d.label};});
+ var metric={label:'',cell:function(c,rk){var a=CCOLL.discB.data[st]&&CCOLL.discB.data[st][c]; if(!a)return _tNa(); var d=map[rk]; var v=a[d.idx]; if(v==null)return _tNa(); if(d.countOnly||tablesMode==='count')return _tN(v); return _tPc(v,a[0]);}};
+ return {title:'Disciplinary Removals by Disability Category',part:'B',src:'IDEA Section 618 Discipline Collection',year:'School Year 2023–24',rowHeader:'Removal type',cap:_catCap(st,(tablesMode==='count'?'Counts of removals by type.':'Each type as a percent of that category’s total removals; total shown as a count.')),rows:rows,metrics:[metric],states:cats,usKey:null,scroll:_scroll(1),pie:true};
+}
+var CAT_TBL_SPECS={ccee:function(){return [_catSpecChildCount(),_catSpecEnv(),_catSpecRace(),_catSpecSex(),_catSpecEL()];},discB:function(){return [_catSpecDisc()];}};
 function _selColls(){return COLL_ORDER.filter(function(k){return tablesCollections.indexOf(k)>=0;});}
 function _persistStates(){try{lsSet('idea618_tablesExtra',JSON.stringify(tablesExtra));}catch(e){}}
 function _persistColls(){try{lsSet('idea618_tablesColls',JSON.stringify(_selColls()));}catch(e){}}
 function _persistPrimary(){try{lsSet('idea618_tablesPrimary',tablesPrimary);}catch(e){}}
+function _persistCatCompare(){try{lsSet('idea618_tablesCompareBy',tablesCompareBy);lsSet('idea618_tablesCatPrimary',tablesCatPrimary);lsSet('idea618_tablesCatExtra',JSON.stringify(tablesCatExtra));}catch(e){}}
+function _catLabel(c){return c==='All Disabilities'?'All disabilities (total)':c;}
+function _renderCatCompareControls(){
+ var byCat=(tablesCompareBy==='category');
+ // toggle visibility of the two control sets
+ var ids={tablesStateCompareCtrl:!byCat,tablesCatCtrl:false,tablesCatPrimaryCtrl:byCat,tablesCatCompareCtrl:byCat};
+ // tablesCatCtrl (single filter) only in STATE mode AND when a by-category collection is selected
+ ids.tablesCatCtrl=(!byCat)&&tablesCollections.some(function(k){return BYCAT[k];});
+ Object.keys(ids).forEach(function(id){var el=document.getElementById(id); if(el)el.style.display=ids[id]?'':'none';});
+ document.querySelectorAll('#tablesCompareToggle button').forEach(function(b){var on=b.dataset.cmp===tablesCompareBy;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});
+ if(!byCat)return;
+ var psel=document.getElementById('tablesCatPrimarySel');
+ if(psel){ if(!psel.dataset.built){psel.dataset.built='1';psel.innerHTML=CCEE.cats.map(function(c){return '<option value="'+c+'">'+_catLabel(c)+'</option>';}).join('');} psel.value=tablesCatPrimary; }
+ var chips=document.getElementById('tablesCatChips');
+ if(chips){var extras=tablesCatExtra.filter(function(c){return c!==tablesCatPrimary&&CCEE.cats.indexOf(c)>=0;});
+  chips.innerHTML=extras.length?extras.map(function(c){return '<span class="tbl-chip">'+_catLabel(c)+' <button type="button" class="tbl-chip-x" data-rmcat="'+c+'" aria-label="Remove '+c+'">'+String.fromCharCode(215)+'</button></span>';}).join(''):'<span class="tbl-chip-empty">none yet</span>';
+  chips.querySelectorAll('.tbl-chip-x').forEach(function(b){b.addEventListener('click',function(){var c=b.dataset.rmcat; tablesCatExtra=tablesCatExtra.filter(function(x){return x!==c;}); _persistCatCompare(); renderTablesView();});});
+ }
+ var add=document.getElementById('tablesCatAdd');
+ if(add){var eff=_tblCats(); var avail=CCEE.cats.filter(function(c){return eff.indexOf(c)<0;}); add.innerHTML='<option value="">'+(eff.length>=6?'Max 6 categories':'+ Add a category')+'</option>'+avail.map(function(c){return '<option value="'+c+'">'+_catLabel(c)+'</option>';}).join(''); add.disabled=eff.length>=6;}
+}
 function _renderTablesCat(){
  var sel=document.getElementById('tablesCatSel');
  if(sel && !sel.dataset.built){ sel.dataset.built='1'; sel.innerHTML='<option value="all">All categories</option>'+CCEE.cats.map(function(c){return '<option value="'+c+'">'+(c==='All Disabilities'?'All disabilities (total)':c)+'</option>';}).join(''); }
@@ -13950,6 +14027,9 @@ function _setupTablesControls(){
  try{var _se=JSON.parse(localStorage.getItem('idea618_tablesExtra')||'null'); if(_se&&_se.length)tablesExtra=_se.filter(function(n){return CCEE.data[n];}).slice(0,5);}catch(e){}
  try{var _sm=localStorage.getItem('idea618_tablesMode'); if(_sm==='count'||_sm==='percent')tablesMode=_sm;}catch(e){}
  try{var _tp=localStorage.getItem('idea618_tablesPrimary'); if(_tp&&(_tp===TBL_USALL||CCEE.data[_tp]))tablesPrimary=_tp;}catch(e){}
+ try{var _cb=localStorage.getItem('idea618_tablesCompareBy'); if(_cb==='state'||_cb==='category')tablesCompareBy=_cb;}catch(e){}
+ try{var _cp=localStorage.getItem('idea618_tablesCatPrimary'); if(_cp&&CCEE.cats.indexOf(_cp)>=0)tablesCatPrimary=_cp;}catch(e){}
+ try{var _ce=JSON.parse(localStorage.getItem('idea618_tablesCatExtra')||'null'); if(_ce&&_ce.length)tablesCatExtra=_ce.filter(function(c){return CCEE.cats.indexOf(c)>=0;}).slice(0,5);}catch(e){}
  if(!tablesCollections.length)tablesCollections=['ccee'];
  _renderStateChips(); _renderTablesCat();
  var psel=document.getElementById('tablesStateSel');
@@ -13960,22 +14040,31 @@ function _setupTablesControls(){
  if(catSel){catSel.addEventListener('change',function(){tablesCat=catSel.value;renderTablesView();});}
  document.querySelectorAll('.tcr-pill').forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.coll; var i=tablesCollections.indexOf(k); if(i>=0){ if(tablesCollections.length>1)tablesCollections.splice(i,1); } else { tablesCollections.push(k); } _persistColls(); renderTablesView();});});
  document.querySelectorAll('#tablesModeToggle button').forEach(function(b){b.addEventListener('click',function(){tablesMode=b.dataset.tm;try{lsSet('idea618_tablesMode',tablesMode);}catch(e){}renderTablesView();});});
+ document.querySelectorAll('#tablesCompareToggle button').forEach(function(b){b.addEventListener('click',function(){tablesCompareBy=b.dataset.cmp;_persistCatCompare();renderTablesView();});});
+ var cps=document.getElementById('tablesCatPrimarySel');
+ if(cps){cps.addEventListener('change',function(){if(CCEE.cats.indexOf(cps.value)>=0){tablesCatPrimary=cps.value;tablesCatExtra=tablesCatExtra.filter(function(c){return c!==tablesCatPrimary;});_persistCatCompare();renderTablesView();}});}
+ var cadd=document.getElementById('tablesCatAdd');
+ if(cadd){cadd.addEventListener('change',function(){var v=cadd.value; if(v&&CCEE.cats.indexOf(v)>=0&&_tblCats().indexOf(v)<0&&_tblCats().length<6){tablesCatExtra.push(v);_persistCatCompare();renderTablesView();} cadd.value='';});}
 }
 function renderTablesView(){
  _setupTablesControls();
- _renderStateChips(); _renderTablesCat();
+ _renderStateChips(); _renderTablesCat(); _renderCatCompareControls();
  document.querySelectorAll('.tcr-pill').forEach(function(b){b.classList.toggle('on',tablesCollections.indexOf(b.dataset.coll)>=0);});
  var ch=document.getElementById('tablesCollHead'); if(ch){ch.style.display='none';ch.innerHTML='';}
  var toggle=document.getElementById('tablesModeToggle'); var usesToggle=tablesCollections.some(function(k){return TOGGLE_COLL[k];}); if(toggle)toggle.style.display=usesToggle?'':'none';
  document.querySelectorAll('#tablesModeToggle button').forEach(function(b){var on=b.dataset.tm===tablesMode;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});
  var box=document.getElementById('tablesBody'); if(!box)return;
  try{if(typeof Chart!=='undefined')box.querySelectorAll('.tbl-viz-canvas').forEach(function(cv){var c=Chart.getChart(cv.id);if(c)c.destroy();});}catch(e){}
+ var byCat=(tablesCompareBy==='category');
  var sel=_selColls();
  var allSpecs=[];
  box.innerHTML=sel.map(function(k){
   var m=COLL_META[k];
   var head='<div class="tables-collhead"><div class="tch-title">'+m.name+'</div><div class="tch-sub">IDEA Part '+m.part+' · '+m.year+' · '+m.desc+'</div></div>';
-  var specs=(TBL_SPECS[k]||function(){return [];})();
+  if(byCat && !CAT_TBL_SPECS[k]){
+   return '<section class="tables-collsection">'+head+'<div class="card tbl-card"><div class="note">This collection is not broken out by disability category, so it can’t be compared by category. Switch to <strong>Compare States</strong> above, or choose <strong>Child Count &amp; Environments</strong> or <strong>Discipline</strong> to compare categories.</div></div></section>';
+  }
+  var specs=byCat?CAT_TBL_SPECS[k]():(TBL_SPECS[k]||function(){return [];})();
   specs.forEach(function(sp){sp._coll=k;allSpecs.push(sp);});
   return '<section class="tables-collsection">'+head+specs.map(_specCard).join('')+'</section>';
  }).join('');
@@ -13986,7 +14075,7 @@ function renderTablesView(){
 function _stripHtml(s){return (''+s).replace(/<[^>]*>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');}
 function _csvCell(html){var t=_stripHtml(html).trim(); return t==='N/A'?'':t;}
 function _csvColLabel(c,sp){return (c===sp.usKey||c==='__US__'||c===TBL_USALL)?TBL_B_US:c;}
-function _buildTablesCSV(colsFor,selectionLabel,fname){
+function _buildTablesCSV(colsFor,selectionLabel,fname,specSet){
  try{
   var sel=_selColls();
   var rows=[];
@@ -13995,9 +14084,10 @@ function _buildTablesCSV(colsFor,selectionLabel,fname){
   rows.push(['Selection: '+selectionLabel]);
   rows.push(['View: '+(tablesMode==='count'?'counts':'percentages')+' (where applicable)'+(tablesCollections.some(function(k){return BYCAT[k];})&&tablesCat!=='all'?'; disability category: '+tablesCat:'')]);
   rows.push([]);
+  var specsForColl=specSet||function(k){return (TBL_SPECS[k]||function(){return [];})();};
   sel.forEach(function(k){
    rows.push([COLL_META[k].name+' (IDEA Part '+COLL_META[k].part+', '+COLL_META[k].year+')']);
-   var specs=(TBL_SPECS[k]||function(){return [];})();
+   var specs=specsForColl(k)||[];
    specs.forEach(function(sp){
     rows.push([sp.title]);
     var cols=colsFor(sp);
@@ -14013,6 +14103,16 @@ function _buildTablesCSV(colsFor,selectionLabel,fname){
  }catch(e){try{alert('Sorry, the export could not be generated.');}catch(_){}}
 }
 function exportTablesCSV(){
+ if(tablesCompareBy==='category'){
+  var cats=_tblCats();
+  _buildTablesCSV(
+   function(sp){return sp.states.slice();},
+   'Disability categories: '+cats.join(', ')+' · State: '+_catStateLabel(_catStateFor(CCEE.data)),
+   'idea618_tables_by_category.csv',
+   function(k){return CAT_TBL_SPECS[k]?CAT_TBL_SPECS[k]():[];}
+  );
+  return;
+ }
  var st=_tblStates();
  var stLabel=st.map(function(c){return c===TBL_USALL?TBL_B_US:c;});
  _buildTablesCSV(
@@ -14035,25 +14135,25 @@ var GPRA_DATA={
  objective:'All children with disabilities will meet challenging standards as determined by national and State assessments with accommodations as appropriate.',
  groups:[
   {key:'naep',title:'National Assessment of Educational Progress (NAEP)',blurb:'NAEP is "the Nation’s Report Card." These measures track the share of students with disabilities reaching at least the Basic achievement level. Here, "students with disabilities" includes any student a school classifies as having a disability, including those on a Section 504 plan.',measures:[
-   {id:'naep_read4',title:'4th-grade reading at or above Basic',desc:'Percentage of fourth-grade students with disabilities scoring at or above Basic on the NAEP reading assessment.',unit:'%',goodHigh:true,rows:[[2013,40,31],[2015,40,33],[2017,40,32],[2019,40,30],[2022,40,27],[2024,40,null]]},
-   {id:'naep_math8',title:'8th-grade mathematics at or above Basic',desc:'Percentage of eighth-grade students with disabilities scoring at or above Basic on the NAEP mathematics assessment.',unit:'%',goodHigh:true,rows:[[2013,38,34],[2015,38,32],[2017,38,30],[2019,38,32],[2022,38,23],[2024,38,null]]}
+   {id:'naep_read4',title:'4th-grade reading at or above Basic',desc:'Percentage of fourth-grade students with disabilities scoring at or above Basic on the NAEP reading assessment.',unit:'%',goodHigh:true,predYear:2026,rows:[[2013,40,31],[2015,40,33],[2017,40,32],[2019,40,30],[2022,40,27],[2024,40,null]],note:'NAEP is given about every two years; the 2024 result was not yet available when the FY2025 Budget Request was published, so it is shown as —. On the 2022 reading assessment, 27% of fourth-graders with disabilities reached at least Basic, compared with 68% of other students.',src:'U.S. Department of Education, National Assessment of Educational Progress (NAEP), reported in the FY2025 Special Education Budget Request, State Grants: Grants to States, Program Performance Information (printed p. 28).'},
+   {id:'naep_math8',title:'8th-grade mathematics at or above Basic',desc:'Percentage of eighth-grade students with disabilities scoring at or above Basic on the NAEP mathematics assessment.',unit:'%',goodHigh:true,predYear:2026,rows:[[2013,38,34],[2015,38,32],[2017,38,30],[2019,38,32],[2022,38,23],[2024,38,null]],note:'NAEP is given about every two years; the 2024 result was not yet available when the FY2025 Budget Request was published, so it is shown as —. On the 2022 mathematics assessment, 23% of eighth-graders with disabilities reached at least Basic, compared with 67% of other students.',src:'U.S. Department of Education, National Assessment of Educational Progress (NAEP), reported in the FY2025 Special Education Budget Request, State Grants: Grants to States, Program Performance Information (printed p. 28).'}
   ]},
   {key:'state',title:'State Assessments, Grades 3–8',blurb:'Collected annually through EDFacts: the share of students with disabilities reaching the proficient or advanced level on State reading and mathematics tests. State results for 2020 were waived due to the COVID-19 pandemic.',measures:[
-   {id:'st_read',title:'Proficient or advanced on State reading',desc:'Percentage of students with disabilities in grades 3–8 scoring at the proficient or advanced levels on State reading assessments.',unit:'%',goodHigh:true,rows:[[2020,35,null],[2021,35,19],[2022,35,18],[2023,35,null],[2024,35,null],[2025,35,null]]},
-   {id:'st_math',title:'Proficient or advanced on State mathematics',desc:'Percentage of students with disabilities in grades 3–8 scoring at the proficient or advanced levels on State mathematics assessments.',unit:'%',goodHigh:true,rows:[[2020,35,null],[2021,35,16.95],[2022,35,15],[2023,35,null],[2024,35,null],[2025,35,null]]}
+   {id:'st_read',title:'Proficient or advanced on State reading',desc:'Percentage of students with disabilities in grades 3–8 scoring at the proficient or advanced levels on State reading assessments.',unit:'%',goodHigh:true,rows:[[2020,35,null],[2021,35,19],[2022,35,18],[2023,35,null],[2024,35,null],[2025,35,null]],note:'High-quality, representative data were not available for 2020: ED waived statewide assessment reporting for the 2019–20 school year because of COVID-19. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as —.',src:'U.S. Department of Education, EDFacts / Education Data Exchange Network (EDEN), reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 29).'},
+   {id:'st_math',title:'Proficient or advanced on State mathematics',desc:'Percentage of students with disabilities in grades 3–8 scoring at the proficient or advanced levels on State mathematics assessments.',unit:'%',goodHigh:true,rows:[[2020,35,null],[2021,35,16.95],[2022,35,15],[2023,35,null],[2024,35,null],[2025,35,null]],note:'High-quality, representative data were not available for 2020: ED waived statewide assessment reporting for the 2019–20 school year because of COVID-19. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as —.',src:'U.S. Department of Education, EDFacts / Education Data Exchange Network (EDEN), reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 29).'}
   ]},
   {key:'gap',title:'Achievement Gaps, Grades 3–8',blurb:'The gap, in percentage points, between students with disabilities and all students reaching proficient or advanced on State tests. A smaller gap is better; the target is 20 points or fewer.',measures:[
-   {id:'gap_read',title:'Reading achievement gap',desc:'Difference between the percent of students with disabilities and the percent of all students (grades 3–8) at proficient or advanced on State reading assessments.',unit:'pts',goodHigh:false,rows:[[2020,20,null],[2021,20,28],[2022,20,26],[2023,20,null],[2024,20,null],[2025,20,null]]},
-   {id:'gap_math',title:'Mathematics achievement gap',desc:'Difference between the percent of students with disabilities and the percent of all students (grades 3–8) at proficient or advanced on State mathematics assessments.',unit:'pts',goodHigh:false,rows:[[2020,20,null],[2021,20,22],[2022,20,21],[2023,20,null],[2024,20,null],[2025,20,null]]}
+   {id:'gap_read',title:'Reading achievement gap',desc:'Difference between the percent of students with disabilities and the percent of all students (grades 3–8) at proficient or advanced on State reading assessments.',unit:'pts',goodHigh:false,rows:[[2020,20,null],[2021,20,28],[2022,20,26],[2023,20,null],[2024,20,null],[2025,20,null]],note:'High-quality, representative data were not available for 2020 because of the COVID-19 assessment waiver. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as —.',src:'U.S. Department of Education, EDFacts / EDEN, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 30).'},
+   {id:'gap_math',title:'Mathematics achievement gap',desc:'Difference between the percent of students with disabilities and the percent of all students (grades 3–8) at proficient or advanced on State mathematics assessments.',unit:'pts',goodHigh:false,rows:[[2020,20,null],[2021,20,22],[2022,20,21],[2023,20,null],[2024,20,null],[2025,20,null]],note:'High-quality, representative data were not available for 2020 because of the COVID-19 assessment waiver. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as —.',src:'U.S. Department of Education, EDFacts / EDEN, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 30).'}
   ]},
   {key:'grad',title:'Graduation',blurb:'The share of students with IEPs who earn a regular high school diploma.',measures:[
-   {id:'grad',title:'Graduate with a regular high school diploma',desc:'Percentage of students with Individualized Education Programs (IEPs) who graduate from high school with a regular high school diploma.',unit:'%',goodHigh:true,rows:[[2020,72,null],[2021,75,74],[2022,75,75],[2023,75,null],[2024,75,null],[2025,75,null]]}
+   {id:'grad',title:'Graduate with a regular high school diploma',desc:'Percentage of students with Individualized Education Programs (IEPs) who graduate from high school with a regular high school diploma.',unit:'%',goodHigh:true,rows:[[2020,72,null],[2021,75,74],[2022,75,75],[2023,75,null],[2024,75,null],[2025,75,null]],note:'High-quality, representative data were not available for 2020 because of the COVID-19 reporting waiver. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as —.',src:'U.S. Department of Education, EDFacts / EDEN, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 31).'}
   ]},
   {key:'post',title:'Postsecondary Outcomes',blurb:'Tracks former students with IEPs who, within one year of leaving high school, were enrolled in higher education or training, or were employed.',measures:[
-   {id:'post',title:'Enrolled or employed within 1 year of leaving high school',desc:'Median percentage of youth no longer in secondary school who had IEPs and were enrolled in higher education or another postsecondary education/training program, or were competitively or otherwise employed, within one year of leaving high school.',unit:'%',goodHigh:true,rows:[[2020,80,74],[2021,80,77],[2022,80,null],[2023,80,null],[2024,80,null],[2025,80,null]]}
+   {id:'post',title:'Enrolled or employed within 1 year of leaving high school',desc:'Median percentage of youth no longer in secondary school who had IEPs and were enrolled in higher education or another postsecondary education/training program, or were competitively or otherwise employed, within one year of leaving high school.',unit:'%',goodHigh:true,rows:[[2020,80,74],[2021,80,77],[2022,80,null],[2023,80,null],[2024,80,null],[2025,80,null]],note:'Performance was relatively consistent from 2015 through 2019 before decreasing in 2020. FY2022 and FY2023 results were expected in July 2024 and slated for the FY2026 Congressional Justification, so 2022–2025 actuals are shown as —.',src:'State-reported data collected annually, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 31).'}
   ]},
   {key:'eff',title:'Efficiency',blurb:'How quickly OSEP responds to a State after a monitoring site visit. Fewer days is better; the target is 180 days. No site visits occurred in 2021 due to the pandemic.',measures:[
-   {id:'eff',title:'Days from site visit to OSEP response',desc:'Average number of days between the completion of a site visit and the Office of Special Education Programs’ (OSEP) response to the State.',unit:'days',goodHigh:false,rows:[[2020,null,407],[2021,null,null],[2022,180,314],[2023,180,null],[2024,180,null],[2025,180,null]]}
+   {id:'eff',title:'Days from site visit to OSEP response',desc:'Average number of days between the completion of a site visit and the Office of Special Education Programs’ (OSEP) response to the State.',unit:'days',goodHigh:false,rows:[[2020,null,407],[2021,null,null],[2022,180,314],[2023,180,null],[2024,180,null],[2025,180,null]],note:'No site visits were conducted in 2021 due to the COVID-19 pandemic, so there is no 2021 actual. The 180-day count begins the first day of the month after OSEP’s engagement month. FY2023 results were expected in December 2024, so 2023–2025 actuals are shown as —.',src:'OSEP monitoring records, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 32).'}
   ]}
  ],
  takeaways:[
@@ -14067,28 +14167,60 @@ var GPRA_DATA={
 };
 var gpraView='table',_gpraInit=false;
 function _gpraFmt(v,unit){ if(v==null)return '—'; var n=(unit==='days')?Math.round(v).toLocaleString():(Math.round(v*100)/100); return unit==='%'?n+'%':(unit==='pts'?n+' pts':(unit==='days'?n+' days':''+n)); }
+/* Predict the next value purely from the reported actuals: a least-squares trend
+   when 3+ points exist, otherwise the latest reported value (persistence).
+   Never invents a number; returns null when fewer than 2 actuals are available. */
+function _gpraPredict(m){
+ var pts=m.rows.filter(function(r){return r[2]!=null;}).map(function(r){return [r[0],r[2]];});
+ if(pts.length<2)return null;
+ var predYear=m.predYear||m.rows[m.rows.length-1][0];
+ var val,method;
+ if(pts.length>=3){
+  var n=pts.length,sx=0,sy=0,sxy=0,sxx=0;
+  pts.forEach(function(p){sx+=p[0];sy+=p[1];sxy+=p[0]*p[1];sxx+=p[0]*p[0];});
+  var den=(n*sxx-sx*sx); if(!den)return {year:predYear,value:pts[pts.length-1][1],method:'latest'};
+  var slope=(n*sxy-sx*sy)/den, intercept=(sy-slope*sx)/n;
+  val=slope*predYear+intercept; method='trend';
+ } else { val=pts[pts.length-1][1]; method='latest'; }
+ if(m.unit==='%'||m.unit==='pts') val=Math.max(0,Math.min(100,val)); else val=Math.max(0,val);
+ return {year:predYear,value:Math.round(val),method:method};
+}
 function _gpraCard(group,m){
  var rowsHtml=m.rows.map(function(r){return '<tr><td>'+r[0]+'</td><td class="dd-c">'+_gpraFmt(r[1],m.unit)+'</td><td class="dd-c">'+_gpraFmt(r[2],m.unit)+'</td></tr>';}).join('');
  var unitLabel=m.unit==='days'?'days':(m.unit==='pts'?'percentage points':'percent');
+ var pred=_gpraPredict(m);
+ var predNote=pred?(pred.method==='trend'?'Projected from the trend in the reported actuals above.':'Carried forward from the most recent reported actual (too few data points for a trend).')+' Model estimate, not an official ED target or result.':'Not enough reported data to project.';
+ var predBlock='<div class="gpra-predict"><div class="gpra-predict-head"><span class="gpra-predict-k">Predicted measure · FY'+(pred?pred.year:(m.predYear||m.rows[m.rows.length-1][0]))+'</span><span class="gpra-predict-v">'+(pred?_gpraFmt(pred.value,m.unit):'—')+'</span></div><div class="gpra-predict-note">'+predNote+'</div></div>';
+ var noteBlock=m.note?'<div class="gpra-note"><strong>Why some years are blank.</strong> '+m.note+'</div>':'';
+ var srcBlock=m.src?'<details class="tbl-srcfold gpra-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">'+m.src+'</div></details>':'';
  return '<div class="gpra-card card" data-gpra-card>'
  +'<h3>'+m.title+'</h3>'
  +'<div class="gpra-dir '+(m.goodHigh?'is-good':'is-watch')+'">'+(m.goodHigh?'Higher is better':'Lower is better')+'</div>'
  +'<div class="note">'+m.desc+' Shown in '+unitLabel+'.</div>'
  +'<div class="gpra-chartwrap"><div class="canvas-box"><canvas id="gpra_'+m.id+'" aria-label="Target vs. actual chart for '+m.title+'"></canvas></div></div>'
  +'<div class="gpra-tablewrap"><div class="dd-tablewrap"><table class="dd-table"><thead><tr><th>Year</th><th class="dd-c">Target</th><th class="dd-c">Actual</th></tr></thead><tbody>'+rowsHtml+'</tbody></table></div></div>'
+ +predBlock
+ +noteBlock
+ +srcBlock
  +'</div>';
 }
 function _gpraChart(m){
  var el=document.getElementById('gpra_'+m.id); if(!el||typeof Chart==='undefined')return;
  var old=Chart.getChart(el.id); if(old)old.destroy();
- var labels=m.rows.map(function(r){return ''+r[0];});
  var col=m.goodHigh?'#1c7b37':'#df5e44';
- var cfg={type:'line',data:{labels:labels,datasets:[
-   {label:'Target',data:m.rows.map(function(r){return r[1];}),borderColor:'#8aa0b0',borderDash:[6,4],borderWidth:2,pointRadius:0,pointHitRadius:8,spanGaps:false,fill:false,tension:0},
-   {label:'Actual',data:m.rows.map(function(r){return r[2];}),borderColor:col,backgroundColor:shade(col,.14),borderWidth:3,pointRadius:4,pointHoverRadius:6,spanGaps:false,fill:false,tension:.25}
- ]},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},
+ var years=m.rows.map(function(r){return r[0];});
+ var labels=years.slice(), tData=m.rows.map(function(r){return r[1];}), aData=m.rows.map(function(r){return r[2];});
+ var predData=years.map(function(){return null;});
+ var pred=_gpraPredict(m);
+ if(pred){var pi=years.indexOf(pred.year); if(pi<0){labels.push(pred.year);tData.push(null);aData.push(null);predData.push(pred.value);} else {predData[pi]=pred.value;}}
+ var datasets=[
+   {label:'Target',data:tData,borderColor:'#8aa0b0',borderDash:[6,4],borderWidth:2,pointRadius:0,pointHitRadius:8,spanGaps:false,fill:false,tension:0},
+   {label:'Actual',data:aData,borderColor:col,backgroundColor:shade(col,.14),borderWidth:3,pointRadius:4,pointHoverRadius:6,spanGaps:false,fill:false,tension:.25}
+ ];
+ if(pred)datasets.push({label:'Predicted',data:predData,borderColor:'#c79a1f',backgroundColor:'#c79a1f',pointStyle:'triangle',pointRadius:8,pointHoverRadius:10,showLine:false,spanGaps:false});
+ var cfg={type:'line',data:{labels:labels.map(String),datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},
    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:12,font:{size:11,weight:'700'}}},
-     tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+(o.parsed.y==null?'not available':_gpraFmt(o.parsed.y,m.unit));}}}},
+     tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+(o.parsed.y==null?'not available':_gpraFmt(o.parsed.y,m.unit))+(o.dataset.label==='Predicted'?' (projection)':'');}}}},
    scales:{x:{grid:{display:false},title:{display:true,text:'Fiscal year'}},
      y:{beginAtZero:true,ticks:{callback:function(v){return m.unit==='days'?v.toLocaleString():(m.unit==='%'?v+'%':v);}}}}}};
  new Chart(el,cfg);
@@ -14104,7 +14236,7 @@ function renderGPRA(){
  var goal=document.getElementById('gpraGoal');
  if(goal)goal.innerHTML='<div class="ey">Program goal</div><p>'+GPRA_DATA.goal+'</p><div class="ey">Objective</div><p>'+GPRA_DATA.objective+'</p>';
  var tk=document.getElementById('gpraTakeaways');
- if(tk)tk.innerHTML='<h3>What the numbers show</h3><ul>'+GPRA_DATA.takeaways.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul>';
+ if(tk)tk.innerHTML='<details class="gpra-takeaways-fold" open><summary><span class="gpra-tk-title">What the numbers show</span></summary><ul>'+GPRA_DATA.takeaways.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul></details>';
  var body=document.getElementById('gpraBody'); if(!body)return;
  try{if(typeof Chart!=='undefined')body.querySelectorAll('canvas').forEach(function(cv){var c=Chart.getChart(cv.id);if(c)c.destroy();});}catch(e){}
  body.innerHTML=GPRA_DATA.groups.map(function(g){
@@ -14285,10 +14417,12 @@ function buildSearchData(){
     {type:'Sections',label:'Compare',key:'compare',color:'#edcf36',sub:'View',terms:'compare states categories'},
     {type:'Sections',label:'State Snapshots',key:'states',color:'#edcf36',sub:'View',terms:'state profile map rankings table data display'},
     {type:'Sections',label:'Collections',key:'collections',color:'#edcf36',sub:'View',terms:'discipline exiting personnel assessment Part C NAEP Census ACS'},
+    {type:'Sections',label:'GPRA Performance Analysis',key:'gpra',color:'#edcf36',sub:'View',terms:'gpra government performance results act targets actuals measures naep state assessment proficiency achievement gap graduation postsecondary efficiency predicted projection budget'},
     {type:'Sections',label:'Sources and Notes',key:'sources',color:'#edcf36',sub:'View',terms:'references data sources notes suppression'}];
+  const gpraMeasures=(typeof GPRA_DATA!=='undefined'?GPRA_DATA.groups.reduce(function(acc,g){g.measures.forEach(function(m){acc.push({type:'GPRA measures',label:m.title,key:m.id,color:'#1c7b37',sub:g.title,terms:(g.title+' '+m.desc+' gpra performance measure target actual prediction').toLowerCase()});});return acc;},[]):[]);
   const collections=(typeof COLLECTION_TREE_META!=='undefined'?COLLECTION_TREE_META.map(function(c){var hasChart=(c.panels||[]).length>0;var hasRows=false;try{hasRows=typeof collectionTableRows==='function'&&collectionTableRows(c).rows.length>0;}catch(e){}var level=c.level==='LEA'?'LEA':'SEA';return {type:'Collections',label:level+' Part '+c.part+' '+c.name+' Collection',key:c.key,color:c.level==='LEA'?'#5b6472':(c.part==='B'?'#1f6fa8':'#2e8540'),sub:c.years+' · '+(hasChart?'Graph and table':(hasRows?'Table':'Official source files')),terms:[level,c.name,c.desc,c.status,c.years,c.url,'IDEA Section 618 collection Part '+c.part,'data.ed.gov'].join(' ')};}):(typeof CATALOG!=='undefined'?CATALOG:[]).map(function(c){return {type:'Collections',label:'IDEA Part '+c[0]+' '+c[1]+' Collection',key:'collections',color:c[0]==='B'?'#1f6fa8':'#2e8540',sub:c[4],terms:(c[2]||'')+' '+(c[1]||'')+' IDEA Section 618 data collection'};}));
   const areas=(typeof ENTITIES_618!=='undefined'?ENTITIES_618:[]).map(function(e){return {type:'Outlying Areas',label:e[0],key:e[0],color:'#cc5a33',sub:e[1],terms:'additional reporting entities territory freely associated state outlying area'};});
-  return secs.concat(sts).concat(cats).concat(collections).concat(areas);
+  return secs.concat(sts).concat(cats).concat(collections).concat(areas).concat(gpraMeasures);
 }
 let SEARCH_IDX=[],_srItems=[],_srSel=-1;
 function openCategory(c){showView('explorer');const es=document.getElementById('expSel');if(es){es.value=c;es.dispatchEvent(new Event('change'));}}
@@ -14300,7 +14434,7 @@ function runSearch(q){
   const hits=SEARCH_IDX.map(function(x){var hay=(x.label+' '+(x.sub||'')+' '+(x.terms||'')).toLowerCase();var score=0;words.forEach(function(w){if(x.label.toLowerCase()===w)score+=8;if(x.label.toLowerCase().indexOf(w)===0)score+=5;if(hay.indexOf(w)>=0)score+=2;});return Object.assign({score:score},x);}).filter(function(x){return x.score>0;}).sort(function(a,b){return b.score-a.score||a.label.localeCompare(b.label);});
   const groups={};hits.forEach(function(h){(groups[h.type]=groups[h.type]||[]).push(h);});
   let html='',idx=0;_srItems=[];
-  ['States','Sections','Collections','Categories','Outlying Areas'].forEach(function(g){if(!groups[g])return;html+=`<div class="sr-h">${g}</div>`;
+  ['States','Sections','Collections','Categories','GPRA measures','Outlying Areas'].forEach(function(g){if(!groups[g])return;html+=`<div class="sr-h">${g}</div>`;
     groups[g].slice(0,g==='States'?10:7).forEach(function(h){html+=`<button type="button" data-i="${idx}"><span class="dot" style="background:${h.color}"></span><span class="sr-main">${h.label}</span><span class="sr-sub">${h.sub}</span></button>`;_srItems.push(h);idx++;});});
   if(!_srItems.length)html='<div class="empty">No matches. Try a state abbreviation, category, collection, or topic such as graduation, assessment, discipline, or Part C.</div>';
   box.innerHTML=html;box.classList.add('open');_srSel=-1;
@@ -14312,6 +14446,7 @@ function pickSearch(i){const h=_srItems[i];if(!h)return;
   if(h.type==='Categories')openCategory(h.key);
   else if(h.type==='States')openState(h.key);
   else if(h.type==='Collections'){showView('collections');setTimeout(function(){if(typeof showCollectionItem==='function'&&h.key!=='collections'){collectionFilter='all';showCollectionItem(h.key);var target=document.querySelector('[data-coll-panel]:not([hidden])')||document.getElementById('collectionDataCard')||document.getElementById('bycollection');if(target)target.scrollIntoView({behavior:document.body.classList.contains('reduce')?'auto':'smooth',block:'start'});}else showView('collections','bycollection');},80);}
+  else if(h.type==='GPRA measures'){showView('gpra');setTimeout(function(){var el=document.getElementById('gpra_'+h.key);var card=el?el.closest('.gpra-card'):null;if(card)card.scrollIntoView({behavior:document.body.classList.contains('reduce')?'auto':'smooth',block:'start'});},90);}
   else if(h.type==='Outlying Areas'){showView('states');var ss=document.getElementById('stateSel');if(ss){var opts=[].slice.call(ss.options);var hit=opts.find(function(o){return o.value===h.label||o.textContent===h.label;})||opts.find(function(o){return /Puerto Rico|Guam|American Samoa|Virgin Islands|Micronesia|Marshall|Palau|Northern Mariana|Bureau of Indian Education/.test(o.textContent);});if(hit){ss.value=hit.value;focusState=hit.value;afterStateChange();}}}
   else showView(h.key);
 }
