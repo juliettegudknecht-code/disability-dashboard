@@ -11988,10 +11988,10 @@ const COLORS={
 
 // Educational environments (school-age, thousands) 2012 -> 2024-25
 const ENV_LBL=['2012-13','2013-14','2014-15','2015-16','2016-17','2017-18','2018-19','2019-20','2020-21','2021-22','2022-23','2023-24','2024-25'];
-const ENV={"Inside general class 80%+":[3482,3542,3622,3708,3800,3913,4040,4248,4441,4587,4760,4951,5170],"Inside general class 40\u201379%":[1122,1113,1101,1110,1121,1130,1137,1149,1100,1103,1114,1103,1123],"Inside general class <40%":[794,794,795,808,811,819,828,842,842,863,890,907,948],"Separate school":[169,167,170,169,173,172,173,177,177,166,168,170,175],"Residential facility":[19,18,17,16,16,15,14,14,13,11,11,11,11],"Parentally placed, private":[68,62,78,84,82,88,89,95,111,118,122,130,131],"Homebound / hospital":[22,23,23,23,23,23,24,24,21,26,24,25,25],"Correctional facility":[16,15,14,12,12,11,11,10,7,7,8,8,8]};
-const ENV_COL={'Inside general class 80%+':'#1a9850','Inside general class 40–79%':'#91cf60',
- 'Inside general class <40%':'#d9ef8b','Separate school':'#fee08b','Residential facility':'#fc8d59',
- 'Parentally placed, private':'#4575b4','Homebound / hospital':'#bbbbbb','Correctional facility':'#555555'};
+const ENV={"Inside regular class 80% or more of the day":[3482,3542,3622,3708,3800,3913,4040,4248,4441,4587,4760,4951,5170],"Inside regular class 40% through 79% of the day":[1122,1113,1101,1110,1121,1130,1137,1149,1100,1103,1114,1103,1123],"Inside regular class less than 40% of the day":[794,794,795,808,811,819,828,842,842,863,890,907,948],"Separate School, School Age":[169,167,170,169,173,172,173,177,177,166,168,170,175],"Residential Facility, School Age":[19,18,17,16,16,15,14,14,13,11,11,11,11],"Parentally Placed in Private Schools":[68,62,78,84,82,88,89,95,111,118,122,130,131],"Homebound/Hospital":[22,23,23,23,23,23,24,24,21,26,24,25,25],"Correctional Facilities":[16,15,14,12,12,11,11,10,7,7,8,8,8]};
+const ENV_COL={'Inside regular class 80% or more of the day':'#1a9850','Inside regular class 40% through 79% of the day':'#91cf60',
+ 'Inside regular class less than 40% of the day':'#d9ef8b','Separate School, School Age':'#fee08b','Residential Facility, School Age':'#fc8d59',
+ 'Parentally Placed in Private Schools':'#4575b4','Homebound/Hospital':'#bbbbbb','Correctional Facilities':'#555555'};
 
 // Inclusion by disability 2024-25 [in 80%+, total] (school-age)
 const INCL={"Autism":[452819,1111435],"Specific learning disability":[1983527,2516690],"Speech or language impairment":[1165608,1309525],"Other health impairment":[894998,1234765],"Developmental delay":[227847,328961],"Intellectual disability":[87399,416534],"Emotional disturbance":[180952,310855],"Multiple disabilities":[38776,157588],"Hearing impairment":[41281,62472],"Orthopedic impairment":[15532,25638],"Traumatic brain injury":[12071,23570],"Visual impairment":[16288,22870],"Deaf-blindness":[521,1679]};
@@ -12516,14 +12516,14 @@ function renderCatalog(){
 
 /* ============ DISABILITY CATEGORY EXPLORER ============ */
 const EX_ENV=[
- ['Inside regular class 80% or more of the day','In general class ≥80% of day','#1a9850'],
- ['Inside regular class 40% through 79% of the day','In general class 40–79% of day','#74c476'],
- ['Inside regular class less than 40% of the day','In general class <40% of day','#fdae61'],
- ['Separate School, School Age','Separate school','#f46d43'],
- ['Residential Facility, School Age','Residential facility','#d73027'],
- ['Parentally Placed in Private Schools','Parent-placed, private school','#4575b4'],
- ['Homebound/Hospital','Homebound / hospital','#9aa0a6'],
- ['Correctional Facilities','Correctional facility','#525866']];
+ ['Inside regular class 80% or more of the day','Inside regular class 80% or more of the day','#1a9850'],
+ ['Inside regular class 40% through 79% of the day','Inside regular class 40% through 79% of the day','#74c476'],
+ ['Inside regular class less than 40% of the day','Inside regular class less than 40% of the day','#fdae61'],
+ ['Separate School, School Age','Separate School, School Age','#f46d43'],
+ ['Residential Facility, School Age','Residential Facility, School Age','#d73027'],
+ ['Parentally Placed in Private Schools','Parentally Placed in Private Schools','#4575b4'],
+ ['Homebound/Hospital','Homebound/Hospital','#9aa0a6'],
+ ['Correctional Facilities','Correctional Facilities','#525866']];
 const EX_RACE=[['White','White','#4e79a7'],['Hispanic','Hispanic/Latino','#f28e2b'],
  ['Black','Black or African American','#59a14f'],['Asian','Asian','#76b7b2'],
  ['Multi','Two or more races','#b07aa1'],['AIAN','American Indian or Alaska Native','#edc948'],
@@ -12899,7 +12899,7 @@ function renderCollections(){
  new Chart(document.getElementById('dscChart'),{type:'bar',data:{labels:dl,datasets:[{label:'Students',data:dv,backgroundColor:dc,borderRadius:4}]},
   options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},
    tooltip:{callbacks:{label:o=>fmt(o.parsed.x)+' students'}}},scales:{x:{beginAtZero:true,ticks:{callback:v=>v.toLocaleString()}},y:{ticks:{font:{size:11}}}}}});
- const bt=C.discipline.byType,dtRows=[['Out-of-school, 10 days or fewer',bt.oss_le10,'#1f6fa8'],['In-school, 10 days or fewer',bt.iss_le10,'#2e8540'],['Out-of-school, more than 10 days',bt.oss_gt10,'#cc5a33'],['In-school, more than 10 days',bt.iss_gt10,'#f2a541'],['Interim alternative setting',bt.iaes,'#7048a8'],['Removal by hearing officer',bt.hearing,'#5b6472']].filter(function(r){return r[1]!=null;});
+ const bt=C.discipline.byType,dtRows=[['Children Suspended Expelled 10 Days or Less OSS',bt.oss_le10,'#1f6fa8'],['Children Suspended 10 Days or Less ISS',bt.iss_le10,'#2e8540'],['Children Suspended Expelled more than 10 Days OSS',bt.oss_gt10,'#cc5a33'],['Children Suspended more than 10 Days ISS',bt.iss_gt10,'#f2a541'],['Children Unilaterally Removed to an IAES',bt.iaes,'#7048a8'],['Children Removed by Hearing Officer likely injury',bt.hearing,'#5b6472']].filter(function(r){return r[1]!=null;});
  var rankList=document.getElementById('dscTypeList');
  if(rankList){
   var maxDt=dtRows.reduce(function(a,r){return Math.max(a,r[1]||0);},0)||1;
@@ -13323,7 +13323,7 @@ function renderNationalSnapshot(){
   var st=COLL.partc_count.settings;
   var pcRows=[
    {label:'Home',value:pct(st.Home,COLL.partc_count.total),color:'#2e8540',note:'IDEA Part C, birth through age 2, School Year 2024–25'},
-   {label:'Community-based setting',value:pct(st['Community-Based Setting'],COLL.partc_count.total),color:'#005ea2',note:'IDEA Part C, birth through age 2, School Year 2024–25'},
+   {label:'Community-Based Setting',value:pct(st['Community-Based Setting'],COLL.partc_count.total),color:'#005ea2',note:'IDEA Part C, birth through age 2, School Year 2024–25'},
    {label:'Other setting',value:pct(st['Other Setting'],COLL.partc_count.total),color:'#cc5a33',note:'IDEA Part C, birth through age 2, School Year 2024–25'}
   ];
   new Chart(pc,{type:'bar',data:{labels:pcRows.map(function(r){return r.label;}),datasets:[{label:'Percent of infants and toddlers served',data:pcRows.map(function(r){return +r.value.toFixed(1);}),backgroundColor:pcRows.map(function(r){return r.color;}),borderRadius:7,_note:pcRows.map(function(r){return r.note;})}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){return o.parsed.x+'% · '+o.dataset._note[o.dataIndex];}}}},scales:{x:{beginAtZero:true,max:100,ticks:{callback:function(v){return v+'%';}},title:{display:true,text:'Percent of infants and toddlers served under Part C'}},y:{grid:{display:false},ticks:{font:{size:11,weight:'700'}}}}}});
@@ -13988,7 +13988,7 @@ function _specChildCount(){
  return {title:'Child Count by Disability Category',part:'B',src:'IDEA Section 618 Child Count and Educational Environments collection, ages 3–21',year:'School Year 2024–25',rowHeader:'Primary disability category',cap:(tablesMode==='count'?'Counts. Number of students served under IDEA Part B by primary disability category.':'Percentages. Each category as a share of all students served under IDEA Part B.'),rows:rows,metrics:[metric],states:_tblStatesFor(CCEE.data),usKey:_usKeyOf(CCEE.data),scroll:_scroll(1),pie:true};
 }
 function _specEnv(){
- var envs=[['reg80','Regular class 80%+'],['reg4079','Regular class 40–79%'],['reglt40','Regular class &lt;40%'],['sepclass','Separate class'],['sepschool','Separate school'],['resfac','Residential facility'],['homebound','Homebound/hospital'],['correct','Correctional facility'],['private','Private (parent placed)']];
+ var envs=[['reg80','Inside regular class 80% or more of the day'],['reg4079','Inside regular class 40% through 79% of the day'],['reglt40','Inside regular class less than 40% of the day'],['sepclass','Separate Class'],['sepschool','Separate School, School Age'],['resfac','Residential Facility, School Age'],['homebound','Homebound/Hospital'],['correct','Correctional Facilities'],['private','Parentally Placed in Private Schools']];
  var rows=_catFilter(['All Disabilities'].concat(CCEE.cats.filter(function(c){return c!=='All Disabilities';})).map(function(c){return {key:c,label:c==='All Disabilities'?'All disabilities':c,isTotal:c==='All Disabilities'};}));
  var metrics=envs.map(function(e){return {label:e[1],cell:function(c,cat){var a=CCEE.data[c]&&CCEE.data[c][cat]; if(!a)return _tNa(); var v=a[TBL_FI[e[0]]]; if(tablesMode==='count')return _tN(v); return _tPc(v,a[TBL_FI.totalSA]);}};});
  return {title:'Educational Environments by Disability Category',part:'B',src:'IDEA Section 618 Educational Environments collection, school age, ages 5–21',year:'School Year 2024–25',rowHeader:'Primary disability category',cap:(tablesMode==='count'?'Counts. School-age students (ages 5–21) in each educational environment.':'Percentages. Each category by educational environment (school age, ages 5–21).'),rows:rows,metrics:metrics,states:_tblStatesFor(CCEE.data),usKey:_usKeyOf(CCEE.data),scroll:true,pie:true};
@@ -14027,14 +14027,14 @@ function _specExitB(){
 }
 function _specDiscB(){
  var rows=_catFilter(CCEE.cats.map(function(c){return {key:c,label:c==='All Disabilities'?'All disabilities':c,isTotal:c==='All Disabilities'};}));
- var brk=[['Out-of-school ≤10 days',1,'oss10'],['Out-of-school >10 days',2,'oss10p'],['In-school ≤10 days',3,'iss10'],['In-school >10 days',4,'iss10p'],['Unilateral to interim',5,'unil'],['By hearing officer',6,'hear']];
- var metrics=[{label:'Total removals',noChart:true,sf:'tot',cell:function(c,cat){var a=CCOLL.discB.data[c]&&CCOLL.discB.data[c][cat]; return a?_tN(a[0]):_tNa();}}];
+ var brk=[['Children Suspended Expelled 10 Days or Less OSS',1,'oss10'],['Children Suspended Expelled more than 10 Days OSS',2,'oss10p'],['Children Suspended 10 Days or Less ISS',3,'iss10'],['Children Suspended more than 10 Days ISS',4,'iss10p'],['Children Unilaterally Removed to an IAES',5,'unil'],['Children Removed by Hearing Officer likely injury',6,'hear']];
+ var metrics=[{label:'Total Disciplinary Removals',noChart:true,sf:'tot',cell:function(c,cat){var a=CCOLL.discB.data[c]&&CCOLL.discB.data[c][cat]; return a?_tN(a[0]):_tNa();}}];
  brk.forEach(function(b){metrics.push({label:b[0],sf:b[2],cell:function(c,cat){var a=CCOLL.discB.data[c]&&CCOLL.discB.data[c][cat]; if(!a)return _tNa(); var v=a[b[1]]; if(tablesMode==='count')return _tN(v); return _tPc(v,a[0]);}});});
  return {title:'Disciplinary Removals by Disability Category (Part B)',part:'B',src:'IDEA Section 618 Discipline Collection',year:'School Year 2023–24',rowHeader:'Primary disability category',cap:(tablesMode==='count'?'Counts of disciplinary removals by type.':'Total removals as counts; breakdown columns as a percent of that category total.')+' OSS is out-of-school; ISS is in-school.',rows:rows,metrics:metrics,states:_tblStatesFor(CCOLL.discB.data),usKey:_usKeyOf(CCOLL.discB.data),scroll:true,pie:true};
 }
 function _specPersB(){
  var labels={'Special Education Teachers for School Age':'Sp. ed. teachers (school age)','Special Education Teachers for Early Childhood':'Sp. ed. teachers (early childhood)','Total Special Education Teachers':'All sp. ed. teachers','Total Special Education Paraprofessionals':'Sp. ed. paraprofessionals','Psychologists':'Psychologists','Speech-Language Pathologists':'Speech-language pathologists','Occupational Therapists':'Occupational therapists','Physical Therapists':'Physical therapists','Social Workers':'Social workers','Counselors and Rehabilitation Counselors':'Counselors / rehab counselors','Audiologists':'Audiologists','Interpreters':'Interpreters'};
- var rows=CCOLL.persB.types.map(function(t){return {key:t,label:labels[t]||t,isTotal:t.indexOf('Total')===0};});
+ var rows=CCOLL.persB.types.map(function(t){return {key:t,label:t,isTotal:t.indexOf('Total')===0};});
  var metrics=[
   {label:'FTE employed',cell:function(c,t){var a=CCOLL.persB.data[c]&&CCOLL.persB.data[c][t]; return a?_tF(a[0]):_tNa();}},
   {label:'Fully certified',cell:function(c,t){var a=CCOLL.persB.data[c]&&CCOLL.persB.data[c][t]; return a?_tF(a[1]):_tNa();}},
@@ -14073,7 +14073,7 @@ function _specPcSex(){
  return {title:'Child Count by Sex (Part C)',part:'C',src:'IDEA Section 618 Part C Child Count and Settings Collection, birth through age 2',year:'School Year 2024–25',rowHeader:'Sex',cap:(tablesMode==='count'?'Counts of infants and toddlers served under IDEA Part C, by reported sex.':'Each group as a share of all infants and toddlers served.'),rows:rows,metrics:[metric],states:_tblStatesFor(PC_COUNT.data),usKey:_usKeyOf(PC_COUNT.data),scroll:_scroll(1),pie:true};
 }
 function _specPcSettings(){
- var rows=[{key:'Home',label:'Home'},{key:'Community-Based Setting',label:'Community-based setting'},{key:'Other Setting',label:'Other setting'},{key:'At-Risk Infants and Toddlers',label:'At-risk infants and toddlers'},{key:'Total',label:'Total served',isTotal:true}];
+ var rows=[{key:'Home',label:'Home'},{key:'Community-Based Setting',label:'Community-Based Setting'},{key:'Other Setting',label:'Other Setting'},{key:'At-Risk Infants and Toddlers',label:'At-Risk Infants and Toddlers'},{key:'Total',label:'Total',isTotal:true}];
  var metric={label:'',cell:function(c,key){var d=CCOLL.pcSettings.data[c]; if(!d)return _tNa(); var v=d[key]; if(v==null)return _tNa(); if(tablesMode==='count')return _tN(v); return _tPc(v,d['Total']);}};
  return {title:'Early Intervention Settings (Part C)',part:'C',src:'IDEA Section 618 Part C Child Count and Settings Collection, birth through age 2',year:'School Year 2024–25',rowHeader:'Primary early intervention setting',cap:(tablesMode==='count'?'Counts of infants and toddlers (birth through age 2) by setting.':'Each setting as a share of all infants and toddlers served.'),rows:rows,metrics:[metric],states:_tblStatesFor(CCOLL.pcSettings.data),usKey:_usKeyOf(CCOLL.pcSettings.data),scroll:_scroll(1),pie:true};
 }
@@ -14101,13 +14101,13 @@ function _catCCEEspec(opts){
  var metric={label:'',cell:function(c,rk){var a=CCEE.data[st]&&CCEE.data[st][c]; if(!a)return _tNa(); var v=a[TBL_FI[rk]]; if(v==null)return _tNa(); if(tablesMode==='count')return _tN(v); return _tPc(v,opts.base(a));}};
  return {title:opts.title,part:'B',src:opts.src,year:'School Year 2024–25',rowHeader:opts.rowHeader,cap:_catCap(st,opts.cap),rows:opts.rows,metrics:[metric],states:cats,usKey:null,scroll:_scroll(1),pie:opts.pie};
 }
-function _catSpecEnv(){return _catCCEEspec({title:'Educational Environments by Disability Category',src:'IDEA Section 618 Educational Environments collection, school age, ages 5–21',rowHeader:'Educational environment',cap:'School-age students (ages 5–21).',pie:true,base:function(a){return a[TBL_FI.totalSA];},rows:[{key:'reg80',label:'Regular class 80%+'},{key:'reg4079',label:'Regular class 40–79%'},{key:'reglt40',label:'Regular class &lt;40%'},{key:'sepclass',label:'Separate class'},{key:'sepschool',label:'Separate school'},{key:'resfac',label:'Residential facility'},{key:'homebound',label:'Homebound/hospital'},{key:'correct',label:'Correctional facility'},{key:'private',label:'Private (parent placed)'}]});}
+function _catSpecEnv(){return _catCCEEspec({title:'Educational Environments by Disability Category',src:'IDEA Section 618 Educational Environments collection, school age, ages 5–21',rowHeader:'Educational environment',cap:'School-age students (ages 5–21).',pie:true,base:function(a){return a[TBL_FI.totalSA];},rows:[{key:'reg80',label:'Inside regular class 80% or more of the day'},{key:'reg4079',label:'Inside regular class 40% through 79% of the day'},{key:'reglt40',label:'Inside regular class less than 40% of the day'},{key:'sepclass',label:'Separate Class'},{key:'sepschool',label:'Separate School, School Age'},{key:'resfac',label:'Residential Facility, School Age'},{key:'homebound',label:'Homebound/Hospital'},{key:'correct',label:'Correctional Facilities'},{key:'private',label:'Parentally Placed in Private Schools'}]});}
 function _catSpecRace(){return _catCCEEspec({title:'Race and Ethnicity by Disability Category',src:'IDEA Section 618 Child Count and Educational Environments collection, school age, ages 5–21',rowHeader:'Race or ethnicity',cap:'School-age students (ages 5–21).',pie:true,base:function(a){return a[TBL_FI.totalSA];},rows:[{key:'aian',label:'American Indian or Alaska Native'},{key:'asian',label:'Asian'},{key:'black',label:'Black or African American'},{key:'hisp',label:'Hispanic/Latino'},{key:'nhpi',label:'Native Hawaiian or Other Pacific Islander'},{key:'two',label:'Two or more races'},{key:'white',label:'White'}]});}
 function _catSpecSex(){return _catCCEEspec({title:'Sex by Disability Category',src:'IDEA Section 618 Child Count and Educational Environments collection, school age, ages 5–21',rowHeader:'Sex',cap:'School-age students (ages 5–21).',pie:true,base:function(a){return (a[TBL_FI.female]!=null&&a[TBL_FI.male]!=null)?a[TBL_FI.female]+a[TBL_FI.male]:null;},rows:[{key:'female',label:'Female'},{key:'male',label:'Male'}]});}
 function _catSpecEL(){return _catCCEEspec({title:'English Learners by Disability Category',src:'IDEA Section 618 Child Count and Educational Environments collection, school age, ages 5–21',rowHeader:'English learner status',cap:'School-age students (ages 5–21).',pie:true,base:function(a){return (a[TBL_FI.elYes]!=null&&a[TBL_FI.elNo]!=null)?a[TBL_FI.elYes]+a[TBL_FI.elNo]:null;},rows:[{key:'elYes',label:'English learner'},{key:'elNo',label:'Not an EL'}]});}
 function _catSpecDisc(){
  var st=_catStateFor(CCOLL.discB.data),cats=_tblCats();
- var defs=[{key:'tot',idx:0,label:'Total removals',countOnly:true},{key:'oss10',idx:1,label:'Out-of-school ≤10 days'},{key:'oss10p',idx:2,label:'Out-of-school >10 days'},{key:'iss10',idx:3,label:'In-school ≤10 days'},{key:'iss10p',idx:4,label:'In-school >10 days'},{key:'unil',idx:5,label:'Unilateral to interim'},{key:'hear',idx:6,label:'By hearing officer'}];
+ var defs=[{key:'tot',idx:0,label:'Total Disciplinary Removals',countOnly:true},{key:'oss10',idx:1,label:'Children Suspended Expelled 10 Days or Less OSS'},{key:'oss10p',idx:2,label:'Children Suspended Expelled more than 10 Days OSS'},{key:'iss10',idx:3,label:'Children Suspended 10 Days or Less ISS'},{key:'iss10p',idx:4,label:'Children Suspended more than 10 Days ISS'},{key:'unil',idx:5,label:'Children Unilaterally Removed to an IAES'},{key:'hear',idx:6,label:'Children Removed by Hearing Officer likely injury'}];
  var map={}; defs.forEach(function(d){map[d.key]=d;});
  var rows=defs.map(function(d){return {key:d.key,label:d.label};});
  var metric={label:'',cell:function(c,rk){var a=CCOLL.discB.data[st]&&CCOLL.discB.data[st][c]; if(!a)return _tNa(); var d=map[rk]; var v=a[d.idx]; if(v==null)return _tNa(); if(d.countOnly||tablesMode==='count')return _tN(v); return _tPc(v,a[0]);}};
