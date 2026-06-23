@@ -14326,7 +14326,7 @@ function _gpraChart(m){
  ];
  var last=m.rows[m.rows.length-1];
  var pf=(last[2]==null)?_gpraPredictFrom(m):null;
- if(pf){var predData=m.rows.map(function(r){return null;}); predData[predData.length-1]=Math.round(pf.value*10)/10; datasets.push({label:'Predicted (from Tables data)',data:predData,borderColor:'#c79a1f',backgroundColor:'#c79a1f',pointStyle:'triangle',pointRadius:8,pointHoverRadius:10,showLine:false,spanGaps:false});}
+ if(pf){var predData=m.rows.map(function(r){return null;}); predData[predData.length-1]=Math.round(pf.value*10)/10; datasets.push({label:'Predicted',data:predData,borderColor:'#c79a1f',backgroundColor:'#c79a1f',pointStyle:'triangle',pointRadius:8,pointHoverRadius:10,showLine:false,spanGaps:false});}
  var cfg={type:'line',data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},
    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:12,font:{size:11,weight:'700'}}},
      tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+(o.parsed.y==null?'not reported':_gpraFmt(o.parsed.y,m.unit));}}}},
