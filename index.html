@@ -11696,6 +11696,11 @@ body.hc .home-bubblewrap .hb-v,body.hc .home-bubblewrap .hb-l{fill:#fff}
 body.dark .view[data-view="lea"] .lea-supnote{background:#26220f;border-color:#5a4e22;color:#e8d9a8}
 body.dark .view[data-view="lea"] .lea-supnote b{color:#fff3c4}
 
+.view[data-view="lea"] .lea-align-note{margin-top:11px;padding:9px 12px;border:1px solid var(--line);border-left:4px solid #b8860b;border-radius:8px;background:rgba(184,134,11,.07);font-size:.76rem;line-height:1.45;color:var(--muted)}
+.view[data-view="lea"] .lea-align-note b{color:var(--ink);font-weight:700}
+body.dark .view[data-view="lea"] .lea-align-note{background:rgba(184,134,11,.12);border-color:#2f3a48}
+body.dark .view[data-view="lea"] .lea-align-note b{color:#ededeb}
+
 /* LEA category chart: taller so 13 wrapped category labels don't overlap */
 .view[data-view="lea"] .lea-cat-box{height:480px!important}
 .view[data-view="lea"] .lea-bubble-svg{min-height:300px}
@@ -15758,7 +15763,7 @@ function _leaRenderState(state,list){
   '<div class="kpi autism"><div class="l">Largest district</div><div class="v" style="font-size:1.25rem;line-height:1.15">'+(withCount[0]?withCount[0].name:'—')+'</div><div class="c">'+(withCount[0]?_leaFmt(withCount[0].served)+' served':'')+'</div></div>'+
   '</div>'+
   '<div class="grid g2 lea-grid">'+
-   '<div class="card fig"><div class="ey">District landscape</div><h3>Every district by size and IDEA funding</h3><div class="note">Each bubble is one district: across = children &amp; students served (2024–25), up = total IDEA Part&nbsp;B allocation (2021–22), size = children served. Click a bubble to open that district.</div><div class="canvas-box tall"><canvas id="leaLandscape"></canvas></div></div>'+
+   '<div class="card fig"><div class="ey">District landscape</div><h3>Every district by size and IDEA funding</h3><div class="note">Each bubble is one district: across = children &amp; students served (2024–25), up = total IDEA Part&nbsp;B allocation (2021–22), size = children served. Click a bubble to open that district. The two collections are different years and are matched by NCES&nbsp;ID, so they may not align exactly for every district.</div><div class="canvas-box tall"><canvas id="leaLandscape"></canvas></div></div>'+
    '<div class="card"><div class="ey">Ranked</div><h3>Largest districts</h3><div class="note">By children &amp; students served. Choose one to open it.</div><div class="lea-ranklist" id="leaRankList"></div></div>'+
   '</div>';
  var rl=document.getElementById('leaRankList');var topN=withCount.slice(0,25),maxT=topN.length?(topN[0].served||1):1;
@@ -15788,7 +15793,8 @@ function _leaFundCard(f){
  var met=f.met==='Y'?'Yes':(f.met==='N'?'No':'—'),ceis=f.ceis==='Y'?'Yes':(f.ceis==='N'?'No':'—');
  var det=_leaDetInfo(f.det);
  var detBlock=det?('<div class="lea-det lea-det-'+det.c+'"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600(a)(2), SY 2021–22</small></span><span class="lea-det-v"><span class="lea-det-dot" aria-hidden="true"></span>'+det.l+'</span></div><div class="lea-det-w">The State determined that the LEA <b>'+det.w.charAt(0).toLowerCase()+det.w.slice(1)+'</b></div></div>'):'<div class="lea-det lea-det-na"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600(a)(2), SY 2021–22</small></span><span class="lea-det-v">Not reported</span></div></div>';
- return detBlock+'<div class="lea-fundgrid">'+row('Section 611 allocation',_leaMoney(f.f611))+row('Section 619 allocation',_leaMoney(f.f619))+row('Total Section 611 + 619',_leaMoney(f.ftot))+row('Met the MOE standard',met)+row('Reduction of funds taken',_leaMoney(f.red))+row('Required to reserve CEIS',ceis)+(f.ceisN!=null?row('Children receiving CEIS',_leaFmt(f.ceisN)):'')+'</div>';
+ var alignNote='<div class="lea-align-note">⚠ These funding, MOE, and determination figures are from <b>SY 2021–22</b>, while the child counts above are from <b>2024–25</b>. Districts open, close, and merge over time and are matched between the two collections by NCES ID, so the MOE record and the Child Count may not line up exactly for every district.</div>';
+ return detBlock+'<div class="lea-fundgrid">'+row('Section 611 allocation',_leaMoney(f.f611))+row('Section 619 allocation',_leaMoney(f.f619))+row('Total Section 611 + 619',_leaMoney(f.ftot))+row('Met the MOE standard',met)+row('Reduction of funds taken',_leaMoney(f.red))+row('Required to reserve CEIS',ceis)+(f.ceisN!=null?row('Children receiving CEIS',_leaFmt(f.ceisN)):'')+'</div>'+alignNote;
 }
 function _leaRenderProfile(lea,list){
  var status=document.getElementById('leaStatus'),body=document.getElementById('leaBody');
