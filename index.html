@@ -11705,6 +11705,45 @@ body.dark .view[data-view="lea"] .lea-align-note b{color:#ededeb}
 .view[data-view="lea"] .lea-cat-box{height:480px!important}
 .view[data-view="lea"] .lea-bubble-svg{min-height:300px}
 
+/* ---------- LEA waffle reframe (students vs districts) ---------- */
+.view[data-view="lea"] .lea-waffles{display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start;margin-top:8px}
+.view[data-view="lea"] .lea-waffle-col .lbl{font-size:.8rem;color:var(--muted);margin-bottom:8px}
+.view[data-view="lea"] .lea-waffle-col .lbl b{color:var(--ink);font-weight:800}
+.view[data-view="lea"] .lea-waffle{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;width:200px}
+.view[data-view="lea"] .lea-wsq{aspect-ratio:1;border-radius:2px}
+.view[data-view="lea"] .lea-leg{display:flex;flex-wrap:wrap;gap:13px;margin-top:14px;font-size:.76rem;color:var(--muted)}
+.view[data-view="lea"] .lea-leg span{display:flex;align-items:center;gap:5px}
+.view[data-view="lea"] .lea-leg i{width:11px;height:11px;border-radius:2px;display:inline-block}
+.view[data-view="lea"] .lea-punch{margin-top:15px;padding:12px 15px;border-radius:9px;background:var(--line2);border-left:4px solid #cc5a33;font-size:.92rem;line-height:1.55;color:var(--ink)}
+.view[data-view="lea"] .lea-punch b{font-weight:800}
+
+/* ---------- LEA funding flow (Sankey) ---------- */
+.view[data-view="lea"] .lea-flow-svg{width:100%;height:auto;display:block;max-width:780px;margin:0 auto}
+.view[data-view="lea"] .lea-flow-t{fill:var(--ink);font-weight:700}
+.view[data-view="lea"] .lea-flow-s{fill:var(--muted)}
+.view[data-view="lea"] .lea-flow-note{margin-top:12px;padding:10px 13px;border-radius:9px;background:var(--line2);border-left:4px solid var(--gold);font-size:.8rem;line-height:1.5;color:var(--muted)}
+.view[data-view="lea"] .lea-flow-note b{color:var(--ink);font-weight:700}
+
+/* ---------- LEA state report cards ---------- */
+.view[data-view="lea"] .lea-sc-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 0 15px}
+.view[data-view="lea"] .lea-sc-bar label{font-size:.8rem;color:var(--muted);font-weight:700}
+.view[data-view="lea"] .lea-sc-bar select{padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:var(--line2);color:var(--ink);font-size:.82rem}
+.view[data-view="lea"] .lea-scards{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:12px}
+.view[data-view="lea"] .lea-scard{border:1px solid var(--line);border-radius:11px;padding:13px 14px;background:#fff;cursor:pointer;transition:border-color .12s,transform .12s}
+body.dark .view[data-view="lea"] .lea-scard{background:#16202c;border-color:#2f3a48}
+.view[data-view="lea"] .lea-scard:hover{border-color:var(--navy);transform:translateY(-1px)}
+.view[data-view="lea"] .lea-scard-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.view[data-view="lea"] .lea-scard-h b{font-size:.97rem;font-weight:800;color:var(--navy)}
+body.dark .view[data-view="lea"] .lea-scard-h b{color:#9fc3ec}
+.view[data-view="lea"] .lea-scard-h span{font-size:.7rem;color:var(--muted);white-space:nowrap}
+.view[data-view="lea"] .lea-scard-served{font-size:1.5rem;font-weight:800;color:var(--ink);margin-top:7px;line-height:1}
+.view[data-view="lea"] .lea-scard-cap{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}
+.view[data-view="lea"] .lea-scard-row{margin-top:8px}
+.view[data-view="lea"] .lea-scard-row .v{display:flex;justify-content:space-between;align-items:baseline;font-size:.77rem;color:var(--muted)}
+.view[data-view="lea"] .lea-scard-row .v b{color:var(--ink);font-weight:800;font-size:.85rem}
+.view[data-view="lea"] .lea-scard-track{height:5px;border-radius:3px;background:var(--line);margin-top:4px;overflow:hidden}
+.view[data-view="lea"] .lea-scard-fill{height:100%;border-radius:3px}
+
 /* ---------- LEA MOE determination badge ---------- */
 .view[data-view="lea"] .lea-det{margin:10px 0 6px;padding:11px 13px;border:1px solid var(--line);border-left:5px solid var(--muted);border-radius:9px;background:var(--line2)}
 .view[data-view="lea"] .lea-det-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
@@ -15675,9 +15714,9 @@ async function loadLEAData(){
  var iState=_leaHdrIdx(H,'State Name'),iName=_leaHdrIdx(H,'LEA Name'),iNces=_leaHdrIdx(H,'NCES LEA ID'),iTot=_leaHdrIdx(H,'Combined Early Childhood and School Age Total'),iEc=_leaHdrIdx(H,'Early Childhood All Disabilities'),iSa=_leaHdrIdx(H,'School Age All Disabilities');
  var catIdx=LEA_CATS.map(function(c){return _leaHdrIdx(H,'School Age '+c);});
  var mh=_leaFindHeader(mm,'Reporting Year'),MH=mh>=0?mm[mh]:[];
- var mNces=_leaHdrIdx(MH,'NCESID'),m611=_leaHdrIdx(MH,'Section 611 of IDEA FFY 2021'),m619=_leaHdrIdx(MH,'Section 619 of IDEA FFY 2021'),mTot=_leaHdrIdx(MH,'Section 611 and 619 of IDEA for FFY 2021'),mRed=_leaHdrIdx(MH,'Reduction of local'),mRedPct=_leaHdrIdx(MH,'Percent of the available reduction'),mDet=_leaHdrIdx(MH,'Determination under 34 CFR 300.600'),mMet=_leaHdrIdx(MH,'Did the LEA/ESA meet the MOE'),mCeis=_leaHdrIdx(MH,'Required CEIS Was the LEA/ESA required to use 15%'),mCeisN=_leaHdrIdx(MH,'Total number of children receiving CEIS');
+ var mNces=_leaHdrIdx(MH,'NCESID'),m611=_leaHdrIdx(MH,'Section 611 of IDEA FFY 2021'),m619=_leaHdrIdx(MH,'Section 619 of IDEA FFY 2021'),mTot=_leaHdrIdx(MH,'Section 611 and 619 of IDEA for FFY 2021'),mRed=_leaHdrIdx(MH,'Reduction of local'),mRedPct=_leaHdrIdx(MH,'Percent of the available reduction'),mDet=_leaHdrIdx(MH,'Determination under 34 CFR 300.600'),mMet=_leaHdrIdx(MH,'Did the LEA/ESA meet the MOE'),mCeis=_leaHdrIdx(MH,'Required CEIS Was the LEA/ESA required to use 15%'),mCeisN=_leaHdrIdx(MH,'Total number of children receiving CEIS'),mCeisReq=_leaHdrIdx(MH,'Amount reserved for required CEIS'),mCeisVol=_leaHdrIdx(MH,'Amount reserved for voluntary CEIS');
  var fundBy={};
- for(var r=mh+1;mh>=0&&r<mm.length;r++){var row=mm[r];if(!row||row.length<5)continue;var key=parseInt(((row[mNces]||'')+'').replace(/[^0-9]/g,''),10);if(!key)continue;fundBy[key]={f611:_leaNum(row[m611]),f619:_leaNum(row[m619]),ftot:_leaNum(row[mTot]),red:_leaNum(row[mRed]),redPct:_leaNum(row[mRedPct]),det:(mDet>=0?(row[mDet]||'').trim():''),met:(row[mMet]||'').trim(),ceis:(row[mCeis]||'').trim(),ceisN:_leaNum(row[mCeisN])};}
+ for(var r=mh+1;mh>=0&&r<mm.length;r++){var row=mm[r];if(!row||row.length<5)continue;var key=parseInt(((row[mNces]||'')+'').replace(/[^0-9]/g,''),10);if(!key)continue;fundBy[key]={f611:_leaNum(row[m611]),f619:_leaNum(row[m619]),ftot:_leaNum(row[mTot]),red:_leaNum(row[mRed]),redPct:_leaNum(row[mRedPct]),det:(mDet>=0?(row[mDet]||'').trim():''),met:(row[mMet]||'').trim(),ceis:(row[mCeis]||'').trim(),ceisN:_leaNum(row[mCeisN]),ceisAmt:(mCeisReq>=0?_leaNum(row[mCeisReq]):null),ceisVol:(mCeisVol>=0?_leaNum(row[mCeisVol]):null)};}
  var byState={},statesSet={};
  for(var rr2=ch+1;rr2<cc.length;rr2++){var rr=cc[rr2];if(!rr||rr.length<6)continue;var stn=(rr[iState]||'').trim(),nm=(rr[iName]||'').trim();if(!stn||!nm)continue;var nKey=parseInt(((rr[iNces]||'')+'').replace(/[^0-9]/g,''),10);
   var cats={};catIdx.forEach(function(ci,k){cats[LEA_CATS[k]]=ci>=0?_leaNum(rr[ci]):null;});
@@ -15747,6 +15786,87 @@ function _leaRender(){
  if(LEA_SEL){if(back)back.hidden=false;_leaRenderProfile(LEA_SEL,list);}
  else{if(back)back.hidden=true;_leaRenderState(LEA_STATE,list);}
 }
+function _leaUsdShort(n){n=+n||0;var a=Math.abs(n);if(a>=1e9)return '$'+(n/1e9).toFixed(1)+'B';if(a>=1e6)return '$'+(n/1e6).toFixed(a>=1e8?0:1)+'M';if(a>=1e3)return '$'+Math.round(n/1e3)+'K';return '$'+Math.round(n);}
+function _leaWaffleHTML(parts){
+ var tot=parts.reduce(function(a,p){return a+(p.v||0);},0)||1;
+ var raw=parts.map(function(p){return (p.v||0)/tot*100;});
+ var fl=raw.map(function(x){return Math.floor(x);});
+ var rem=100-fl.reduce(function(a,b){return a+b;},0);
+ var ord=raw.map(function(x,i){return {i:i,f:x-Math.floor(x)};}).sort(function(a,b){return b.f-a.f;});
+ for(var k=0;k<rem&&ord.length;k++){fl[ord[k%ord.length].i]++;}
+ var sq='';parts.forEach(function(p,i){for(var j=0;j<fl[i];j++){sq+='<span class="lea-wsq" style="background:'+p.c+'"></span>';}});
+ return '<div class="lea-waffle" role="img" aria-label="waffle chart, one square is about one percent">'+sq+'</div>';
+}
+function _leaDetLeg(){return '<div class="lea-leg"><span><i style="background:#2e8540"></i>Meets requirements</span><span><i style="background:#b8860b"></i>Needs assistance</span><span><i style="background:#cc5a33"></i>Needs intervention</span><span><i style="background:#b8472f"></i>Needs substantial intervention</span></div>';}
+function _leaFlowSVG(d){
+ var W=760,H=300;
+ var f611=(d.f611!=null?d.f611:0),f619=(d.f619!=null?d.f619:0);
+ var total=(d.ftot!=null?d.ftot:(f611+f619))||0;
+ if(total<=0)return '<div class="note" style="margin-top:8px">No 2021–22 allocation data to chart for this selection.</div>';
+ var req=(d.ceisAmt&&d.ceisAmt>0)?d.ceisAmt:0, vol=(d.ceisVol&&d.ceisVol>0)?d.ceisVol:0;
+ if(req+vol>total){var sc=total/(req+vol);req*=sc;vol*=sc;}
+ var ceis=req+vol, services=Math.max(0,total-ceis);
+ var targets=[{label:'Special education & related services',v:services,c:'#2e8540'},{label:'Reserved for CEIS',v:ceis,c:'#cc5a33'}].filter(function(t){return t.v>0;});
+ var dark=document.body.classList.contains('dark');
+ var tcol=dark?'#ededeb':'#1a2230', scol=dark?'#9fb0c0':'#5a6675';
+ var top=34, regionH=H-top-30, gap=14, nT=targets.length;
+ var srcH=nT>1?regionH-(nT-1)*gap:regionH;
+ var sx=250, sw=18, tx=510, tw=18, midX=(sx+sw+tx)/2;
+ var srcTop=top+(nT>1?(nT-1)*gap:0)/2;
+ var seg611=srcH*(f611/total), seg619=srcH*(f619/total);
+ var ribbons='', nodes='', labels='', so=0, ty=top;
+ targets.forEach(function(t){
+  var h=srcH*(t.v/total), sy=srcTop+so; so+=h; var ty0=ty; ty+=h+gap; var mx=midX;
+  ribbons+='<path d="M'+(sx+sw)+' '+sy+' C'+mx+' '+sy+','+mx+' '+ty0+','+tx+' '+ty0+' L'+tx+' '+(ty0+h)+' C'+mx+' '+(ty0+h)+','+mx+' '+(sy+h)+','+(sx+sw)+' '+(sy+h)+' Z" fill="'+t.c+'" fill-opacity="0.4"/>';
+  nodes+='<rect x="'+tx+'" y="'+ty0+'" width="'+tw+'" height="'+Math.max(1,h)+'" rx="2" fill="'+t.c+'"/>';
+  var lc=ty0+h/2;
+  labels+='<text x="'+(tx+tw+11)+'" y="'+(lc-2)+'" font-size="12.5" font-weight="700" fill="'+tcol+'">'+t.label+'</text>';
+  labels+='<text x="'+(tx+tw+11)+'" y="'+(lc+13)+'" font-size="11.5" fill="'+scol+'">'+_leaUsdShort(t.v)+' · '+Math.round(t.v/total*100)+'%</text>';
+ });
+ nodes+='<rect x="'+sx+'" y="'+srcTop+'" width="'+sw+'" height="'+Math.max(1,seg611)+'" rx="2" fill="#185fa5"/>';
+ nodes+='<rect x="'+sx+'" y="'+(srcTop+seg611)+'" width="'+sw+'" height="'+Math.max(1,seg619)+'" fill="#1d9e75"/>';
+ labels+='<text x="'+(sx+sw/2)+'" y="14" font-size="12.5" font-weight="700" text-anchor="middle" fill="'+tcol+'">Total IDEA Part B</text>';
+ labels+='<text x="'+(sx+sw/2)+'" y="28" font-size="12" text-anchor="middle" fill="'+scol+'">'+_leaUsdShort(total)+'</text>';
+ var c611=srcTop+seg611/2, c619=srcTop+seg611+seg619/2, y619=(seg619<22?srcTop+srcH+15:c619);
+ labels+='<text x="'+(sx-11)+'" y="'+(c611-2)+'" font-size="12.5" font-weight="700" text-anchor="end" fill="'+tcol+'">Section 611</text>';
+ labels+='<text x="'+(sx-11)+'" y="'+(c611+13)+'" font-size="11.5" text-anchor="end" fill="'+scol+'">'+_leaUsdShort(f611)+' · '+Math.round(f611/total*100)+'%</text>';
+ labels+='<text x="'+(sx-11)+'" y="'+(y619-2)+'" font-size="12.5" font-weight="700" text-anchor="end" fill="'+tcol+'">Section 619</text>';
+ labels+='<text x="'+(sx-11)+'" y="'+(y619+13)+'" font-size="11.5" text-anchor="end" fill="'+scol+'">'+_leaUsdShort(f619)+' · '+Math.round(f619/total*100)+'%</text>';
+ return '<svg class="lea-flow-svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Funding flow: total IDEA Part B allocation splitting into Section 611 and 619, then into CEIS reserved and special education services">'+ribbons+nodes+labels+'</svg>';
+}
+var _LEA_SC_STATS=[];
+function _leaStateStats(){
+ var out=[];
+ Object.keys(LEA_DATA.byState).forEach(function(s){
+  var arr=LEA_DATA.byState[s]||[], served=0,withDet=0,meets=0,withMet=0,metYes=0,ceisReq=0;
+  arr.forEach(function(l){
+   if(l.served!=null)served+=l.served;
+   if(l.fund){var d=(''+(l.fund.det||'')).trim();if(_leaDetInfo(d)){withDet++;if(d==='1')meets++;}
+    var m=(''+(l.fund.met||'')).trim();if(m==='1'||m==='0'){withMet++;if(m==='1')metYes++;}
+    if((''+(l.fund.ceis||'')).trim()==='1')ceisReq++;}
+  });
+  out.push({state:s,districts:arr.length,served:served,pctMeet:withDet?Math.round(meets/withDet*100):null,pctMet:withMet?Math.round(metYes/withMet*100):null,ceisReq:ceisReq});
+ });
+ return out;
+}
+function _leaRenderStateCards(sortKey){
+ var grid=document.getElementById('leaScards');if(!grid)return;
+ var st=_LEA_SC_STATS.slice();
+ var cmp={served:function(a,b){return b.served-a.served;},meet:function(a,b){return (b.pctMeet==null?-1:b.pctMeet)-(a.pctMeet==null?-1:a.pctMeet);},met:function(a,b){return (b.pctMet==null?-1:b.pctMet)-(a.pctMet==null?-1:a.pctMet);},ceis:function(a,b){return b.ceisReq-a.ceisReq;},name:function(a,b){return a.state<b.state?-1:(a.state>b.state?1:0);}};
+ st.sort(cmp[sortKey]||cmp.served);
+ grid.innerHTML=st.map(function(x){
+  var meet=x.pctMeet==null?'—':x.pctMeet+'%', met=x.pctMet==null?'—':x.pctMet+'%';
+  var mf=x.pctMeet==null?0:x.pctMeet, tf=x.pctMet==null?0:x.pctMet;
+  return '<div class="lea-scard" data-st="'+x.state.replace(/"/g,'&quot;')+'">'+
+   '<div class="lea-scard-h"><b>'+x.state+'</b><span>'+x.districts.toLocaleString()+' LEAs</span></div>'+
+   '<div class="lea-scard-served">'+_leaFmt(x.served)+'</div><div class="lea-scard-cap">children &amp; students served</div>'+
+   '<div class="lea-scard-row"><div class="v"><span>Districts meeting requirements</span><b>'+meet+'</b></div><div class="lea-scard-track"><div class="lea-scard-fill" style="width:'+mf+'%;background:#2e8540"></div></div></div>'+
+   '<div class="lea-scard-row"><div class="v"><span>Met the MOE standard</span><b>'+met+'</b></div><div class="lea-scard-track"><div class="lea-scard-fill" style="width:'+tf+'%;background:#185fa5"></div></div></div>'+
+   '<div class="lea-scard-row"><div class="v"><span>Required to reserve CEIS</span><b>'+x.ceisReq.toLocaleString()+'</b></div></div>'+
+  '</div>';
+ }).join('');
+ grid.querySelectorAll('[data-st]').forEach(function(c){c.onclick=function(){var s=c.getAttribute('data-st');var sel=document.getElementById('leaStateSel');if(sel)sel.value=s;LEA_STATE=s;LEA_SEL=null;_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});};});
+}
 function _leaPickNation(item){if(!item)return;var sel=document.getElementById('leaStateSel');if(sel)sel.value=item._state;LEA_STATE=item._state;LEA_SEL=item;_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}
 function _leaRenderNation(){
  var status=document.getElementById('leaStatus'),body=document.getElementById('leaBody');
@@ -15757,6 +15877,12 @@ function _leaRenderNation(){
  var withFund=withCount.filter(function(l){return l.fund&&l.fund.ftot!=null;});
  var totalServed=withCount.reduce(function(a,l){return a+(l.served||0);},0);
  var sorted=withCount.slice().sort(function(a,b){return (b.served||0)-(a.served||0);});
+ var dD={'1':0,'2':0,'3':0,'4':0},dS={'1':0,'2':0,'3':0,'4':0},fl={f611:0,f619:0,ftot:0,ceisAmt:0,ceisVol:0,red:0};
+ all.forEach(function(l){var f=l.fund;if(!f)return;var d=(''+(f.det||'')).trim();if(dD[d]!=null){dD[d]++;dS[d]+=(l.served||0);}['f611','f619','ftot','ceisAmt','ceisVol','red'].forEach(function(k){if(f[k]!=null)fl[k]+=f[k];});});
+ var totD=dD['1']+dD['2']+dD['3']+dD['4'],totS=dS['1']+dS['2']+dS['3']+dS['4'];
+ var pctMeetD=totD?Math.round(dD['1']/totD*100):0,pctMeetS=totS?Math.round(dS['1']/totS*100):0,needIntS=dS['3']+dS['4'];
+ var distParts=[{v:dD['1'],c:'#2e8540'},{v:dD['2'],c:'#b8860b'},{v:dD['3'],c:'#cc5a33'},{v:dD['4'],c:'#b8472f'}];
+ var studParts=[{v:dS['1'],c:'#2e8540'},{v:dS['2'],c:'#b8860b'},{v:dS['3'],c:'#cc5a33'},{v:dS['4'],c:'#b8472f'}];
  if(status)status.innerHTML='<div class="lea-statusline"><b>United States</b> — '+all.length.toLocaleString()+' districts across '+states.length+' States &amp; territories · '+_leaFmt(totalServed)+' children &amp; students served (2024–25)</div>';
  body.innerHTML='<div class="lea-supnote">Showing <b>every district nationwide</b>. Pick a State above or click the map to zoom into one State, then open any district for its full profile.</div>'+
   '<div class="kpis lea-kpis">'+
@@ -15767,7 +15893,10 @@ function _leaRenderNation(){
   '<div class="grid g2 lea-grid">'+
    '<div class="card fig"><div class="ey">District landscape · nationwide</div><h3>Every district by size and IDEA funding</h3><div class="note">Each bubble is one of the '+withFund.length.toLocaleString()+' districts with both a 2024–25 child count and a 2021–22 MOE record: across = children &amp; students served (2024–25), up = total IDEA Part&nbsp;B allocation (2021–22), size = children served, color = the State&rsquo;s MOE determination (2021–22). Click a bubble to open that district. The two collections are different years and matched by NCES&nbsp;ID, so they may not align exactly for every district.</div><div class="canvas-box tall"><canvas id="leaLandscape"></canvas></div></div>'+
    '<div class="card"><div class="ey">Ranked · nationwide</div><h3>Largest districts</h3><div class="note">By children &amp; students served. Choose one to open it.</div><div class="lea-ranklist" id="leaRankList"></div></div>'+
-  '</div>';
+  '</div>'+
+  '<div class="card fig"><div class="ey">Students, not districts</div><h3>The same compliance, weighted two ways</h3><div class="note">MOE determination as a share of <b>districts</b> vs a share of the <b>students</b> those districts enroll, among the '+totD.toLocaleString()+' districts with a determination. Each square ≈ 1%.</div><div class="lea-waffles"><div class="lea-waffle-col"><div class="lbl">Share of <b>districts</b> ('+totD.toLocaleString()+')</div>'+_leaWaffleHTML(distParts)+'</div><div class="lea-waffle-col"><div class="lbl">Share of <b>students</b> ('+_leaFmt(totS)+')</div>'+_leaWaffleHTML(studParts)+'</div></div>'+_leaDetLeg()+'<div class="lea-punch"><b>'+pctMeetD+'%</b> of districts meet IDEA requirements — but those districts enroll only <b>'+pctMeetS+'%</b> of students. About <b>'+_leaFmt(needIntS)+'</b> students attend districts the State flagged as needing intervention or substantial intervention.</div></div>'+
+  '<div class="card fig"><div class="ey">Funding flow</div><h3>Where IDEA Part B dollars go</h3><div class="note">Total allocation splits into Section&nbsp;611 (school-age) and Section&nbsp;619 (preschool), then a share is reserved for Coordinated Early Intervening Services (CEIS); the rest funds special education &amp; related services. SY&nbsp;2021–22.</div><div id="leaFlow">'+_leaFlowSVG(fl)+'</div><div class="lea-flow-note">Of the <b>'+_leaUsdShort(fl.ceisAmt+fl.ceisVol)+'</b> reserved for CEIS, '+_leaUsdShort(fl.ceisAmt)+' was <b>required</b> (significant disproportionality) and '+_leaUsdShort(fl.ceisVol)+' voluntary. Separately, districts that met requirements reduced <b>'+_leaUsdShort(fl.red)+'</b> in local &amp; state effort — that is local money freed up, not federal funds. CEIS dollar amounts are suppressed for many small districts, so the CEIS share shown is a floor.</div></div>'+
+  '<div class="card fig"><div class="ey">State report cards</div><h3>Compare States at a glance</h3><div class="note">Children served (2024–25) with MOE compliance (2021–22). Click any card to open that State.</div><div class="lea-sc-bar"><label for="leaScSort">Sort by</label><select id="leaScSort"><option value="served">Children served (high → low)</option><option value="meet">% districts meeting requirements</option><option value="met">% met the MOE standard</option><option value="ceis">CEIS-required districts</option><option value="name">State name (A → Z)</option></select></div><div class="lea-scards" id="leaScards"></div></div>';
  var rl=document.getElementById('leaRankList');var topN=sorted.slice(0,25),maxT=topN.length?(topN[0].served||1):1;
  if(rl){rl.innerHTML=topN.map(function(l,i){var w=Math.max(2,(l.served/maxT*100));return '<button type="button" class="lea-rankrow" data-nat-idx="'+i+'"><span class="lr-rank">'+(i+1)+'</span><span class="lr-name">'+l.name+' <small style="color:var(--muted);font-weight:600;font-size:.8em">'+l._state+'</small></span><span class="lr-bar"><span class="lr-fill" style="width:'+w+'%"></span></span><span class="lr-val">'+_leaFmt(l.served)+'</span></button>';}).join('');
  rl.querySelectorAll('[data-nat-idx]').forEach(function(b){b.onclick=function(){_leaPickNation(topN[+b.getAttribute('data-nat-idx')]);};});}
@@ -15778,6 +15907,10 @@ function _leaRenderNation(){
   fileslug:'idea618_us_districts_landscape.png',csvslug:'idea618_us_districts',
   csvRows:function(){var rows=[['District (LEA)','State','Children and students served, 2024–25','IDEA Part B allocation 2021–22 ($)','MOE determination (34 CFR 300.600(a)(2), 2021–22)']];all.forEach(function(l){var di=l.fund?_leaDetInfo(l.fund.det):null;rows.push([l.name,l._state,l.served==null?'':l.served,(l.fund&&l.fund.ftot!=null)?l.fund.ftot:'',di?di.l:'']);});return rows;}
  });
+ var flowEl=document.getElementById('leaFlow');
+ if(flowEl){var fcard=flowEl.closest('.card');if(fcard)_addCardTools(fcard,function(){var sv=flowEl.querySelector('svg');if(sv)_gfxSvgPNG(sv,'United States — IDEA Part B funding flow','Total allocation → Section 611 / 619 → CEIS reserved + special education & related services. SY 2021–22.','idea618_us_funding_flow');},function(){var totF=fl.ftot||(fl.f611+fl.f619);_gfxCSV([['Flow stage','Amount ($)'],['Total IDEA Part B (611 + 619)',Math.round(totF)],['Section 611 (school-age)',Math.round(fl.f611)],['Section 619 (preschool)',Math.round(fl.f619)],['Reserved for required CEIS',Math.round(fl.ceisAmt)],['Reserved for voluntary CEIS',Math.round(fl.ceisVol)],['Special education & related services (remaining)',Math.round(Math.max(0,totF-fl.ceisAmt-fl.ceisVol))],['Reduction of local/state effort (separate, not federal)',Math.round(fl.red)]],'idea618_us_funding_flow');});}
+ _LEA_SC_STATS=_leaStateStats();_leaRenderStateCards('served');
+ var scSel=document.getElementById('leaScSort');if(scSel)scSel.onchange=function(){_leaRenderStateCards(scSel.value);};
 }
 function _leaRenderState(state,list){
  var status=document.getElementById('leaStatus'),body=document.getElementById('leaBody');
@@ -15848,6 +15981,8 @@ function _leaRenderProfile(lea,list){
  if(status)status.innerHTML='<div class="lea-statusline"><b>'+lea.name+'</b> · '+LEA_STATE+(rk>0?' · ranked #'+rk+' of '+withCount.length+' by size':'')+'</div>';
  var f=lea.fund;
  var servedCap=lea.saOnly?'IDEA Part B, ages 5–21 (school-age); combined total not reported':'IDEA Part B, ages 3–21, 2024–25';
+ var hasFlow=!!(f&&((f.ftot!=null&&f.ftot>0)||(f.f611!=null&&f.f611>0)));
+ var flowCardHTML=hasFlow?('<div class="card fig"><div class="ey">Funding flow</div><h3>Where this district&rsquo;s IDEA Part B dollars go</h3><div class="note">Total allocation → Section&nbsp;611 (school-age) + Section&nbsp;619 (preschool) → CEIS reserved + special education &amp; related services. SY&nbsp;2021–22.</div><div id="leaFlow">'+_leaFlowSVG(f)+'</div>'+((f.ceisAmt&&f.ceisAmt>0)||(f.ceisVol&&f.ceisVol>0)?'<div class="lea-flow-note">Reserved for CEIS: '+_leaUsdShort((f.ceisAmt||0)+(f.ceisVol||0))+' ('+_leaUsdShort(f.ceisAmt||0)+' required, '+_leaUsdShort(f.ceisVol||0)+' voluntary).</div>':'')+'</div>'):'';
  body.innerHTML=(lea.saOnly?'<div class="lea-supnote">A combined ages 3–21 total is not reported for this district in the source file; the figure below is the <b>school-age (ages 5–21)</b> child count.</div>':'')+'<div class="kpis lea-kpis">'+
   '<div class="kpi"><div class="l">Children &amp; students served</div><div class="v">'+_leaFmt(lea.served)+'</div><div class="c">'+servedCap+'</div></div>'+
   '<div class="kpi good"><div class="l">Early childhood (3–5)</div><div class="v">'+_leaFmt(lea.ec)+'</div><div class="c">ages 3 through 5</div></div>'+
@@ -15857,10 +15992,11 @@ function _leaRenderProfile(lea,list){
   '<div class="grid g2 lea-grid">'+
    '<div class="card fig"><div class="ey">Who is served</div><h3>'+lea.name+': students by primary disability category</h3><div class="note">School-age (ages 5–21) child count by category, 2024–25.</div><div class="lea-mini-toggle" id="leaCatToggle"><button type="button" data-lc="bar" class="on">Bars</button><button type="button" data-lc="bubble">Bubbles</button></div><div class="canvas-box lea-cat-box"><canvas id="leaCatChart"></canvas></div><div class="home-bubblewrap lea-bubble-svg" id="leaCatBubbles" hidden></div></div>'+
    '<div class="card"><div class="ey">Funding &amp; compliance</div><h3>IDEA Part B funds &amp; Maintenance of Effort</h3><div class="note">From the SY 2021–22 LEA MOE / CEIS collection.</div>'+_leaFundCard(f)+'</div>'+
-  '</div>';
+  '</div>'+flowCardHTML;
  var lc={t:'bar'},draw=function(){_leaCatChart(lea,lc.t);};
  var tg=document.getElementById('leaCatToggle');if(tg){tg.querySelectorAll('[data-lc]').forEach(function(b){b.onclick=function(){lc.t=b.getAttribute('data-lc');tg.querySelectorAll('[data-lc]').forEach(function(x){x.classList.toggle('on',x===b);});draw();};});}
  draw();
+ if(hasFlow){var flowEl=document.getElementById('leaFlow');if(flowEl){var fcard=flowEl.closest('.card');if(fcard)_addCardTools(fcard,function(){var sv=flowEl.querySelector('svg');if(sv)_gfxSvgPNG(sv,lea.name+' — IDEA Part B funding flow','Total allocation → Section 611 / 619 → CEIS reserved + special education & related services. SY 2021–22.','idea618_'+_tblSlug(lea.name)+'_funding_flow');},function(){var totF=(f.ftot!=null?f.ftot:((f.f611||0)+(f.f619||0)));_gfxCSV([['Flow stage','Amount ($)'],['Total IDEA Part B (611 + 619)',Math.round(totF)],['Section 611 (school-age)',f.f611!=null?Math.round(f.f611):''],['Section 619 (preschool)',f.f619!=null?Math.round(f.f619):''],['Reserved for required CEIS',f.ceisAmt!=null?Math.round(f.ceisAmt):''],['Reserved for voluntary CEIS',f.ceisVol!=null?Math.round(f.ceisVol):''],['Special education & related services (remaining)',Math.round(Math.max(0,totF-(f.ceisAmt||0)-(f.ceisVol||0)))]],'idea618_'+_tblSlug(lea.name)+'_funding_flow');});}}
 }
 function _wrapAxisLabel(s,max){s=''+s;if(s.length<=max)return s;var words=s.split(' '),lines=[],cur='';words.forEach(function(w){if(!cur)cur=w;else if((cur+' '+w).length<=max)cur=cur+' '+w;else{lines.push(cur);cur=w;}});if(cur)lines.push(cur);return lines;}
 function _leaCatChart(lea,type){
