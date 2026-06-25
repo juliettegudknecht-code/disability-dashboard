@@ -11610,6 +11610,20 @@ body.dark .view[data-view="tables"] .tcg-label{color:#cfe0f0}
 body.dark .view[data-view="tables"] .tcg-count{background:#1b2733;color:#aeb9c6}
 body.hc .view[data-view="tables"] .tbl-catgroup-head{border-bottom-width:2px}
 
+/* ---------- TABLES TOP : controls on the left, collections (most of the
+   width) on the right. Stacks to collections-first on narrow screens. */
+.view[data-view="tables"] .tables-setup{
+  display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:16px;
+  align-items:start;margin:8px 0 4px;
+}
+.view[data-view="tables"] .tables-setup .tables-toolbar{grid-column:1;grid-row:1;margin:0}
+.view[data-view="tables"] .tables-setup .tables-collrail{grid-column:2;grid-row:1;margin:0}
+@media(max-width:900px){
+  .view[data-view="tables"] .tables-setup{grid-template-columns:1fr}
+  .view[data-view="tables"] .tables-setup .tables-collrail{grid-column:1;grid-row:1}
+  .view[data-view="tables"] .tables-setup .tables-toolbar{grid-column:1;grid-row:2}
+}
+
 /* ---------- VISUALIZE TOOL : a clear Table / Chart view switcher ----------
    Replaces the single label-flipping "Visualize" button with a segmented
    control where the active view is always obvious. */
@@ -11936,6 +11950,7 @@ body.hc .view[data-view="tables"] .tbl-viz-switch{border-width:2px}
 <div class="view" data-view="tables" role="tabpanel" aria-label="Data Tables">
 <h2 class="section-title" id="tables">Data Tables</h2>
 <p class="viewlead">Exact figures from the official IDEA Section 618 collections. Pick one or more collections, choose whether to compare States or disability categories, then add what you want to see side by side. Any table can switch between counts and percentages, turn into a chart with <strong>Visualize</strong>, or download as a CSV.</p>
+<div class="tables-setup">
 <div class="tables-collrail" role="tablist" aria-label="Data collections">
   <div class="tcr-group"><span class="tcr-label">Part B</span><button type="button" class="tcr-pill on" data-coll="ccee">Child Count &amp; Environments</button><button type="button" class="tcr-pill" data-coll="exitB">Exiting</button><button type="button" class="tcr-pill" data-coll="discB">Discipline</button><button type="button" class="tcr-pill" data-coll="persB">Personnel</button><button type="button" class="tcr-pill" data-coll="asmtB">Assessment</button></div>
   <span class="tcr-sep" aria-hidden="true"></span>
@@ -11967,6 +11982,7 @@ body.hc .view[data-view="tables"] .tbl-viz-switch{border-width:2px}
     <div class="ctrl" id="tablesCatPrimaryCtrl" style="display:none"><label for="tablesCatPrimarySel">Disability category</label><select id="tablesCatPrimarySel" class="tbl-primary" aria-label="Choose the primary disability category"></select></div>
     <div class="ctrl tbl-states" id="tablesCatCompareCtrl" style="display:none"><label for="tablesCatAdd">Compare with</label><div class="tbl-statefield"><div class="tbl-chips" id="tablesCatChips"></div><select id="tablesCatAdd" class="tbl-add" aria-label="Add a disability category to compare"></select></div></div>
   </div>
+</div>
 </div>
 <details class="tbl-key" id="tablesKey" aria-label="Data notes and suppression key">
   <summary class="tbl-key-summary">Reading the tables: what <b class="tbl-key-dash">–</b>, <b>x</b>, <b>*</b>, and <b>0</b> mean</summary>
@@ -14032,6 +14048,7 @@ function _specCard(spec,openFirst,idx){
  var multi=spec.metrics.length>1;
  var typeChips='<button type="button" class="tbl-viz-type on" data-viz-type="bar" data-viz-for="'+sid+'" aria-pressed="true">Bar</button>';
  if(spec.pie){typeChips+='<button type="button" class="tbl-viz-type" data-viz-type="doughnut" data-viz-for="'+sid+'" aria-pressed="false">Donut</button><button type="button" class="tbl-viz-type" data-viz-type="pie" data-viz-for="'+sid+'" aria-pressed="false">Pie</button>';}
+ if(_vizChartMetrics(spec).length>=2&&(spec.bubbleStates||[]).length>=6){typeChips+='<button type="button" class="tbl-viz-type" data-viz-type="bubble" data-viz-for="'+sid+'" aria-pressed="false">Bubble</button>';}
  var rowSel='';
  if(multi&&spec.metricChart){var mopts=_vizChartMetrics(spec).map(function(x){return '<option value="'+x.i+'">'+_stripHtml(x.m.label)+'</option>';}).join('');rowSel='<label class="tbl-viz-rowsel">Show <select data-viz-metric="'+sid+'">'+mopts+'</select></label>';}
  else if(multi){var opts=spec.rows.map(function(r,i){return '<option value="'+i+'">'+_stripHtml(r.label)+'</option>';}).join('');rowSel='<label class="tbl-viz-rowsel">Show <select data-viz-row="'+sid+'">'+opts+'</select></label>';}
@@ -14137,9 +14154,34 @@ function _renderVizChart(sid){
  if(noteEl)noteEl.textContent=noteTxt;
  var unitFmt=function(v){return v==null?'N/A':(pct?(+v).toLocaleString(undefined,{maximumFractionDigits:1})+'%':(+v).toLocaleString());};
  var cfg;
- if(!pieType){
+ var GRIDC='rgba(120,140,160,.13)';
+ var bubbleType=(st.type==='bubble'&&cms.length>=2&&!pieType);
+ if(bubbleType){
+  // Bubble: cross-plot the two numeric metrics; one bubble per item, sized by the first metric.
+  var _m0=cms[0],_m1=cms[1],_xl=_stripHtml(_m0.m.label),_yl=_stripHtml(_m1.m.label);
+  var rowsB=spec.rows.filter(function(r){return !r.isTotal;});if(!rowsB.length)rowsB=spec.rows;
+  var items;
+  if(spec.bubbleStates&&spec.bubbleStates.length){
+   // single measure -> one bubble per State (scatter of the two metrics)
+   var allC=spec.bubbleStates.filter(function(c){return !_vizIsUS(spec,c);});
+   items=allC.map(function(c){return {l:_vizColLabel(spec,c),x:_vizNum(spec,c,rowsB[0].key,_m0.i),y:_vizNum(spec,c,rowsB[0].key,_m1.i)};});
+  } else {
+   var _c0=cols[0];items=rowsB.map(function(r){return {l:_stripHtml(r.label),x:_vizNum(spec,_c0,r.key,_m0.i),y:_vizNum(spec,_c0,r.key,_m1.i)};});
+  }
+  items=items.filter(function(p){return p.x!=null&&p.y!=null&&!isNaN(p.x)&&!isNaN(p.y);});
+  var _maxX=Math.max.apply(null,items.map(function(p){return p.x;}).concat([1]));
+  var pts=items.map(function(p){return {x:p.x,y:p.y,r:6+20*Math.sqrt(Math.max(0,p.x)/_maxX),_l:p.l};});
+  var _bcol=TBL_COLORS[0],_lblPts=(items.length<=12);
+  var ffBub={id:'ffBub',afterDatasetsDraw:function(chart){if(!_lblPts)return;var meta=chart.getDatasetMeta(0);if(!meta||!meta.data)return;var ctx=chart.ctx,dark=document.body.classList.contains('dark');ctx.save();ctx.font='800 10px '+(Chart.defaults.font.family||'sans-serif');ctx.fillStyle=dark?'#e9eef5':'#13354e';ctx.textAlign='center';ctx.textBaseline='bottom';meta.data.forEach(function(el,i){var p=chart.data.datasets[0].data[i];var rr=(el.options&&el.options.radius)||6;ctx.fillText(p._l,el.x,el.y-rr-3);});ctx.restore();}};
+  noteTxt=_xl+' (across) compared with '+_yl+' (up); each bubble is sized by '+_xl.toLowerCase()+'.';if(noteEl)noteEl.textContent=noteTxt;
+  cfg={type:'bubble',data:{datasets:[{label:_xl+' vs '+_yl,data:pts,backgroundColor:shade(_bcol,.5),borderColor:_bcol,borderWidth:1.5,hoverBackgroundColor:shade(_bcol,.72)}]},plugins:_lblPts?[ffBub]:[],options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:16,right:20}},
+   plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){var p=o.raw;var pc=p.x?(p.y/p.x*100).toFixed(1)+'%':'N/A';return [p._l,_xl+': '+(+p.x).toLocaleString(),_yl+': '+(+p.y).toLocaleString(),'Share: '+pc];}}}},
+   scales:{x:{beginAtZero:true,title:{display:true,text:_xl,font:{size:11,weight:'700'},color:'#5a6675'},ticks:{callback:function(v){return (+v).toLocaleString();},font:{size:10}},grid:{color:GRIDC}},y:{beginAtZero:true,title:{display:true,text:_yl,font:{size:11,weight:'700'},color:'#5a6675'},ticks:{callback:function(v){return (+v).toLocaleString();},font:{size:10}},grid:{color:GRIDC}}}}};
+ }else if(!pieType){
   var horizontal=labels.length>6;
   var single=datasets.length===1;
+  // single series -> give each bar its own colour (cleaner, more readable, more "Fast Facts")
+  if(single&&datasets[0]){var _pal=TBL_PIE_COLORS;datasets[0].backgroundColor=labels.map(function(_,i){return shade(_pal[i%_pal.length],.9);});datasets[0].borderColor=labels.map(function(_,i){return _pal[i%_pal.length];});datasets[0].borderWidth=1;datasets[0].borderRadius=4;datasets[0].maxBarThickness=46;}
   // Fast Facts touch: print the value right on each bar (single-series only, to stay clean)
   var ffLbl={id:'ffVal',afterDatasetsDraw:function(chart){
    if(!single)return;var meta=chart.getDatasetMeta(0);if(!meta||meta.hidden||!meta.data)return;
@@ -14154,9 +14196,9 @@ function _renderVizChart(sid){
    layout:{padding:single?(horizontal?{right:54}:{top:18}):0},
    plugins:{legend:{display:datasets.length>1,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10,weight:'700'}}},
     tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+unitFmt(o.parsed[horizontal?'x':'y']);}}}},
-   scales:horizontal?{x:{beginAtZero:true,max:pct?100:undefined,ticks:{callback:function(v){return pct?v+'%':v.toLocaleString();}}},y:{grid:{display:false},ticks:{font:{size:10,weight:'700'}}}}:{x:{grid:{display:false},ticks:{font:{size:10,weight:'600'},autoSkip:false,maxRotation:55,minRotation:0}},y:{beginAtZero:true,max:pct?100:undefined,ticks:{callback:function(v){return pct?v+'%':v.toLocaleString();}}}}}};
+   scales:horizontal?{x:{beginAtZero:true,max:pct?100:undefined,grid:{color:GRIDC,drawBorder:false},ticks:{callback:function(v){return pct?v+'%':v.toLocaleString();}}},y:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'}}}}:{x:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'600'},autoSkip:false,maxRotation:55,minRotation:0}},y:{beginAtZero:true,max:pct?100:undefined,grid:{color:GRIDC,drawBorder:false},ticks:{callback:function(v){return pct?v+'%':v.toLocaleString();}}}}}};
  }else{
-  cfg={type:st.type,data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,cutout:st.type==='doughnut'?'58%':0,
+  cfg={type:st.type,data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,cutout:st.type==='doughnut'?'58%':0,layout:{padding:6},
    plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:10,padding:7,font:{size:10,weight:'600'}}},
     tooltip:{callbacks:{label:function(o){var sum=o.dataset.data.reduce(function(a,b){return a+(b||0);},0);var share=sum?(o.parsed/sum*100):0;return o.label+': '+unitFmt(o.parsed)+(pct?'':' ('+share.toFixed(1)+'%)');}}}}}};
  }
@@ -14368,7 +14410,7 @@ function _specAsmtSub(subject,label){
   {label:'Proficient+',cell:function(c){var v=vals(c); return v?_tN(v[ix[1]]):_tNa();}},
   {label:'% proficient',noChart:true,cell:function(c){var v=vals(c); if(!v)return _tNa(); var p=v[ix[0]],pr=v[ix[1]]; return p?(pr/p*100).toFixed(1)+'%':_tNa();}}
  ];
- return {title:'Number and percent of students grades 3 through 8 and high school served under IDEA, Part B, who participated in and were proficient on '+subject+' assessments, by state.',part:'B',src:'EDFacts assessment results, students with IEPs, grades 3\u20138 and high school',year:'School Year 2023\u201324',rowHeader:'Measure',cap:'Participants and the number proficient or above, summed across grades.',rows:rows,metrics:metrics,states:_tblStatesFor(CCEE.data).map(function(c){return c===usk?usk:c;}),usKey:usk,scroll:true,metricChart:true};
+ return {title:'Number and percent of students grades 3 through 8 and high school served under IDEA, Part B, who participated in and were proficient on '+subject+' assessments, by state.',part:'B',src:'EDFacts assessment results, students with IEPs, grades 3\u20138 and high school',year:'School Year 2023\u201324',rowHeader:'Measure',cap:'Participants and the number proficient or above, summed across grades.',rows:rows,metrics:metrics,states:_tblStatesFor(CCEE.data).map(function(c){return c===usk?usk:c;}),usKey:usk,scroll:true,metricChart:true,bubbleStates:Object.keys(CCOLL.asmtB.data)};
 }
 function _specAsmtMath(){return _specAsmtSub('math','Mathematics');}
 function _specAsmtReading(){return _specAsmtSub('reading','Reading');}
