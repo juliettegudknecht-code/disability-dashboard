@@ -11708,7 +11708,7 @@ body.dark .view[data-view="lea"] .lea-align-note b{color:#ededeb}
 /* ---------- LEA MOE determination badge ---------- */
 .view[data-view="lea"] .lea-det{margin:10px 0 6px;padding:11px 13px;border:1px solid var(--line);border-left:5px solid var(--muted);border-radius:9px;background:var(--line2)}
 .view[data-view="lea"] .lea-det-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.view[data-view="lea"] .lea-det-w{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:.84rem;line-height:1.45;color:var(--muted)}
+.view[data-view="lea"] .lea-det-w{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:.82rem;line-height:1.4;color:var(--muted);font-style:italic}
 .view[data-view="lea"] .lea-det-w b{color:var(--ink);font-weight:700}
 body.dark .view[data-view="lea"] .lea-det-w{border-top-color:#2f3a48}
 body.dark .view[data-view="lea"] .lea-det-w b{color:#ededeb}
@@ -15792,8 +15792,8 @@ function _leaFundCard(f){
  function row(k,v){return '<div class="lea-fund-row"><span>'+k+'</span><b>'+v+'</b></div>';}
  var met=f.met==='Y'?'Yes':(f.met==='N'?'No':'—'),ceis=f.ceis==='Y'?'Yes':(f.ceis==='N'?'No':'—');
  var det=_leaDetInfo(f.det);
- var detBlock=det?('<div class="lea-det lea-det-'+det.c+'"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600(a)(2), SY 2021–22</small></span><span class="lea-det-v"><span class="lea-det-dot" aria-hidden="true"></span>'+det.l+'</span></div><div class="lea-det-w">The State determined that the LEA <b>'+det.w.charAt(0).toLowerCase()+det.w.slice(1)+'</b></div></div>'):'<div class="lea-det lea-det-na"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600(a)(2), SY 2021–22</small></span><span class="lea-det-v">Not reported</span></div></div>';
- var alignNote='<div class="lea-align-note">⚠ These funding, MOE, and determination figures are from <b>SY 2021–22</b>, while the child counts above are from <b>2024–25</b>. Districts open, close, and merge over time and are matched between the two collections by NCES ID, so the MOE record and the Child Count may not line up exactly for every district.</div>';
+ var detBlock=det?('<div class="lea-det lea-det-'+det.c+'"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600 · 2021–22</small></span><span class="lea-det-v"><span class="lea-det-dot" aria-hidden="true"></span>'+det.l+'</span></div><div class="lea-det-w">“'+det.w+'”</div></div>'):'<div class="lea-det lea-det-na"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600 · 2021–22</small></span><span class="lea-det-v">Not reported</span></div></div>';
+ var alignNote='<div class="lea-align-note">⚠ Funding and MOE figures are <b>SY 2021–22</b>; child counts are <b>2024–25</b>. The collections are matched by NCES ID and may not align exactly for every district.</div>';
  return detBlock+'<div class="lea-fundgrid">'+row('Section 611 allocation',_leaMoney(f.f611))+row('Section 619 allocation',_leaMoney(f.f619))+row('Total Section 611 + 619',_leaMoney(f.ftot))+row('Met the MOE standard',met)+row('Reduction of funds taken',_leaMoney(f.red))+row('Required to reserve CEIS',ceis)+(f.ceisN!=null?row('Children receiving CEIS',_leaFmt(f.ceisN)):'')+'</div>'+alignNote;
 }
 function _leaRenderProfile(lea,list){
