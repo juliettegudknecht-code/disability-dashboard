@@ -11743,6 +11743,7 @@ body.dark .view[data-view="lea"] .lea-scard-h b{color:#9fc3ec}
 .view[data-view="lea"] .lea-scard-row .v b{color:var(--ink);font-weight:800;font-size:.85rem}
 .view[data-view="lea"] .lea-scard-track{height:5px;border-radius:3px;background:var(--line);margin-top:4px;overflow:hidden}
 .view[data-view="lea"] .lea-scard-fill{height:100%;border-radius:3px}
+.view[data-view="lea"] .lea-scard-unmatched{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:.7rem;line-height:1.35;color:var(--muted)}
 .view[data-view="lea"] .lea-scard.tier-good{border-left:5px solid #2e8540}
 .view[data-view="lea"] .lea-scard.tier-mid{border-left:5px solid #b8860b}
 .view[data-view="lea"] .lea-scard.tier-low{border-left:5px solid #cc5a33;background:#fff6f1}
@@ -15868,21 +15869,22 @@ var _LEA_SC_STATS=[];
 function _leaStateStats(){
  var out=[];
  Object.keys(LEA_DATA.byState).forEach(function(s){
-  var arr=LEA_DATA.byState[s]||[], served=0,withDet=0,meets=0,withMet=0,metYes=0,ceisReq=0;
+  var arr=LEA_DATA.byState[s]||[], served=0,withDet=0,meets=0,withMet=0,metYes=0,ceisReq=0,noMoe=0;
   arr.forEach(function(l){
    if(l.served!=null)served+=l.served;
    if(l.fund){var d=(''+(l.fund.det||'')).trim();if(_leaDetInfo(d)){withDet++;if(d==='1')meets++;}
     var m=(''+(l.fund.met||'')).trim();if(m==='1'||m==='0'){withMet++;if(m==='1')metYes++;}
     if((''+(l.fund.ceis||'')).trim()==='1')ceisReq++;}
+   else noMoe++;
   });
-  out.push({state:s,districts:arr.length,served:served,pctMeet:withDet?Math.round(meets/withDet*100):null,pctMet:withMet?Math.round(metYes/withMet*100):null,ceisReq:ceisReq});
+  out.push({state:s,districts:arr.length,served:served,noMoe:noMoe,withDet:withDet,pctMeet:withDet?Math.round(meets/withDet*100):null,pctMet:withMet?Math.round(metYes/withMet*100):null,ceisReq:ceisReq});
  });
  return out;
 }
 function _leaRenderStateCards(sortKey){
  var grid=document.getElementById('leaScards');if(!grid)return;
  var st=_LEA_SC_STATS.slice();
- var cmp={served:function(a,b){return b.served-a.served;},meet:function(a,b){return (b.pctMeet==null?-1:b.pctMeet)-(a.pctMeet==null?-1:a.pctMeet);},met:function(a,b){return (b.pctMet==null?-1:b.pctMet)-(a.pctMet==null?-1:a.pctMet);},ceis:function(a,b){return b.ceisReq-a.ceisReq;},name:function(a,b){return a.state<b.state?-1:(a.state>b.state?1:0);}};
+ var cmp={served:function(a,b){return b.served-a.served;},meet:function(a,b){return (b.pctMeet==null?-1:b.pctMeet)-(a.pctMeet==null?-1:a.pctMeet);},met:function(a,b){return (b.pctMet==null?-1:b.pctMet)-(a.pctMet==null?-1:a.pctMet);},ceis:function(a,b){return b.ceisReq-a.ceisReq;},nomoe:function(a,b){return b.noMoe-a.noMoe;},name:function(a,b){return a.state<b.state?-1:(a.state>b.state?1:0);}};
  st.sort(cmp[sortKey]||cmp.served);
  var tierC={good:'#2e8540',mid:'#b8860b',low:'#cc5a33',vlow:'#8c1d1d',none:'#9aa6b2'};
  function tierOf(p){if(p==null)return 'none';if(p>=75)return 'good';if(p>=50)return 'mid';if(p>=25)return 'low';return 'vlow';}
@@ -15896,6 +15898,7 @@ function _leaRenderStateCards(sortKey){
    '<div class="lea-scard-row"><div class="v"><span>Districts meeting requirements</span><b style="color:'+tc+'">'+meet+'</b></div><div class="lea-scard-track"><div class="lea-scard-fill" style="width:'+mf+'%;background:'+tc+'"></div></div></div>'+
    '<div class="lea-scard-row"><div class="v"><span>Met the MOE standard</span><b>'+met+'</b></div><div class="lea-scard-track"><div class="lea-scard-fill" style="width:'+tf+'%;background:#185fa5"></div></div></div>'+
    '<div class="lea-scard-row"><div class="v"><span>Required to reserve CEIS</span><b>'+x.ceisReq.toLocaleString()+'</b></div></div>'+
+   (x.noMoe>0?'<div class="lea-scard-unmatched">⚠ '+x.noMoe.toLocaleString()+' of '+x.districts.toLocaleString()+' districts have no 2021–22 MOE match</div>':'')+
   '</div>';
  }).join('');
  grid.querySelectorAll('[data-st]').forEach(function(c){c.onclick=function(){var s=c.getAttribute('data-st');var sel=document.getElementById('leaStateSel');if(sel)sel.value=s;LEA_STATE=s;LEA_SEL=null;_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});};});
@@ -15930,7 +15933,7 @@ function _leaRenderNation(){
   '</div>'+
   '<div class="card fig"><div class="ey">Students, not districts</div><h3>The same compliance, weighted two ways</h3><div class="note">MOE determination as a share of <b>districts</b> vs a share of the <b>students</b> those districts enroll, among the '+totD.toLocaleString()+' districts with a determination. Each square ≈ 1%.</div><div class="lea-waffles"><div class="lea-waffle-col"><div class="lbl">Share of <b>districts</b> ('+totD.toLocaleString()+')</div>'+_leaWaffleHTML(distParts)+'</div><div class="lea-waffle-col"><div class="lbl">Share of <b>students</b> ('+_leaFmt(totS)+')</div>'+_leaWaffleHTML(studParts)+'</div></div>'+_leaDetLeg()+'<div class="lea-punch"><b>'+pctMeetD+'%</b> of districts meet IDEA requirements, yet those districts enroll only <b>'+pctMeetS+'%</b> of students. About <b>'+_leaFmt(needIntS)+'</b> students attend districts the State flagged as needing intervention or substantial intervention.</div></div>'+
   '<div class="card fig"><div class="ey">Funding flow</div><h3>Where IDEA Part B dollars go</h3><div class="note">Total allocation splits into Section&nbsp;611 (school-age) and Section&nbsp;619 (preschool), then a share is reserved for Coordinated Early Intervening Services (CEIS); the rest funds special education &amp; related services. SY&nbsp;2021–22.</div><div class="lea-sc-bar"><label for="leaFlowState">Show</label><select id="leaFlowState"><option value="">United States (all States &amp; territories)</option>'+Object.keys(LEA_DATA.flow).filter(function(s){return s!=='__US__';}).sort().map(function(s){return '<option value="'+s.replace(/"/g,'&quot;')+'">'+s+'</option>';}).join('')+'</select></div><div id="leaFlow">'+_leaFlowSVG(flUS)+'</div><div class="lea-flow-note" id="leaFlowNote">'+_leaFlowNoteHTML(flUS)+'</div></div>'+
-  '<div class="card fig"><div class="ey">State report cards</div><h3>Compare States at a glance</h3><div class="note">Children served (2024–25) with MOE compliance (2021–22). Card color shows the share of districts meeting requirements. Click any card to open that State.</div><div class="lea-sc-bar"><label for="leaScSort">Sort by</label><select id="leaScSort"><option value="served">Children served (high → low)</option><option value="meet">% districts meeting requirements</option><option value="met">% met the MOE standard</option><option value="ceis">CEIS-required districts</option><option value="name">State name (A → Z)</option></select></div><div class="lea-sc-legend"><span><i style="background:#2e8540"></i>75%+ meeting</span><span><i style="background:#b8860b"></i>50–74%</span><span><i style="background:#cc5a33"></i>25–49%</span><span><i style="background:#8c1d1d"></i>under 25%</span></div><div class="lea-scards" id="leaScards"></div></div>';
+  '<div class="card fig"><div class="ey">State report cards</div><h3>Compare States at a glance</h3><div class="note">Children served (2024–25) with MOE compliance (2021–22). Card color shows the share of districts meeting requirements. Click any card to open that State.</div><div class="lea-sc-bar"><label for="leaScSort">Sort by</label><select id="leaScSort"><option value="served">Children served (high → low)</option><option value="meet">% districts meeting requirements</option><option value="met">% met the MOE standard</option><option value="ceis">CEIS-required districts</option><option value="nomoe">Districts without MOE match</option><option value="name">State name (A → Z)</option></select></div><div class="lea-sc-legend"><span><i style="background:#2e8540"></i>75%+ meeting</span><span><i style="background:#b8860b"></i>50–74%</span><span><i style="background:#cc5a33"></i>25–49%</span><span><i style="background:#8c1d1d"></i>under 25%</span></div><div class="lea-scards" id="leaScards"></div></div>';
  var rl=document.getElementById('leaRankList');var topN=sorted.slice(0,25),maxT=topN.length?(topN[0].served||1):1;
  if(rl){rl.innerHTML=topN.map(function(l,i){var w=Math.max(2,(l.served/maxT*100));return '<button type="button" class="lea-rankrow" data-nat-idx="'+i+'"><span class="lr-rank">'+(i+1)+'</span><span class="lr-name">'+l.name+' <small style="color:var(--muted);font-weight:600;font-size:.8em">'+l._state+'</small></span><span class="lr-bar"><span class="lr-fill" style="width:'+w+'%"></span></span><span class="lr-val">'+_leaFmt(l.served)+'</span></button>';}).join('');
  rl.querySelectorAll('[data-nat-idx]').forEach(function(b){b.onclick=function(){_leaPickNation(topN[+b.getAttribute('data-nat-idx')]);};});}
