@@ -12568,6 +12568,7 @@ function renderHomeBubbles(){
  var cur=DEMO.cur;
  var items=Object.keys(cur).filter(function(k){return k!=='All Disabilities'&&cur[k]&&cur[k].total;}).map(function(k){return {name:k,v:cur[k].total,color:(typeof COLORS!=='undefined'&&COLORS[k])||'#227aa7'};});
  _packedBubbles(el,items,{maxR:84,minR:17,onClick:function(cat){if(typeof trendSelected!=='undefined'){trendSelected=[cat];buildPills();renderTrend();renderTrendShare();}var tm=document.getElementById('trend-main');if(tm)tm.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}});
+ _addCardTools(el.closest('.card'),function(){_gfxSvgPNG(el.querySelector('svg'),'Children and Students Served, by Primary Disability Category','IDEA Part B child count by primary disability category, ages 3–21, School Year 2024–25.','idea618_disability_bubbles');},function(){var rows=[['Primary disability category','Children and students served, 2024–25']];items.slice().sort(function(a,b){return b.v-a.v;}).forEach(function(it){rows.push([it.name,it.v]);});_gfxCSV(rows,'idea618_served_by_category');});
 }
 function renderSparks(){
  const W=160,H=40,P=4;
@@ -15166,7 +15167,27 @@ function exportViewPNG(view){
   if(!items.length&&!svgTasks.length){alert('This page has no charts to export as an image. Choose “Full PDF” for the whole data tool, or open a chart view first.');return;}
   Promise.all(svgTasks).then(function(svgs){ svgs.filter(Boolean).forEach(function(s){items.push(s);}); _composeViewPNG(view,items); });
 }
-function _svgToImg(svg){return new Promise(function(res,rej){try{var rect=svg.getBoundingClientRect();var w=Math.max(2,Math.round(rect.width)),h=Math.max(2,Math.round(rect.height));var clone=svg.cloneNode(true);clone.setAttribute('width',w);clone.setAttribute('height',h);clone.setAttribute('xmlns','http://www.w3.org/2000/svg');var str=new XMLSerializer().serializeToString(clone);var url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(str);var img=new Image();img.onload=function(){res({img:img,w:w,h:h});};img.onerror=function(){rej(new Error('svg'));};img.src=url;}catch(e){rej(e);}});}
+function _svgToImg(svg,scale){scale=scale||1;return new Promise(function(res,rej){try{var rect=svg.getBoundingClientRect();var w=Math.max(2,Math.round(rect.width)),h=Math.max(2,Math.round(rect.height));var clone=svg.cloneNode(true);clone.setAttribute('width',Math.round(w*scale));clone.setAttribute('height',Math.round(h*scale));clone.setAttribute('xmlns','http://www.w3.org/2000/svg');var str=new XMLSerializer().serializeToString(clone);var url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(str);var img=new Image();img.onload=function(){res({img:img,w:w,h:h});};img.onerror=function(){rej(new Error('svg'));};img.src=url;}catch(e){rej(e);}});}
+/* ===== reusable PNG/CSV download for any graphic (canvas or SVG) ===== */
+function _gfxCSV(rows,filename){
+ var d=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+ var all=[['IDEA Section 618 Data Tool'],['Source',(typeof SRC_NOTE!=='undefined'?SRC_NOTE:'')],['Exported',d],[]].concat(rows);
+ var csv=all.map(function(r){return r.map(function(x){return '"'+(x==null?'':(''+x).replace(/"/g,'""'))+'"';}).join(',');}).join('\n');
+ var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=filename+'.csv';a.click();
+}
+function _gfxSvgPNG(svg,title,note,filename,source){
+ if(!svg)return;
+ _svgToImg(svg,2).then(function(o){var c=document.createElement('canvas');c.width=o.w*2;c.height=o.h*2;var cx=c.getContext('2d');cx.fillStyle='#ffffff';cx.fillRect(0,0,c.width,c.height);cx.drawImage(o.img,0,0,c.width,c.height);_captionedPNG(c,title,note,filename+'.png',source||(typeof SRC_NOTE!=='undefined'?SRC_NOTE:''));}).catch(function(){});
+}
+function _addCardTools(card,onPNG,onCSV){
+ if(!card||card.querySelector('.cardtools'))return;
+ var bar=document.createElement('div');bar.className='cardtools';
+ bar.innerHTML=(onPNG?'<button type="button" title="Download this chart as a PNG image" aria-label="Download PNG">PNG</button>':'')+(onCSV?'<button type="button" title="Download this chart\'s data as CSV" aria-label="Download CSV">CSV</button>':'');
+ var btns=bar.querySelectorAll('button'),i=0;
+ if(onPNG&&btns[i]){btns[i].onclick=onPNG;i++;}
+ if(onCSV&&btns[i]){btns[i].onclick=onCSV;}
+ card.appendChild(bar);
+}
 function _composeViewPNG(view,items){
   if(!items.length){alert('This page has no charts to export as an image. Choose “Full PDF” for the whole data tool.');return;}
   const W=940,pad=30,gap=20,headH=94,maxCh=300,FONT='"Source Sans 3", Arial';
@@ -15675,6 +15696,7 @@ function _leaBuildMap(){
    .on('mouseleave',function(){var t=document.getElementById('maptip');if(t)t.style.opacity=0;})
    .on('click',function(){var n=this.getAttribute('data-name');if(n&&LEA_DATA.byState[n]){var sel=document.getElementById('leaStateSel');if(sel){sel.value=n;sel.dispatchEvent(new Event('change'));var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}}});
   _leaMapBuilt=true;_leaUpdateMapSel();
+  _addCardTools(document.getElementById('leaMapCard'),function(){_gfxSvgPNG(document.querySelector('#leaMap svg'),'Children & students served by State','IDEA Part B child count by State, ages 3–21, School Year 2024–25 (darker = more served).','idea618_served_by_state_map');},function(){var t=_leaStateTotals()||{};var rows=[['State','Children and students served, 2024–25','Districts (LEAs)']];Object.keys(t).sort().forEach(function(s){rows.push([s,t[s],(LEA_DATA.byState[s]?LEA_DATA.byState[s].length:0)]);});_gfxCSV(rows,'idea618_served_by_state');});
  }catch(e){box.innerHTML='<div class="mapfallback note">A geographic map is unavailable here; use the State selector and the ranked list of districts below.</div>';}
 }
 function _leaRender(){
@@ -15717,6 +15739,7 @@ function _leaLandscapeChart(items,list){
  _leaChart1=new Chart(cv,{type:'bubble',data:{datasets:[{data:pts,backgroundColor:shade(col,.42),borderColor:col,borderWidth:1.2,hoverBackgroundColor:shade(col,.7)}]},options:{responsive:true,maintainAspectRatio:false,animation:false,onClick:function(e,els){if(els&&els.length){var p=pts[els[0].index];if(p){LEA_SEL=list[p._idx];_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}}},onHover:function(e,els){e.native&&e.native.target&&(e.native.target.style.cursor=els.length?'pointer':'default');},
   plugins:{ffValues:false,legend:{display:false},tooltip:{callbacks:{title:function(it){return it[0].raw._name;},label:function(o){return ['Served: '+_leaFmt(o.raw.x),'IDEA allocation (2021–22): '+_leaMoney(o.raw.y)];}}}},
   scales:{x:{beginAtZero:true,title:{display:true,text:'Children & students served (2024–25)',color:'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return (+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}},y:{beginAtZero:true,title:{display:true,text:'IDEA Part B allocation, 2021–22 ($)',color:'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':'$'+(+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}}}}});
+ _addCardTools(cv.closest('.card'),function(){_captionedPNG(cv,LEA_STATE+' — districts by size and IDEA funding','Each bubble is one district: children and students served (2024–25) vs. total IDEA Part B allocation (2021–22).','idea618_'+_tblSlug(LEA_STATE)+'_districts_landscape.png',(typeof SRC_NOTE!=='undefined'?SRC_NOTE:''));},function(){var rows=[['District (LEA)','Children and students served, 2024–25','IDEA Part B allocation 2021–22 ($)']];(LEA_DATA.byState[LEA_STATE]||[]).forEach(function(l){rows.push([l.name,l.total==null?'':l.total,(l.fund&&l.fund.ftot!=null)?l.fund.ftot:'']);});_gfxCSV(rows,'idea618_'+_tblSlug(LEA_STATE)+'_districts');});
 }
 function _leaFundCard(f){
  if(!f)return '<div class="note" style="margin-top:10px">No matching 2021–22 funding record was found for this district. Districts open, close, and merge between years, so a 2024–25 district may not appear in the 2021–22 funding file.</div>';
@@ -15759,6 +15782,10 @@ function _leaCatChart(lea,type){
   var barData={labels:items.map(function(p){return p.l;}),datasets:[{data:items.map(function(p){return p.v;}),backgroundColor:items.map(function(p,i){return shade((typeof COLORS!=='undefined'&&COLORS[p.l])||pal[i%pal.length],.9);}),borderColor:items.map(function(p,i){return (typeof COLORS!=='undefined'&&COLORS[p.l])||pal[i%pal.length];}),borderWidth:1,borderRadius:4,maxBarThickness:30}]};
   var barOpts={indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{ffValues:true,legend:{display:false},tooltip:{callbacks:{label:function(o){return _leaFmt(o.parsed.x);}}}},scales:{x:{beginAtZero:true,grid:{color:'rgba(120,140,160,.13)',drawBorder:false},ticks:{callback:function(v){return (+v).toLocaleString();}}},y:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'}}}}};
   _leaChart2=new Chart(cv,{type:'bar',data:barData,options:barOpts});
+ }
+ var card=cv.closest('.card');
+ if(card&&items.length){var dname=(LEA_SEL&&LEA_SEL.name)||'district';
+  _addCardTools(card,function(){var ttl=dname+': students by primary disability category';var note='School-age (ages 5–21) child count by category, 2024–25.';if(type==='bubble'){_gfxSvgPNG(document.querySelector('#leaCatBubbles svg'),ttl,note,'idea618_'+_tblSlug(dname)+'_categories');}else{_captionedPNG(cv,ttl,note,'idea618_'+_tblSlug(dname)+'_categories.png',(typeof SRC_NOTE!=='undefined'?SRC_NOTE:''));}},function(){var rows=[['Primary disability category','School-age count, 2024–25']];items.forEach(function(p){rows.push([p.l,p.v]);});_gfxCSV(rows,'idea618_'+_tblSlug(dname)+'_categories');});
  }
 }
 try{ var _sv_ns=showView; showView=function(){ var r=_sv_ns.apply(this,arguments); updateNavSelection(); foldLeads(); foldNotes(); try{var _v=document.body.getAttribute('data-view'); if(_v==='states')setupStateSubtabs(); else if(VIEW_SUBTABS[_v])applyViewSubtabs(_v,VIEW_SUBTABS[_v]);}catch(e){} try{if(document.body.getAttribute('data-view')==='collections')buildAdditionalCollections();}catch(e){} try{if(document.body.getAttribute('data-view')==='lea')initLEA();}catch(e){} try{var _av=document.querySelector('.view.active'); if(_av)setTimeout(function(){countUpRoot(_av);},90);}catch(e){} return r; }; }catch(e){}
