@@ -11610,14 +11610,19 @@ body.dark .view[data-view="tables"] .tcg-label{color:#cfe0f0}
 body.dark .view[data-view="tables"] .tcg-count{background:#1b2733;color:#aeb9c6}
 body.hc .view[data-view="tables"] .tbl-catgroup-head{border-bottom-width:2px}
 
-/* ---------- TABLES TOP : controls on the left, collections (most of the
-   width) on the right. Stacks to collections-first on narrow screens. */
+/* ---------- TABLES TOP : collections on the left (stacked by Part so they
+   all fit), the controls on the right. Stacks vertically on narrow screens. */
 .view[data-view="tables"] .tables-setup{
-  display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:16px;
+  display:grid;grid-template-columns:1fr minmax(300px,360px);gap:16px;
   align-items:start;margin:8px 0 4px;
 }
-.view[data-view="tables"] .tables-setup .tables-toolbar{grid-column:1;grid-row:1;margin:0}
-.view[data-view="tables"] .tables-setup .tables-collrail{grid-column:2;grid-row:1;margin:0}
+.view[data-view="tables"] .tables-setup .tables-collrail{
+  grid-column:1;grid-row:1;margin:0;flex-direction:column;align-items:stretch;gap:9px;
+}
+.view[data-view="tables"] .tables-setup .tables-toolbar{grid-column:2;grid-row:1;margin:0}
+.view[data-view="tables"] .tables-setup .tcr-group{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.view[data-view="tables"] .tables-setup .tcr-sep{display:none}
+.view[data-view="tables"] .tables-setup .tcr-hint{margin:0;align-self:flex-start}
 @media(max-width:900px){
   .view[data-view="tables"] .tables-setup{grid-template-columns:1fr}
   .view[data-view="tables"] .tables-setup .tables-collrail{grid-column:1;grid-row:1}
@@ -11657,6 +11662,15 @@ body.dark .view[data-view="tables"] .tbl-viz-seg+.tbl-viz-seg{border-left-color:
 body.dark .view[data-view="tables"] .tbl-viz-seg:not(.on):hover{background:#143b5f;color:#9fc6ee}
 body.dark .view[data-view="tables"] .tbl-viz-seg.on{background:#1f6fa8;color:#fff}
 body.hc .view[data-view="tables"] .tbl-viz-switch{border-width:2px}
+/* "Compare with Reading" button on the assessment card */
+.view[data-view="tables"] .tbl-cmp-btn{
+  margin-left:8px;border:1px solid #bcd6f0;background:#eef5fc;color:#0b4a82;
+  font:inherit;font-weight:800;font-size:.8rem;padding:7px 13px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .12s,border-color .12s;
+}
+.view[data-view="tables"] .tbl-cmp-btn:hover{background:#e0eefb;border-color:#9cc3e8}
+.view[data-view="tables"] .tbl-cmp-btn.on{background:#0b4a82;border-color:#0b4a82;color:#fff}
+body.dark .view[data-view="tables"] .tbl-cmp-btn{background:#10314f;border-color:#1f4e7a;color:#9fc6ee}
+body.dark .view[data-view="tables"] .tbl-cmp-btn.on{background:#1f6fa8;border-color:#1f6fa8;color:#fff}
 
 /* ---------- STATE SNAPSHOT : tidier, scannable tiles ---------- */
 .state-insight .state-insight-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
@@ -12275,6 +12289,36 @@ Chart.defaults.plugins.tooltip.cornerRadius=8;
 Chart.defaults.plugins.tooltip.padding=10;
 const modernGraphPlugin={id:'modernGraph',beforeDraw:function(chart){var ca=chart.chartArea;if(!ca)return;var ctx=chart.ctx,dark=document.body.classList.contains('dark'),hc=document.body.classList.contains('hc');ctx.save();ctx.fillStyle=hc?'transparent':(dark?'rgba(255,255,255,.025)':'rgba(22,54,92,.025)');ctx.fillRect(ca.left,ca.top,ca.right-ca.left,ca.bottom-ca.top);ctx.strokeStyle=hc?(dark?'rgba(255,255,255,.35)':'rgba(0,0,0,.35)'):(dark?'rgba(255,255,255,.09)':'rgba(22,54,92,.10)');ctx.lineWidth=1;ctx.strokeRect(ca.left,ca.top,ca.right-ca.left,ca.bottom-ca.top);ctx.restore();},afterDatasetsDraw:function(chart){if(document.body.classList.contains('hc'))return;var ctx=chart.ctx;chart.data.datasets.forEach(function(ds,di){var meta=chart.getDatasetMeta(di);if(!meta||meta.hidden||!meta.data||!meta.data.length)return;var type=ds.type||chart.config.type;if(type!=='line')return;var idx=ds.data.length-1;while(idx>=0&&(ds.data[idx]==null||isNaN(ds.data[idx])))idx--;if(idx<0||!meta.data[idx])return;var p=meta.data[idx].getProps(['x','y'],true),col=ds.borderColor||'#005ea2';ctx.save();ctx.shadowColor=col;ctx.shadowBlur=10;ctx.fillStyle='#fff';ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(p.x,p.y,4.5,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();});}};
 try{Chart.register(modernGraphPlugin);}catch(e){}
+/* ===== OSEP Fast Facts value labels: print the number on single-series bar
+   charts across the whole tool. Auto-detects percent vs count from the axis,
+   skips crowded/multi-series charts, and can be turned off per chart
+   (options.plugins.ffValues=false) or globally (FF_SHOW_NUMBERS). ===== */
+var FF_SHOW_NUMBERS=true;
+function _ffFmtVal(chart,axisKey,v){
+ try{var sc=chart.scales&&chart.scales[axisKey];if(sc&&sc.options&&sc.options.ticks&&sc.options.ticks.callback){var s=sc.options.ticks.callback.call(sc,v);if(typeof s==='string'&&s.indexOf('%')>=0)return (Math.round(v*10)/10)+'%';}}catch(e){}
+ return (Math.abs(v)>=1000||Number.isInteger(v))?Math.round(v).toLocaleString():(Math.round(v*10)/10).toLocaleString();
+}
+function _ffBarEligible(chart){
+ if(!FF_SHOW_NUMBERS)return false;
+ var o=chart.config.options&&chart.config.options.plugins&&chart.config.options.plugins.ffValues;if(o===false)return false;
+ if((chart.config.type||'')!=='bar')return false;
+ var ds=chart.data.datasets||[];if(ds.length!==1)return false;
+ var n=(ds[0].data||[]).length;return n>0&&n<=16;
+}
+var ffValueLabels={id:'ffValueLabels',
+ beforeLayout:function(chart){try{if(!_ffBarEligible(chart))return;var horizontal=(chart.options.indexAxis==='y');chart.options.layout=chart.options.layout||{};var pad=chart.options.layout.padding;if(pad==null||typeof pad==='number')pad=chart.options.layout.padding={top:typeof pad==='number'?pad:0,right:typeof pad==='number'?pad:0,bottom:typeof pad==='number'?pad:0,left:typeof pad==='number'?pad:0};if(horizontal)pad.right=Math.max(pad.right||0,52);else pad.top=Math.max(pad.top||0,18);}catch(e){}},
+ afterDatasetsDraw:function(chart){try{
+  if(!_ffBarEligible(chart))return;
+  var meta=chart.getDatasetMeta(0);if(!meta||meta.hidden||!meta.data||!meta.data.length)return;
+  var ds=chart.data.datasets[0],horizontal=(chart.options.indexAxis==='y');
+  var ctx=chart.ctx,dark=document.body.classList.contains('dark'),hc=document.body.classList.contains('hc');
+  ctx.save();ctx.font='800 10px '+(Chart.defaults.font.family||'sans-serif');ctx.fillStyle=hc?(dark?'#fff':'#000'):(dark?'#e9eef5':'#13354e');
+  meta.data.forEach(function(el,i){var v=ds.data[i];if(v&&typeof v==='object')v=horizontal?v.x:v.y;if(v==null||isNaN(v))return;var t=_ffFmtVal(chart,horizontal?'x':'y',v);
+   if(horizontal){ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(t,el.x+6,el.y);}
+   else{ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(t,el.x,el.y-5);}});
+  ctx.restore();
+ }catch(e){}}};
+try{Chart.register(ffValueLabels);}catch(e){}
 
 /* ============ KPIs ============ */
 function kpis(){
@@ -14047,24 +14091,24 @@ function _specCard(spec,openFirst,idx){
  var bd=_tblBadge(spec);
  var multi=spec.metrics.length>1;
  var typeChips='<button type="button" class="tbl-viz-type on" data-viz-type="bar" data-viz-for="'+sid+'" aria-pressed="true">Bar</button>';
- if(spec.pie){typeChips+='<button type="button" class="tbl-viz-type" data-viz-type="doughnut" data-viz-for="'+sid+'" aria-pressed="false">Donut</button><button type="button" class="tbl-viz-type" data-viz-type="pie" data-viz-for="'+sid+'" aria-pressed="false">Pie</button>';}
- if(_vizChartMetrics(spec).length>=2&&(spec.bubbleStates||[]).length>=6){typeChips+='<button type="button" class="tbl-viz-type" data-viz-type="bubble" data-viz-for="'+sid+'" aria-pressed="false">Bubble</button>';}
+ if(spec.pie){typeChips+='<button type="button" class="tbl-viz-type" data-viz-type="bubble" data-viz-for="'+sid+'" aria-pressed="false">Bubble</button><button type="button" class="tbl-viz-type" data-viz-type="doughnut" data-viz-for="'+sid+'" aria-pressed="false">Donut</button><button type="button" class="tbl-viz-type" data-viz-type="pie" data-viz-for="'+sid+'" aria-pressed="false">Pie</button>';}
  var rowSel='';
  if(multi&&spec.metricChart){var mopts=_vizChartMetrics(spec).map(function(x){return '<option value="'+x.i+'">'+_stripHtml(x.m.label)+'</option>';}).join('');rowSel='<label class="tbl-viz-rowsel">Show <select data-viz-metric="'+sid+'">'+mopts+'</select></label>';}
  else if(multi){var opts=spec.rows.map(function(r,i){return '<option value="'+i+'">'+_stripHtml(r.label)+'</option>';}).join('');rowSel='<label class="tbl-viz-rowsel">Show <select data-viz-row="'+sid+'">'+opts+'</select></label>';}
  var _vc=_vizCols(spec);var _hasUS=!!spec.usKey&&_vc.some(function(c){return _vizIsUS(spec,c);});var _hasNon=_vc.some(function(c){return !_vizIsUS(spec,c);});
  var usToggle=(_hasUS&&_hasNon)?('<label class="tbl-viz-ustoggle"><input type="checkbox" data-viz-us="'+sid+'"> Include U.S. total</label>'):'';
+ var lblToggle='<label class="tbl-viz-ustoggle"><input type="checkbox" data-viz-labels="'+sid+'" checked> Show numbers</label>';
  var dlBtns='<div class="tbl-viz-dl"><button type="button" class="tbl-viz-dlbtn" data-viz-png="'+sid+'" title="Save this chart as a PNG image">⤓ PNG</button><button type="button" class="tbl-viz-dlbtn" data-viz-csv="'+sid+'" title="Download this chart\'s data as CSV">⤓ CSV</button></div>';
  return '<details class="card tbl-card'+(bd?' has-bd '+bd.c:'')+'"'+(openFirst?' open':'')+' data-viz-card="'+sid+'">'
- +'<summary class="tbl-card-summary"><span class="tbl-card-sum-title">'+spec.title+'</span>'+(bd?'<span class="tbl-bd-chip '+bd.c+'">'+bd.l+'</span>':'')+'<span class="tbl-card-sum-pill '+(spec.part==='C'?'partc':'partb')+'">Part '+spec.part+'</span></summary>'
+ +'<summary class="tbl-card-summary"><span class="tbl-card-sum-title">'+spec.title+'</span>'+(bd?'<span class="tbl-bd-chip '+bd.c+'">'+bd.l+'</span>':'')+'</summary>'
  +'<div class="tbl-card-body">'
- +'<div class="tbl-card-head"><span class="tbl-viz-switch-lab">View as</span><div class="tbl-viz-switch" role="group" aria-label="Show this data as a table or a chart"><button type="button" class="tbl-viz-seg on" data-viz-view="table" data-viz-for="'+sid+'" aria-pressed="true"><span class="tvs-ico tvs-table" aria-hidden="true"></span>Table</button><button type="button" class="tbl-viz-seg" data-viz-view="chart" data-viz-for="'+sid+'" aria-pressed="false"><span class="tvs-ico tvs-chart" aria-hidden="true"></span>Chart</button></div></div>'
- +'<div class="dd-meta"><span class="dd-pill '+(spec.part==='C'?'partc':'partb')+'">IDEA Part '+spec.part+'</span><span class="dd-meta-yr">'+spec.year+'</span>'
+ +'<div class="tbl-card-head"><span class="tbl-viz-switch-lab">View as</span><div class="tbl-viz-switch" role="group" aria-label="Show this data as a table or a chart"><button type="button" class="tbl-viz-seg on" data-viz-view="table" data-viz-for="'+sid+'" aria-pressed="true"><span class="tvs-ico tvs-table" aria-hidden="true"></span>Table</button><button type="button" class="tbl-viz-seg" data-viz-view="chart" data-viz-for="'+sid+'" aria-pressed="false"><span class="tvs-ico tvs-chart" aria-hidden="true"></span>Chart</button></div>'+(spec.compare?'<button type="button" class="tbl-cmp-btn" data-viz-compare="'+sid+'" aria-pressed="false">⇄ Compare with '+spec.compare.label+'</button>':'')+'</div>'
+ +'<div class="dd-meta"><span class="dd-meta-yr">'+spec.year+'</span>'
  +'<details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">'+spec.src+'</div></details></div>'
  +'<div class="tbl-cap">'+spec.cap+'</div>'+(spec.caution?'<div class="tbl-caution"><span>'+spec.caution+'</span></div>':'')
  +'<div class="tbl-data-wrap">'+_tblMulti(spec)+'</div>'
  +'<div class="tbl-viz-panel" hidden>'
- +'<div class="tbl-viz-controls"><div class="tbl-viz-types" role="group" aria-label="Chart type">'+typeChips+'</div>'+rowSel+usToggle+dlBtns+'</div>'
+ +'<div class="tbl-viz-controls"><div class="tbl-viz-types" role="group" aria-label="Chart type">'+typeChips+'</div>'+rowSel+usToggle+lblToggle+dlBtns+'</div>'
  +'<div class="tbl-viz-canvasbox"><canvas id="'+sid+'_cv" class="tbl-viz-canvas" aria-label="Chart of '+_stripHtml(spec.title)+'"></canvas></div>'
  +'<div class="tbl-viz-note" id="'+sid+'_note"></div>'
  +'</div>'
@@ -14080,19 +14124,32 @@ function _vizCols(spec){var cols=spec.states.slice();if(spec.usKey&&cols.indexOf
 function _vizColLabel(spec,c){return (c==='__US__'||c===TBL_USALL)?TBL_B_US:c;}
 function _vizChartMetrics(spec){var out=[];spec.metrics.forEach(function(m,i){if(!m.noChart)out.push({m:m,i:i});});return out.length?out:spec.metrics.map(function(m,i){return {m:m,i:i};});}
 function _vizDefaultRowIdx(spec){for(var i=0;i<spec.rows.length;i++){if(spec.rows[i].isTotal)return i;}return 0;}
-function _vizState(sid){return _VIZ[sid]||(_VIZ[sid]={on:false,type:'bar',rowIdx:null,showUS:false,usSet:false,metricIdx:null});}
+function _vizState(sid){return _VIZ[sid]||(_VIZ[sid]={on:false,type:'bar',rowIdx:null,showUS:false,usSet:false,metricIdx:null,showLabels:true});}
 function _vizIsUS(spec,c){return c===spec.usKey||c==='__US__'||c===TBL_USALL;}
 /* Default: include the U.S. national total only when it is the primary (first) column, so "U.S. vs a State" keeps the U.S. but multi-State/category bars hide the huge U.S. bar. The user can override with the checkbox. */
 function _vizShowUS(spec,sid){var st=_vizState(sid);if(st.usSet)return st.showUS;var cols=_vizCols(spec);return cols.length?_vizIsUS(spec,cols[0]):false;}
 function _vizColsChart(spec,sid){var cols=_vizCols(spec);if(_vizShowUS(spec,sid))return cols;var f=cols.filter(function(c){return !_vizIsUS(spec,c);});return f.length?f:cols;}
 function _syncVizUS(sid){var cb=document.querySelector('[data-viz-us="'+sid+'"]');if(!cb)return;var spec=window._tblSpecs&&window._tblSpecs[sid];cb.checked=spec?_vizShowUS(spec,sid):!!_vizState(sid).showUS;}
+function _syncVizLabels(sid){var cb=document.querySelector('[data-viz-labels="'+sid+'"]');if(cb)cb.checked=_vizState(sid).showLabels!==false;}
 function _syncVizTypeChips(sid){var st=_vizState(sid);document.querySelectorAll('[data-viz-type][data-viz-for="'+sid+'"]').forEach(function(b){var on=b.getAttribute('data-viz-type')===st.type;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});}
 function _syncVizRow(sid){var spec=window._tblSpecs&&window._tblSpecs[sid];if(!spec)return;var st=_vizState(sid);if(st.rowIdx==null||st.rowIdx>=spec.rows.length)st.rowIdx=_vizDefaultRowIdx(spec);var sel=document.querySelector('[data-viz-row="'+sid+'"]');if(sel)sel.value=st.rowIdx;}
 function _syncVizMetric(sid){var spec=window._tblSpecs&&window._tblSpecs[sid];if(!spec)return;var st=_vizState(sid);var cms=_vizChartMetrics(spec);var vi=cms.map(function(x){return x.i;});if(st.metricIdx==null||vi.indexOf(st.metricIdx)<0)st.metricIdx=cms[0].i;var sel=document.querySelector('[data-viz-metric="'+sid+'"]');if(sel)sel.value=st.metricIdx;}
 /* Build a clean title + caption for an exported table-visualization, so PNG/CSV downloads are professional and correctly labeled. */
+function _vizScopeLabel(spec,sid){
+ try{
+  var cc=_vizColsChart(spec,sid)||[];
+  var nonUS=cc.filter(function(c){return !_vizIsUS(spec,c);});
+  var hasUS=cc.some(function(c){return _vizIsUS(spec,c);});
+  if(nonUS.length===0)return 'National total';
+  if(nonUS.length<=3)return nonUS.map(function(c){return _vizColLabel(spec,c);}).join(', ')+(hasUS?' (with U.S. total)':'');
+  return nonUS.length+' States'+(hasUS?' (with U.S. total)':'');
+ }catch(e){return '';}
+}
 function _vizMeta(sid){
  var spec=window._tblSpecs&&window._tblSpecs[sid];
- var title=spec?_stripHtml(spec.title):'Chart';
+ var measure=spec?_stripHtml(spec.title):'Chart';
+ var scope=spec?_vizScopeLabel(spec,sid):'';
+ var title=scope?(scope+' — '+measure):measure;
  var note='',source='';
  if(spec){
   var pct=(tablesMode==='percent'&&!!TOGGLE_COLL[spec._coll]);
@@ -14101,7 +14158,7 @@ function _vizMeta(sid){
   var mm=fs.match(/[“]([^”]+)[”],?\s*([0-9]{4}-[0-9]{2})/);
   source=mm?('U.S. Department of Education, Office of Special Education Programs. '+mm[1].replace(/,\s*$/,'')+', '+mm[2]+'.'):(COLL_SRC[spec._coll]||SRC_NOTE);
  }
- var fname=sid; if(spec){var d=title,bi=title.indexOf(', by '); if(bi>=0)d=title.slice(bi+2); fname=_tblSlug((spec._coll||'idea-part-b')+' '+d.replace(/\.$/,''));}
+ var fname=sid; if(spec){var d=measure,bi=measure.indexOf(', by '); if(bi>=0)d=measure.slice(bi+2); fname=_tblSlug((scope||spec._coll||'idea-part-b')+' '+d.replace(/\.$/,''));}
  return {title:title,note:note,source:source,fname:fname};
 }
 function _vizPNG(sid){var c=Chart.getChart(sid+'_cv');if(!c)return;var m=_vizMeta(sid);_captionedPNG(c.canvas,m.title,m.note,m.fname+'.png',m.source);}
@@ -14126,6 +14183,20 @@ function _renderVizChart(sid){
  if(metricMode){var _vi=cms.map(function(x){return x.i;});if(st.metricIdx==null||_vi.indexOf(st.metricIdx)<0)st.metricIdx=cms[0].i;}
  var pmi=metricMode?st.metricIdx:0;
  var labels,datasets,noteEl=document.getElementById(sid+'_note'),noteTxt='';
+ // Compare mode (e.g. Assessment: Mathematics vs Reading) -> grouped % proficient bars.
+ if(spec.compare&&st.compareOn){
+  var ccmp=cols,labsCmp=ccmp.map(function(c){return _vizColLabel(spec,c);}),horizC=labsCmp.length>6;
+  var dsCmp=[{label:spec.compare.aLabel+' % proficient',data:ccmp.map(function(c){return spec.compare.a(c);}),backgroundColor:shade(TBL_COLORS[0],.85),borderColor:TBL_COLORS[0],borderWidth:1,borderRadius:4,maxBarThickness:40},
+   {label:spec.compare.bLabel+' % proficient',data:ccmp.map(function(c){return spec.compare.b(c);}),backgroundColor:shade(TBL_COLORS[2],.85),borderColor:TBL_COLORS[2],borderWidth:1,borderRadius:4,maxBarThickness:40}];
+  var cmpFmt=function(v){return (v==null||isNaN(v))?'N/A':(+v).toFixed(1)+'%';};
+  var showLc=(st.showLabels!==false);
+  var ffCmp={id:'ffCmp',afterDatasetsDraw:function(chart){if(!showLc)return;var ctx=chart.ctx,dark=document.body.classList.contains('dark');ctx.save();ctx.font='800 10px '+(Chart.defaults.font.family||'sans-serif');ctx.fillStyle=dark?'#e9eef5':'#13354e';chart.data.datasets.forEach(function(d,di){var meta=chart.getDatasetMeta(di);if(!meta||meta.hidden)return;meta.data.forEach(function(el,i){var v=d.data[i];if(v==null||isNaN(v))return;var t=cmpFmt(v);if(horizC){ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(t,el.x+5,el.y);}else{ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(t,el.x,el.y-4);}});});ctx.restore();}};
+  if(noteEl)noteEl.textContent='Percent proficient on statewide assessments: '+spec.compare.aLabel+' vs '+spec.compare.bLabel+'. State results are not comparable across States.';
+  new Chart(canvas,{type:'bar',data:{labels:labsCmp,datasets:dsCmp},plugins:[ffCmp],options:{indexAxis:horizC?'y':'x',responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:horizC?{right:46}:{top:16}},
+   plugins:{ffValues:false,legend:{display:true,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10,weight:'700'}}},tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+cmpFmt(o.parsed[horizC?'x':'y']);}}}},
+   scales:horizC?{x:{beginAtZero:true,grid:{color:'rgba(120,140,160,.13)',drawBorder:false},ticks:{callback:function(v){return v+'%';}}},y:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'}}}}:{x:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'},autoSkip:false,maxRotation:50}},y:{beginAtZero:true,grid:{color:'rgba(120,140,160,.13)',drawBorder:false},ticks:{callback:function(v){return v+'%';}}}}}});
+  return;
+ }
  var pieType=(st.type==='pie'||st.type==='doughnut');
  if(!multi||metricMode){
   var dataRows=spec.rows.filter(function(r){return !r.isTotal;});if(!dataRows.length)dataRows=spec.rows;
@@ -14153,54 +14224,45 @@ function _renderVizChart(sid){
  }
  if(noteEl)noteEl.textContent=noteTxt;
  var unitFmt=function(v){return v==null?'N/A':(pct?(+v).toLocaleString(undefined,{maximumFractionDigits:1})+'%':(+v).toLocaleString());};
+ // Drop empty (null / zero) categories so charts aren't cluttered with 0-value bars or slices.
+ if(labels&&datasets&&datasets.length){
+  var _keep=labels.map(function(_,i){return datasets.some(function(d){var v=d.data[i];return v!=null&&!isNaN(v)&&v!==0;});});
+  if(_keep.indexOf(false)>=0){
+   labels=labels.filter(function(_,i){return _keep[i];});
+   datasets.forEach(function(d){d.data=d.data.filter(function(_,i){return _keep[i];});['backgroundColor','borderColor'].forEach(function(k){if(Array.isArray(d[k]))d[k]=d[k].filter(function(_,i){return _keep[i];});});});
+  }
+ }
+ if(noteEl)noteEl.textContent=noteTxt;
  var cfg;
  var GRIDC='rgba(120,140,160,.13)';
- var bubbleType=(st.type==='bubble'&&cms.length>=2&&!pieType);
+ var ffFlag=(st.showLabels===false)?false:true;
+ var bubbleType=(st.type==='bubble'&&!pieType&&labels&&labels.length);
  if(bubbleType){
-  // Bubble: cross-plot the two numeric metrics; one bubble per item, sized by the first metric.
-  var _m0=cms[0],_m1=cms[1],_xl=_stripHtml(_m0.m.label),_yl=_stripHtml(_m1.m.label);
-  var rowsB=spec.rows.filter(function(r){return !r.isTotal;});if(!rowsB.length)rowsB=spec.rows;
-  var items;
-  if(spec.bubbleStates&&spec.bubbleStates.length){
-   // single measure -> one bubble per State (scatter of the two metrics)
-   var allC=spec.bubbleStates.filter(function(c){return !_vizIsUS(spec,c);});
-   items=allC.map(function(c){return {l:_vizColLabel(spec,c),x:_vizNum(spec,c,rowsB[0].key,_m0.i),y:_vizNum(spec,c,rowsB[0].key,_m1.i)};});
-  } else {
-   var _c0=cols[0];items=rowsB.map(function(r){return {l:_stripHtml(r.label),x:_vizNum(spec,_c0,r.key,_m0.i),y:_vizNum(spec,_c0,r.key,_m1.i)};});
-  }
-  items=items.filter(function(p){return p.x!=null&&p.y!=null&&!isNaN(p.x)&&!isNaN(p.y);});
-  var _maxX=Math.max.apply(null,items.map(function(p){return p.x;}).concat([1]));
-  var pts=items.map(function(p){return {x:p.x,y:p.y,r:6+20*Math.sqrt(Math.max(0,p.x)/_maxX),_l:p.l};});
-  var _bcol=TBL_COLORS[0],_lblPts=(items.length<=12);
-  var ffBub={id:'ffBub',afterDatasetsDraw:function(chart){if(!_lblPts)return;var meta=chart.getDatasetMeta(0);if(!meta||!meta.data)return;var ctx=chart.ctx,dark=document.body.classList.contains('dark');ctx.save();ctx.font='800 10px '+(Chart.defaults.font.family||'sans-serif');ctx.fillStyle=dark?'#e9eef5':'#13354e';ctx.textAlign='center';ctx.textBaseline='bottom';meta.data.forEach(function(el,i){var p=chart.data.datasets[0].data[i];var rr=(el.options&&el.options.radius)||6;ctx.fillText(p._l,el.x,el.y-rr-3);});ctx.restore();}};
-  noteTxt=_xl+' (across) compared with '+_yl+' (up); each bubble is sized by '+_xl.toLowerCase()+'.';if(noteEl)noteEl.textContent=noteTxt;
-  cfg={type:'bubble',data:{datasets:[{label:_xl+' vs '+_yl,data:pts,backgroundColor:shade(_bcol,.5),borderColor:_bcol,borderWidth:1.5,hoverBackgroundColor:shade(_bcol,.72)}]},plugins:_lblPts?[ffBub]:[],options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:16,right:20}},
-   plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){var p=o.raw;var pc=p.x?(p.y/p.x*100).toFixed(1)+'%':'N/A';return [p._l,_xl+': '+(+p.x).toLocaleString(),_yl+': '+(+p.y).toLocaleString(),'Share: '+pc];}}}},
-   scales:{x:{beginAtZero:true,title:{display:true,text:_xl,font:{size:11,weight:'700'},color:'#5a6675'},ticks:{callback:function(v){return (+v).toLocaleString();},font:{size:10}},grid:{color:GRIDC}},y:{beginAtZero:true,title:{display:true,text:_yl,font:{size:11,weight:'700'},color:'#5a6675'},ticks:{callback:function(v){return (+v).toLocaleString();},font:{size:10}},grid:{color:GRIDC}}}}};
- }else if(!pieType){
+  // Proportional bubble: one circle per category, circle area ~ the value (first charted column).
+  var bItems=labels.map(function(l,i){return {l:l,v:(datasets[0]?datasets[0].data[i]:null)};}).filter(function(p){return p.v!=null&&!isNaN(p.v)&&p.v!==0;}).sort(function(a,b){return b.v-a.v;});
+  var bMax=Math.max.apply(null,bItems.map(function(p){return p.v;}).concat([1])),bN=bItems.length;
+  var bMaxR=Math.max(14,Math.min(34,Math.round(320/Math.max(1,bN)))),bMinR=5;
+  var bPts=bItems.map(function(p,i){return {x:i,y:1,r:bMinR+(bMaxR-bMinR)*Math.sqrt(Math.max(0,p.v)/bMax),_l:p.l,_v:p.v};});
+  var bPal=TBL_PIE_COLORS,showL=ffFlag;
+  var ffPb={id:'ffPb',afterDatasetsDraw:function(chart){if(!showL)return;var meta=chart.getDatasetMeta(0);if(!meta||!meta.data)return;var ctx=chart.ctx,dark=document.body.classList.contains('dark');ctx.save();ctx.font='800 10px '+(Chart.defaults.font.family||'sans-serif');ctx.fillStyle=dark?'#e9eef5':'#13354e';ctx.textAlign='center';ctx.textBaseline='bottom';meta.data.forEach(function(el,i){var p=chart.data.datasets[0].data[i];var rr=(el.options&&el.options.radius)||6;ctx.fillText(unitFmt(p._v),el.x,el.y-rr-3);});ctx.restore();}};
+  noteTxt=(metricMode?_stripHtml(spec.metrics[pmi].label):spec.cap)+' Bubble size is proportional to the value.';if(noteEl)noteEl.textContent=noteTxt;
+  cfg={type:'bubble',data:{datasets:[{data:bPts,backgroundColor:bPts.map(function(_,i){return shade(bPal[i%bPal.length],.8);}),borderColor:bPts.map(function(_,i){return bPal[i%bPal.length];}),borderWidth:1.5,hoverBorderWidth:2}]},plugins:[ffPb],options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:26,bottom:4,left:8,right:8}},
+   plugins:{legend:{display:false},tooltip:{callbacks:{title:function(it){return it[0].raw._l;},label:function(o){return unitFmt(o.raw._v);}}}},
+   scales:{x:{type:'linear',min:-0.6,max:(bN-0.4),grid:{display:false,drawBorder:false},ticks:{stepSize:1,autoSkip:false,callback:function(v){var p=bPts[Math.round(v)];if(!p)return '';var s=p._l;return s.length>16?s.slice(0,15)+'…':s;},font:{size:9,weight:'700'},maxRotation:42,minRotation:0}},y:{display:false,min:0,max:2,grid:{display:false}}}}};
+ }else if(pieType){
+  cfg={type:st.type,data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,cutout:st.type==='doughnut'?'58%':0,layout:{padding:6},
+   plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:10,padding:7,font:{size:10,weight:'600'}}},
+    tooltip:{callbacks:{label:function(o){var sum=o.dataset.data.reduce(function(a,b){return a+(b||0);},0);var share=sum?(o.parsed/sum*100):0;return o.label+': '+unitFmt(o.parsed)+(pct?'':' ('+share.toFixed(1)+'%)');}}}}}};
+ }else{
   var horizontal=labels.length>6;
   var single=datasets.length===1;
   // single series -> give each bar its own colour (cleaner, more readable, more "Fast Facts")
   if(single&&datasets[0]){var _pal=TBL_PIE_COLORS;datasets[0].backgroundColor=labels.map(function(_,i){return shade(_pal[i%_pal.length],.9);});datasets[0].borderColor=labels.map(function(_,i){return _pal[i%_pal.length];});datasets[0].borderWidth=1;datasets[0].borderRadius=4;datasets[0].maxBarThickness=46;}
-  // Fast Facts touch: print the value right on each bar (single-series only, to stay clean)
-  var ffLbl={id:'ffVal',afterDatasetsDraw:function(chart){
-   if(!single)return;var meta=chart.getDatasetMeta(0);if(!meta||meta.hidden||!meta.data)return;
-   var ds=chart.data.datasets[0],ctx=chart.ctx,dark=document.body.classList.contains('dark');
-   ctx.save();ctx.font='800 10px '+(Chart.defaults.font.family||'sans-serif');ctx.fillStyle=dark?'#e9eef5':'#13354e';
-   meta.data.forEach(function(el,i){var v=ds.data[i];if(v==null||isNaN(v))return;var t=unitFmt(v);
-    if(horizontal){ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(t,el.x+6,el.y);}
-    else{ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(t,el.x,el.y-5);}});
-   ctx.restore();
-  }};
-  cfg={type:'bar',data:{labels:labels,datasets:datasets},plugins:single?[ffLbl]:[],options:{indexAxis:horizontal?'y':'x',responsive:true,maintainAspectRatio:false,animation:false,
-   layout:{padding:single?(horizontal?{right:54}:{top:18}):0},
-   plugins:{legend:{display:datasets.length>1,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10,weight:'700'}}},
+  // value labels are drawn by the global ffValueLabels plugin; ffValues toggles them per chart
+  cfg={type:'bar',data:{labels:labels,datasets:datasets},options:{indexAxis:horizontal?'y':'x',responsive:true,maintainAspectRatio:false,animation:false,
+   plugins:{ffValues:ffFlag,legend:{display:datasets.length>1,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10,weight:'700'}}},
     tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+unitFmt(o.parsed[horizontal?'x':'y']);}}}},
    scales:horizontal?{x:{beginAtZero:true,max:pct?100:undefined,grid:{color:GRIDC,drawBorder:false},ticks:{callback:function(v){return pct?v+'%':v.toLocaleString();}}},y:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'}}}}:{x:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'600'},autoSkip:false,maxRotation:55,minRotation:0}},y:{beginAtZero:true,max:pct?100:undefined,grid:{color:GRIDC,drawBorder:false},ticks:{callback:function(v){return pct?v+'%':v.toLocaleString();}}}}}};
- }else{
-  cfg={type:st.type,data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,cutout:st.type==='doughnut'?'58%':0,layout:{padding:6},
-   plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:10,padding:7,font:{size:10,weight:'600'}}},
-    tooltip:{callbacks:{label:function(o){var sum=o.dataset.data.reduce(function(a,b){return a+(b||0);},0);var share=sum?(o.parsed/sum*100):0;return o.label+': '+unitFmt(o.parsed)+(pct?'':' ('+share.toFixed(1)+'%)');}}}}}};
  }
  new Chart(canvas,cfg);
 }
@@ -14211,7 +14273,7 @@ function _applyVizView(sid,on){
  if(on&&card.tagName==='DETAILS')card.open=true;
  if(panel)panel.hidden=!on;if(dataWrap)dataWrap.hidden=on;
  card.querySelectorAll('.tbl-viz-seg').forEach(function(b){var active=((b.getAttribute('data-viz-view')==='chart')===on);b.classList.toggle('on',active);b.setAttribute('aria-pressed',active?'true':'false');});
- if(on){_syncVizTypeChips(sid);_syncVizRow(sid);_syncVizMetric(sid);_syncVizUS(sid);_renderVizChart(sid);}
+ if(on){_syncVizTypeChips(sid);_syncVizRow(sid);_syncVizMetric(sid);_syncVizUS(sid);_syncVizLabels(sid);_renderVizChart(sid);}
  else{var cv=card.querySelector('.tbl-viz-canvas');var old=cv&&Chart.getChart(cv.id);if(old)old.destroy();}
 }
 function _setVizView(sid,view){var st=_vizState(sid);st.on=(view==='chart');_applyVizView(sid,st.on);}
@@ -14222,6 +14284,7 @@ function _setupVizDelegation(){
  box.addEventListener('click',function(e){
   var t=e.target.closest('[data-viz-toggle]');if(t){_toggleViz(t.getAttribute('data-viz-toggle'));return;}
   var vv=e.target.closest('[data-viz-view]');if(vv){_setVizView(vv.getAttribute('data-viz-for'),vv.getAttribute('data-viz-view'));return;}
+  var cmp=e.target.closest('[data-viz-compare]');if(cmp){var sidc=cmp.getAttribute('data-viz-compare');var stc=_vizState(sidc);stc.compareOn=!stc.compareOn;cmp.classList.toggle('on',stc.compareOn);cmp.setAttribute('aria-pressed',stc.compareOn?'true':'false');if(stc.compareOn&&!stc.on){_setVizView(sidc,'chart');}else{_renderVizChart(sidc);}return;}
   var ty=e.target.closest('[data-viz-type]');if(ty){var sid=ty.getAttribute('data-viz-for');_vizState(sid).type=ty.getAttribute('data-viz-type');_syncVizTypeChips(sid);_renderVizChart(sid);return;}
   var pg=e.target.closest('[data-viz-png]');if(pg){try{_vizPNG(pg.getAttribute('data-viz-png'));}catch(_e){}return;}
   var cs=e.target.closest('[data-viz-csv]');if(cs){try{_vizCSV(cs.getAttribute('data-viz-csv'));}catch(_e){}return;}
@@ -14230,6 +14293,7 @@ function _setupVizDelegation(){
   var rs=e.target.closest('[data-viz-row]');if(rs){var sid=rs.getAttribute('data-viz-row');_vizState(sid).rowIdx=+rs.value;_renderVizChart(sid);return;}
   var ms=e.target.closest('[data-viz-metric]');if(ms){var sidm=ms.getAttribute('data-viz-metric');_vizState(sidm).metricIdx=+ms.value;_renderVizChart(sidm);return;}
   var us=e.target.closest('[data-viz-us]');if(us){var sid2=us.getAttribute('data-viz-us');var st2=_vizState(sid2);st2.showUS=us.checked;st2.usSet=true;_renderVizChart(sid2);return;}
+  var lb=e.target.closest('[data-viz-labels]');if(lb){var sidl=lb.getAttribute('data-viz-labels');_vizState(sidl).showLabels=lb.checked;_renderVizChart(sidl);return;}
  });
 }
 var CC_AGE={"data":{"New York":[88554,229075,221482,19476],"Idaho":[4004,19176,16394,1340],"Virgin Islands":[167,336,430,47],"Washington":[20247,74451,64265,6799],"American Samoa":[28,199,221,21],"District of Columbia":[3029,7239,6424,739],"Nevada":[8526,31552,26979,2340],"Ohio":[33822,120855,126080,13681],"Minnesota":[21351,72590,62764,8012],"Kansas":[12137,36642,30971,2625],"Missouri":[17491,54946,54412,4799],"Alaska":[2045,9700,8071,762],"Florida":[42510,195111,189510,22090],"Puerto Rico":[13224,41448,42680,2558],"Republic of the Marshall Islands":[16,252,359,60],"South Dakota":[2922,12160,8321,950],"Utah":[11389,45905,35772,3242],"Louisiana":[11552,41592,35214,3745],"Maine":[4828,16648,15146,957],"Montana":[1567,10468,9027,484],"Delaware":[3975,12034,11869,1365],"Bureau of Indian Education":[249,3103,2560,213],"Georgia":[21545,102289,106219,11701],"Virginia":[21638,81400,77815,8382],"West Virginia":[5540,21937,20838,1919],"Pennsylvania":[47058,153650,165135,19035],"Northern Marianas":[125,417,449,52],"Iowa":[7814,33886,28592,2331],"Arkansas":[13499,36180,29708,2858],"Vermont":[2099,6570,7104,581],"Guam":[252,638,916,98],"Tennessee":[15166,68797,51571,5197],"Hawaii":[2794,8417,8566,795],"Connecticut":[12329,37043,40523,4522],"Mississippi":[7337,33780,27466,3421],"Rhode Island":[3899,11488,10182,1285],"Texas":[74206,430253,319683,28557],"California":[100296,370443,366512,33742],"Republic of Palau":[4,42,39,7],"Wisconsin":[17365,58227,50531,3983],"New Hampshire":[3841,13726,13802,955],"Arizona":[16899,71853,63153,4951],"Nebraska":[7740,26559,21232,1965],"Wyoming":[2753,7646,5713,447],"Maryland":[18650,52398,47539,4582],"Federated States of Micronesia":[81,564,653,100],"US, Outlying Areas, and Freely Associated States":[952751,3615430,3297031,329212],"Kentucky":[18008,56483,38506,3653],"Oregon":[12268,39389,36960,3953],"Colorado":[15161,53556,47099,5185],"Indiana":[21724,87885,80215,9442],"North Dakota":[2376,8385,6896,724],"Michigan":[23833,95475,83740,9682],"North Carolina":[23600,98084,86805,9542],"South Carolina":[12174,51162,46734,4214],"Illinois":[42497,132122,121813,14614],"New Mexico":[6717,25961,25545,2313],"Oklahoma":[10026,57611,53368,6125],"Massachusetts":[22175,80883,83327,8491],"Alabama":[9504,49829,44725,4084],"New Jersey":[26125,114920,108406,9419]}};
@@ -14410,7 +14474,9 @@ function _specAsmtSub(subject,label){
   {label:'Proficient+',cell:function(c){var v=vals(c); return v?_tN(v[ix[1]]):_tNa();}},
   {label:'% proficient',noChart:true,cell:function(c){var v=vals(c); if(!v)return _tNa(); var p=v[ix[0]],pr=v[ix[1]]; return p?(pr/p*100).toFixed(1)+'%':_tNa();}}
  ];
- return {title:'Number and percent of students grades 3 through 8 and high school served under IDEA, Part B, who participated in and were proficient on '+subject+' assessments, by state.',part:'B',src:'EDFacts assessment results, students with IEPs, grades 3\u20138 and high school',year:'School Year 2023\u201324',rowHeader:'Measure',cap:'Participants and the number proficient or above, summed across grades.',rows:rows,metrics:metrics,states:_tblStatesFor(CCEE.data).map(function(c){return c===usk?usk:c;}),usKey:usk,scroll:true,metricChart:true,bubbleStates:Object.keys(CCOLL.asmtB.data)};
+ var _s={title:'Number and percent of students grades 3 through 8 and high school served under IDEA, Part B, who participated in and were proficient on '+subject+' assessments, by state.',part:'B',src:'EDFacts assessment results, students with IEPs, grades 3\u20138 and high school',year:'School Year 2023\u201324',rowHeader:'Measure',cap:'Participants and the number proficient or above, summed across grades.',rows:rows,metrics:metrics,states:_tblStatesFor(CCEE.data).map(function(c){return c===usk?usk:c;}),usKey:usk,scroll:true,metricChart:true};
+ if(subject==='math'){_s.compare={label:'Reading',aLabel:'Mathematics',bLabel:'Reading',a:function(c){var v=vals(c);return (v&&v[0])?(v[1]/v[0]*100):null;},b:function(c){var v=vals(c);return (v&&v[2])?(v[3]/v[2]*100):null;}};}
+ return _s;
 }
 function _specAsmtMath(){return _specAsmtSub('math','Mathematics');}
 function _specAsmtReading(){return _specAsmtSub('reading','Reading');}
