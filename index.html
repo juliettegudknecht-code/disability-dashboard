@@ -11744,6 +11744,11 @@ body.dark .view[data-view="lea"] .lea-scard-h b{color:#9fc3ec}
 .view[data-view="lea"] .lea-scard-track{height:5px;border-radius:3px;background:var(--line);margin-top:4px;overflow:hidden}
 .view[data-view="lea"] .lea-scard-fill{height:100%;border-radius:3px}
 .view[data-view="lea"] .lea-scard-unmatched{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:.7rem;line-height:1.35;color:var(--muted)}
+.view[data-view="lea"] .lea-osep{display:flex;align-items:center;gap:7px;margin:8px 0 2px;padding:5px 9px;border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:7px;background:var(--line2)}
+.view[data-view="lea"] .lea-osep-dot{width:9px;height:9px;border-radius:50%;flex:none}
+.view[data-view="lea"] .lea-osep-lbl{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.view[data-view="lea"] .lea-osep-v{font-size:.76rem;font-weight:800;margin-left:auto;text-align:right}
+body.dark .view[data-view="lea"] .lea-osep{background:#16202c;border-color:#2f3a48}
 .view[data-view="lea"] .lea-scard.tier-good{border-left:5px solid #2e8540}
 .view[data-view="lea"] .lea-scard.tier-mid{border-left:5px solid #b8860b}
 .view[data-view="lea"] .lea-scard.tier-low{border-left:5px solid #cc5a33;background:#fff6f1}
@@ -15865,6 +15870,13 @@ function _leaRenderFlow(scope){
  el.innerHTML=_leaFlowSVG(fl);
  var note=document.getElementById('leaFlowNote');if(note)note.innerHTML=_leaFlowNoteHTML(fl);
 }
+function _sppPill(status){
+ if(!status)return '';
+ var cls=(typeof det2026Class==='function')?det2026Class(status):'na';
+ var col=cls==='meets'?'#2e8540':(cls==='assist'?'#b8860b':(cls==='intervention'?'#cc5a33':'#9aa6b2'));
+ var lbl=/Meets/i.test(status)?'Meets requirements':(/one year/i.test(status)?'Needs assistance (1 yr)':(/two or more/i.test(status)?'Needs assistance (2+ yrs)':(/substantial/i.test(status)?'Needs substantial intervention':(/intervention/i.test(status)?'Needs intervention':status))));
+ return '<div class="lea-osep" title="OSEP 2026 IDEA Part B determination (based on FFY 2024 SPP/APR)" style="border-left-color:'+col+'"><span class="lea-osep-dot" style="background:'+col+'"></span><span class="lea-osep-lbl">OSEP 2026</span><span class="lea-osep-v" style="color:'+col+'">'+lbl+'</span></div>';
+}
 var _LEA_SC_STATS=[];
 function _leaStateStats(){
  var out=[];
@@ -15877,7 +15889,7 @@ function _leaStateStats(){
     if((''+(l.fund.ceis||'')).trim()==='1')ceisReq++;}
    else noMoe++;
   });
-  out.push({state:s,districts:arr.length,served:served,noMoe:noMoe,withDet:withDet,pctMeet:withDet?Math.round(meets/withDet*100):null,pctMet:withMet?Math.round(metYes/withMet*100):null,ceisReq:ceisReq});
+  out.push({state:s,districts:arr.length,served:served,noMoe:noMoe,withDet:withDet,pctMeet:withDet?Math.round(meets/withDet*100):null,pctMet:withMet?Math.round(metYes/withMet*100):null,ceisReq:ceisReq,osep:(typeof det2026Status==='function'?det2026Status('partB',s):null)});
  });
  return out;
 }
@@ -15894,6 +15906,7 @@ function _leaRenderStateCards(sortKey){
   var tk=tierOf(x.pctMeet), tc=tierC[tk];
   return '<div class="lea-scard tier-'+tk+'" data-st="'+x.state.replace(/"/g,'&quot;')+'">'+
    '<div class="lea-scard-h"><b>'+x.state+'</b><span>'+x.districts.toLocaleString()+' LEAs</span></div>'+
+   _sppPill(x.osep)+
    '<div class="lea-scard-served">'+_leaFmt(x.served)+'</div><div class="lea-scard-cap">children &amp; students served</div>'+
    '<div class="lea-scard-row"><div class="v"><span>Districts meeting requirements</span><b style="color:'+tc+'">'+meet+'</b></div><div class="lea-scard-track"><div class="lea-scard-fill" style="width:'+mf+'%;background:'+tc+'"></div></div></div>'+
    '<div class="lea-scard-row"><div class="v"><span>Met the MOE standard</span><b>'+met+'</b></div><div class="lea-scard-track"><div class="lea-scard-fill" style="width:'+tf+'%;background:#185fa5"></div></div></div>'+
@@ -15912,6 +15925,7 @@ function _leaRenderNation(){
  var withCount=all.filter(function(l){return l.served!=null;});
  var withFund=withCount.filter(function(l){return l.fund&&l.fund.ftot!=null;});
  var totalServed=withCount.reduce(function(a,l){return a+(l.served||0);},0);
+ var noMoeUS=all.filter(function(l){return !l.fund;}).length;
  var sorted=withCount.slice().sort(function(a,b){return (b.served||0)-(a.served||0);});
  var dD={'1':0,'2':0,'3':0,'4':0},dS={'1':0,'2':0,'3':0,'4':0};
  all.forEach(function(l){var f=l.fund;if(!f)return;var d=(''+(f.det||'')).trim();if(dD[d]!=null){dD[d]++;dS[d]+=(l.served||0);}});
@@ -15920,10 +15934,10 @@ function _leaRenderNation(){
  var pctMeetD=totD?Math.round(dD['1']/totD*100):0,pctMeetS=totS?Math.round(dS['1']/totS*100):0,needIntS=dS['3']+dS['4'];
  var distParts=[{v:dD['1'],c:'#2e8540'},{v:dD['2'],c:'#b8860b'},{v:dD['3'],c:'#cc5a33'},{v:dD['4'],c:'#8c1d1d'}];
  var studParts=[{v:dS['1'],c:'#2e8540'},{v:dS['2'],c:'#b8860b'},{v:dS['3'],c:'#cc5a33'},{v:dS['4'],c:'#8c1d1d'}];
- if(status)status.innerHTML='<div class="lea-statusline"><b>United States</b> · '+all.length.toLocaleString()+' districts across '+states.length+' States &amp; territories · '+_leaFmt(totalServed)+' children &amp; students served (2024–25)</div>';
+ if(status)status.innerHTML='';
  body.innerHTML='<div class="lea-supnote">Showing <b>every district nationwide</b>. Pick a State above or click the map to zoom into one State, then open any district for its full profile.</div>'+
   '<div class="kpis lea-kpis">'+
-   '<div class="kpi"><div class="l">Districts (LEAs)</div><div class="v">'+all.length.toLocaleString()+'</div><div class="c">across '+states.length+' States &amp; territories</div></div>'+
+   '<div class="kpi"><div class="l">Districts (LEAs)</div><div class="v">'+all.length.toLocaleString()+'</div><div class="c">across '+states.length+' States &amp; territories · '+noMoeUS.toLocaleString()+' with no 2021–22 MOE match</div></div>'+
    '<div class="kpi"><div class="l">Children &amp; students served</div><div class="v">'+_leaFmt(totalServed)+'</div><div class="c">IDEA Part B, 2024–25</div></div>'+
    '<div class="kpi autism"><div class="l">Largest district</div><div class="v" style="font-size:1.2rem;line-height:1.15">'+(sorted[0]?sorted[0].name:'–')+'</div><div class="c">'+(sorted[0]?_leaFmt(sorted[0].served)+' served · '+sorted[0]._state:'')+'</div></div>'+
   '</div>'+
@@ -15959,7 +15973,7 @@ function _leaRenderState(state,list){
  var ageLbl=saOnly?'ages 5–21 (school-age)':'ages 3–21';
  var saNote=saOnly?'<div class="lea-supnote">A combined ages 3–21 total is not reported for '+state+' districts in this file, so figures show <b>school-age (ages 5–21)</b> child counts.</div>':((list.length-withCount.length)>0?'<div class="lea-supnote">'+(list.length-withCount.length)+' of '+list.length+' districts have a suppressed or unreported child count and are not plotted below.</div>':'');
  if(status)status.innerHTML='<div class="lea-statusline"><b>'+state+'</b> · '+list.length.toLocaleString()+' districts · '+_leaFmt(totalServed)+' children &amp; students served ('+ageLbl+', 2024–25)</div>';
- body.innerHTML=saNote+'<div class="kpis lea-kpis">'+
+ body.innerHTML=(typeof det2026Status==='function'?_sppPill(det2026Status('partB',state)):'')+saNote+'<div class="kpis lea-kpis">'+
   '<div class="kpi"><div class="l">Districts (LEAs)</div><div class="v">'+list.length.toLocaleString()+'</div><div class="c">reporting a child count in '+state+'</div></div>'+
   '<div class="kpi"><div class="l">Children &amp; students served</div><div class="v">'+_leaFmt(totalServed)+'</div><div class="c">IDEA Part B, '+ageLbl+', 2024–25</div></div>'+
   '<div class="kpi autism"><div class="l">Largest district</div><div class="v" style="font-size:1.25rem;line-height:1.15">'+(withCount[0]?withCount[0].name:'–')+'</div><div class="c">'+(withCount[0]?_leaFmt(withCount[0].served)+' served':'')+'</div></div>'+
@@ -16009,7 +16023,7 @@ function _leaFundCard(f){
  function _ynm(v){v=(''+(v==null?'':v)).trim().toUpperCase();return (v==='1'||v==='Y'||v==='YES')?'Yes':((v==='0'||v==='N'||v==='NO')?'No':'–');}
  var met=_ynm(f.met),ceis=_ynm(f.ceis);
  var det=_leaDetInfo(f.det);
- var detBlock=det?('<div class="lea-det lea-det-'+det.c+'"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600 · 2021–22</small></span><span class="lea-det-v"><span class="lea-det-dot" aria-hidden="true"></span>'+det.l+'</span></div><div class="lea-det-w">“'+det.w+'”</div></div>'):'<div class="lea-det lea-det-na"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600 · 2021–22</small></span><span class="lea-det-v">Not reported</span></div></div>';
+ var detBlock=det?('<div class="lea-det lea-det-'+det.c+'" title="'+det.w+'"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600(a)(2) · 2021–22</small></span><span class="lea-det-v"><span class="lea-det-dot" aria-hidden="true"></span>'+det.l+'</span></div></div>'):'<div class="lea-det lea-det-na"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600(a)(2) · 2021–22</small></span><span class="lea-det-v">Not reported</span></div></div>';
  var alignNote='<div class="lea-align-note">⚠ Funding and MOE figures are <b>SY 2021–22</b>; child counts are <b>2024–25</b>. The collections are matched by NCES ID and may not align exactly for every district.</div>';
  return detBlock+'<div class="lea-fundgrid">'+row('Section 611 allocation',_leaMoney(f.f611))+row('Section 619 allocation',_leaMoney(f.f619))+row('Total Section 611 + 619',_leaMoney(f.ftot))+row('Met the MOE standard',met)+row('Reduction of funds taken',_leaMoney(f.red))+row('Required to reserve CEIS',ceis)+(f.ceisN!=null?row('Children receiving CEIS',_leaFmt(f.ceisN)):'')+'</div>'+alignNote;
 }
