@@ -13617,8 +13617,8 @@ function exportStateReportCSV(){
  var rows=[['State Snapshot'],['Selected State',focusState],[SRC_NOTE],[],hdr];
  STATES.forEach(function(s){var r=STATE_RPT[s[0]]||{};var grw=((s[4]-s[1])/s[1]*100).toFixed(0);
   rows.push([s[0],s[4],s[5],grw,(r.grad!=null?r.grad:''),(r.dropout!=null?r.dropout:''),(r.cert!=null?r.cert:''),(r.incl!=null?r.incl:''),(r.math!=null?r.math:''),(r.read!=null?r.read:''),(r.partc!=null?r.partc:'')]);});
- var csv=rows.map(function(rr){return rr.map(function(x){return '"'+(x==null?'':(''+x).replace(/"/g,'""'))+'"';}).join(',');}).join('\n');
- var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='state_report_card_all_states.csv';a.click();
+ var csv=rows.map(function(rr){return rr.map(function(x){return _csvCell(x);}).join(',');}).join('\n');
+ var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));a.download='state_report_card_all_states.csv';a.click();
 }
 function exportStateCurrentCSV(){
  var s=STATES.find(function(x){return x[0]===focusState;})||STATES[0];var r=STATE_RPT[focusState]||{};var grw=((s[4]-s[1])/s[1]*100).toFixed(1);
@@ -13971,15 +13971,15 @@ function exportCSV(id){const c=Chart.getChart(id);if(!c)return;const ds=c.data.d
  rows.push(['Source',SRC_NOTE],['Exported',_d],[]);
  rows.push(['Category',...ds.map((d,i)=>d.label||('Series '+(i+1)))]);
  c.data.labels.forEach((l,i)=>rows.push([l,...ds.map(d=>chartDataValue(d.data[i]))]));
- const csv=rows.map(r=>r.map(x=>'"'+(x==null?'':(''+x).replace(/"/g,'""'))+'"').join(',')).join('\n');
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=(id||'chart')+'_idea618.csv';a.click();}
+ const csv=rows.map(r=>r.map(x=>_csvCell(x)).join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));a.download=(id||'chart')+'_idea618.csv';a.click();}
 function exportTableCSV(tbl,name){
  if(!tbl)return;
  const _d=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
  const meta=[['IDEA Section 618'],['Source',SRC_NOTE],['Exported',_d],[]];
  const rows=meta.concat([...tbl.querySelectorAll('tr')].map(tr=>[...tr.querySelectorAll('th,td')].map(c=>(c.textContent||'').trim())));
- const csv=rows.map(r=>r.map(x=>'"'+(''+x).replace(/"/g,'""')+'"').join(',')).join('\n');
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name+'.csv';a.click();
+ const csv=rows.map(r=>r.map(x=>_csvCell(x)).join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));a.download=name+'.csv';a.click();
 }
 function exportExplorerCSV(){
  const cat=(document.querySelector('#expHero .cat')||{}).textContent||'Explorer';
@@ -13990,8 +13990,8 @@ function exportExplorerCSV(){
   L.push(['Label',...ds.map((d,i)=>d.label||('Series '+(i+1)))]);
   c.data.labels.forEach((l,i)=>L.push([l,...ds.map(d=>chartDataValue(d.data[i]))])); L.push([]);
  });
- const csv=L.map(r=>r.map(x=>'"'+(x==null?'':(''+x).replace(/"/g,'""'))+'"').join(',')).join('\n');
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='disability_explorer.csv';a.click();
+ const csv=L.map(r=>r.map(x=>_csvCell(x)).join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));a.download='disability_explorer.csv';a.click();
 }
 function exportExplorerPNG(){
  const items=[['Child count trend','expTrend'],['Educational environments','expEnv'],['Sex','expSex'],['Race and ethnicity','expRace'],['Age','expAge']].map(([t,id])=>[t,Chart.getChart(id)]).filter(x=>x[1]);
@@ -14020,8 +14020,8 @@ function exportSparksCSV(){
  const head=['School year','All disabilities',...cats];
  const rows=[['Students with Disabilities by Primary Category, Ages 3–21, Served Under IDEA, Part B, School Years 1976–77 Through 2024–25 (thousands)'],[SRC_NOTE],[],head];
  YEARS.forEach((y,i)=>rows.push([y,(ALL[i]==null?'':ALL[i]),...cats.map(k=>DIS[k][i]==null?'':DIS[k][i])]));
- const csv=rows.map(r=>r.map(x=>'"'+(x==null?'':x)+'"').join(',')).join('\n');
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='category_trends_1976-2025.csv';a.click();
+ const csv=rows.map(r=>r.map(x=>_csvCell(x)).join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));a.download='category_trends_1976-2025.csv';a.click();
 }
 function exportSparksPNG(){
  const cats=(typeof COMP_ORDER!=='undefined'?COMP_ORDER:Object.keys(DIS));
@@ -14395,8 +14395,8 @@ function _vizCSV(sid){
  rows.push(['Source',m.source],['Exported',_d],[]);
  rows.push(['Category'].concat(ds.map(function(d,i){return d.label||('Series '+(i+1));})));
  c.data.labels.forEach(function(l,i){rows.push([l].concat(ds.map(function(d){return chartDataValue(d.data[i]);})));});
- var csv=rows.map(function(r){return r.map(function(x){return '"'+(x==null?'':(''+x).replace(/"/g,'""'))+'"';}).join(',');}).join('\n');
- var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=m.fname+'.csv';a.click();
+ var csv=rows.map(function(r){return r.map(function(x){return _csvCell(x);}).join(',');}).join('\n');
+ var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));a.download=m.fname+'.csv';a.click();
 }
 function _renderVizChart(sid){
  var spec=window._tblSpecs&&window._tblSpecs[sid];if(!spec||typeof Chart==='undefined')return;
@@ -14866,7 +14866,7 @@ function renderTablesView(){
  allSpecs.forEach(function(sp){if(sp._sid&&_VIZ[sp._sid]&&_VIZ[sp._sid].on)_reapplyViz(sp._sid);});
 }
 function _stripHtml(s){return (''+s).replace(/<[^>]*>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');}
-function _csvCell(html){var t=_stripHtml(html).trim(); return (t==='N/A'||t==='–')?'':t;}
+function _csvCellClean(html){var t=_stripHtml(html).trim(); return (t==='N/A'||t==='–')?'':t;}
 function _csvColLabel(c,sp){return (c===sp.usKey||c==='__US__'||c===TBL_USALL)?TBL_B_US:c;}
 function _buildTablesCSV(colsFor,selectionLabel,fname,specSet){
  try{
@@ -14887,7 +14887,7 @@ function _buildTablesCSV(colsFor,selectionLabel,fname,specSet){
     var hdr=[sp.rowHeader];
     cols.forEach(function(c){var cl=_csvColLabel(c,sp); if(sp.metrics.length>1){sp.metrics.forEach(function(m){hdr.push(cl+' - '+_stripHtml(m.label));});}else{hdr.push(cl);}});
     rows.push(hdr);
-    sp.rows.forEach(function(rw){var line=[rw.label]; cols.forEach(function(c){sp.metrics.forEach(function(m){line.push(_csvCell(m.cell(c,rw.key)));});}); rows.push(line);});
+    sp.rows.forEach(function(rw){var line=[rw.label]; cols.forEach(function(c){sp.metrics.forEach(function(m){line.push(_csvCellClean(m.cell(c,rw.key)));});}); rows.push(line);});
     rows.push([]);
    });
   });
@@ -15260,11 +15260,18 @@ function exportViewPNG(view){
 }
 function _svgToImg(svg,scale){scale=scale||1;return new Promise(function(res,rej){try{var rect=svg.getBoundingClientRect();var w=Math.max(2,Math.round(rect.width)),h=Math.max(2,Math.round(rect.height));var clone=svg.cloneNode(true);clone.setAttribute('width',Math.round(w*scale));clone.setAttribute('height',Math.round(h*scale));clone.setAttribute('xmlns','http://www.w3.org/2000/svg');var str=new XMLSerializer().serializeToString(clone);var url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(str);var img=new Image();img.onload=function(){res({img:img,w:w,h:h});};img.onerror=function(){rej(new Error('svg'));};img.src=url;}catch(e){rej(e);}});}
 /* ===== reusable PNG/CSV download for any graphic (canvas or SVG) ===== */
+function _csvCell(x){
+ if(x==null)return '""';
+ var s=''+x;
+ if(/[<&]/.test(s)){var d=document.createElement('div');d.innerHTML=s;s=(d.textContent||d.innerText||'');}
+ s=s.replace(/\s+/g,' ').trim();
+ return '"'+s.replace(/"/g,'""')+'"';
+}
 function _gfxCSV(rows,filename){
  var d=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
  var all=[['IDEA Section 618 Data Tool'],['Source',(typeof SRC_NOTE!=='undefined'?SRC_NOTE:'')],['Exported',d],[]].concat(rows);
- var csv=all.map(function(r){return r.map(function(x){return '"'+(x==null?'':(''+x).replace(/"/g,'""'))+'"';}).join(',');}).join('\n');
- var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=filename+'.csv';a.click();
+ var csv=all.map(function(r){return r.map(function(x){return _csvCell(x);}).join(',');}).join('\n');
+ var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));a.download=filename+'.csv';a.click();
 }
 function _gfxSvgPNG(svg,title,note,filename,source){
  if(!svg)return;
@@ -15312,11 +15319,11 @@ function combineAllCSV(){
     ['State','Served Part B (3-21)','Percent of enrollment','Growth since 2000-01 %','Graduated %','Dropout %','Cert %','In gen class 80%+ %','Math %','Reading %','Part C (birth-2)']);
   STATES.forEach(s=>{const r=(typeof STATE_RPT!=='undefined'&&STATE_RPT[s[0]])||{};const g=((s[4]-s[1])/s[1]*100).toFixed(0);
     L.push([s[0],s[4],s[5],g,r.grad==null?'':r.grad,r.dropout==null?'':r.dropout,r.cert==null?'':r.cert,r.incl==null?'':r.incl,r.math==null?'':r.math,r.read==null?'':r.read,r.partc==null?'':r.partc]);});
-  const csv=L.map(r=>r.map(v=>'"'+(v==null?'':(''+v).replace(/"/g,'""'))+'"').join(',')).join('\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='idea_618_data_tool_data.csv';a.click();
+  const csv=L.map(r=>r.map(v=>_csvCell(v)).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));a.download='idea_618_data_tool_data.csv';a.click();
 }
 
-function _csvDL(rows,name){const csv=rows.map(function(r){return r.map(function(x){return '"'+(x==null?'':(''+x).replace(/"/g,'""'))+'"';}).join(',');}).join('\n');var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();}
+function _csvDL(rows,name){const csv=rows.map(function(r){return r.map(function(x){return _csvCell(x);}).join(',');}).join('\n');var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));a.download=name;a.click();}
 function exportOfficialDisplayCSV(){
  try{
   var d=(typeof DD!=='undefined')?DD[focusState]:null;
