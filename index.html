@@ -11596,6 +11596,40 @@ body.dark .view[data-view="tables"] .tcg-label{color:#cfe0f0}
 body.dark .view[data-view="tables"] .tcg-count{background:#1b2733;color:#aeb9c6}
 body.hc .view[data-view="tables"] .tbl-catgroup-head{border-bottom-width:2px}
 
+/* ---------- VISUALIZE TOOL : a clear Table / Chart view switcher ----------
+   Replaces the single label-flipping "Visualize" button with a segmented
+   control where the active view is always obvious. */
+.view[data-view="tables"] .tbl-card-head{align-items:center;gap:8px}
+.view[data-view="tables"] .tbl-viz-switch-lab{
+  font-size:.68rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);
+}
+.view[data-view="tables"] .tbl-viz-switch{
+  display:inline-flex;border:1px solid #c8cdd4;border-radius:999px;overflow:hidden;flex:none;
+  box-shadow:0 1px 1px rgba(16,42,67,.05);
+}
+.view[data-view="tables"] .tbl-viz-seg{
+  display:inline-flex;align-items:center;gap:7px;border:0;background:#fff;
+  padding:7px 15px;font-size:.82rem;font-weight:800;color:#3a4a5c;cursor:pointer;transition:background .12s,color .12s;
+}
+.view[data-view="tables"] .tbl-viz-seg+.tbl-viz-seg{border-left:1px solid #c8cdd4}
+.view[data-view="tables"] .tbl-viz-seg:not(.on):hover{background:#eef5fc;color:#0b4a82}
+.view[data-view="tables"] .tbl-viz-seg.on{background:#0b4a82;color:#fff}
+.view[data-view="tables"] .tvs-ico{display:inline-block;flex:none;width:13px;height:11px}
+.view[data-view="tables"] .tvs-chart{
+  background:linear-gradient(to top,currentColor 38%,transparent 38%) 0 100%/3px 60% no-repeat,
+             linear-gradient(to top,currentColor 38%,transparent 38%) 5px 100%/3px 100% no-repeat,
+             linear-gradient(to top,currentColor 38%,transparent 38%) 10px 100%/3px 78% no-repeat;
+}
+.view[data-view="tables"] .tvs-table{position:relative;border:1.5px solid currentColor;border-radius:2px}
+.view[data-view="tables"] .tvs-table:before{content:"";position:absolute;left:0;right:0;top:50%;height:1.5px;background:currentColor;transform:translateY(-50%)}
+.view[data-view="tables"] .tvs-table:after{content:"";position:absolute;top:0;bottom:0;left:50%;width:1.5px;background:currentColor;transform:translateX(-50%)}
+body.dark .view[data-view="tables"] .tbl-viz-switch{border-color:#2f3a48}
+body.dark .view[data-view="tables"] .tbl-viz-seg{background:#15202c;color:#aeb9c6}
+body.dark .view[data-view="tables"] .tbl-viz-seg+.tbl-viz-seg{border-left-color:#2f3a48}
+body.dark .view[data-view="tables"] .tbl-viz-seg:not(.on):hover{background:#143b5f;color:#9fc6ee}
+body.dark .view[data-view="tables"] .tbl-viz-seg.on{background:#1f6fa8;color:#fff}
+body.hc .view[data-view="tables"] .tbl-viz-switch{border-width:2px}
+
 /* ---------- STATE SNAPSHOT : tidier, scannable tiles ---------- */
 .state-insight .state-insight-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 
@@ -13993,7 +14027,7 @@ function _specCard(spec,openFirst,idx){
  return '<details class="card tbl-card'+(bd?' has-bd '+bd.c:'')+'"'+(openFirst?' open':'')+' data-viz-card="'+sid+'">'
  +'<summary class="tbl-card-summary"><span class="tbl-card-sum-title">'+spec.title+'</span>'+(bd?'<span class="tbl-bd-chip '+bd.c+'">'+bd.l+'</span>':'')+'<span class="tbl-card-sum-pill '+(spec.part==='C'?'partc':'partb')+'">Part '+spec.part+'</span></summary>'
  +'<div class="tbl-card-body">'
- +'<div class="tbl-card-head"><button type="button" class="tbl-viz-btn" data-viz-toggle="'+sid+'" aria-pressed="false"><span class="tbl-viz-ico" aria-hidden="true"></span><span class="tbl-viz-btn-label">Visualize</span></button></div>'
+ +'<div class="tbl-card-head"><span class="tbl-viz-switch-lab">View as</span><div class="tbl-viz-switch" role="group" aria-label="Show this data as a table or a chart"><button type="button" class="tbl-viz-seg on" data-viz-view="table" data-viz-for="'+sid+'" aria-pressed="true"><span class="tvs-ico tvs-table" aria-hidden="true"></span>Table</button><button type="button" class="tbl-viz-seg" data-viz-view="chart" data-viz-for="'+sid+'" aria-pressed="false"><span class="tvs-ico tvs-chart" aria-hidden="true"></span>Chart</button></div></div>'
  +'<div class="dd-meta"><span class="dd-pill '+(spec.part==='C'?'partc':'partb')+'">IDEA Part '+spec.part+'</span><span class="dd-meta-yr">'+spec.year+'</span>'
  +'<details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">'+spec.src+'</div></details></div>'
  +'<div class="tbl-cap">'+spec.cap+'</div>'+(spec.caution?'<div class="tbl-caution"><span>'+spec.caution+'</span></div>':'')
@@ -14103,25 +14137,23 @@ function _renderVizChart(sid){
  new Chart(canvas,cfg);
 }
 function _specColl(spec){var keys=Object.keys(TBL_SPECS);for(var i=0;i<keys.length;i++){try{if(TBL_SPECS[keys[i]]().some(function(s){return s.title===spec.title;}))return keys[i];}catch(e){}}return 'ccee';}
-function _toggleViz(sid){
- var st=_vizState(sid);st.on=!st.on;
+function _applyVizView(sid,on){
  var card=document.querySelector('[data-viz-card="'+sid+'"]');if(!card)return;
- var panel=card.querySelector('.tbl-viz-panel'),dataWrap=card.querySelector('.tbl-data-wrap'),btn=card.querySelector('[data-viz-toggle="'+sid+'"]'),lbl=card.querySelector('.tbl-viz-btn-label');
- if(st.on){if(card.tagName==='DETAILS')card.open=true;if(panel)panel.hidden=false;if(dataWrap)dataWrap.hidden=true;if(btn){btn.setAttribute('aria-pressed','true');btn.classList.add('on');}if(lbl)lbl.textContent='Show table';_syncVizTypeChips(sid);_syncVizRow(sid);_syncVizMetric(sid);_syncVizUS(sid);_renderVizChart(sid);}
- else{if(panel)panel.hidden=true;if(dataWrap)dataWrap.hidden=false;if(btn){btn.setAttribute('aria-pressed','false');btn.classList.remove('on');}if(lbl)lbl.textContent='Visualize';var cv=card.querySelector('.tbl-viz-canvas');var old=cv&&Chart.getChart(cv.id);if(old)old.destroy();}
+ var panel=card.querySelector('.tbl-viz-panel'),dataWrap=card.querySelector('.tbl-data-wrap');
+ if(on&&card.tagName==='DETAILS')card.open=true;
+ if(panel)panel.hidden=!on;if(dataWrap)dataWrap.hidden=on;
+ card.querySelectorAll('.tbl-viz-seg').forEach(function(b){var active=((b.getAttribute('data-viz-view')==='chart')===on);b.classList.toggle('on',active);b.setAttribute('aria-pressed',active?'true':'false');});
+ if(on){_syncVizTypeChips(sid);_syncVizRow(sid);_syncVizMetric(sid);_syncVizUS(sid);_renderVizChart(sid);}
+ else{var cv=card.querySelector('.tbl-viz-canvas');var old=cv&&Chart.getChart(cv.id);if(old)old.destroy();}
 }
-function _reapplyViz(sid){
- var st=_VIZ[sid];if(!st||!st.on)return;
- var card=document.querySelector('[data-viz-card="'+sid+'"]');if(!card)return;
- var panel=card.querySelector('.tbl-viz-panel'),dataWrap=card.querySelector('.tbl-data-wrap'),btn=card.querySelector('[data-viz-toggle="'+sid+'"]'),lbl=card.querySelector('.tbl-viz-btn-label');
- if(card.tagName==='DETAILS')card.open=true;
- if(panel)panel.hidden=false;if(dataWrap)dataWrap.hidden=true;if(btn){btn.setAttribute('aria-pressed','true');btn.classList.add('on');}if(lbl)lbl.textContent='Show table';
- _syncVizTypeChips(sid);_syncVizRow(sid);_syncVizMetric(sid);_syncVizUS(sid);_renderVizChart(sid);
-}
+function _setVizView(sid,view){var st=_vizState(sid);st.on=(view==='chart');_applyVizView(sid,st.on);}
+function _toggleViz(sid){var st=_vizState(sid);st.on=!st.on;_applyVizView(sid,st.on);}
+function _reapplyViz(sid){var st=_VIZ[sid];if(!st||!st.on)return;_applyVizView(sid,true);}
 function _setupVizDelegation(){
  if(_vizDelegated)return;var box=document.getElementById('tablesBody');if(!box)return;_vizDelegated=true;
  box.addEventListener('click',function(e){
   var t=e.target.closest('[data-viz-toggle]');if(t){_toggleViz(t.getAttribute('data-viz-toggle'));return;}
+  var vv=e.target.closest('[data-viz-view]');if(vv){_setVizView(vv.getAttribute('data-viz-for'),vv.getAttribute('data-viz-view'));return;}
   var ty=e.target.closest('[data-viz-type]');if(ty){var sid=ty.getAttribute('data-viz-for');_vizState(sid).type=ty.getAttribute('data-viz-type');_syncVizTypeChips(sid);_renderVizChart(sid);return;}
   var pg=e.target.closest('[data-viz-png]');if(pg){try{_vizPNG(pg.getAttribute('data-viz-png'));}catch(_e){}return;}
   var cs=e.target.closest('[data-viz-csv]');if(cs){try{_vizCSV(cs.getAttribute('data-viz-csv'));}catch(_e){}return;}
