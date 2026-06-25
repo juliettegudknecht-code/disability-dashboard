@@ -15740,13 +15740,44 @@ function _leaRender(){
  var body=document.getElementById('leaBody'),pick=document.getElementById('leaPick'),back=document.getElementById('leaBack'),status=document.getElementById('leaStatus');
  if(!body||!LEA_DATA)return;
  if(_leaChart1){try{_leaChart1.destroy();}catch(e){}_leaChart1=null;} if(_leaChart2){try{_leaChart2.destroy();}catch(e){}_leaChart2=null;}
- if(!LEA_STATE){if(status)status.innerHTML='';if(pick){pick.innerHTML='<option>—</option>';pick.disabled=true;}if(back)back.hidden=true;
-  body.innerHTML='<div class="card lea-landing"><h3>Pick a State to begin</h3><p class="note">Choose a State above to see all of its school districts plotted by size and IDEA funding, then open any district for a full profile of who it serves and the funds it receives.</p></div>';return;}
+ if(!LEA_STATE){if(pick){pick.innerHTML='<option>—</option>';pick.disabled=true;}if(back)back.hidden=true;try{_leaUpdateMapSel();}catch(e){}_leaRenderNation();return;}
  var list=LEA_DATA.byState[LEA_STATE]||[];
  if(pick){pick.disabled=false;pick.innerHTML='<option value="-1">All districts (overview)</option>'+list.map(function(l,i){return '<option value="'+i+'">'+l.name+(l.served!=null?' — '+_leaFmt(l.served):'')+'</option>';}).join('');pick.value=LEA_SEL?String(list.indexOf(LEA_SEL)):'-1';}
  try{_leaUpdateMapSel();}catch(e){}
  if(LEA_SEL){if(back)back.hidden=false;_leaRenderProfile(LEA_SEL,list);}
  else{if(back)back.hidden=true;_leaRenderState(LEA_STATE,list);}
+}
+function _leaPickNation(item){if(!item)return;var sel=document.getElementById('leaStateSel');if(sel)sel.value=item._state;LEA_STATE=item._state;LEA_SEL=item;_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}
+function _leaRenderNation(){
+ var status=document.getElementById('leaStatus'),body=document.getElementById('leaBody');
+ if(!body||!LEA_DATA)return;
+ var states=Object.keys(LEA_DATA.byState).sort();
+ var all=[];states.forEach(function(s){(LEA_DATA.byState[s]||[]).forEach(function(l){l._state=s;all.push(l);});});
+ var withCount=all.filter(function(l){return l.served!=null;});
+ var withFund=withCount.filter(function(l){return l.fund&&l.fund.ftot!=null;});
+ var totalServed=withCount.reduce(function(a,l){return a+(l.served||0);},0);
+ var sorted=withCount.slice().sort(function(a,b){return (b.served||0)-(a.served||0);});
+ if(status)status.innerHTML='<div class="lea-statusline"><b>United States</b> — '+all.length.toLocaleString()+' districts across '+states.length+' States &amp; territories · '+_leaFmt(totalServed)+' children &amp; students served (2024–25)</div>';
+ body.innerHTML='<div class="lea-supnote">Showing <b>every district nationwide</b>. Pick a State above or click the map to zoom into one State, then open any district for its full profile.</div>'+
+  '<div class="kpis lea-kpis">'+
+   '<div class="kpi"><div class="l">Districts (LEAs)</div><div class="v">'+all.length.toLocaleString()+'</div><div class="c">across '+states.length+' States &amp; territories</div></div>'+
+   '<div class="kpi"><div class="l">Children &amp; students served</div><div class="v">'+_leaFmt(totalServed)+'</div><div class="c">IDEA Part B, 2024–25</div></div>'+
+   '<div class="kpi autism"><div class="l">Largest district</div><div class="v" style="font-size:1.2rem;line-height:1.15">'+(sorted[0]?sorted[0].name:'—')+'</div><div class="c">'+(sorted[0]?_leaFmt(sorted[0].served)+' served · '+sorted[0]._state:'')+'</div></div>'+
+  '</div>'+
+  '<div class="grid g2 lea-grid">'+
+   '<div class="card fig"><div class="ey">District landscape · nationwide</div><h3>Every district by size and IDEA funding</h3><div class="note">Each bubble is one of the '+withFund.length.toLocaleString()+' districts with both a 2024–25 child count and a 2021–22 MOE record: across = children &amp; students served (2024–25), up = total IDEA Part&nbsp;B allocation (2021–22), size = children served, color = the State&rsquo;s MOE determination (2021–22). Click a bubble to open that district. The two collections are different years and matched by NCES&nbsp;ID, so they may not align exactly for every district.</div><div class="canvas-box tall"><canvas id="leaLandscape"></canvas></div></div>'+
+   '<div class="card"><div class="ey">Ranked · nationwide</div><h3>Largest districts</h3><div class="note">By children &amp; students served. Choose one to open it.</div><div class="lea-ranklist" id="leaRankList"></div></div>'+
+  '</div>';
+ var rl=document.getElementById('leaRankList');var topN=sorted.slice(0,25),maxT=topN.length?(topN[0].served||1):1;
+ if(rl){rl.innerHTML=topN.map(function(l,i){var w=Math.max(2,(l.served/maxT*100));return '<button type="button" class="lea-rankrow" data-nat-idx="'+i+'"><span class="lr-rank">'+(i+1)+'</span><span class="lr-name">'+l.name+' <small style="color:var(--muted);font-weight:600;font-size:.8em">'+l._state+'</small></span><span class="lr-bar"><span class="lr-fill" style="width:'+w+'%"></span></span><span class="lr-val">'+_leaFmt(l.served)+'</span></button>';}).join('');
+ rl.querySelectorAll('[data-nat-idx]').forEach(function(b){b.onclick=function(){_leaPickNation(topN[+b.getAttribute('data-nat-idx')]);};});}
+ _leaLandscapeChart(withFund.length>=3?withFund:withCount,{
+  showState:true,pick:_leaPickNation,minR:2.4,spanR:20,border:.6,fill:.5,
+  title:'United States — districts by size and IDEA funding',
+  subtitle:'Each bubble is one district: children and students served (2024–25) vs. total IDEA Part B allocation (2021–22). Color = the State’s MOE determination (2021–22).',
+  fileslug:'idea618_us_districts_landscape.png',csvslug:'idea618_us_districts',
+  csvRows:function(){var rows=[['District (LEA)','State','Children and students served, 2024–25','IDEA Part B allocation 2021–22 ($)','MOE determination (34 CFR 300.600(a)(2), 2021–22)']];all.forEach(function(l){var di=l.fund?_leaDetInfo(l.fund.det):null;rows.push([l.name,l._state,l.served==null?'':l.served,(l.fund&&l.fund.ftot!=null)?l.fund.ftot:'',di?di.l:'']);});return rows;}
+ });
 }
 function _leaRenderState(state,list){
  var status=document.getElementById('leaStatus'),body=document.getElementById('leaBody');
@@ -15769,21 +15800,31 @@ function _leaRenderState(state,list){
  var rl=document.getElementById('leaRankList');var topN=withCount.slice(0,25),maxT=topN.length?(topN[0].served||1):1;
  rl.innerHTML=topN.length?topN.map(function(l,i){var w=Math.max(2,(l.served/maxT*100));return '<button type="button" class="lea-rankrow" data-lea-idx="'+list.indexOf(l)+'"><span class="lr-rank">'+(i+1)+'</span><span class="lr-name">'+l.name+'</span><span class="lr-bar"><span class="lr-fill" style="width:'+w+'%"></span></span><span class="lr-val">'+_leaFmt(l.served)+'</span></button>';}).join(''):'<div class="note">No district child counts are available for this State (all suppressed or unreported).</div>';
  rl.querySelectorAll('[data-lea-idx]').forEach(function(b){b.onclick=function(){LEA_SEL=list[+b.getAttribute('data-lea-idx')];_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});};});
- _leaLandscapeChart(withFund.length>=3?withFund:withCount,list);
+ _leaLandscapeChart(withFund.length>=3?withFund:withCount,{
+  pick:function(item){LEA_SEL=item;_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});},
+  title:LEA_STATE+' — districts by size and IDEA funding',
+  subtitle:'Each bubble is one district: children and students served (2024–25) vs. total IDEA Part B allocation (2021–22). Color = the State’s MOE determination (2021–22).',
+  fileslug:'idea618_'+_tblSlug(LEA_STATE)+'_districts_landscape.png',
+  csvslug:'idea618_'+_tblSlug(LEA_STATE)+'_districts',
+  csvRows:function(){var rows=[['District (LEA)','Children and students served, 2024–25','Age range','IDEA Part B allocation 2021–22 ($)','MOE determination (34 CFR 300.600(a)(2), 2021–22)']];(LEA_DATA.byState[LEA_STATE]||[]).forEach(function(l){var di=l.fund?_leaDetInfo(l.fund.det):null;rows.push([l.name,l.served==null?'':l.served,l.served==null?'':(l.saOnly?'Ages 5–21 (school-age)':'Ages 3–21'),(l.fund&&l.fund.ftot!=null)?l.fund.ftot:'',di?di.l:'']);});return rows;}
+ });
 }
-function _leaLandscapeChart(items,list){
+function _leaLandscapeChart(items,opts){
+ opts=opts||{};
  var cv=document.getElementById('leaLandscape');if(!cv||typeof Chart==='undefined'||!items.length)return;
  var maxT=Math.max.apply(null,items.map(function(l){return l.served||0;}).concat([1]));
+ var minR=(opts.minR!=null?opts.minR:6),spanR=(opts.spanR!=null?opts.spanR:22),bw=(opts.border!=null?opts.border:1.2),fa=(opts.fill!=null?opts.fill:.42),ss=!!opts.showState;
  var GROUPS=[{key:'1',label:'Meets requirements',c:'#2e8540'},{key:'2',label:'Needs assistance',c:'#b8860b'},{key:'3',label:'Needs intervention',c:'#cc5a33'},{key:'4',label:'Needs substantial intervention',c:'#b8472f'},{key:'na',label:'Not reported',c:'#9aa6b2'}];
  function _detGrp(l){var d=(l.fund&&l.fund.det!=null)?(''+l.fund.det).trim():'';return _leaDetInfo(d)?d:'na';}
  var datasets=GROUPS.map(function(g){
-  var pts=items.filter(function(l){return _detGrp(l)===g.key;}).map(function(l){return {x:l.served||0,y:(l.fund&&l.fund.ftot!=null?l.fund.ftot:0),r:6+22*Math.sqrt((l.served||0)/maxT),_name:l.name,_det:g.label,_idx:list.indexOf(l)};});
-  return {label:g.label,data:pts,backgroundColor:shade(g.c,.42),borderColor:g.c,borderWidth:1.2,hoverBackgroundColor:shade(g.c,.7)};
+  var pts=items.filter(function(l){return _detGrp(l)===g.key;}).map(function(l){return {x:l.served||0,y:(l.fund&&l.fund.ftot!=null?l.fund.ftot:0),r:minR+spanR*Math.sqrt((l.served||0)/maxT),_name:l.name+(ss&&l._state?' · '+l._state:''),_det:g.label,_item:l};});
+  return {label:g.label,data:pts,backgroundColor:shade(g.c,fa),borderColor:g.c,borderWidth:bw,hoverBackgroundColor:shade(g.c,.7)};
  }).filter(function(d){return d.data.length;});
- _leaChart1=new Chart(cv,{type:'bubble',data:{datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:8,right:34,bottom:2,left:2}},onClick:function(e,els){if(els&&els.length){var el=els[0],ds=datasets[el.datasetIndex];var p=ds&&ds.data[el.index];if(p){LEA_SEL=list[p._idx];_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}}},onHover:function(e,els){e.native&&e.native.target&&(e.native.target.style.cursor=els.length?'pointer':'default');},
+ var pick=opts.pick||function(){};
+ _leaChart1=new Chart(cv,{type:'bubble',data:{datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:8,right:34,bottom:2,left:2}},onClick:function(e,els){if(els&&els.length){var el=els[0],ds=datasets[el.datasetIndex];var p=ds&&ds.data[el.index];if(p&&p._item)pick(p._item);}},onHover:function(e,els){e.native&&e.native.target&&(e.native.target.style.cursor=els.length?'pointer':'default');},
   plugins:{ffValues:false,legend:{display:true,position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,boxHeight:8,padding:12,font:{size:11},color:'#5a6675'}},tooltip:{callbacks:{title:function(it){return it[0].raw._name;},label:function(o){return ['Served: '+_leaFmt(o.raw.x),'IDEA allocation (2021–22): '+_leaMoney(o.raw.y),'MOE determination: '+o.raw._det];}}}},
   scales:{x:{beginAtZero:true,title:{display:true,text:'Children & students served (2024–25)',color:'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return (+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}},y:{beginAtZero:true,title:{display:true,text:'IDEA Part B allocation, 2021–22 ($)',color:'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':'$'+(+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}}}}});
- _addCardTools(cv.closest('.card'),function(){_captionedPNG(cv,LEA_STATE+' — districts by size and IDEA funding','Each bubble is one district: children and students served (2024–25) vs. total IDEA Part B allocation (2021–22). Color = the State’s MOE determination (2021–22).','idea618_'+_tblSlug(LEA_STATE)+'_districts_landscape.png',(typeof SRC_NOTE!=='undefined'?SRC_NOTE:''));},function(){var rows=[['District (LEA)','Children and students served, 2024–25','Age range','IDEA Part B allocation 2021–22 ($)','MOE determination (34 CFR 300.600(a)(2), 2021–22)']];(LEA_DATA.byState[LEA_STATE]||[]).forEach(function(l){var di=l.fund?_leaDetInfo(l.fund.det):null;rows.push([l.name,l.served==null?'':l.served,l.served==null?'':(l.saOnly?'Ages 5–21 (school-age)':'Ages 3–21'),(l.fund&&l.fund.ftot!=null)?l.fund.ftot:'',di?di.l:'']);});_gfxCSV(rows,'idea618_'+_tblSlug(LEA_STATE)+'_districts');});
+ _addCardTools(cv.closest('.card'),function(){_captionedPNG(cv,(opts.title||'Districts by size and IDEA funding'),(opts.subtitle||''),(opts.fileslug||'idea618_districts_landscape.png'),(typeof SRC_NOTE!=='undefined'?SRC_NOTE:''));},function(){_gfxCSV((opts.csvRows?opts.csvRows():[]),(opts.csvslug||'idea618_districts'));});
 }
 function _leaDetInfo(code){var m={
  '1':{l:'Meets requirements',c:'meets',w:'Meets the requirements and purposes of Part B of the IDEA.'},
