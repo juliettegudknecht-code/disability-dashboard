@@ -11462,7 +11462,7 @@ nav.appbar #viewTabs .tab,nav.appbar #viewTabs .navgroup,nav.appbar #viewTabs .n
 .scopebar[hidden]{display:none!important}
 
 /* ============================================================
-   UX / UI REFINEMENTS  (appended layer — pure CSS, no logic)
+   UX / UI REFINEMENTS  (appended layer – pure CSS, no logic)
    Home -> more dashboard-like;  Data Tables & State Snapshot ->
    easier to scan. Dark-mode and high-contrast aware. This block
    is intentionally last so it layers over the earlier cascade.
@@ -11524,12 +11524,12 @@ body.hc .view[data-view="tables"] .tables-toolbar{border-width:2px;background:va
 .view[data-view="tables"] .tbl-scroll .dd-table tbody tr:nth-child(even) td:first-child{background:#eff4fa}
 body.dark .view[data-view="tables"] .dd-table tbody tr:nth-child(even){background:#16202c}
 body.dark .view[data-view="tables"] .tbl-scroll .dd-table tbody tr:nth-child(even) td:first-child{background:#16202c}
-/* The national U.S. total row is the most important line — make it pop. */
+/* The national U.S. total row is the most important line – make it pop. */
 .view[data-view="tables"] .dd-table tr.tbl-total td{background:#fff5d6;border-top:2px solid var(--gold)}
 .view[data-view="tables"] .tbl-scroll .dd-table tbody tr.tbl-total td:first-child{background:#fff5d6}
 body.dark .view[data-view="tables"] .dd-table tr.tbl-total td{background:#26303a;border-top-color:#c9a93a}
 body.dark .view[data-view="tables"] .tbl-scroll .dd-table tbody tr.tbl-total td:first-child{background:#26303a}
-/* Clearer row hover — declared last so it wins over zebra and total. */
+/* Clearer row hover – declared last so it wins over zebra and total. */
 .view[data-view="tables"] .dd-table tbody tr:hover td{background:#e2edfb}
 .view[data-view="tables"] .tbl-scroll .dd-table tbody tr:hover td:first-child{background:#e2edfb}
 body.dark .view[data-view="tables"] .dd-table tbody tr:hover td{background:#1c2c3d}
@@ -12172,18 +12172,18 @@ body.dark .view[data-view="lea"] .lea-mini-toggle button.on{background:#1f6fa8;c
 </div>
 <div id="leaStatus" class="lea-status" aria-live="polite"></div>
 <div id="leaBody"></div>
-<div class="fn"><b>Source:</b> U.S. Department of Education, Office of Special Education Programs. EDPass: “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” 2024–25 (LEA file, specifications 002 and 089); and the IDEA Part&nbsp;B LEA Maintenance of Effort (MOE) Reduction and Coordinated Early Intervening Services (CEIS) collection, SY&nbsp;2021–22. Suppressed cells are shown as “—”.</div>
+<div class="fn"><b>Source:</b> U.S. Department of Education, Office of Special Education Programs. EDPass: “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” 2024–25 (LEA file, specifications 002 and 089); and the IDEA Part&nbsp;B LEA Maintenance of Effort (MOE) Reduction and Coordinated Early Intervening Services (CEIS) collection, SY&nbsp;2021–22. Suppressed cells are shown as “–”.</div>
 </div>
 <div class="view" data-view="gpra" role="tabpanel" aria-label="Part B GPRA Performance Analysis">
 <h2 class="section-title" id="gpra">Part B GPRA Performance Analysis</h2>
-<p class="viewlead">The official <abbr title="Government Performance and Results Act">GPRA</abbr> performance measures for the <strong>IDEA Part&nbsp;B Grants to States</strong> program, drawn from the U.S. Department of Education's Fiscal Year 2025 Budget Request (Congressional Justification). Each measure pairs the Department's annual <strong>target</strong> with the <strong>actual</strong> result reported. Every figure shown is taken directly from that document; where a result has not been reported it is shown as a dash (—), and the upcoming year's result is marked <strong>TBD</strong> rather than estimated.</p>
+<p class="viewlead">The official <abbr title="Government Performance and Results Act">GPRA</abbr> performance measures for the <strong>IDEA Part&nbsp;B Grants to States</strong> program, drawn from the U.S. Department of Education's Fiscal Year 2025 Budget Request (Congressional Justification). Each measure pairs the Department's annual <strong>target</strong> with the <strong>actual</strong> result reported. Every figure shown is taken directly from that document; where a result has not been reported it is shown as a dash (–), and the upcoming year's result is marked <strong>TBD</strong> rather than estimated.</p>
 <div class="gpra-goalbox" id="gpraGoal"></div>
 <div class="tbl-toggle gpra-viewtoggle" id="gpraViewToggle" role="group" aria-label="Show GPRA measures as tables or charts">
   <button type="button" data-gv="table" class="on" aria-pressed="true">Tables</button>
   <button type="button" data-gv="chart" aria-pressed="false">Charts</button>
 </div>
 <div id="gpraBody"></div>
-<div class="exp-src">Source: U.S. Department of Education, <em>Fiscal Year 2025 Budget Request, Special Education</em>, State Grants: Grants to States, Program Performance Information (printed pp.&nbsp;28–32). NAEP "students with disabilities" includes any student a school classifies as having a disability, including those served under a Section&nbsp;504 plan. A dash (—) means data were not yet available when the budget was published; State-assessment results for 2020 were waived due to the COVID-19 pandemic.</div>
+<div class="exp-src">Source: U.S. Department of Education, <em>Fiscal Year 2025 Budget Request, Special Education</em>, State Grants: Grants to States, Program Performance Information (printed pp.&nbsp;28–32). NAEP "students with disabilities" includes any student a school classifies as having a disability, including those served under a Section&nbsp;504 plan. A dash (–) means data were not yet available when the budget was published; State-assessment results for 2020 were waived due to the COVID-19 pandemic.</div>
 </div>
 <div class="view" data-view="collections" role="tabpanel" aria-label="Collections">
 <h2 class="section-title" id="more" data-pl="More kinds of data">Data Collections</h2>
@@ -14358,7 +14358,7 @@ function _vizMeta(sid){
  var spec=window._tblSpecs&&window._tblSpecs[sid];
  var measure=spec?_stripHtml(spec.title):'Chart';
  var scope=spec?_vizScopeLabel(spec,sid):'';
- var title=scope?(scope+' — '+measure):measure;
+ var title=scope?(scope+' – '+measure):measure;
  var note='',source='';
  if(spec){
   var pct=(tablesMode==='percent'&&!!TOGGLE_COLL[spec._coll]);
@@ -14916,21 +14916,21 @@ var GPRA_DATA={
    {id:'naep_math8',title:'8th-grade mathematics at or above Basic',desc:'Percentage of eighth-grade students with disabilities scoring at or above Basic on the NAEP mathematics assessment.',unit:'%',goodHigh:true,predYear:2026,rows:[[2013,38,34],[2015,38,32],[2017,38,30],[2019,38,32],[2022,38,23],[2024,38,null]],src:'Targets and 2013–2022 actuals: U.S. Department of Education, FY2025 Special Education Budget Request, State Grants: Grants to States, Program Performance Information (printed p. 28). The 2024 GPRA actual has not been reported; the predicted value uses the NAEP 2024 Mathematics Assessment (NCES National Assessment of Educational Progress), students with disabilities, national, percent at or above Basic.'}
   ]},
   {key:'state',title:'State Assessments, Grades 3–8',blurb:'Collected annually through EDFacts: the share of students with disabilities reaching the proficient or advanced level on State reading and mathematics tests. State results for 2020 were waived due to the COVID-19 pandemic.',measures:[
-   {id:'st_read',title:'Proficient or advanced on State reading',desc:'Percentage of students with disabilities in grades 3–8 scoring at the proficient or advanced levels on State reading assessments.',unit:'%',goodHigh:true,rows:[[2020,35,null],[2021,35,19],[2022,35,18],[2023,35,null],[2024,35,null],[2025,35,null]],note:'High-quality, representative data were not available for 2020: ED waived statewide assessment reporting for the 2019–20 school year because of COVID-19. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as —.',src:'U.S. Department of Education, EDFacts / Education Data Exchange Network (EDEN), reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 29).'},
-   {id:'st_math',title:'Proficient or advanced on State mathematics',desc:'Percentage of students with disabilities in grades 3–8 scoring at the proficient or advanced levels on State mathematics assessments.',unit:'%',goodHigh:true,rows:[[2020,35,null],[2021,35,16.95],[2022,35,15],[2023,35,null],[2024,35,null],[2025,35,null]],note:'High-quality, representative data were not available for 2020: ED waived statewide assessment reporting for the 2019–20 school year because of COVID-19. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as —.',src:'U.S. Department of Education, EDFacts / Education Data Exchange Network (EDEN), reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 29).'}
+   {id:'st_read',title:'Proficient or advanced on State reading',desc:'Percentage of students with disabilities in grades 3–8 scoring at the proficient or advanced levels on State reading assessments.',unit:'%',goodHigh:true,rows:[[2020,35,null],[2021,35,19],[2022,35,18],[2023,35,null],[2024,35,null],[2025,35,null]],note:'High-quality, representative data were not available for 2020: ED waived statewide assessment reporting for the 2019–20 school year because of COVID-19. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as –.',src:'U.S. Department of Education, EDFacts / Education Data Exchange Network (EDEN), reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 29).'},
+   {id:'st_math',title:'Proficient or advanced on State mathematics',desc:'Percentage of students with disabilities in grades 3–8 scoring at the proficient or advanced levels on State mathematics assessments.',unit:'%',goodHigh:true,rows:[[2020,35,null],[2021,35,16.95],[2022,35,15],[2023,35,null],[2024,35,null],[2025,35,null]],note:'High-quality, representative data were not available for 2020: ED waived statewide assessment reporting for the 2019–20 school year because of COVID-19. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as –.',src:'U.S. Department of Education, EDFacts / Education Data Exchange Network (EDEN), reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 29).'}
   ]},
   {key:'gap',title:'Achievement Gaps, Grades 3–8',blurb:'The gap, in percentage points, between students with disabilities and all students reaching proficient or advanced on State tests. A smaller gap is better; the target is 20 points or fewer.',measures:[
-   {id:'gap_read',title:'Reading achievement gap',desc:'Difference between the percent of students with disabilities and the percent of all students (grades 3–8) at proficient or advanced on State reading assessments.',unit:'pts',goodHigh:false,rows:[[2020,20,null],[2021,20,28],[2022,20,26],[2023,20,null],[2024,20,null],[2025,20,null]],note:'High-quality, representative data were not available for 2020 because of the COVID-19 assessment waiver. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as —.',src:'U.S. Department of Education, EDFacts / EDEN, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 30).'},
-   {id:'gap_math',title:'Mathematics achievement gap',desc:'Difference between the percent of students with disabilities and the percent of all students (grades 3–8) at proficient or advanced on State mathematics assessments.',unit:'pts',goodHigh:false,rows:[[2020,20,null],[2021,20,22],[2022,20,21],[2023,20,null],[2024,20,null],[2025,20,null]],note:'High-quality, representative data were not available for 2020 because of the COVID-19 assessment waiver. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as —.',src:'U.S. Department of Education, EDFacts / EDEN, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 30).'}
+   {id:'gap_read',title:'Reading achievement gap',desc:'Difference between the percent of students with disabilities and the percent of all students (grades 3–8) at proficient or advanced on State reading assessments.',unit:'pts',goodHigh:false,rows:[[2020,20,null],[2021,20,28],[2022,20,26],[2023,20,null],[2024,20,null],[2025,20,null]],note:'High-quality, representative data were not available for 2020 because of the COVID-19 assessment waiver. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as –.',src:'U.S. Department of Education, EDFacts / EDEN, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 30).'},
+   {id:'gap_math',title:'Mathematics achievement gap',desc:'Difference between the percent of students with disabilities and the percent of all students (grades 3–8) at proficient or advanced on State mathematics assessments.',unit:'pts',goodHigh:false,rows:[[2020,20,null],[2021,20,22],[2022,20,21],[2023,20,null],[2024,20,null],[2025,20,null]],note:'High-quality, representative data were not available for 2020 because of the COVID-19 assessment waiver. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as –.',src:'U.S. Department of Education, EDFacts / EDEN, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 30).'}
   ]},
   {key:'grad',title:'Graduation',blurb:'The share of students with IEPs who earn a regular high school diploma.',measures:[
-   {id:'grad',title:'Graduate with a regular high school diploma',desc:'Percentage of students with Individualized Education Programs (IEPs) who graduate from high school with a regular high school diploma.',unit:'%',goodHigh:true,rows:[[2020,72,null],[2021,75,74],[2022,75,75],[2023,75,null],[2024,75,null],[2025,75,null]],note:'High-quality, representative data were not available for 2020 because of the COVID-19 reporting waiver. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as —.',src:'U.S. Department of Education, EDFacts / EDEN, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 31).'}
+   {id:'grad',title:'Graduate with a regular high school diploma',desc:'Percentage of students with Individualized Education Programs (IEPs) who graduate from high school with a regular high school diploma.',unit:'%',goodHigh:true,rows:[[2020,72,null],[2021,75,74],[2022,75,75],[2023,75,null],[2024,75,null],[2025,75,null]],note:'High-quality, representative data were not available for 2020 because of the COVID-19 reporting waiver. FY2023 results were expected in December 2024 and slated for the FY2026 Congressional Justification, so 2023–2025 actuals are shown as –.',src:'U.S. Department of Education, EDFacts / EDEN, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 31).'}
   ]},
   {key:'post',title:'Postsecondary Outcomes',blurb:'Tracks former students with IEPs who, within one year of leaving high school, were enrolled in higher education or training, or were employed.',measures:[
-   {id:'post',title:'Enrolled or employed within 1 year of leaving high school',desc:'Median percentage of youth no longer in secondary school who had IEPs and were enrolled in higher education or another postsecondary education/training program, or were competitively or otherwise employed, within one year of leaving high school.',unit:'%',goodHigh:true,rows:[[2020,80,74],[2021,80,77],[2022,80,null],[2023,80,null],[2024,80,null],[2025,80,null]],note:'Performance was relatively consistent from 2015 through 2019 before decreasing in 2020. FY2022 and FY2023 results were expected in July 2024 and slated for the FY2026 Congressional Justification, so 2022–2025 actuals are shown as —.',src:'State-reported data collected annually, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 31).'}
+   {id:'post',title:'Enrolled or employed within 1 year of leaving high school',desc:'Median percentage of youth no longer in secondary school who had IEPs and were enrolled in higher education or another postsecondary education/training program, or were competitively or otherwise employed, within one year of leaving high school.',unit:'%',goodHigh:true,rows:[[2020,80,74],[2021,80,77],[2022,80,null],[2023,80,null],[2024,80,null],[2025,80,null]],note:'Performance was relatively consistent from 2015 through 2019 before decreasing in 2020. FY2022 and FY2023 results were expected in July 2024 and slated for the FY2026 Congressional Justification, so 2022–2025 actuals are shown as –.',src:'State-reported data collected annually, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 31).'}
   ]},
   {key:'eff',title:'Efficiency',blurb:'How quickly OSEP responds to a State after a monitoring site visit. Fewer days is better; the target is 180 days. No site visits occurred in 2021 due to the pandemic.',measures:[
-   {id:'eff',title:'Days from site visit to OSEP response',desc:'Average number of days between the completion of a site visit and the Office of Special Education Programs’ (OSEP) response to the State.',unit:'days',goodHigh:false,rows:[[2020,null,407],[2021,null,null],[2022,180,314],[2023,180,null],[2024,180,null],[2025,180,null]],note:'No site visits were conducted in 2021 due to the COVID-19 pandemic, so there is no 2021 actual. The 180-day count begins the first day of the month after OSEP’s engagement month. FY2023 results were expected in December 2024, so 2023–2025 actuals are shown as —.',src:'OSEP monitoring records, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 32).'}
+   {id:'eff',title:'Days from site visit to OSEP response',desc:'Average number of days between the completion of a site visit and the Office of Special Education Programs’ (OSEP) response to the State.',unit:'days',goodHigh:false,rows:[[2020,null,407],[2021,null,null],[2022,180,314],[2023,180,null],[2024,180,null],[2025,180,null]],note:'No site visits were conducted in 2021 due to the COVID-19 pandemic, so there is no 2021 actual. The 180-day count begins the first day of the month after OSEP’s engagement month. FY2023 results were expected in December 2024, so 2023–2025 actuals are shown as –.',src:'OSEP monitoring records, reported in the FY2025 Special Education Budget Request, Program Performance Information (printed p. 32).'}
   ]}
  ],
  takeaways:[
@@ -14943,7 +14943,7 @@ var GPRA_DATA={
  ]
 };
 var gpraView='table',_gpraInit=false;
-function _gpraFmt(v,unit){ if(v==null)return '—'; var n=(unit==='days')?Math.round(v).toLocaleString():(Math.round(v*100)/100); return unit==='%'?n+'%':(unit==='pts'?n+' pts':(unit==='days'?n+' days':''+n)); }
+function _gpraFmt(v,unit){ if(v==null)return '–'; var n=(unit==='days')?Math.round(v).toLocaleString():(Math.round(v*100)/100); return unit==='%'?n+'%':(unit==='pts'?n+' pts':(unit==='days'?n+' days':''+n)); }
 /* The most recent year in the data: its target is verified (from the budget doc);
    its actual is shown only if the document reported it, otherwise TBD.
    No values are estimated or invented. */
@@ -14970,7 +14970,7 @@ function _gpraCard(group,m){
  var up=_gpraUpcoming(m);
  var known=(up.actual!=null);
  var pf=known?null:_gpraPredictFrom(m);
- var targetTxt=(up.target!=null)?_gpraFmt(up.target,m.unit):'—';
+ var targetTxt=(up.target!=null)?_gpraFmt(up.target,m.unit):'–';
  var predVal,predNote;
  if(known){predVal=_gpraFmt(up.actual,m.unit);predNote='Most recent reported result.';}
  else if(pf){predVal=_gpraFmt(Math.round(pf.value*10)/10,m.unit);predNote='Predicted from '+pf.src+'. The official FY'+up.year+' result has not been published yet. Target: '+targetTxt+'.';}
@@ -15735,8 +15735,8 @@ function initLEA(){
  loadLEAData().then(function(d){LEA_DATA=d;LEA_STATUS='ready';if(status)status.innerHTML='';_leaPopulateStates();}).catch(function(e){LEA_STATUS='error';_leaShowError();});
 }
 function _leaShowError(){var s=document.getElementById('leaStatus');if(s)s.innerHTML='<div class="lea-error"><b>District data couldn\'t be loaded.</b> The LEA Explorer reads two data files that must sit next to this page and be opened through a local web server (not by double-clicking the file). Expected files: <code>bchildcountdisabilitycategorylea2024-25.csv</code> and <code>bmaintenancedistrict2021-22.csv</code>.</div>';}
-function _leaFmt(v){return v==null?'—':Math.round(v).toLocaleString();}
-function _leaMoney(v){return v==null?'—':'$'+Math.round(v).toLocaleString();}
+function _leaFmt(v){return v==null?'–':Math.round(v).toLocaleString();}
+function _leaMoney(v){return v==null?'–':'$'+Math.round(v).toLocaleString();}
 function _leaPopulateStates(){
  var sel=document.getElementById('leaStateSel');if(!sel||!LEA_DATA)return;
  if(sel.options.length<=1){
@@ -15779,9 +15779,9 @@ function _leaRender(){
  var body=document.getElementById('leaBody'),pick=document.getElementById('leaPick'),back=document.getElementById('leaBack'),status=document.getElementById('leaStatus');
  if(!body||!LEA_DATA)return;
  if(_leaChart1){try{_leaChart1.destroy();}catch(e){}_leaChart1=null;} if(_leaChart2){try{_leaChart2.destroy();}catch(e){}_leaChart2=null;}
- if(!LEA_STATE){if(pick){pick.innerHTML='<option>—</option>';pick.disabled=true;}if(back)back.hidden=true;try{_leaUpdateMapSel();}catch(e){}_leaRenderNation();return;}
+ if(!LEA_STATE){if(pick){pick.innerHTML='<option>–</option>';pick.disabled=true;}if(back)back.hidden=true;try{_leaUpdateMapSel();}catch(e){}_leaRenderNation();return;}
  var list=LEA_DATA.byState[LEA_STATE]||[];
- if(pick){pick.disabled=false;pick.innerHTML='<option value="-1">All districts (overview)</option>'+list.map(function(l,i){return '<option value="'+i+'">'+l.name+(l.served!=null?' — '+_leaFmt(l.served):'')+'</option>';}).join('');pick.value=LEA_SEL?String(list.indexOf(LEA_SEL)):'-1';}
+ if(pick){pick.disabled=false;pick.innerHTML='<option value="-1">All districts (overview)</option>'+list.map(function(l,i){return '<option value="'+i+'">'+l.name+(l.served!=null?' · '+_leaFmt(l.served):'')+'</option>';}).join('');pick.value=LEA_SEL?String(list.indexOf(LEA_SEL)):'-1';}
  try{_leaUpdateMapSel();}catch(e){}
  if(LEA_SEL){if(back)back.hidden=false;_leaRenderProfile(LEA_SEL,list);}
  else{if(back)back.hidden=true;_leaRenderState(LEA_STATE,list);}
@@ -15855,7 +15855,7 @@ function _leaRenderStateCards(sortKey){
  var cmp={served:function(a,b){return b.served-a.served;},meet:function(a,b){return (b.pctMeet==null?-1:b.pctMeet)-(a.pctMeet==null?-1:a.pctMeet);},met:function(a,b){return (b.pctMet==null?-1:b.pctMet)-(a.pctMet==null?-1:a.pctMet);},ceis:function(a,b){return b.ceisReq-a.ceisReq;},name:function(a,b){return a.state<b.state?-1:(a.state>b.state?1:0);}};
  st.sort(cmp[sortKey]||cmp.served);
  grid.innerHTML=st.map(function(x){
-  var meet=x.pctMeet==null?'—':x.pctMeet+'%', met=x.pctMet==null?'—':x.pctMet+'%';
+  var meet=x.pctMeet==null?'–':x.pctMeet+'%', met=x.pctMet==null?'–':x.pctMet+'%';
   var mf=x.pctMeet==null?0:x.pctMeet, tf=x.pctMet==null?0:x.pctMet;
   return '<div class="lea-scard" data-st="'+x.state.replace(/"/g,'&quot;')+'">'+
    '<div class="lea-scard-h"><b>'+x.state+'</b><span>'+x.districts.toLocaleString()+' LEAs</span></div>'+
@@ -15883,32 +15883,32 @@ function _leaRenderNation(){
  var pctMeetD=totD?Math.round(dD['1']/totD*100):0,pctMeetS=totS?Math.round(dS['1']/totS*100):0,needIntS=dS['3']+dS['4'];
  var distParts=[{v:dD['1'],c:'#2e8540'},{v:dD['2'],c:'#b8860b'},{v:dD['3'],c:'#cc5a33'},{v:dD['4'],c:'#b8472f'}];
  var studParts=[{v:dS['1'],c:'#2e8540'},{v:dS['2'],c:'#b8860b'},{v:dS['3'],c:'#cc5a33'},{v:dS['4'],c:'#b8472f'}];
- if(status)status.innerHTML='<div class="lea-statusline"><b>United States</b> — '+all.length.toLocaleString()+' districts across '+states.length+' States &amp; territories · '+_leaFmt(totalServed)+' children &amp; students served (2024–25)</div>';
+ if(status)status.innerHTML='<div class="lea-statusline"><b>United States</b> · '+all.length.toLocaleString()+' districts across '+states.length+' States &amp; territories · '+_leaFmt(totalServed)+' children &amp; students served (2024–25)</div>';
  body.innerHTML='<div class="lea-supnote">Showing <b>every district nationwide</b>. Pick a State above or click the map to zoom into one State, then open any district for its full profile.</div>'+
   '<div class="kpis lea-kpis">'+
    '<div class="kpi"><div class="l">Districts (LEAs)</div><div class="v">'+all.length.toLocaleString()+'</div><div class="c">across '+states.length+' States &amp; territories</div></div>'+
    '<div class="kpi"><div class="l">Children &amp; students served</div><div class="v">'+_leaFmt(totalServed)+'</div><div class="c">IDEA Part B, 2024–25</div></div>'+
-   '<div class="kpi autism"><div class="l">Largest district</div><div class="v" style="font-size:1.2rem;line-height:1.15">'+(sorted[0]?sorted[0].name:'—')+'</div><div class="c">'+(sorted[0]?_leaFmt(sorted[0].served)+' served · '+sorted[0]._state:'')+'</div></div>'+
+   '<div class="kpi autism"><div class="l">Largest district</div><div class="v" style="font-size:1.2rem;line-height:1.15">'+(sorted[0]?sorted[0].name:'–')+'</div><div class="c">'+(sorted[0]?_leaFmt(sorted[0].served)+' served · '+sorted[0]._state:'')+'</div></div>'+
   '</div>'+
   '<div class="grid g2 lea-grid">'+
    '<div class="card fig"><div class="ey">District landscape · nationwide</div><h3>Every district by size and IDEA funding</h3><div class="note">Each bubble is one of the '+withFund.length.toLocaleString()+' districts with both a 2024–25 child count and a 2021–22 MOE record: across = children &amp; students served (2024–25), up = total IDEA Part&nbsp;B allocation (2021–22), size = children served, color = the State&rsquo;s MOE determination (2021–22). Click a bubble to open that district. The two collections are different years and matched by NCES&nbsp;ID, so they may not align exactly for every district.</div><div class="canvas-box tall"><canvas id="leaLandscape"></canvas></div></div>'+
    '<div class="card"><div class="ey">Ranked · nationwide</div><h3>Largest districts</h3><div class="note">By children &amp; students served. Choose one to open it.</div><div class="lea-ranklist" id="leaRankList"></div></div>'+
   '</div>'+
-  '<div class="card fig"><div class="ey">Students, not districts</div><h3>The same compliance, weighted two ways</h3><div class="note">MOE determination as a share of <b>districts</b> vs a share of the <b>students</b> those districts enroll, among the '+totD.toLocaleString()+' districts with a determination. Each square ≈ 1%.</div><div class="lea-waffles"><div class="lea-waffle-col"><div class="lbl">Share of <b>districts</b> ('+totD.toLocaleString()+')</div>'+_leaWaffleHTML(distParts)+'</div><div class="lea-waffle-col"><div class="lbl">Share of <b>students</b> ('+_leaFmt(totS)+')</div>'+_leaWaffleHTML(studParts)+'</div></div>'+_leaDetLeg()+'<div class="lea-punch"><b>'+pctMeetD+'%</b> of districts meet IDEA requirements — but those districts enroll only <b>'+pctMeetS+'%</b> of students. About <b>'+_leaFmt(needIntS)+'</b> students attend districts the State flagged as needing intervention or substantial intervention.</div></div>'+
-  '<div class="card fig"><div class="ey">Funding flow</div><h3>Where IDEA Part B dollars go</h3><div class="note">Total allocation splits into Section&nbsp;611 (school-age) and Section&nbsp;619 (preschool), then a share is reserved for Coordinated Early Intervening Services (CEIS); the rest funds special education &amp; related services. SY&nbsp;2021–22.</div><div id="leaFlow">'+_leaFlowSVG(fl)+'</div><div class="lea-flow-note">Of the <b>'+_leaUsdShort(fl.ceisAmt+fl.ceisVol)+'</b> reserved for CEIS, '+_leaUsdShort(fl.ceisAmt)+' was <b>required</b> (significant disproportionality) and '+_leaUsdShort(fl.ceisVol)+' voluntary. Separately, districts that met requirements reduced <b>'+_leaUsdShort(fl.red)+'</b> in local &amp; state effort — that is local money freed up, not federal funds. CEIS dollar amounts are suppressed for many small districts, so the CEIS share shown is a floor.</div></div>'+
+  '<div class="card fig"><div class="ey">Students, not districts</div><h3>The same compliance, weighted two ways</h3><div class="note">MOE determination as a share of <b>districts</b> vs a share of the <b>students</b> those districts enroll, among the '+totD.toLocaleString()+' districts with a determination. Each square ≈ 1%.</div><div class="lea-waffles"><div class="lea-waffle-col"><div class="lbl">Share of <b>districts</b> ('+totD.toLocaleString()+')</div>'+_leaWaffleHTML(distParts)+'</div><div class="lea-waffle-col"><div class="lbl">Share of <b>students</b> ('+_leaFmt(totS)+')</div>'+_leaWaffleHTML(studParts)+'</div></div>'+_leaDetLeg()+'<div class="lea-punch"><b>'+pctMeetD+'%</b> of districts meet IDEA requirements, yet those districts enroll only <b>'+pctMeetS+'%</b> of students. About <b>'+_leaFmt(needIntS)+'</b> students attend districts the State flagged as needing intervention or substantial intervention.</div></div>'+
+  '<div class="card fig"><div class="ey">Funding flow</div><h3>Where IDEA Part B dollars go</h3><div class="note">Total allocation splits into Section&nbsp;611 (school-age) and Section&nbsp;619 (preschool), then a share is reserved for Coordinated Early Intervening Services (CEIS); the rest funds special education &amp; related services. SY&nbsp;2021–22.</div><div id="leaFlow">'+_leaFlowSVG(fl)+'</div><div class="lea-flow-note">Of the <b>'+_leaUsdShort(fl.ceisAmt+fl.ceisVol)+'</b> reserved for CEIS, '+_leaUsdShort(fl.ceisAmt)+' was <b>required</b> (significant disproportionality) and '+_leaUsdShort(fl.ceisVol)+' voluntary. Separately, districts that met requirements reduced <b>'+_leaUsdShort(fl.red)+'</b> in local &amp; state effort. That is local money freed up, not federal funds. CEIS dollar amounts are suppressed for many small districts, so the CEIS share shown is a floor.</div></div>'+
   '<div class="card fig"><div class="ey">State report cards</div><h3>Compare States at a glance</h3><div class="note">Children served (2024–25) with MOE compliance (2021–22). Click any card to open that State.</div><div class="lea-sc-bar"><label for="leaScSort">Sort by</label><select id="leaScSort"><option value="served">Children served (high → low)</option><option value="meet">% districts meeting requirements</option><option value="met">% met the MOE standard</option><option value="ceis">CEIS-required districts</option><option value="name">State name (A → Z)</option></select></div><div class="lea-scards" id="leaScards"></div></div>';
  var rl=document.getElementById('leaRankList');var topN=sorted.slice(0,25),maxT=topN.length?(topN[0].served||1):1;
  if(rl){rl.innerHTML=topN.map(function(l,i){var w=Math.max(2,(l.served/maxT*100));return '<button type="button" class="lea-rankrow" data-nat-idx="'+i+'"><span class="lr-rank">'+(i+1)+'</span><span class="lr-name">'+l.name+' <small style="color:var(--muted);font-weight:600;font-size:.8em">'+l._state+'</small></span><span class="lr-bar"><span class="lr-fill" style="width:'+w+'%"></span></span><span class="lr-val">'+_leaFmt(l.served)+'</span></button>';}).join('');
  rl.querySelectorAll('[data-nat-idx]').forEach(function(b){b.onclick=function(){_leaPickNation(topN[+b.getAttribute('data-nat-idx')]);};});}
  _leaLandscapeChart(withFund.length>=3?withFund:withCount,{
   showState:true,pick:_leaPickNation,minR:1.2,spanR:6,border:.4,fill:.55,
-  title:'United States — districts by size and IDEA funding',
+  title:'United States – districts by size and IDEA funding',
   subtitle:'Each bubble is one district: children and students served (2024–25) vs. total IDEA Part B allocation (2021–22). Color = the State’s MOE determination (2021–22).',
   fileslug:'idea618_us_districts_landscape.png',csvslug:'idea618_us_districts',
   csvRows:function(){var rows=[['District (LEA)','State','Children and students served, 2024–25','IDEA Part B allocation 2021–22 ($)','MOE determination (34 CFR 300.600(a)(2), 2021–22)']];all.forEach(function(l){var di=l.fund?_leaDetInfo(l.fund.det):null;rows.push([l.name,l._state,l.served==null?'':l.served,(l.fund&&l.fund.ftot!=null)?l.fund.ftot:'',di?di.l:'']);});return rows;}
  });
  var flowEl=document.getElementById('leaFlow');
- if(flowEl){var fcard=flowEl.closest('.card');if(fcard)_addCardTools(fcard,function(){var sv=flowEl.querySelector('svg');if(sv)_gfxSvgPNG(sv,'United States — IDEA Part B funding flow','Total allocation → Section 611 / 619 → CEIS reserved + special education & related services. SY 2021–22.','idea618_us_funding_flow');},function(){var totF=fl.ftot||(fl.f611+fl.f619);_gfxCSV([['Flow stage','Amount ($)'],['Total IDEA Part B (611 + 619)',Math.round(totF)],['Section 611 (school-age)',Math.round(fl.f611)],['Section 619 (preschool)',Math.round(fl.f619)],['Reserved for required CEIS',Math.round(fl.ceisAmt)],['Reserved for voluntary CEIS',Math.round(fl.ceisVol)],['Special education & related services (remaining)',Math.round(Math.max(0,totF-fl.ceisAmt-fl.ceisVol))],['Reduction of local/state effort (separate, not federal)',Math.round(fl.red)]],'idea618_us_funding_flow');});}
+ if(flowEl){var fcard=flowEl.closest('.card');if(fcard)_addCardTools(fcard,function(){var sv=flowEl.querySelector('svg');if(sv)_gfxSvgPNG(sv,'United States – IDEA Part B funding flow','Total allocation → Section 611 / 619 → CEIS reserved + special education & related services. SY 2021–22.','idea618_us_funding_flow');},function(){var totF=fl.ftot||(fl.f611+fl.f619);_gfxCSV([['Flow stage','Amount ($)'],['Total IDEA Part B (611 + 619)',Math.round(totF)],['Section 611 (school-age)',Math.round(fl.f611)],['Section 619 (preschool)',Math.round(fl.f619)],['Reserved for required CEIS',Math.round(fl.ceisAmt)],['Reserved for voluntary CEIS',Math.round(fl.ceisVol)],['Special education & related services (remaining)',Math.round(Math.max(0,totF-fl.ceisAmt-fl.ceisVol))],['Reduction of local/state effort (separate, not federal)',Math.round(fl.red)]],'idea618_us_funding_flow');});}
  _LEA_SC_STATS=_leaStateStats();_leaRenderStateCards('served');
  var scSel=document.getElementById('leaScSort');if(scSel)scSel.onchange=function(){_leaRenderStateCards(scSel.value);};
 }
@@ -15920,11 +15920,11 @@ function _leaRenderState(state,list){
  var saOnly=withCount.length>0&&withCount.every(function(l){return l.saOnly;});
  var ageLbl=saOnly?'ages 5–21 (school-age)':'ages 3–21';
  var saNote=saOnly?'<div class="lea-supnote">A combined ages 3–21 total is not reported for '+state+' districts in this file, so figures show <b>school-age (ages 5–21)</b> child counts.</div>':((list.length-withCount.length)>0?'<div class="lea-supnote">'+(list.length-withCount.length)+' of '+list.length+' districts have a suppressed or unreported child count and are not plotted below.</div>':'');
- if(status)status.innerHTML='<div class="lea-statusline"><b>'+state+'</b> — '+list.length.toLocaleString()+' districts · '+_leaFmt(totalServed)+' children &amp; students served ('+ageLbl+', 2024–25)</div>';
+ if(status)status.innerHTML='<div class="lea-statusline"><b>'+state+'</b> · '+list.length.toLocaleString()+' districts · '+_leaFmt(totalServed)+' children &amp; students served ('+ageLbl+', 2024–25)</div>';
  body.innerHTML=saNote+'<div class="kpis lea-kpis">'+
   '<div class="kpi"><div class="l">Districts (LEAs)</div><div class="v">'+list.length.toLocaleString()+'</div><div class="c">reporting a child count in '+state+'</div></div>'+
   '<div class="kpi"><div class="l">Children &amp; students served</div><div class="v">'+_leaFmt(totalServed)+'</div><div class="c">IDEA Part B, '+ageLbl+', 2024–25</div></div>'+
-  '<div class="kpi autism"><div class="l">Largest district</div><div class="v" style="font-size:1.25rem;line-height:1.15">'+(withCount[0]?withCount[0].name:'—')+'</div><div class="c">'+(withCount[0]?_leaFmt(withCount[0].served)+' served':'')+'</div></div>'+
+  '<div class="kpi autism"><div class="l">Largest district</div><div class="v" style="font-size:1.25rem;line-height:1.15">'+(withCount[0]?withCount[0].name:'–')+'</div><div class="c">'+(withCount[0]?_leaFmt(withCount[0].served)+' served':'')+'</div></div>'+
   '</div>'+
   '<div class="grid g2 lea-grid">'+
    '<div class="card fig"><div class="ey">District landscape</div><h3>Every district by size and IDEA funding</h3><div class="note">Each bubble is one district: across = children &amp; students served (2024–25), up = total IDEA Part&nbsp;B allocation (2021–22), size = children served, color = the State&rsquo;s MOE determination (2021–22). Click a bubble to open that district. The two collections are different years and are matched by NCES&nbsp;ID, so they may not align exactly for every district.</div><div class="canvas-box tall"><canvas id="leaLandscape"></canvas></div></div>'+
@@ -15935,7 +15935,7 @@ function _leaRenderState(state,list){
  rl.querySelectorAll('[data-lea-idx]').forEach(function(b){b.onclick=function(){LEA_SEL=list[+b.getAttribute('data-lea-idx')];_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});};});
  _leaLandscapeChart(withFund.length>=3?withFund:withCount,{
   pick:function(item){LEA_SEL=item;_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});},
-  title:LEA_STATE+' — districts by size and IDEA funding',
+  title:LEA_STATE+' – districts by size and IDEA funding',
   subtitle:'Each bubble is one district: children and students served (2024–25) vs. total IDEA Part B allocation (2021–22). Color = the State’s MOE determination (2021–22).',
   fileslug:'idea618_'+_tblSlug(LEA_STATE)+'_districts_landscape.png',
   csvslug:'idea618_'+_tblSlug(LEA_STATE)+'_districts',
@@ -15968,7 +15968,7 @@ function _leaDetInfo(code){var m={
 function _leaFundCard(f){
  if(!f)return '<div class="note" style="margin-top:10px">No matching 2021–22 funding record was found for this district. Districts open, close, and merge between years, so a 2024–25 district may not appear in the 2021–22 funding file.</div>';
  function row(k,v){return '<div class="lea-fund-row"><span>'+k+'</span><b>'+v+'</b></div>';}
- function _ynm(v){v=(''+(v==null?'':v)).trim().toUpperCase();return (v==='1'||v==='Y'||v==='YES')?'Yes':((v==='0'||v==='N'||v==='NO')?'No':'—');}
+ function _ynm(v){v=(''+(v==null?'':v)).trim().toUpperCase();return (v==='1'||v==='Y'||v==='YES')?'Yes':((v==='0'||v==='N'||v==='NO')?'No':'–');}
  var met=_ynm(f.met),ceis=_ynm(f.ceis);
  var det=_leaDetInfo(f.det);
  var detBlock=det?('<div class="lea-det lea-det-'+det.c+'"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600 · 2021–22</small></span><span class="lea-det-v"><span class="lea-det-dot" aria-hidden="true"></span>'+det.l+'</span></div><div class="lea-det-w">“'+det.w+'”</div></div>'):'<div class="lea-det lea-det-na"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600 · 2021–22</small></span><span class="lea-det-v">Not reported</span></div></div>';
@@ -15987,7 +15987,7 @@ function _leaRenderProfile(lea,list){
   '<div class="kpi"><div class="l">Children &amp; students served</div><div class="v">'+_leaFmt(lea.served)+'</div><div class="c">'+servedCap+'</div></div>'+
   '<div class="kpi good"><div class="l">Early childhood (3–5)</div><div class="v">'+_leaFmt(lea.ec)+'</div><div class="c">ages 3 through 5</div></div>'+
   '<div class="kpi"><div class="l">School age (5–21)</div><div class="v">'+_leaFmt(lea.sa)+'</div><div class="c">ages 5 through 21</div></div>'+
-  '<div class="kpi autism"><div class="l">IDEA allocation 2021–22</div><div class="v" style="font-size:1.45rem">'+(f?_leaMoney(f.ftot):'—')+'</div><div class="c">Section 611 + 619</div></div>'+
+  '<div class="kpi autism"><div class="l">IDEA allocation 2021–22</div><div class="v" style="font-size:1.45rem">'+(f?_leaMoney(f.ftot):'–')+'</div><div class="c">Section 611 + 619</div></div>'+
   '</div>'+
   '<div class="grid g2 lea-grid">'+
    '<div class="card fig"><div class="ey">Who is served</div><h3>'+lea.name+': students by primary disability category</h3><div class="note">School-age (ages 5–21) child count by category, 2024–25.</div><div class="lea-mini-toggle" id="leaCatToggle"><button type="button" data-lc="bar" class="on">Bars</button><button type="button" data-lc="bubble">Bubbles</button></div><div class="canvas-box lea-cat-box"><canvas id="leaCatChart"></canvas></div><div class="home-bubblewrap lea-bubble-svg" id="leaCatBubbles" hidden></div></div>'+
@@ -15996,7 +15996,7 @@ function _leaRenderProfile(lea,list){
  var lc={t:'bar'},draw=function(){_leaCatChart(lea,lc.t);};
  var tg=document.getElementById('leaCatToggle');if(tg){tg.querySelectorAll('[data-lc]').forEach(function(b){b.onclick=function(){lc.t=b.getAttribute('data-lc');tg.querySelectorAll('[data-lc]').forEach(function(x){x.classList.toggle('on',x===b);});draw();};});}
  draw();
- if(hasFlow){var flowEl=document.getElementById('leaFlow');if(flowEl){var fcard=flowEl.closest('.card');if(fcard)_addCardTools(fcard,function(){var sv=flowEl.querySelector('svg');if(sv)_gfxSvgPNG(sv,lea.name+' — IDEA Part B funding flow','Total allocation → Section 611 / 619 → CEIS reserved + special education & related services. SY 2021–22.','idea618_'+_tblSlug(lea.name)+'_funding_flow');},function(){var totF=(f.ftot!=null?f.ftot:((f.f611||0)+(f.f619||0)));_gfxCSV([['Flow stage','Amount ($)'],['Total IDEA Part B (611 + 619)',Math.round(totF)],['Section 611 (school-age)',f.f611!=null?Math.round(f.f611):''],['Section 619 (preschool)',f.f619!=null?Math.round(f.f619):''],['Reserved for required CEIS',f.ceisAmt!=null?Math.round(f.ceisAmt):''],['Reserved for voluntary CEIS',f.ceisVol!=null?Math.round(f.ceisVol):''],['Special education & related services (remaining)',Math.round(Math.max(0,totF-(f.ceisAmt||0)-(f.ceisVol||0)))]],'idea618_'+_tblSlug(lea.name)+'_funding_flow');});}}
+ if(hasFlow){var flowEl=document.getElementById('leaFlow');if(flowEl){var fcard=flowEl.closest('.card');if(fcard)_addCardTools(fcard,function(){var sv=flowEl.querySelector('svg');if(sv)_gfxSvgPNG(sv,lea.name+' – IDEA Part B funding flow','Total allocation → Section 611 / 619 → CEIS reserved + special education & related services. SY 2021–22.','idea618_'+_tblSlug(lea.name)+'_funding_flow');},function(){var totF=(f.ftot!=null?f.ftot:((f.f611||0)+(f.f619||0)));_gfxCSV([['Flow stage','Amount ($)'],['Total IDEA Part B (611 + 619)',Math.round(totF)],['Section 611 (school-age)',f.f611!=null?Math.round(f.f611):''],['Section 619 (preschool)',f.f619!=null?Math.round(f.f619):''],['Reserved for required CEIS',f.ceisAmt!=null?Math.round(f.ceisAmt):''],['Reserved for voluntary CEIS',f.ceisVol!=null?Math.round(f.ceisVol):''],['Special education & related services (remaining)',Math.round(Math.max(0,totF-(f.ceisAmt||0)-(f.ceisVol||0)))]],'idea618_'+_tblSlug(lea.name)+'_funding_flow');});}}
 }
 function _wrapAxisLabel(s,max){s=''+s;if(s.length<=max)return s;var words=s.split(' '),lines=[],cur='';words.forEach(function(w){if(!cur)cur=w;else if((cur+' '+w).length<=max)cur=cur+' '+w;else{lines.push(cur);cur=w;}});if(cur)lines.push(cur);return lines;}
 function _leaCatChart(lea,type){
