@@ -12554,8 +12554,8 @@ function _packedBubbles(el,items,opts){
    var fs=Math.max(8.5,Math.min(15,it.r*0.3)),lfs=Math.max(7,fs*0.6);
    var maxc=Math.max(6,Math.floor((it.r*1.7)/(lfs*0.54)));
    var lines=wrap(it.name,maxc),blockH=fs+lines.length*lfs*1.02,vy=it.y-blockH/2+fs;
-   svg+='<text class="hb-v" x="'+it.x.toFixed(1)+'" y="'+vy.toFixed(1)+'" text-anchor="middle" font-size="'+fs.toFixed(1)+'">'+fmtV(it.v)+'</text>';
-   lines.forEach(function(ln,li){svg+='<text class="hb-l" x="'+it.x.toFixed(1)+'" y="'+(vy+(li+1)*lfs*1.02).toFixed(1)+'" text-anchor="middle" font-size="'+lfs.toFixed(1)+'">'+ln+'</text>';});
+   svg+='<text class="hb-v" x="'+it.x.toFixed(1)+'" y="'+vy.toFixed(1)+'" text-anchor="middle" font-size="'+fs.toFixed(1)+'" fill="#ffffff" font-weight="900" font-family="\'Source Sans 3\',Arial,sans-serif">'+fmtV(it.v)+'</text>';
+   lines.forEach(function(ln,li){svg+='<text class="hb-l" x="'+it.x.toFixed(1)+'" y="'+(vy+(li+1)*lfs*1.02).toFixed(1)+'" text-anchor="middle" font-size="'+lfs.toFixed(1)+'" fill="#ffffff" fill-opacity="0.93" font-weight="700" font-family="\'Source Sans 3\',Arial,sans-serif">'+ln+'</text>';});
   }
   svg+='</g>';
  });
@@ -15117,15 +15117,14 @@ function buildSearchData(){
   const cats=Object.keys(DEMO.cur).map(function(c){return {type:'Categories',label:c==='All Disabilities'?'All disabilities':c,key:c,color:_catColor(c),sub:'Disability Explorer',terms:'primary disability category child count demographics educational environment'};});
   const sts=STATES.map(function(s){return {type:'States',label:s[0],key:s[0],color:'#1a4480',sub:(abbr[s[0]]?abbr[s[0]]+' · ':'')+'State profile',terms:[abbr[s[0]]||'',s[0],'state data display profile snapshot map ranking Part B Part C graduation assessment child count'].join(' ')};});
   const secs=[
-    
-    {type:'Sections',label:'Trends Over 50 Years',key:'trends',color:'#edcf36',sub:'View',terms:'trend child count over time autism growth'},
-    
-    {type:'Sections',label:'Disability Explorer',key:'explorer',color:'#edcf36',sub:'View',terms:'category demographics race sex age'},
-    {type:'Sections',label:'Compare',key:'compare',color:'#edcf36',sub:'View',terms:'compare states categories'},
-    {type:'Sections',label:'State Snapshots',key:'states',color:'#edcf36',sub:'View',terms:'state profile map rankings table data display'},
-    {type:'Sections',label:'Collections',key:'collections',color:'#edcf36',sub:'View',terms:'discipline exiting personnel assessment Part C NAEP Census ACS'},
-    {type:'Sections',label:'Part B GPRA Performance Analysis',key:'gpra',color:'#edcf36',sub:'View',terms:'gpra government performance results act part b grants to states targets actuals measures naep state assessment proficiency achievement gap graduation postsecondary efficiency predicted projection budget tbd'},
-    {type:'Sections',label:'Sources and Notes',key:'sources',color:'#edcf36',sub:'View',terms:'references data sources notes suppression'}];
+    {type:'Sections',label:'National Trends (Home)',key:'trends',color:'#edcf36',sub:'Page',terms:'home trend child count over time autism growth 50 years bubbles national snapshot'},
+    {type:'Sections',label:'State Snapshot',key:'states',color:'#edcf36',sub:'Page',terms:'state profile map rankings table data display determination spp apr'},
+    {type:'Sections',label:'Part B LEA Explorer',key:'lea',color:'#edcf36',sub:'Page',terms:'lea local educational agency school district districts funding maintenance of effort moe ceis map landscape'},
+    {type:'Sections',label:'SEA Tables',key:'tables',color:'#edcf36',sub:'Page',terms:'sea tables data figures child count environments exiting discipline personnel assessment part c visualize csv compare'},
+    {type:'Sections',label:'Part B GPRA Performance Analysis',key:'gpra',color:'#edcf36',sub:'Page',terms:'gpra government performance results act part b grants to states targets actuals measures naep state assessment proficiency achievement gap graduation postsecondary efficiency predicted projection budget tbd'},
+    {type:'Sections',label:'Data Collections',key:'collections',color:'#edcf36',sub:'Page',terms:'collections discipline exiting personnel assessment Part C NAEP Census ACS source files'},
+    {type:'Sections',label:'Disability Explorer',key:'explorer',color:'#edcf36',sub:'Page',terms:'category demographics race sex age environment by disability'},
+    {type:'Sections',label:'Sources and Notes',key:'sources',color:'#edcf36',sub:'Page',terms:'references data sources notes suppression'}];
   const gpraMeasures=(typeof GPRA_DATA!=='undefined'?GPRA_DATA.groups.reduce(function(acc,g){g.measures.forEach(function(m){acc.push({type:'GPRA measures',label:m.title,key:m.id,color:'#1c7b37',sub:g.title,terms:(g.title+' '+m.desc+' gpra performance measure target actual prediction').toLowerCase()});});return acc;},[]):[]);
   const collections=(typeof COLLECTION_TREE_META!=='undefined'?COLLECTION_TREE_META.map(function(c){var hasChart=(c.panels||[]).length>0;var hasRows=false;try{hasRows=typeof collectionTableRows==='function'&&collectionTableRows(c).rows.length>0;}catch(e){}var level=c.level==='LEA'?'LEA':'SEA';return {type:'Collections',label:level+' Part '+c.part+' '+c.name+' Collection',key:c.key,color:c.level==='LEA'?'#5b6472':(c.part==='B'?'#1f6fa8':'#2e8540'),sub:c.years+' · '+(hasChart?'Graph and table':(hasRows?'Table':'Official source files')),terms:[level,c.name,c.desc,c.status,c.years,c.url,'IDEA Section 618 collection Part '+c.part,'data.ed.gov'].join(' ')};}):(typeof CATALOG!=='undefined'?CATALOG:[]).map(function(c){return {type:'Collections',label:'IDEA Part '+c[0]+' '+c[1]+' Collection',key:'collections',color:c[0]==='B'?'#1f6fa8':'#2e8540',sub:c[4],terms:(c[2]||'')+' '+(c[1]||'')+' IDEA Section 618 data collection'};}));
   const areas=(typeof ENTITIES_618!=='undefined'?ENTITIES_618:[]).map(function(e){return {type:'Outlying Areas',label:e[0],key:e[0],color:'#cc5a33',sub:e[1],terms:'additional reporting entities territory freely associated state outlying area'};});
@@ -15161,11 +15160,17 @@ function pickSearch(i){const h=_srItems[i];if(!h)return;
 /* ---- global EXPORT (view PNG, full PDF, all CSV) ---- */
 function exportViewPNG(view){
   const root=document.querySelector('.view[data-view="'+view+'"]');if(!root)return;
-  const items=[...root.querySelectorAll('canvas')].map(cv=>{const c=Chart.getChart(cv.id);if(!c)return null;
+  const items=[...root.querySelectorAll('canvas')].map(cv=>{if(cv.width<2||cv.height<2||cv.offsetParent===null)return null;const c=(window.Chart&&Chart.getChart)?Chart.getChart(cv.id):null;if(!c)return null;
     const card=cv.closest('.card,.fig,.cmp2-col');const h=card&&card.querySelector('h3');return [h?h.textContent.trim():'',c.canvas];}).filter(Boolean);
-  if(!items.length){alert('This view has no charts to export as an image. Choose “Full PDF” for the whole data tool.');return;}
+  const svgTasks=[...root.querySelectorAll('.home-bubblewrap svg,.usmap-wrap svg')].filter(function(svg){return svg.offsetParent!==null;}).map(function(svg){var card=svg.closest('.card,.fig');var h=card&&card.querySelector('h3');return _svgToImg(svg).then(function(o){return [h?h.textContent.trim():'',o.img];}).catch(function(){return null;});});
+  if(!items.length&&!svgTasks.length){alert('This page has no charts to export as an image. Choose “Full PDF” for the whole data tool, or open a chart view first.');return;}
+  Promise.all(svgTasks).then(function(svgs){ svgs.filter(Boolean).forEach(function(s){items.push(s);}); _composeViewPNG(view,items); });
+}
+function _svgToImg(svg){return new Promise(function(res,rej){try{var rect=svg.getBoundingClientRect();var w=Math.max(2,Math.round(rect.width)),h=Math.max(2,Math.round(rect.height));var clone=svg.cloneNode(true);clone.setAttribute('width',w);clone.setAttribute('height',h);clone.setAttribute('xmlns','http://www.w3.org/2000/svg');var str=new XMLSerializer().serializeToString(clone);var url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(str);var img=new Image();img.onload=function(){res({img:img,w:w,h:h});};img.onerror=function(){rej(new Error('svg'));};img.src=url;}catch(e){rej(e);}});}
+function _composeViewPNG(view,items){
+  if(!items.length){alert('This page has no charts to export as an image. Choose “Full PDF” for the whole data tool.');return;}
   const W=940,pad=30,gap=20,headH=94,maxCh=300,FONT='"Source Sans 3", Arial';
-  const vlabel=({home:'Overview',trends:'Trends',composition:'Composition',explorer:'Explorer',compare:'Compare',states:'States',collections:'Collections',sources:'Sources'})[view]||view;
+  const vlabel=({home:'National Trends',trends:'National Trends',composition:'Composition',explorer:'Disability Explorer',states:'State Snapshot',lea:'Part B LEA Explorer',tables:'SEA Tables',gpra:'Part B GPRA Analysis',collections:'Data Collections',sources:'Sources'})[view]||view;
   const sized=items.map(([t,cv])=>{const r=Math.min((W-2*pad)/cv.width,maxCh/cv.height);return [t,cv,Math.round(cv.width*r),Math.round(cv.height*r)];});
   const bodyH=sized.reduce((a,s)=>a+26+s[3]+gap,0);
   const out=document.createElement('canvas');out.width=W;out.height=headH+bodyH+60;
