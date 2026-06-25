@@ -11749,6 +11749,34 @@ body.dark .view[data-view="lea"] .lea-scard-h b{color:#9fc3ec}
 .view[data-view="lea"] .lea-osep-lbl{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
 .view[data-view="lea"] .lea-osep-v{font-size:.76rem;font-weight:800;margin-left:auto;text-align:right}
 body.dark .view[data-view="lea"] .lea-osep{background:#16202c;border-color:#2f3a48}
+
+/* ---------- LEA Explorer entrance animations ---------- */
+@keyframes leaFadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes leaFade{from{opacity:0}to{opacity:1}}
+@keyframes leaPop{0%{opacity:0;transform:scale(.55)}70%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes leaGrowX{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media (prefers-reduced-motion: no-preference){
+ body:not(.reduce) .view[data-view="lea"] .lea-supnote{animation:leaFade .45s ease both}
+ body:not(.reduce) .view[data-view="lea"] .lea-kpis .kpi{animation:leaFadeUp .5s cubic-bezier(.22,1,.36,1) both}
+ body:not(.reduce) .view[data-view="lea"] .lea-kpis .kpi:nth-child(2){animation-delay:.07s}
+ body:not(.reduce) .view[data-view="lea"] .lea-kpis .kpi:nth-child(3){animation-delay:.14s}
+ body:not(.reduce) .view[data-view="lea"] .lea-kpis .kpi:nth-child(4){animation-delay:.21s}
+ body:not(.reduce) .view[data-view="lea"] .grid.lea-grid>.card{animation:leaFadeUp .55s cubic-bezier(.22,1,.36,1) both}
+ body:not(.reduce) .view[data-view="lea"] .grid.lea-grid>.card:nth-child(2){animation-delay:.1s}
+ body:not(.reduce) .view[data-view="lea"] #leaBody>.card{animation:leaFadeUp .55s cubic-bezier(.22,1,.36,1) both}
+ body:not(.reduce) .view[data-view="lea"] .lr-fill{animation:leaGrowX .7s cubic-bezier(.22,1,.36,1) both;transform-origin:left}
+ body:not(.reduce) .view[data-view="lea"] .lea-scard{animation:leaFadeUp .4s ease both}
+ body:not(.reduce) .view[data-view="lea"] .lea-scard:nth-child(2){animation-delay:.03s}
+ body:not(.reduce) .view[data-view="lea"] .lea-scard:nth-child(3){animation-delay:.06s}
+ body:not(.reduce) .view[data-view="lea"] .lea-scard:nth-child(4){animation-delay:.09s}
+ body:not(.reduce) .view[data-view="lea"] .lea-scard:nth-child(n+5){animation-delay:.12s}
+ body:not(.reduce) .view[data-view="lea"] .lea-scard-fill{animation:leaGrowX .8s cubic-bezier(.22,1,.36,1) both;transform-origin:left}
+ body:not(.reduce) .view[data-view="lea"] .lea-wsq{animation:leaPop .45s ease both}
+ body:not(.reduce) .view[data-view="lea"] .lea-osep,body:not(.reduce) .view[data-view="lea"] .lea-det{animation:leaFadeUp .45s ease both}
+ body:not(.reduce) .view[data-view="lea"] #leaMap svg path{animation:leaFade .6s ease both}
+ body:not(.reduce) .view[data-view="lea"] #leaFlow svg path{animation:leaFade .7s ease both}
+ body:not(.reduce) .view[data-view="lea"] #leaFlow svg rect{animation:leaFadeUp .55s ease both}
+}
 .view[data-view="lea"] .lea-scard.tier-good{border-left:5px solid #2e8540}
 .view[data-view="lea"] .lea-scard.tier-mid{border-left:5px solid #b8860b}
 .view[data-view="lea"] .lea-scard.tier-low{border-left:5px solid #cc5a33;background:#fff6f1}
@@ -12183,7 +12211,7 @@ body.dark .view[data-view="lea"] .lea-mini-toggle button.on{background:#1f6fa8;c
 <div class="card lea-map-card" id="leaMapCard">
   <div class="ey">Map · School Year 2024–25</div>
   <h3>Children &amp; students served by State</h3>
-  <div class="note">Darker States serve more children and students under IDEA Part&nbsp;B (ages 3–21). Click any State to load its school districts below.</div>
+  <div class="note">Darker = more children served (ages 3–21). Click a State to load its districts below.</div>
   <div class="usmap-wrap lea-usmap-wrap"><div id="leaMap"></div></div>
 </div>
 <div id="leaStatus" class="lea-status" aria-live="polite"></div>
@@ -15821,7 +15849,7 @@ function _leaWaffleHTML(parts){
  var rem=100-fl.reduce(function(a,b){return a+b;},0);
  var ord=raw.map(function(x,i){return {i:i,f:x-Math.floor(x)};}).sort(function(a,b){return b.f-a.f;});
  for(var k=0;k<rem&&ord.length;k++){fl[ord[k%ord.length].i]++;}
- var sq='';parts.forEach(function(p,i){for(var j=0;j<fl[i];j++){sq+='<span class="lea-wsq" style="background:'+p.c+'"></span>';}});
+ var sq='',n=0;parts.forEach(function(p,i){for(var j=0;j<fl[i];j++){sq+='<span class="lea-wsq" style="background:'+p.c+';animation-delay:'+Math.min(n*6,640)+'ms"></span>';n++;}});
  return '<div class="lea-waffle" role="img" aria-label="waffle chart, one square is about one percent">'+sq+'</div>';
 }
 function _leaDetLeg(){return '<div class="lea-leg"><span><i style="background:#2e8540"></i>Meets requirements</span><span><i style="background:#b8860b"></i>Needs assistance</span><span><i style="background:#cc5a33"></i>Needs intervention</span><span><i style="background:#8c1d1d"></i>Needs substantial intervention</span></div>';}
@@ -15949,8 +15977,8 @@ function _leaRenderNation(){
    '<div class="kpi autism"><div class="l">Largest district</div><div class="v" style="font-size:1.2rem;line-height:1.15">'+(sorted[0]?sorted[0].name:'–')+'</div><div class="c">'+(sorted[0]?_leaFmt(sorted[0].served)+' served · '+sorted[0]._state:'')+'</div></div>'+
   '</div>'+
   '<div class="grid g2 lea-grid">'+
-   '<div class="card fig"><div class="ey">District landscape · nationwide</div><h3>Every district by size and IDEA funding</h3><div class="note">One bubble per district (the '+withFund.length.toLocaleString()+' that have both a 2024–25 child count and a 2021–22 MOE record). Left to right is children served (2024–25), bottom to top is IDEA Part&nbsp;B funding (2021–22), the bubble size is how many kids it serves, and the color is the state&rsquo;s MOE rating (2021–22). Click a bubble to open that district. The two files come from different years and are matched by NCES&nbsp;ID, so they won&rsquo;t line up perfectly everywhere.</div><div class="canvas-box tall"><canvas id="leaLandscape"></canvas></div></div>'+
-   '<div class="card"><div class="ey">Ranked · nationwide</div><h3>Largest districts</h3><div class="note">Ranked by how many children they serve. Click one to open it.</div><div class="lea-ranklist" id="leaRankList"></div></div>'+
+   '<div class="card fig"><div class="ey">District landscape · nationwide</div><h3>Every district by size and IDEA funding</h3><div class="note">One bubble per district (the '+withFund.length.toLocaleString()+' that have both a 2024–25 child count and a 2021–22 MOE record). Left to right is children served (2024–25), bottom to top is IDEA Part&nbsp;B funding (2021–22), and the color is the state&rsquo;s MOE rating. Click a bubble to open it. Different years, matched by NCES&nbsp;ID, so they won&rsquo;t line up perfectly everywhere.</div><div class="canvas-box tall"><canvas id="leaLandscape"></canvas></div></div>'+
+   '<div class="card"><div class="ey">Ranked · nationwide</div><h3>Largest districts</h3><div class="note">By children served. Click one to open it.</div><div class="lea-ranklist" id="leaRankList"></div></div>'+
   '</div>'+
   '<div class="card fig"><div class="ey">Students, not districts</div><h3>The same ratings, counted two ways</h3><div class="note">The left grid counts <b>districts</b>; the right counts the <b>students</b> they enroll. Both cover the '+totD.toLocaleString()+' districts that got a determination, and each square is about 1%.</div><div class="lea-waffles"><div class="lea-waffle-col"><div class="lbl">Share of <b>districts</b> ('+totD.toLocaleString()+')</div>'+_leaWaffleHTML(distParts)+'</div><div class="lea-waffle-col"><div class="lbl">Share of <b>students</b> ('+_leaFmt(totS)+')</div>'+_leaWaffleHTML(studParts)+'</div></div>'+_leaDetLeg()+'<div class="lea-punch">Most districts (<b>'+pctMeetD+'%</b>) meet IDEA requirements, but they only enroll <b>'+pctMeetS+'%</b> of students. Around <b>'+_leaFmt(needIntS)+'</b> kids are in districts their state flagged as needing intervention or substantial intervention.</div></div>'+
   '<div class="card fig"><div class="ey">Funding flow</div><h3>Where IDEA Part B dollars go</h3><div class="note">The grant splits into Section&nbsp;611 (school-age) and Section&nbsp;619 (preschool). A slice gets set aside for Coordinated Early Intervening Services (CEIS), and the rest pays for special education and related services. SY&nbsp;2021–22.</div><div class="lea-sc-bar"><label for="leaFlowState">Show</label><select id="leaFlowState"><option value="">United States (all States &amp; territories)</option>'+Object.keys(LEA_DATA.flow).filter(function(s){return s!=='__US__';}).sort().map(function(s){return '<option value="'+s.replace(/"/g,'&quot;')+'">'+s+'</option>';}).join('')+'</select></div><div id="leaFlow">'+_leaFlowSVG(flUS)+'</div><div class="lea-flow-note" id="leaFlowNote">'+_leaFlowNoteHTML(flUS)+'</div></div>'+
@@ -15986,8 +16014,8 @@ function _leaRenderState(state,list){
   '<div class="kpi autism"><div class="l">Largest district</div><div class="v" style="font-size:1.25rem;line-height:1.15">'+(withCount[0]?withCount[0].name:'–')+'</div><div class="c">'+(withCount[0]?_leaFmt(withCount[0].served)+' served':'')+'</div></div>'+
   '</div>'+
   '<div class="grid g2 lea-grid">'+
-   '<div class="card fig"><div class="ey">District landscape</div><h3>Every district by size and IDEA funding</h3><div class="note">One bubble per district. Left to right is children served (2024–25), bottom to top is IDEA Part&nbsp;B funding (2021–22), the bubble size is how many kids it serves, and the color is the state&rsquo;s MOE rating (2021–22). Click a bubble to open that district. The two files come from different years and are matched by NCES&nbsp;ID, so they won&rsquo;t line up perfectly everywhere.</div><div class="canvas-box tall"><canvas id="leaLandscape"></canvas></div></div>'+
-   '<div class="card"><div class="ey">Ranked</div><h3>Largest districts</h3><div class="note">Ranked by how many children they serve. Click one to open it.</div><div class="lea-ranklist" id="leaRankList"></div></div>'+
+   '<div class="card fig"><div class="ey">District landscape</div><h3>Every district by size and IDEA funding</h3><div class="note">One bubble per district. Left to right is children served (2024–25), bottom to top is IDEA Part&nbsp;B funding (2021–22), and the color is the state&rsquo;s MOE rating. Click a bubble to open it. Different years, matched by NCES&nbsp;ID, so they won&rsquo;t line up perfectly everywhere.</div><div class="canvas-box tall"><canvas id="leaLandscape"></canvas></div></div>'+
+   '<div class="card"><div class="ey">Ranked</div><h3>Largest districts</h3><div class="note">By children served. Click one to open it.</div><div class="lea-ranklist" id="leaRankList"></div></div>'+
   '</div>';
  var rl=document.getElementById('leaRankList');var topN=withCount.slice(0,25),maxT=topN.length?(topN[0].served||1):1;
  rl.innerHTML=topN.length?topN.map(function(l,i){var w=Math.max(2,(l.served/maxT*100));return '<button type="button" class="lea-rankrow" data-lea-idx="'+list.indexOf(l)+'"><span class="lr-rank">'+(i+1)+'</span><span class="lr-name">'+l.name+'</span><span class="lr-bar"><span class="lr-fill" style="width:'+w+'%"></span></span><span class="lr-val">'+_leaFmt(l.served)+'</span></button>';}).join(''):'<div class="note">No district child counts are available for this State (all suppressed or unreported).</div>';
@@ -16013,7 +16041,8 @@ function _leaLandscapeChart(items,opts){
   return {label:g.label+' ('+pts.length.toLocaleString()+')',data:pts,backgroundColor:shade(g.c,fa),borderColor:g.c,borderWidth:bw,hoverBackgroundColor:shade(g.c,.7)};
  }).filter(function(d){return d.data.length;});
  var pick=opts.pick||function(){};
- _leaChart1=new Chart(cv,{type:'bubble',data:{datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:8,right:34,bottom:2,left:2}},onClick:function(e,els){if(els&&els.length){var el=els[0],ds=datasets[el.datasetIndex];var p=ds&&ds.data[el.index];if(p&&p._item)pick(p._item);}},onHover:function(e,els){e.native&&e.native.target&&(e.native.target.style.cursor=els.length?'pointer':'default');},
+ var _anim=(document.body.classList.contains('reduce')||items.length>2000)?false:{duration:560,easing:'easeOutQuart'};
+ _leaChart1=new Chart(cv,{type:'bubble',data:{datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:_anim,layout:{padding:{top:8,right:34,bottom:2,left:2}},onClick:function(e,els){if(els&&els.length){var el=els[0],ds=datasets[el.datasetIndex];var p=ds&&ds.data[el.index];if(p&&p._item)pick(p._item);}},onHover:function(e,els){e.native&&e.native.target&&(e.native.target.style.cursor=els.length?'pointer':'default');},
   plugins:{ffValues:false,legend:{display:true,position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,boxHeight:8,padding:12,font:{size:11},color:'#5a6675'}},tooltip:{callbacks:{title:function(it){return it[0].raw._name;},label:function(o){return ['Served: '+_leaFmt(o.raw.x),'IDEA allocation (2021–22): '+_leaMoney(o.raw.y),'MOE determination: '+o.raw._det];}}}},
   scales:{x:{beginAtZero:true,title:{display:true,text:'Children & students served (2024–25)',color:'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return (+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}},y:{beginAtZero:true,title:{display:true,text:'IDEA Part B allocation, 2021–22 ($)',color:'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':'$'+(+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}}}}});
  _addCardTools(cv.closest('.card'),function(){_captionedPNG(cv,(opts.title||'Districts by size and IDEA funding'),(opts.subtitle||''),(opts.fileslug||'idea618_districts_landscape.png'),(typeof SRC_NOTE!=='undefined'?SRC_NOTE:''));},function(){_gfxCSV((opts.csvRows?opts.csvRows():[]),(opts.csvslug||'idea618_districts'));});
@@ -16049,7 +16078,7 @@ function _leaRenderProfile(lea,list){
   '<div class="kpi autism"><div class="l">IDEA allocation 2021–22</div><div class="v" style="font-size:1.45rem">'+(f?_leaMoney(f.ftot):'–')+'</div><div class="c">Section 611 + 619</div></div>'+
   '</div>'+
   '<div class="grid g2 lea-grid">'+
-   '<div class="card fig"><div class="ey">Who is served</div><h3>'+lea.name+': students by primary disability category</h3><div class="note">School-age (ages 5–21) child count by category, 2024–25.</div><div class="lea-mini-toggle" id="leaCatToggle"><button type="button" data-lc="bar" class="on">Bars</button><button type="button" data-lc="bubble">Bubbles</button></div><div class="canvas-box lea-cat-box"><canvas id="leaCatChart"></canvas></div><div class="home-bubblewrap lea-bubble-svg" id="leaCatBubbles" hidden></div></div>'+
+   '<div class="card fig"><div class="ey">Who is served</div><h3>'+lea.name+': students by primary disability category</h3><div class="note">School-age count (ages 5–21), 2024–25.</div><div class="lea-mini-toggle" id="leaCatToggle"><button type="button" data-lc="bar" class="on">Bars</button><button type="button" data-lc="bubble">Bubbles</button></div><div class="canvas-box lea-cat-box"><canvas id="leaCatChart"></canvas></div><div class="home-bubblewrap lea-bubble-svg" id="leaCatBubbles" hidden></div></div>'+
    '<div class="card"><div class="ey">Funding &amp; compliance</div><h3>IDEA Part B funds &amp; Maintenance of Effort</h3><div class="note">From the SY 2021–22 LEA MOE / CEIS collection.</div>'+_leaFundCard(f)+'</div>'+
   '</div>'+flowCardHTML;
  var lc={t:'bar'},draw=function(){_leaCatChart(lea,lc.t);};
@@ -16072,7 +16101,7 @@ function _leaCatChart(lea,type){
   if(cbox)cbox.style.display='';
   if(!items.length){if(cbox)cbox.innerHTML='<div class="note" style="padding:24px 4px">No category detail is available for this district (counts were suppressed to protect small groups of students).</div>';return;}
   var barData={labels:items.map(function(p){return p.l;}),datasets:[{data:items.map(function(p){return p.v;}),backgroundColor:items.map(function(p,i){return shade((typeof COLORS!=='undefined'&&COLORS[p.l])||pal[i%pal.length],.9);}),borderColor:items.map(function(p,i){return (typeof COLORS!=='undefined'&&COLORS[p.l])||pal[i%pal.length];}),borderWidth:1,borderRadius:4,maxBarThickness:30}]};
-  var barOpts={indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{right:64,left:2,top:4,bottom:2}},plugins:{ffValues:true,legend:{display:false},tooltip:{callbacks:{label:function(o){return _leaFmt(o.parsed.x);}}}},scales:{x:{beginAtZero:true,grace:'6%',grid:{color:'rgba(120,140,160,.13)',drawBorder:false},ticks:{maxTicksLimit:6,callback:function(v){return (+v).toLocaleString();}}},y:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'},autoSkip:false,crossAlign:'far',callback:function(v){return _wrapAxisLabel(this.getLabelForValue(v),18);}}}}};
+  var barOpts={indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:(document.body.classList.contains('reduce')?false:{duration:600,easing:'easeOutQuart'}),layout:{padding:{right:64,left:2,top:4,bottom:2}},plugins:{ffValues:true,legend:{display:false},tooltip:{callbacks:{label:function(o){return _leaFmt(o.parsed.x);}}}},scales:{x:{beginAtZero:true,grace:'6%',grid:{color:'rgba(120,140,160,.13)',drawBorder:false},ticks:{maxTicksLimit:6,callback:function(v){return (+v).toLocaleString();}}},y:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'},autoSkip:false,crossAlign:'far',callback:function(v){return _wrapAxisLabel(this.getLabelForValue(v),18);}}}}};
   _leaChart2=new Chart(cv,{type:'bar',data:barData,options:barOpts});
  }
  var card=cv.closest('.card');
