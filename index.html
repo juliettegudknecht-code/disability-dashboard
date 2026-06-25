@@ -11675,6 +11675,19 @@ body.dark .view[data-view="tables"] .tbl-cmp-btn.on{background:#1f6fa8;border-co
 /* ---------- STATE SNAPSHOT : tidier, scannable tiles ---------- */
 .state-insight .state-insight-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 
+/* ---------- HOME : CRDC-style packed bubble cluster ---------- */
+.home-bubblewrap{margin:10px auto 4px;max-width:760px}
+.home-bubblewrap svg{display:block;width:100%;height:auto;max-height:440px;overflow:visible}
+.home-bubblewrap .hb-bubble{cursor:pointer;transition:transform .15s ease}
+.home-bubblewrap .hb-bubble circle{transition:filter .15s ease}
+body:not(.no-anim):not(.reduce) .home-bubblewrap .hb-bubble:hover{transform:scale(1.04)}
+.home-bubblewrap .hb-bubble:hover circle,.home-bubblewrap .hb-bubble:focus-visible circle{filter:brightness(1.07)}
+.home-bubblewrap .hb-bubble:focus-visible{outline:none}
+.home-bubblewrap .hb-bubble:focus-visible circle{stroke-width:3}
+.home-bubblewrap .hb-v{fill:#fff;font-weight:900;font-variant-numeric:tabular-nums;font-family:'Source Sans 3',sans-serif}
+.home-bubblewrap .hb-l{fill:rgba(255,255,255,.92);font-weight:700;font-family:'Source Sans 3',sans-serif}
+body.hc .home-bubblewrap .hb-v,body.hc .home-bubblewrap .hb-l{fill:#fff}
+
 /* ---------- TABLES PAGE : tighter spacing (less white space) ---------- */
 .view[data-view="tables"] .viewlead{margin-bottom:6px}
 .view[data-view="tables"] .tables-setup{margin:6px 0 8px}
@@ -11689,8 +11702,7 @@ body.dark .view[data-view="tables"] .tbl-cmp-btn.on{background:#1f6fa8;border-co
 .view[data-view="tables"] .tbl-about{margin:4px 0}
 .view[data-view="tables"] .tbl-about-body{padding-top:6px}
 
-/* ---------- LEA EXPLORER ---------- */
-#viewTabs .tab[data-view="lea"]:before,.view[data-view="lea"] .section-title:before{content:"\229E"}
+/* ---------- LEA EXPLORER (merged into State & District Snapshot) ---------- */
 .view[data-view="lea"] .lea-controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 18px}
 .view[data-view="lea"] .lea-controls .ctrl{display:flex;flex-direction:column;gap:5px;margin:0}
 .view[data-view="lea"] .lea-controls label{font-weight:800;font-size:.7rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
@@ -11769,8 +11781,8 @@ body.dark .view[data-view="lea"] .lea-mini-toggle button.on{background:#1f6fa8;c
         <div class="navmenu" role="menu" aria-label="Explore views">
           <!-- Disability Explorer and Collections removed from nav (views + code kept intact, still reachable via #explorer / #collections). -->
           <button class="navitem" role="menuitem" data-view="states">State Snapshot</button>
-          <button class="navitem" role="menuitem" data-view="tables">Tables</button>
-          <button class="navitem" role="menuitem" data-view="lea">LEA Explorer</button>
+          <button class="navitem" role="menuitem" data-view="lea">Part B LEA Explorer</button>
+          <button class="navitem" role="menuitem" data-view="tables">SEA Tables</button>
           <button class="navitem" role="menuitem" data-view="gpra">Part B GPRA Analysis</button>
         </div>
       </div>
@@ -11827,6 +11839,7 @@ body.dark .view[data-view="lea"] .lea-mini-toggle button.on{background:#1f6fa8;c
     <div class="trend-series-control" id="trendPills"></div>
     <div class="trend-focus-summary" id="trendFocusSummary" aria-live="polite"></div>
     <div class="canvas-box tall"><canvas id="trendChart"></canvas></div>
+    <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, National Center for Education Statistics, Digest of Education Statistics 2023, Table&nbsp;204.30; and Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” School Years 1976–77 through 2024–25.</div></details>
   </div>
 </div>
 <div class="grid">
@@ -11834,6 +11847,7 @@ body.dark .view[data-view="lea"] .lea-mini-toggle button.on{background:#1f6fa8;c
     <h3 data-pl="Each disability type, mini-trend">Each Primary Disability Category at a Glance</h3>
     <div class="note">A quick view of every primary disability category, showing the most recent count of children and students served and how much it has changed since the category was first reported under IDEA Part&nbsp;B.</div>
     <div class="sparkgrid" id="sparks"></div>
+    <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” School Years 1976–77 through 2024–25.</div></details>
   </div>
 </div>
 <div class="grid g2 trend-extra-grid">
@@ -11842,12 +11856,14 @@ body.dark .view[data-view="lea"] .lea-mini-toggle button.on{background:#1f6fa8;c
     <h3>Each Category as a Share of the Total</h3>
     <div class="note">Each selected primary disability category shown as its share of all children and students with disabilities served under IDEA Part&nbsp;B, ages 3–21, in School Year 2024–25.</div>
     <div class="shareband-box" id="trendShareBands" role="img" aria-label="Share bands for selected primary disability categories as a share of total IDEA Part B child count"></div>
+    <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” 2024–25.</div></details>
   </div>
   <div class="card fig" id="trend-change-card" data-drill-group="trends" data-drill-panel="categories">
     <div class="ey">Change</div>
     <h3>Largest Changes in Count by Category</h3>
     <div class="note">The primary disability categories with the largest increases and decreases in the number of children and students served, shown in thousands, through School Year 2024–25.</div>
     <div class="canvas-box"><canvas id="trendChangeChart"></canvas></div>
+    <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” School Years 2000–01 and 2024–25.</div></details>
   </div>
 </div>
 
@@ -12019,8 +12035,8 @@ body.dark .view[data-view="lea"] .lea-mini-toggle button.on{background:#1f6fa8;c
 <div class="state-determinations" id="stateDeterminations" aria-live="polite"></div>
 
 </div>
-<div class="view" data-view="tables" role="tabpanel" aria-label="Data Tables">
-<h2 class="section-title" id="tables">Data Tables</h2>
+<div class="view" data-view="tables" role="tabpanel" aria-label="SEA Tables">
+<h2 class="section-title" id="tables">SEA Tables</h2>
 <p class="viewlead">Exact figures from the official IDEA Section 618 collections. Pick one or more collections, choose whether to compare States or disability categories, then add what you want to see side by side. Any table can switch between counts and percentages, turn into a chart with <strong>Visualize</strong>, or download as a CSV.</p>
 <div class="tables-setup">
 <div class="tables-collrail" role="tablist" aria-label="Data collections">
@@ -12071,8 +12087,8 @@ body.dark .view[data-view="lea"] .lea-mini-toggle button.on{background:#1f6fa8;c
 <div class="tables-collhead" id="tablesCollHead"></div>
 <div id="tablesBody"></div>
 </div>
-<div class="view" data-view="lea" role="tabpanel" aria-label="LEA Explorer">
-<h2 class="section-title" id="lea">LEA Explorer</h2>
+<div class="view" data-view="lea" role="tabpanel" aria-label="Part B LEA Explorer">
+<h2 class="section-title" id="lea">Part B LEA Explorer</h2>
 <p class="viewlead">Explore individual school districts, the Local Educational Agencies (LEAs) that serve students under IDEA Part&nbsp;B. Choose a State to see all of its districts as an interactive landscape, then open any district to see how many children and students with disabilities it serves by category, alongside the IDEA funds it receives. Child counts are from School Year&nbsp;2024–25; funding and Maintenance-of-Effort figures are from SY&nbsp;2021–22.</p>
 <div class="card lea-controls">
   <div class="ctrl"><label for="leaStateSel">State</label><select id="leaStateSel" aria-label="Choose a State"></select></div>
@@ -12506,6 +12522,53 @@ function renderHeatmap(){
 }
 
 /* ============ SPARKLINES (small multiples) ============ */
+/* Home: CRDC-style packed bubble cluster of national category counts */
+/* Reusable CRDC-style packed bubble cluster (SVG). items=[{name,v,color}]. */
+function _packedBubbles(el,items,opts){
+ opts=opts||{};if(!el)return;
+ items=items.filter(function(d){return d.v!=null&&!isNaN(d.v)&&d.v>0;}).slice().sort(function(a,b){return b.v-a.v;});
+ if(!items.length){el.innerHTML='<div class="note" style="padding:18px 4px">No category detail available (counts suppressed to protect small groups).</div>';return;}
+ var maxV=items[0].v,maxR=opts.maxR||82,minR=opts.minR||16;
+ items.forEach(function(it){it.r=Math.max(minR,maxR*Math.sqrt(it.v/maxV));});
+ var placed=[];
+ items.forEach(function(it,idx){
+  if(idx===0){it.x=0;it.y=0;placed.push(it);return;}
+  var a=0,gx=0,gy=0,gap=2.5,ok=false;
+  for(var t=0;t<6000;t++){a+=0.28;var rad=2.0*a;gx=Math.cos(a)*rad;gy=Math.sin(a)*rad*0.82;ok=true;
+   for(var p=0;p<placed.length;p++){var dx=gx-placed[p].x,dy=gy-placed[p].y;if(Math.sqrt(dx*dx+dy*dy)<it.r+placed[p].r+gap){ok=false;break;}}
+   if(ok)break;}
+  it.x=gx;it.y=gy;placed.push(it);
+ });
+ var minX=1e9,minY=1e9,maxX=-1e9,maxYb=-1e9;
+ placed.forEach(function(it){minX=Math.min(minX,it.x-it.r);minY=Math.min(minY,it.y-it.r);maxX=Math.max(maxX,it.x+it.r);maxYb=Math.max(maxYb,it.y+it.r);});
+ var pad=4,vbW=(maxX-minX)+pad*2,vbH=(maxYb-minY)+pad*2;
+ function fmtV(v){return v>=1e6?(+(v/1e6).toFixed(2))+'M':(v>=1000?Math.round(v/1000)+'k':(''+v));}
+ function wrap(name,maxc){var w=(''+name).split(' '),lines=[],cur='';w.forEach(function(word){if(!cur)cur=word;else if((cur+' '+word).length<=maxc)cur=cur+' '+word;else{lines.push(cur);cur=word;}});if(cur)lines.push(cur);if(lines.length>2)lines=[lines[0],lines.slice(1).join(' ')];return lines;}
+ var click=!!opts.onClick;
+ var svg='<svg viewBox="'+(minX-pad).toFixed(1)+' '+(minY-pad).toFixed(1)+' '+vbW.toFixed(1)+' '+vbH.toFixed(1)+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Bubble cluster sized by value">';
+ placed.forEach(function(it){
+  var col=it.color||'#227aa7';
+  svg+='<g class="hb-bubble"'+(click?' data-hbcat="'+(''+it.name).replace(/"/g,'')+'" tabindex="0" role="button"':'')+'><title>'+it.name+': '+it.v.toLocaleString()+'</title>'+
+   '<circle cx="'+it.x.toFixed(1)+'" cy="'+it.y.toFixed(1)+'" r="'+it.r.toFixed(1)+'" fill="'+shade(col,.85)+'" stroke="'+col+'" stroke-width="1.6"/>';
+  if(it.r>=23){
+   var fs=Math.max(8.5,Math.min(15,it.r*0.3)),lfs=Math.max(7,fs*0.6);
+   var maxc=Math.max(6,Math.floor((it.r*1.7)/(lfs*0.54)));
+   var lines=wrap(it.name,maxc),blockH=fs+lines.length*lfs*1.02,vy=it.y-blockH/2+fs;
+   svg+='<text class="hb-v" x="'+it.x.toFixed(1)+'" y="'+vy.toFixed(1)+'" text-anchor="middle" font-size="'+fs.toFixed(1)+'">'+fmtV(it.v)+'</text>';
+   lines.forEach(function(ln,li){svg+='<text class="hb-l" x="'+it.x.toFixed(1)+'" y="'+(vy+(li+1)*lfs*1.02).toFixed(1)+'" text-anchor="middle" font-size="'+lfs.toFixed(1)+'">'+ln+'</text>';});
+  }
+  svg+='</g>';
+ });
+ svg+='</svg>';
+ el.innerHTML=svg;
+ if(click){el.querySelectorAll('.hb-bubble').forEach(function(g){var act=function(){try{opts.onClick(g.getAttribute('data-hbcat'));}catch(e){}};g.addEventListener('click',act);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();act();}});});}
+}
+function renderHomeBubbles(){
+ var el=document.getElementById('homeBubbles');if(!el||typeof DEMO==='undefined'||!DEMO.cur)return;
+ var cur=DEMO.cur;
+ var items=Object.keys(cur).filter(function(k){return k!=='All Disabilities'&&cur[k]&&cur[k].total;}).map(function(k){return {name:k,v:cur[k].total,color:(typeof COLORS!=='undefined'&&COLORS[k])||'#227aa7'};});
+ _packedBubbles(el,items,{maxR:84,minR:17,onClick:function(cat){if(typeof trendSelected!=='undefined'){trendSelected=[cat];buildPills();renderTrend();renderTrendShare();}var tm=document.getElementById('trend-main');if(tm)tm.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}});
+}
 function renderSparks(){
  const W=160,H=40,P=4;
  document.getElementById('sparks').innerHTML=COMP_ORDER.map(k=>{
@@ -13766,7 +13829,7 @@ function toggleMotion(on){reduceMotion=on;document.body.classList.toggle('reduce
 function toggleUL(on){document.body.classList.toggle('ul',on);setSwitch('swUL',on);lsSet('idea618ul',on?'1':'0');}
 function toggleAnim(on){document.body.classList.toggle('no-anim',!on);setSwitch('swAnim',on);lsSet('idea618anim',on?'1':'0');}
 function renderAll(){
- kpis();renderNationalSnapshot();renderTrend();renderTrendShare();renderTrendChange();renderComp();renderCategoryShift();renderEnv();renderIncl();renderSparks();
+ kpis();renderNationalSnapshot();renderTrend();renderTrendShare();renderTrendChange();renderComp();renderCategoryShift();renderEnv();renderIncl();renderSparks();renderHomeBubbles();
  renderExplorer();renderStateBar();renderStateDetail();renderStateReport();renderStateRankBanner();try{renderSnapshotDeterminations();}catch(e){}renderStateMeasureChart();renderTable();renderCollections();renderNAEP();renderACS();renderCompare();if(mapReady)colorMap();
  try{if(typeof descOn!=='undefined'&&descOn)buildChartDescriptions();}catch(e){}
 }
@@ -14006,7 +14069,7 @@ function swWire(id,fn){const el=document.getElementById(id);const t=()=>fn(!el.c
  const fs=lsGet('idea618fs');setTextSize(fs!==null?+fs:0);
  setChartTheme();
  // render each piece independently so one failure can never break the others (or hover/toggles)
- [kpis,renderNationalSnapshot,buildPills,renderTrend,renderTrendShare,renderTrendChange,renderComp,renderCategoryShift,renderEnv,renderIncl,renderSparks,
+ [kpis,renderNationalSnapshot,buildPills,renderTrend,renderTrendShare,renderTrendChange,renderComp,renderCategoryShift,renderEnv,renderIncl,renderSparks,renderHomeBubbles,
   renderExplorer,renderStateBar,renderStateDetail,renderStateReport,renderStateRankBanner,renderStateMeasureChart,renderTable,renderCatalog,renderCollections,renderNAEP,renderACS,
   renderCompare,injectTools,loadMap].forEach(fn=>{try{fn();}catch(e){console.error('render error in',fn.name,e);}});
  // screen-reader text alternative for each chart (NCADEMI alt text / WCAG 1.1.1)
@@ -14031,7 +14094,7 @@ const ID2VIEW={overview:'home',trends:'trends',composition:'composition',explore
 function _run(n){try{if(typeof window[n]==='function')window[n]();}catch(e){console.warn('refresh',n,e);}}
 const VIEW_REFRESH={
   home:()=>['kpis','renderNationalSnapshot'].forEach(_run),
-  trends:()=>['renderTrend','renderSparks','renderTrendShare','renderTrendChange'].forEach(_run),
+  trends:()=>['renderTrend','renderSparks','renderTrendShare','renderTrendChange','renderHomeBubbles'].forEach(_run),
   composition:()=>['renderComp','renderCategoryShift','renderEnv','renderIncl'].forEach(_run),
   explorer:()=>_run('renderExplorer'),
   compare:()=>renderCompare2(),
@@ -15493,24 +15556,26 @@ function buildTrendsOverview(){
   <details class="lead-fold"><summary>About this page</summary>
   <p class="viewlead" data-folded="1">A 50-year view of how special education has grown and changed across the United States. These national charts follow the number of children and students with disabilities served under IDEA, the share of all students they represent, the primary disability categories reported, and the educational environments where students spend the school day, from School Year 1976–77 through 2024–25. The figures cover the 50 States, the District of Columbia, and the additional IDEA reporting entities (Puerto Rico, the Bureau of Indian Education, the outlying areas, and the freely associated states); recent years use the official Office of Special Education Programs total rows, while the long-term historical series follows the published national counts. They come from the IDEA Section&nbsp;618 data that each State and entity reports every year to the Office of Special Education Programs, together with the National Center for Education Statistics (NCES) Digest of Education Statistics for the historical series. Use the section tabs to move between the national snapshot, the trend over time, each category's trend, and category shares; open Explore for a single disability category or State, or Collections for every Section&nbsp;618 data file.</p>
   </details>
+  <div class="card fig home-bubbles-hero" id="home-bubbles-card">
+    <div class="ey">National Snapshot · School Year 2024–25</div>
+    <h3>Children and Students Served, by Primary Disability Category</h3>
+    <div class="note">Each circle is one primary disability category, sized in proportion to the number of children and students served under IDEA Part&nbsp;B, ages&nbsp;3–21. Hover for the exact count; select one to focus it in the trend below.</div>
+    <div class="home-bubblewrap" id="homeBubbles"></div>
+    <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” 2024–25.</div></details>
+  </div>
   <div class="snapshot-stats">
     <div class="snap-stat"><span class="snap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="3.2"/><path d="M22 19v-1a4 4 0 0 0-3-3.87"/><path d="M16 4.13a4 4 0 0 1 0 7.75"/></svg></span><div class="snap-frac">1 in 7</div><div class="snap-desc">students in U.S. public schools received special education and related services under IDEA (ages 3–21).</div></div>
     <div class="snap-stat"><span class="snap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/><path d="M3 21h18"/></svg></span><div class="snap-frac">2 in 3</div><div class="snap-desc">students with disabilities spent 80% or more of the school day in general education classrooms.</div></div>
     <div class="snap-stat"><span class="snap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11v4c0 1.1 2.2 2 5 2s5-.9 5-2v-4"/><path d="M21 9v4"/></svg></span><div class="snap-frac">3 in 4</div><div class="snap-desc">students with disabilities, ages 14–21, who left school did so with a regular high school diploma.</div></div>
   </div>
   <div class="kpis" id="kpis"></div>
-  <div class="card fig">
-    <div class="ey">National Snapshot · School Year 2024–25</div>
-    <h3>Largest primary disability categories served under IDEA Part B, ages 3–21</h3>
-    <div class="note">Share of all children and students served under IDEA Part B (ages 3–21), across the 50 states, DC, and the additional IDEA reporting entities. Specific learning disability remains the largest single category.</div>
-    <div class="canvas-box"><canvas id="nationalSnapshotChart"></canvas></div>
-    <canvas id="nationalPartCChart" style="display:none"></canvas>
-  </div>
+  <canvas id="nationalSnapshotChart" style="display:none"></canvas><canvas id="nationalPartCChart" style="display:none"></canvas>
 </section>`;
       if(h2) h2.insertAdjacentHTML('afterend', html);
     }
     try{kpis();}catch(e){}
     try{renderNationalSnapshot();}catch(e){}
+    try{renderHomeBubbles();}catch(e){}
   }catch(e){}
 }
 function applyViewSubtabs(viewName,cfg){
@@ -15639,7 +15704,7 @@ function _leaRenderProfile(lea,list){
   '<div class="kpi autism"><div class="l">IDEA allocation 2021–22</div><div class="v" style="font-size:1.45rem">'+(f?_leaMoney(f.ftot):'—')+'</div><div class="c">Section 611 + 619</div></div>'+
   '</div>'+
   '<div class="grid g2 lea-grid">'+
-   '<div class="card fig"><div class="ey">Who is served</div><h3>'+lea.name+': students by primary disability category</h3><div class="note">School-age (ages 5–21) child count by category, 2024–25.</div><div class="lea-mini-toggle" id="leaCatToggle"><button type="button" data-lc="bar" class="on">Bars</button><button type="button" data-lc="bubble">Bubbles</button></div><div class="canvas-box tall"><canvas id="leaCatChart"></canvas></div></div>'+
+   '<div class="card fig"><div class="ey">Who is served</div><h3>'+lea.name+': students by primary disability category</h3><div class="note">School-age (ages 5–21) child count by category, 2024–25.</div><div class="lea-mini-toggle" id="leaCatToggle"><button type="button" data-lc="bar" class="on">Bars</button><button type="button" data-lc="bubble">Bubbles</button></div><div class="canvas-box tall"><canvas id="leaCatChart"></canvas></div><div class="home-bubblewrap lea-bubble-svg" id="leaCatBubbles" hidden></div></div>'+
    '<div class="card"><div class="ey">Funding &amp; compliance</div><h3>IDEA Part B funds &amp; Maintenance of Effort</h3><div class="note">From the SY 2021–22 LEA MOE / CEIS collection.</div>'+_leaFundCard(f)+'</div>'+
   '</div>';
  var lc={t:'bar'},draw=function(){_leaCatChart(lea,lc.t);};
@@ -15648,16 +15713,18 @@ function _leaRenderProfile(lea,list){
 }
 function _leaCatChart(lea,type){
  var cv=document.getElementById('leaCatChart');if(!cv||typeof Chart==='undefined')return;
+ var cbox=cv.closest('.canvas-box'),bub=document.getElementById('leaCatBubbles');
  if(_leaChart2){try{_leaChart2.destroy();}catch(e){}_leaChart2=null;}
  var items=LEA_CATS.map(function(c){return {l:c,v:lea.cats[c]};}).filter(function(p){return p.v!=null&&p.v!==0;}).sort(function(a,b){return b.v-a.v;});
- if(!items.length){var box=cv.parentNode;if(box)box.innerHTML='<div class="note" style="padding:24px 4px">No category detail is available for this district (counts were suppressed to protect small groups of students).</div>';return;}
  var pal=TBL_PIE_COLORS;
  if(type==='bubble'){
-  var maxV=Math.max.apply(null,items.map(function(p){return p.v;}).concat([1])),N=items.length,maxR=Math.max(14,Math.min(32,Math.round(300/N)));
-  var pts=items.map(function(p,i){return {x:i,y:1+0.42*Math.sin(i*0.85),r:5+(maxR-5)*Math.sqrt(p.v/maxV),_l:p.l,_v:p.v};});
-  _leaChart2=new Chart(cv,{type:'bubble',data:{datasets:[{data:pts,backgroundColor:pts.map(function(_,i){return shade(pal[i%pal.length],.8);}),borderColor:pts.map(function(_,i){return pal[i%pal.length];}),borderWidth:1.4}]},plugins:[{id:'lcb',afterDatasetsDraw:function(chart){var m=chart.getDatasetMeta(0);if(!m)return;var ctx=chart.ctx,dark=document.body.classList.contains('dark');ctx.save();ctx.font='800 10px '+(Chart.defaults.font.family||'sans-serif');ctx.fillStyle=dark?'#e9eef5':'#13354e';ctx.textAlign='center';ctx.textBaseline='bottom';m.data.forEach(function(el,i){var p=pts[i];var rr=(el.options&&el.options.radius)||6;ctx.fillText(_leaFmt(p._v),el.x,el.y-rr-3);});ctx.restore();}}],options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:24}},plugins:{legend:{display:false},tooltip:{callbacks:{title:function(it){return it[0].raw._l;},label:function(o){return _leaFmt(o.raw._v);}}}},scales:{x:{type:'linear',min:-0.6,max:N-0.4,grid:{display:false},ticks:{stepSize:1,autoSkip:false,callback:function(v){var p=pts[Math.round(v)];if(!p)return '';return p._l.length>14?p._l.slice(0,13)+'…':p._l;},maxRotation:42,font:{size:9,weight:'700'}}},y:{display:false,min:0,max:2}}}});
+  if(cbox)cbox.style.display='none';
+  if(bub){bub.hidden=false;var its=items.map(function(p,i){return {name:p.l,v:p.v,color:(typeof COLORS!=='undefined'&&COLORS[p.l])||pal[i%pal.length]};});_packedBubbles(bub,its,{maxR:62,minR:13});}
  }else{
-  var barData={labels:items.map(function(p){return p.l;}),datasets:[{data:items.map(function(p){return p.v;}),backgroundColor:items.map(function(_,i){return shade(pal[i%pal.length],.9);}),borderColor:items.map(function(_,i){return pal[i%pal.length];}),borderWidth:1,borderRadius:4,maxBarThickness:30}]};
+  if(bub){bub.hidden=true;bub.innerHTML='';}
+  if(cbox)cbox.style.display='';
+  if(!items.length){if(cbox)cbox.innerHTML='<div class="note" style="padding:24px 4px">No category detail is available for this district (counts were suppressed to protect small groups of students).</div>';return;}
+  var barData={labels:items.map(function(p){return p.l;}),datasets:[{data:items.map(function(p){return p.v;}),backgroundColor:items.map(function(p,i){return shade((typeof COLORS!=='undefined'&&COLORS[p.l])||pal[i%pal.length],.9);}),borderColor:items.map(function(p,i){return (typeof COLORS!=='undefined'&&COLORS[p.l])||pal[i%pal.length];}),borderWidth:1,borderRadius:4,maxBarThickness:30}]};
   var barOpts={indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{ffValues:true,legend:{display:false},tooltip:{callbacks:{label:function(o){return _leaFmt(o.parsed.x);}}}},scales:{x:{beginAtZero:true,grid:{color:'rgba(120,140,160,.13)',drawBorder:false},ticks:{callback:function(v){return (+v).toLocaleString();}}},y:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'}}}}};
   _leaChart2=new Chart(cv,{type:'bar',data:barData,options:barOpts});
  }
