@@ -11461,6 +11461,144 @@ nav.appbar #viewTabs .tab,nav.appbar #viewTabs .navgroup,nav.appbar #viewTabs .n
 /* the options/scope bar now only carries the selection breadcrumb; hide it when empty */
 .scopebar[hidden]{display:none!important}
 
+/* ============================================================
+   UX / UI REFINEMENTS  (appended layer — pure CSS, no logic)
+   Home -> more dashboard-like;  Data Tables & State Snapshot ->
+   easier to scan. Dark-mode and high-contrast aware. This block
+   is intentionally last so it layers over the earlier cascade.
+   ============================================================ */
+
+/* Gentle hover lift on every metric tile (Home KPIs, the fraction
+   stats, and the State snapshot tiles) for a tactile dashboard feel. */
+body:not(.no-anim):not(.reduce) .view[data-view="trends"] #kpis .kpi,
+body:not(.no-anim):not(.reduce) .view[data-view="trends"] .snap-stat,
+body:not(.no-anim):not(.reduce) .state-insight .mini{
+  transition:transform .18s ease, box-shadow .22s ease;
+}
+body:not(.no-anim):not(.reduce) .view[data-view="trends"] #kpis .kpi:hover,
+body:not(.no-anim):not(.reduce) .view[data-view="trends"] .snap-stat:hover,
+body:not(.no-anim):not(.reduce) .state-insight .mini:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 26px rgba(22,46,81,.14);
+}
+
+/* ---------- HOME / NATIONAL TRENDS : dashboard header ---------- */
+/* Even 4-up metric row with bigger numbers and a colour-coded accent
+   rail per tile, so the KPIs read as one clean dashboard strip. */
+.view[data-view="trends"] #kpis{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;margin:6px 0 18px;
+}
+.view[data-view="trends"] #kpis .kpi{
+  border-top:5px solid #005ea2!important;border-radius:12px!important;
+  padding:15px 17px 14px!important;box-shadow:0 1px 2px rgba(16,42,67,.06),0 6px 18px rgba(16,42,67,.05)!important;
+}
+.view[data-view="trends"] #kpis .kpi:nth-child(1){border-top-color:#005ea2!important}
+.view[data-view="trends"] #kpis .kpi:nth-child(2){border-top-color:var(--gold)!important}
+.view[data-view="trends"] #kpis .kpi:nth-child(3){border-top-color:var(--good)!important}
+.view[data-view="trends"] #kpis .kpi:nth-child(4){border-top-color:var(--autism)!important}
+.view[data-view="trends"] #kpis .kpi .l{font-size:.66rem!important;letter-spacing:.05em;line-height:1.32}
+.view[data-view="trends"] #kpis .kpi .v{font-size:2.1rem!important;line-height:1.05!important;margin-top:7px}
+.view[data-view="trends"] #kpis .kpi .c{font-size:.72rem!important;line-height:1.42!important;margin-top:6px!important}
+@media(max-width:1000px){.view[data-view="trends"] #kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.view[data-view="trends"] #kpis{grid-template-columns:1fr}}
+/* The fraction snapshot tiles read a touch bolder. */
+.view[data-view="trends"] .snap-frac{font-size:2.05rem}
+.view[data-view="trends"] .snap-ic{width:38px;height:38px}
+.view[data-view="trends"] .snap-ic svg{width:21px;height:21px}
+
+/* ---------- DATA TABLES : grouped controls + comfier rows ---------- */
+/* Turn the flat control strip into one clear, self-contained panel so
+   "set up your table" reads as a single grouped step, not loose bits. */
+.view[data-view="tables"] .tables-toolbar{
+  background:#f5f8fc;border:1px solid #e2e8f0;border-radius:12px;
+  padding:14px 16px;margin:8px 0 14px;
+}
+body.dark .view[data-view="tables"] .tables-toolbar{background:#141d29;border-color:#27313f}
+body.hc .view[data-view="tables"] .tables-toolbar{border-width:2px;background:var(--card)}
+/* Roomier, easier-to-track rows. */
+.view[data-view="tables"] .dd-table td,
+.view[data-view="tables"] .dd-table th{padding:9px 12px}
+/* A slightly stronger zebra, kept consistent across the frozen column. */
+.view[data-view="tables"] .dd-table tbody tr:nth-child(even){background:#eff4fa}
+.view[data-view="tables"] .tbl-scroll .dd-table tbody tr:nth-child(even) td:first-child{background:#eff4fa}
+body.dark .view[data-view="tables"] .dd-table tbody tr:nth-child(even){background:#16202c}
+body.dark .view[data-view="tables"] .tbl-scroll .dd-table tbody tr:nth-child(even) td:first-child{background:#16202c}
+/* The national U.S. total row is the most important line — make it pop. */
+.view[data-view="tables"] .dd-table tr.tbl-total td{background:#fff5d6;border-top:2px solid var(--gold)}
+.view[data-view="tables"] .tbl-scroll .dd-table tbody tr.tbl-total td:first-child{background:#fff5d6}
+body.dark .view[data-view="tables"] .dd-table tr.tbl-total td{background:#26303a;border-top-color:#c9a93a}
+body.dark .view[data-view="tables"] .tbl-scroll .dd-table tbody tr.tbl-total td:first-child{background:#26303a}
+/* Clearer row hover — declared last so it wins over zebra and total. */
+.view[data-view="tables"] .dd-table tbody tr:hover td{background:#e2edfb}
+.view[data-view="tables"] .tbl-scroll .dd-table tbody tr:hover td:first-child{background:#e2edfb}
+body.dark .view[data-view="tables"] .dd-table tbody tr:hover td{background:#1c2c3d}
+body.dark .view[data-view="tables"] .tbl-scroll .dd-table tbody tr:hover td:first-child{background:#1c2c3d}
+
+/* Collection source: a small collapsible "Source" pill, sat to the
+   right of the collection title rather than stacked beneath it. */
+.view[data-view="tables"] .tables-collhead{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px}
+.view[data-view="tables"] .tables-collhead .tch-title{flex:1 1 auto}
+.view[data-view="tables"] .tables-collhead .tch-srcfold{margin-top:0;margin-left:auto;flex:none}
+
+/* Each category gets its own colour-coded square (reusing the badge
+   palette) so the groups are distinguishable at a glance. */
+.view[data-view="tables"] .tcg-key-dis   .tcg-label:before{background:#1f6fa8}
+.view[data-view="tables"] .tcg-key-env   .tcg-label:before{background:#1c7b37}
+.view[data-view="tables"] .tcg-key-age   .tcg-label:before{background:#92400e}
+.view[data-view="tables"] .tcg-key-exit  .tcg-label:before{background:#475569}
+.view[data-view="tables"] .tcg-key-pers  .tcg-label:before{background:#525866}
+.view[data-view="tables"] .tcg-key-qual  .tcg-label:before{background:#4d7c0f}
+.view[data-view="tables"] .tcg-key-asmt  .tcg-label:before{background:#4338ca}
+.view[data-view="tables"] .tcg-key-grade .tcg-label:before{background:#be185d}
+.view[data-view="tables"] .tcg-key-demo  .tcg-label:before{background:#8a3ffc}
+.view[data-view="tables"] .tcg-key-overview .tcg-label:before{background:#0b4a82}
+body.dark .view[data-view="tables"] .tcg-key-dis   .tcg-label:before{background:#7fb6e6}
+body.dark .view[data-view="tables"] .tcg-key-env   .tcg-label:before{background:#7fce97}
+body.dark .view[data-view="tables"] .tcg-key-age   .tcg-label:before{background:#d9a877}
+body.dark .view[data-view="tables"] .tcg-key-exit  .tcg-label:before{background:#9fb0c4}
+body.dark .view[data-view="tables"] .tcg-key-pers  .tcg-label:before{background:#a9b2bd}
+body.dark .view[data-view="tables"] .tcg-key-qual  .tcg-label:before{background:#a8c878}
+body.dark .view[data-view="tables"] .tcg-key-asmt  .tcg-label:before{background:#a9a4f0}
+body.dark .view[data-view="tables"] .tcg-key-grade .tcg-label:before{background:#f3a8c8}
+body.dark .view[data-view="tables"] .tcg-key-demo  .tcg-label:before{background:#c4a0f5}
+body.dark .view[data-view="tables"] .tcg-key-overview .tcg-label:before{background:#9fc6ee}
+
+/* Each category inside a collection is a collapsible fold: the page
+   shows a tidy list of category headings, and opening one reveals its
+   (still-collapsed) table cards. Collection -> categories -> tables. */
+.view[data-view="tables"] .tbl-catgroup-fold{margin:12px 0 0}
+.view[data-view="tables"] .tbl-catgroup-head{
+  display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;
+  margin:0;padding:11px 4px 9px;border-bottom:1px solid var(--line);
+}
+.view[data-view="tables"] .tbl-catgroup-head::-webkit-details-marker{display:none}
+.view[data-view="tables"] .tbl-catgroup-head:hover .tcg-label{color:var(--primary)}
+.view[data-view="tables"] .tcg-label{
+  font-size:.82rem;font-weight:900;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);
+}
+.view[data-view="tables"] .tcg-label:before{
+  content:"";display:inline-block;width:8px;height:8px;border-radius:2px;
+  background:var(--gold);margin-right:9px;vertical-align:middle;
+}
+.view[data-view="tables"] .tcg-count{
+  font-size:.7rem;font-weight:700;color:var(--muted);
+  background:var(--line2);border-radius:999px;padding:2px 10px;
+}
+.view[data-view="tables"] .tbl-catgroup-head:after{
+  content:"\25BE";margin-left:auto;color:var(--muted);font-size:.78rem;transition:transform .15s ease;
+}
+.view[data-view="tables"] .tbl-catgroup-fold[open]>.tbl-catgroup-head:after{transform:rotate(180deg)}
+.view[data-view="tables"] .tbl-catgroup-fold[open]>.tbl-catgroup-head{border-bottom-color:var(--gold)}
+.view[data-view="tables"] .tbl-catgroup{margin-top:10px}
+body.dark .view[data-view="tables"] .tbl-catgroup-head{border-bottom-color:#26323f}
+body.dark .view[data-view="tables"] .tcg-label{color:#cfe0f0}
+body.dark .view[data-view="tables"] .tcg-count{background:#1b2733;color:#aeb9c6}
+body.hc .view[data-view="tables"] .tbl-catgroup-head{border-bottom-width:2px}
+
+/* ---------- STATE SNAPSHOT : tidier, scannable tiles ---------- */
+.state-insight .state-insight-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+
 </style>
 </head>
 <body>
@@ -14104,6 +14242,47 @@ function _specDisc(fw,bd){
  return {title:_tblPfx()+'children and students ages 3 through 21 with disabilities served under IDEA, Part B, '+fwd.verb+', '+bdd.lab+', and state.',part:'B',src:'IDEA Section 618 Discipline Collection',year:'School Year 2023\u201324',rowHeader:bdd.rh,cap:(tablesMode==='count'?'Counts of children and students by this type of disciplinary removal. OSS is out-of-school; ISS is in-school.':'Each removal type as a percent of that group total disciplinary removals.'),rows:rows,metrics:metrics,states:_tblStatesFor(DISC_FULL.data),usKey:_usKeyOf(DISC_FULL.data),scroll:true};
 }
 function _tblBadge(spec){var t=(spec.title||'').toLowerCase();if(t.indexOf('race/ethnicity')>=0)return {l:'Race / ethnicity',c:'bd-race'};if(t.indexOf(', sex,')>=0||t.indexOf('by sex')>=0)return {l:'Sex',c:'bd-sex'};if(t.indexOf('english learner')>=0||t.indexOf('el status')>=0)return {l:'English learners',c:'bd-el'};if(t.indexOf('educational environment')>=0)return {l:'Environment',c:'bd-env'};if(t.indexOf('by age')>=0)return {l:'Age',c:'bd-age'};if(t.indexOf('early intervention setting')>=0)return {l:'Setting',c:'bd-set'};if(t.indexOf('exit reason')>=0)return {l:'Exit reason',c:'bd-exit'};if(t.indexOf('personnel type')>=0)return {l:'Personnel',c:'bd-pers'};if(t.indexOf('by grade level')>=0)return {l:'Grade level',c:'bd-grade'};if(t.indexOf('qualification status')>=0)return {l:'Qualification',c:'bd-qual'};if(t.indexOf('on math')>=0||t.indexOf('on reading')>=0||t.indexOf('by subject')>=0)return {l:'Assessment',c:'bd-asmt'};if(t.indexOf('disability category')>=0||t.indexOf('by disability')>=0)return {l:'Disability category',c:'bd-dis'};return null;}
+/* Group a collection's tables into intuitive category sub-sections
+   (still within the collection). Uses the existing breakdown badge. */
+var _TBL_CAT_GROUPS=[
+ {key:'overview',label:'Overview'},
+ {key:'dis',label:'By disability category'},
+ {key:'env',label:'By educational setting'},
+ {key:'age',label:'By age'},
+ {key:'exit',label:'By exit reason'},
+ {key:'pers',label:'By personnel type'},
+ {key:'qual',label:'By teacher qualifications'},
+ {key:'asmt',label:'Participation & proficiency'},
+ {key:'grade',label:'By grade level'},
+ {key:'demo',label:'By race, sex & English learner status'}
+];
+function _tblCatGroupKey(spec){
+ var b=_tblBadge(spec),l=b?b.l:null;
+ switch(l){
+  case 'Disability category':return 'dis';
+  case 'Age':return 'age';
+  case 'Environment':case 'Setting':return 'env';
+  case 'Exit reason':return 'exit';
+  case 'Personnel':return 'pers';
+  case 'Qualification':return 'qual';
+  case 'Assessment':return 'asmt';
+  case 'Grade level':return 'grade';
+  case 'Race / ethnicity':case 'Sex':case 'English learners':return 'demo';
+  default:return 'overview';
+ }
+}
+function _renderSpecGroups(specs){
+ var tagged=specs.map(function(sp,i){return {sp:sp,i:i,g:_tblCatGroupKey(sp)};});
+ var usedGroups=_TBL_CAT_GROUPS.filter(function(G){return tagged.some(function(x){return x.g===G.key;});});
+ var showHeads=usedGroups.length>1; // a single category needs no fold
+ return usedGroups.map(function(G){
+  var items=tagged.filter(function(x){return x.g===G.key;});
+  var cards='<div class="tbl-catgroup">'+items.map(function(x){return _specCard(x.sp,false,x.i);}).join('')+'</div>';
+  if(!showHeads)return cards; // single category: show its cards directly, no fold
+  var summary='<summary class="tbl-catgroup-head"><span class="tcg-label">'+G.label+'</span><span class="tcg-count">'+items.length+(items.length===1?' table':' tables')+'</span></summary>';
+  return '<details class="tbl-catgroup-fold tcg-key-'+G.key+'">'+summary+cards+'</details>';
+ }).join('');
+}
 function _specDiscB(){
  var rows=_catFilter(CCEE.cats.map(function(c){return {key:c,label:c==='All Disabilities'?'All disabilities':c,isTotal:c==='All Disabilities'};}));
  var brk=[['Children Suspended Expelled 10 Days or Less OSS',1,'oss10'],['Children Suspended Expelled more than 10 Days OSS',2,'oss10p'],['Children Suspended 10 Days or Less ISS',3,'iss10'],['Children Suspended more than 10 Days ISS',4,'iss10p'],['Children Unilaterally Removed to an IAES',5,'unil'],['Children Removed by Hearing Officer likely injury',6,'hear']];
@@ -14279,14 +14458,15 @@ function renderTablesView(){
  var allSpecs=[];
  box.innerHTML=sel.map(function(k){
   var m=COLL_META[k];
-  var head='<div class="tables-collhead"><div class="tch-title">'+m.name+'</div><div class="tch-sub">IDEA Part '+m.part+' · '+m.year+' · '+m.desc+'</div></div>';
-  var about='<details class="tbl-about"><summary>About this data</summary><div class="tbl-about-body"><p>'+m.desc+'</p><p class="tbl-about-meta"><strong>Collection:</strong> IDEA Section 618 '+m.name+' · <strong>IDEA Part '+m.part+'</strong> · '+m.year+'.<br>'+(COLL_SRC[k]||'')+' The U.S. row is the official national total covering all reporting entities; the other rows are individual States or entities. Suppressed cells (x, *) and unavailable values (–) keep their source-file codes; see the key above the tables.</p></div></details>';
+  var _srcTxt=(COLL_SRC[k]||('IDEA Part '+m.part+' · '+m.year)).replace(/^\s*Source:\s*/i,'');
+  var head='<div class="tables-collhead"><div class="tch-title">'+m.name+'</div><details class="tbl-srcfold tch-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">'+_srcTxt+'</div></details></div>';
+  var about='<details class="tbl-about"><summary>About this data</summary><div class="tbl-about-body"><p>'+m.desc+'</p><p class="tbl-about-meta"><strong>IDEA Part '+m.part+'</strong> · '+m.year+'. The U.S. row is the official national total covering all reporting entities; the other rows are individual States or entities. Suppressed cells (x, *) and unavailable values (–) keep their source-file codes; see the key above the tables. The full source is in the <strong>Source</strong> button above.</p></div></details>';
   if(byCat && !CAT_TBL_SPECS[k]){
    return '<section class="tables-collsection">'+head+about+'<div class="card tbl-note-card"><div class="note">This collection is not broken out by disability category, so it can’t be compared by category. Switch to <strong>Compare States</strong> above, or choose <strong>Child Count &amp; Environments</strong> or <strong>Discipline</strong> to compare categories.</div></div></section>';
   }
   var specs=byCat?CAT_TBL_SPECS[k]():(TBL_SPECS[k]||function(){return [];})();
   specs.forEach(function(sp){sp._coll=k;sp.src=COLL_SRC[k]||sp.src;if(TBL_CAUTION[k])sp.caution=TBL_CAUTION[k];allSpecs.push(sp);});
-  return '<section class="tables-collsection">'+head+about+specs.map(function(sp,si){return _specCard(sp,si===0,si);}).join('')+'</section>';
+  return '<section class="tables-collsection">'+head+about+_renderSpecGroups(specs)+'</section>';
  }).join('');
  window._tblSpecs={}; allSpecs.forEach(function(sp){if(sp._sid)window._tblSpecs[sp._sid]=sp;});
  _setupVizDelegation();
