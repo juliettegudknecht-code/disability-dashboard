@@ -11691,6 +11691,15 @@ body.hc .home-bubblewrap .hb-v,body.hc .home-bubblewrap .hb-l{fill:#fff}
 .view[data-view="tables"] .tbl-about{margin:4px 0}
 .view[data-view="tables"] .tbl-about-body{padding-top:6px}
 
+.view[data-view="lea"] .lea-supnote{background:#fff8e6;border:1px solid #ecd9a0;border-left:4px solid var(--gold);border-radius:8px;padding:9px 13px;margin:8px 0 4px;font-size:.84rem;line-height:1.45;color:#5a4a1a}
+.view[data-view="lea"] .lea-supnote b{color:#3a2f0a}
+body.dark .view[data-view="lea"] .lea-supnote{background:#26220f;border-color:#5a4e22;color:#e8d9a8}
+body.dark .view[data-view="lea"] .lea-supnote b{color:#fff3c4}
+
+/* LEA category chart: taller so 13 wrapped category labels don't overlap */
+.view[data-view="lea"] .lea-cat-box{height:480px!important}
+.view[data-view="lea"] .lea-bubble-svg{min-height:300px}
+
 /* ---------- LEA MOE determination badge ---------- */
 .view[data-view="lea"] .lea-det{margin:10px 0 6px;padding:11px 13px;border:1px solid var(--line);border-left:5px solid var(--muted);border-radius:9px;background:var(--line2)}
 .view[data-view="lea"] .lea-det-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
@@ -15667,9 +15676,10 @@ async function loadLEAData(){
  var byState={},statesSet={};
  for(var rr2=ch+1;rr2<cc.length;rr2++){var rr=cc[rr2];if(!rr||rr.length<6)continue;var stn=(rr[iState]||'').trim(),nm=(rr[iName]||'').trim();if(!stn||!nm)continue;var nKey=parseInt(((rr[iNces]||'')+'').replace(/[^0-9]/g,''),10);
   var cats={};catIdx.forEach(function(ci,k){cats[LEA_CATS[k]]=ci>=0?_leaNum(rr[ci]):null;});
-  var rec={name:nm,nces:rr[iNces],total:_leaNum(rr[iTot]),ec:_leaNum(rr[iEc]),sa:_leaNum(rr[iSa]),cats:cats,fund:(nKey&&fundBy[nKey])||null};
+  var _tot=_leaNum(rr[iTot]),_ec=_leaNum(rr[iEc]),_sa=_leaNum(rr[iSa]);
+  var rec={name:nm,nces:rr[iNces],total:_tot,ec:_ec,sa:_sa,served:(_tot!=null?_tot:_sa),saOnly:(_tot==null&&_sa!=null),cats:cats,fund:(nKey&&fundBy[nKey])||null};
   (byState[stn]=byState[stn]||[]).push(rec);statesSet[stn]=1;}
- Object.keys(byState).forEach(function(s){byState[s].sort(function(a,b){return (b.total||0)-(a.total||0);});});
+ Object.keys(byState).forEach(function(s){byState[s].sort(function(a,b){return (b.served||0)-(a.served||0);});});
  return {states:Object.keys(statesSet).sort(),byState:byState};
 }
 function initLEA(){
@@ -15728,40 +15738,43 @@ function _leaRender(){
  if(!LEA_STATE){if(status)status.innerHTML='';if(pick){pick.innerHTML='<option>—</option>';pick.disabled=true;}if(back)back.hidden=true;
   body.innerHTML='<div class="card lea-landing"><h3>Pick a State to begin</h3><p class="note">Choose a State above to see all of its school districts plotted by size and IDEA funding, then open any district for a full profile of who it serves and the funds it receives.</p></div>';return;}
  var list=LEA_DATA.byState[LEA_STATE]||[];
- if(pick){pick.disabled=false;pick.innerHTML='<option value="-1">All districts (overview)</option>'+list.map(function(l,i){return '<option value="'+i+'">'+l.name+(l.total!=null?' — '+_leaFmt(l.total):'')+'</option>';}).join('');pick.value=LEA_SEL?String(list.indexOf(LEA_SEL)):'-1';}
+ if(pick){pick.disabled=false;pick.innerHTML='<option value="-1">All districts (overview)</option>'+list.map(function(l,i){return '<option value="'+i+'">'+l.name+(l.served!=null?' — '+_leaFmt(l.served):'')+'</option>';}).join('');pick.value=LEA_SEL?String(list.indexOf(LEA_SEL)):'-1';}
  try{_leaUpdateMapSel();}catch(e){}
  if(LEA_SEL){if(back)back.hidden=false;_leaRenderProfile(LEA_SEL,list);}
  else{if(back)back.hidden=true;_leaRenderState(LEA_STATE,list);}
 }
 function _leaRenderState(state,list){
  var status=document.getElementById('leaStatus'),body=document.getElementById('leaBody');
- var withCount=list.filter(function(l){return l.total!=null;});
+ var withCount=list.filter(function(l){return l.served!=null;});
  var withFund=withCount.filter(function(l){return l.fund&&l.fund.ftot!=null;});
- var totalServed=withCount.reduce(function(a,l){return a+(l.total||0);},0);
- if(status)status.innerHTML='<div class="lea-statusline"><b>'+state+'</b> — '+list.length.toLocaleString()+' districts · '+_leaFmt(totalServed)+' children &amp; students served (2024–25)</div>';
- body.innerHTML='<div class="kpis lea-kpis">'+
+ var totalServed=withCount.reduce(function(a,l){return a+(l.served||0);},0);
+ var saOnly=withCount.length>0&&withCount.every(function(l){return l.saOnly;});
+ var ageLbl=saOnly?'ages 5–21 (school-age)':'ages 3–21';
+ var saNote=saOnly?'<div class="lea-supnote">A combined ages 3–21 total is not reported for '+state+' districts in this file, so figures show <b>school-age (ages 5–21)</b> child counts.</div>':((list.length-withCount.length)>0?'<div class="lea-supnote">'+(list.length-withCount.length)+' of '+list.length+' districts have a suppressed or unreported child count and are not plotted below.</div>':'');
+ if(status)status.innerHTML='<div class="lea-statusline"><b>'+state+'</b> — '+list.length.toLocaleString()+' districts · '+_leaFmt(totalServed)+' children &amp; students served ('+ageLbl+', 2024–25)</div>';
+ body.innerHTML=saNote+'<div class="kpis lea-kpis">'+
   '<div class="kpi"><div class="l">Districts (LEAs)</div><div class="v">'+list.length.toLocaleString()+'</div><div class="c">reporting a child count in '+state+'</div></div>'+
-  '<div class="kpi"><div class="l">Children &amp; students served</div><div class="v">'+_leaFmt(totalServed)+'</div><div class="c">IDEA Part B, ages 3–21, 2024–25</div></div>'+
-  '<div class="kpi autism"><div class="l">Largest district</div><div class="v" style="font-size:1.25rem;line-height:1.15">'+(withCount[0]?withCount[0].name:'—')+'</div><div class="c">'+(withCount[0]?_leaFmt(withCount[0].total)+' served':'')+'</div></div>'+
+  '<div class="kpi"><div class="l">Children &amp; students served</div><div class="v">'+_leaFmt(totalServed)+'</div><div class="c">IDEA Part B, '+ageLbl+', 2024–25</div></div>'+
+  '<div class="kpi autism"><div class="l">Largest district</div><div class="v" style="font-size:1.25rem;line-height:1.15">'+(withCount[0]?withCount[0].name:'—')+'</div><div class="c">'+(withCount[0]?_leaFmt(withCount[0].served)+' served':'')+'</div></div>'+
   '</div>'+
   '<div class="grid g2 lea-grid">'+
    '<div class="card fig"><div class="ey">District landscape</div><h3>Every district by size and IDEA funding</h3><div class="note">Each bubble is one district: across = children &amp; students served (2024–25), up = total IDEA Part&nbsp;B allocation (2021–22), size = children served. Click a bubble to open that district.</div><div class="canvas-box tall"><canvas id="leaLandscape"></canvas></div></div>'+
    '<div class="card"><div class="ey">Ranked</div><h3>Largest districts</h3><div class="note">By children &amp; students served. Choose one to open it.</div><div class="lea-ranklist" id="leaRankList"></div></div>'+
   '</div>';
- var rl=document.getElementById('leaRankList');var topN=withCount.slice(0,25),maxT=topN.length?(topN[0].total||1):1;
- rl.innerHTML=topN.length?topN.map(function(l,i){var w=Math.max(2,(l.total/maxT*100));return '<button type="button" class="lea-rankrow" data-lea-idx="'+list.indexOf(l)+'"><span class="lr-rank">'+(i+1)+'</span><span class="lr-name">'+l.name+'</span><span class="lr-bar"><span class="lr-fill" style="width:'+w+'%"></span></span><span class="lr-val">'+_leaFmt(l.total)+'</span></button>';}).join(''):'<div class="note">No district counts available.</div>';
+ var rl=document.getElementById('leaRankList');var topN=withCount.slice(0,25),maxT=topN.length?(topN[0].served||1):1;
+ rl.innerHTML=topN.length?topN.map(function(l,i){var w=Math.max(2,(l.served/maxT*100));return '<button type="button" class="lea-rankrow" data-lea-idx="'+list.indexOf(l)+'"><span class="lr-rank">'+(i+1)+'</span><span class="lr-name">'+l.name+'</span><span class="lr-bar"><span class="lr-fill" style="width:'+w+'%"></span></span><span class="lr-val">'+_leaFmt(l.served)+'</span></button>';}).join(''):'<div class="note">No district child counts are available for this State (all suppressed or unreported).</div>';
  rl.querySelectorAll('[data-lea-idx]').forEach(function(b){b.onclick=function(){LEA_SEL=list[+b.getAttribute('data-lea-idx')];_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});};});
  _leaLandscapeChart(withFund.length>=3?withFund:withCount,list);
 }
 function _leaLandscapeChart(items,list){
  var cv=document.getElementById('leaLandscape');if(!cv||typeof Chart==='undefined'||!items.length)return;
- var maxT=Math.max.apply(null,items.map(function(l){return l.total||0;}).concat([1]));
- var pts=items.map(function(l){return {x:l.total||0,y:(l.fund&&l.fund.ftot!=null?l.fund.ftot:0),r:6+22*Math.sqrt((l.total||0)/maxT),_name:l.name,_idx:list.indexOf(l)};});
+ var maxT=Math.max.apply(null,items.map(function(l){return l.served||0;}).concat([1]));
+ var pts=items.map(function(l){return {x:l.served||0,y:(l.fund&&l.fund.ftot!=null?l.fund.ftot:0),r:6+22*Math.sqrt((l.served||0)/maxT),_name:l.name,_idx:list.indexOf(l)};});
  var col=TBL_COLORS[0];
- _leaChart1=new Chart(cv,{type:'bubble',data:{datasets:[{data:pts,backgroundColor:shade(col,.42),borderColor:col,borderWidth:1.2,hoverBackgroundColor:shade(col,.7)}]},options:{responsive:true,maintainAspectRatio:false,animation:false,onClick:function(e,els){if(els&&els.length){var p=pts[els[0].index];if(p){LEA_SEL=list[p._idx];_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}}},onHover:function(e,els){e.native&&e.native.target&&(e.native.target.style.cursor=els.length?'pointer':'default');},
+ _leaChart1=new Chart(cv,{type:'bubble',data:{datasets:[{data:pts,backgroundColor:shade(col,.42),borderColor:col,borderWidth:1.2,hoverBackgroundColor:shade(col,.7)}]},options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:8,right:34,bottom:2,left:2}},onClick:function(e,els){if(els&&els.length){var p=pts[els[0].index];if(p){LEA_SEL=list[p._idx];_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}}},onHover:function(e,els){e.native&&e.native.target&&(e.native.target.style.cursor=els.length?'pointer':'default');},
   plugins:{ffValues:false,legend:{display:false},tooltip:{callbacks:{title:function(it){return it[0].raw._name;},label:function(o){return ['Served: '+_leaFmt(o.raw.x),'IDEA allocation (2021–22): '+_leaMoney(o.raw.y)];}}}},
   scales:{x:{beginAtZero:true,title:{display:true,text:'Children & students served (2024–25)',color:'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return (+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}},y:{beginAtZero:true,title:{display:true,text:'IDEA Part B allocation, 2021–22 ($)',color:'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':'$'+(+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}}}}});
- _addCardTools(cv.closest('.card'),function(){_captionedPNG(cv,LEA_STATE+' — districts by size and IDEA funding','Each bubble is one district: children and students served (2024–25) vs. total IDEA Part B allocation (2021–22).','idea618_'+_tblSlug(LEA_STATE)+'_districts_landscape.png',(typeof SRC_NOTE!=='undefined'?SRC_NOTE:''));},function(){var rows=[['District (LEA)','Children and students served, 2024–25','IDEA Part B allocation 2021–22 ($)','MOE determination (34 CFR 300.600(a)(2), 2021–22)']];(LEA_DATA.byState[LEA_STATE]||[]).forEach(function(l){var di=l.fund?_leaDetInfo(l.fund.det):null;rows.push([l.name,l.total==null?'':l.total,(l.fund&&l.fund.ftot!=null)?l.fund.ftot:'',di?di.l:'']);});_gfxCSV(rows,'idea618_'+_tblSlug(LEA_STATE)+'_districts');});
+ _addCardTools(cv.closest('.card'),function(){_captionedPNG(cv,LEA_STATE+' — districts by size and IDEA funding','Each bubble is one district: children and students served (2024–25) vs. total IDEA Part B allocation (2021–22).','idea618_'+_tblSlug(LEA_STATE)+'_districts_landscape.png',(typeof SRC_NOTE!=='undefined'?SRC_NOTE:''));},function(){var rows=[['District (LEA)','Children and students served, 2024–25','Age range','IDEA Part B allocation 2021–22 ($)','MOE determination (34 CFR 300.600(a)(2), 2021–22)']];(LEA_DATA.byState[LEA_STATE]||[]).forEach(function(l){var di=l.fund?_leaDetInfo(l.fund.det):null;rows.push([l.name,l.served==null?'':l.served,l.served==null?'':(l.saOnly?'Ages 5–21 (school-age)':'Ages 3–21'),(l.fund&&l.fund.ftot!=null)?l.fund.ftot:'',di?di.l:'']);});_gfxCSV(rows,'idea618_'+_tblSlug(LEA_STATE)+'_districts');});
 }
 function _leaDetInfo(code){var m={
  '1':{l:'Meets requirements',c:'meets',w:'Meets the requirements and purposes of Part B of the IDEA.'},
@@ -15779,23 +15792,25 @@ function _leaFundCard(f){
 }
 function _leaRenderProfile(lea,list){
  var status=document.getElementById('leaStatus'),body=document.getElementById('leaBody');
- var withCount=list.filter(function(l){return l.total!=null;}),rk=withCount.indexOf(lea)+1;
+ var withCount=list.filter(function(l){return l.served!=null;}),rk=withCount.indexOf(lea)+1;
  if(status)status.innerHTML='<div class="lea-statusline"><b>'+lea.name+'</b> · '+LEA_STATE+(rk>0?' · ranked #'+rk+' of '+withCount.length+' by size':'')+'</div>';
  var f=lea.fund;
- body.innerHTML='<div class="kpis lea-kpis">'+
-  '<div class="kpi"><div class="l">Children &amp; students served</div><div class="v">'+_leaFmt(lea.total)+'</div><div class="c">IDEA Part B, ages 3–21, 2024–25</div></div>'+
+ var servedCap=lea.saOnly?'IDEA Part B, ages 5–21 (school-age); combined total not reported':'IDEA Part B, ages 3–21, 2024–25';
+ body.innerHTML=(lea.saOnly?'<div class="lea-supnote">A combined ages 3–21 total is not reported for this district in the source file; the figure below is the <b>school-age (ages 5–21)</b> child count.</div>':'')+'<div class="kpis lea-kpis">'+
+  '<div class="kpi"><div class="l">Children &amp; students served</div><div class="v">'+_leaFmt(lea.served)+'</div><div class="c">'+servedCap+'</div></div>'+
   '<div class="kpi good"><div class="l">Early childhood (3–5)</div><div class="v">'+_leaFmt(lea.ec)+'</div><div class="c">ages 3 through 5</div></div>'+
   '<div class="kpi"><div class="l">School age (5–21)</div><div class="v">'+_leaFmt(lea.sa)+'</div><div class="c">ages 5 through 21</div></div>'+
   '<div class="kpi autism"><div class="l">IDEA allocation 2021–22</div><div class="v" style="font-size:1.45rem">'+(f?_leaMoney(f.ftot):'—')+'</div><div class="c">Section 611 + 619</div></div>'+
   '</div>'+
   '<div class="grid g2 lea-grid">'+
-   '<div class="card fig"><div class="ey">Who is served</div><h3>'+lea.name+': students by primary disability category</h3><div class="note">School-age (ages 5–21) child count by category, 2024–25.</div><div class="lea-mini-toggle" id="leaCatToggle"><button type="button" data-lc="bar" class="on">Bars</button><button type="button" data-lc="bubble">Bubbles</button></div><div class="canvas-box tall"><canvas id="leaCatChart"></canvas></div><div class="home-bubblewrap lea-bubble-svg" id="leaCatBubbles" hidden></div></div>'+
+   '<div class="card fig"><div class="ey">Who is served</div><h3>'+lea.name+': students by primary disability category</h3><div class="note">School-age (ages 5–21) child count by category, 2024–25.</div><div class="lea-mini-toggle" id="leaCatToggle"><button type="button" data-lc="bar" class="on">Bars</button><button type="button" data-lc="bubble">Bubbles</button></div><div class="canvas-box lea-cat-box"><canvas id="leaCatChart"></canvas></div><div class="home-bubblewrap lea-bubble-svg" id="leaCatBubbles" hidden></div></div>'+
    '<div class="card"><div class="ey">Funding &amp; compliance</div><h3>IDEA Part B funds &amp; Maintenance of Effort</h3><div class="note">From the SY 2021–22 LEA MOE / CEIS collection.</div>'+_leaFundCard(f)+'</div>'+
   '</div>';
  var lc={t:'bar'},draw=function(){_leaCatChart(lea,lc.t);};
  var tg=document.getElementById('leaCatToggle');if(tg){tg.querySelectorAll('[data-lc]').forEach(function(b){b.onclick=function(){lc.t=b.getAttribute('data-lc');tg.querySelectorAll('[data-lc]').forEach(function(x){x.classList.toggle('on',x===b);});draw();};});}
  draw();
 }
+function _wrapAxisLabel(s,max){s=''+s;if(s.length<=max)return s;var words=s.split(' '),lines=[],cur='';words.forEach(function(w){if(!cur)cur=w;else if((cur+' '+w).length<=max)cur=cur+' '+w;else{lines.push(cur);cur=w;}});if(cur)lines.push(cur);return lines;}
 function _leaCatChart(lea,type){
  var cv=document.getElementById('leaCatChart');if(!cv||typeof Chart==='undefined')return;
  var cbox=cv.closest('.canvas-box'),bub=document.getElementById('leaCatBubbles');
@@ -15810,7 +15825,7 @@ function _leaCatChart(lea,type){
   if(cbox)cbox.style.display='';
   if(!items.length){if(cbox)cbox.innerHTML='<div class="note" style="padding:24px 4px">No category detail is available for this district (counts were suppressed to protect small groups of students).</div>';return;}
   var barData={labels:items.map(function(p){return p.l;}),datasets:[{data:items.map(function(p){return p.v;}),backgroundColor:items.map(function(p,i){return shade((typeof COLORS!=='undefined'&&COLORS[p.l])||pal[i%pal.length],.9);}),borderColor:items.map(function(p,i){return (typeof COLORS!=='undefined'&&COLORS[p.l])||pal[i%pal.length];}),borderWidth:1,borderRadius:4,maxBarThickness:30}]};
-  var barOpts={indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{ffValues:true,legend:{display:false},tooltip:{callbacks:{label:function(o){return _leaFmt(o.parsed.x);}}}},scales:{x:{beginAtZero:true,grid:{color:'rgba(120,140,160,.13)',drawBorder:false},ticks:{callback:function(v){return (+v).toLocaleString();}}},y:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'}}}}};
+  var barOpts={indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{right:64,left:2,top:4,bottom:2}},plugins:{ffValues:true,legend:{display:false},tooltip:{callbacks:{label:function(o){return _leaFmt(o.parsed.x);}}}},scales:{x:{beginAtZero:true,grace:'6%',grid:{color:'rgba(120,140,160,.13)',drawBorder:false},ticks:{maxTicksLimit:6,callback:function(v){return (+v).toLocaleString();}}},y:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'},autoSkip:false,crossAlign:'far',callback:function(v){return _wrapAxisLabel(this.getLabelForValue(v),18);}}}}};
   _leaChart2=new Chart(cv,{type:'bar',data:barData,options:barOpts});
  }
  var card=cv.closest('.card');
