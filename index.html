@@ -11610,24 +11610,13 @@ body.dark .view[data-view="tables"] .tcg-label{color:#cfe0f0}
 body.dark .view[data-view="tables"] .tcg-count{background:#1b2733;color:#aeb9c6}
 body.hc .view[data-view="tables"] .tbl-catgroup-head{border-bottom-width:2px}
 
-/* ---------- TABLES TOP : collections on the left (stacked by Part so they
-   all fit), the controls on the right. Stacks vertically on narrow screens. */
-.view[data-view="tables"] .tables-setup{
-  display:grid;grid-template-columns:1fr minmax(300px,360px);gap:16px;
-  align-items:start;margin:8px 0 4px;
-}
-.view[data-view="tables"] .tables-setup .tables-collrail{
-  grid-column:1;grid-row:1;margin:0;flex-direction:column;align-items:stretch;gap:9px;
-}
-.view[data-view="tables"] .tables-setup .tables-toolbar{grid-column:2;grid-row:1;margin:0}
+/* ---------- TABLES TOP : compact full-width stack (collections, then the
+   control rows) so there is no dead space beside a short column. ---------- */
+.view[data-view="tables"] .tables-setup{display:flex;flex-direction:column;gap:9px;margin:6px 0 6px}
+.view[data-view="tables"] .tables-setup .tables-collrail{margin:0;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:10px 14px}
 .view[data-view="tables"] .tables-setup .tcr-group{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
-.view[data-view="tables"] .tables-setup .tcr-sep{display:none}
-.view[data-view="tables"] .tables-setup .tcr-hint{margin:0;align-self:flex-start}
-@media(max-width:900px){
-  .view[data-view="tables"] .tables-setup{grid-template-columns:1fr}
-  .view[data-view="tables"] .tables-setup .tables-collrail{grid-column:1;grid-row:1}
-  .view[data-view="tables"] .tables-setup .tables-toolbar{grid-column:1;grid-row:2}
-}
+.view[data-view="tables"] .tables-setup .tables-toolbar{margin:0;padding:11px 14px}
+.view[data-view="tables"] .tables-toolbar .tbl-tb-row{gap:9px 16px;align-items:flex-end}
 
 /* ---------- VISUALIZE TOOL : a clear Table / Chart view switcher ----------
    Replaces the single label-flipping "Visualize" button with a segmented
@@ -11701,6 +11690,11 @@ body.hc .home-bubblewrap .hb-v,body.hc .home-bubblewrap .hb-l{fill:#fff}
 .view[data-view="tables"] .tbl-catgroup .tbl-card{margin-bottom:8px}
 .view[data-view="tables"] .tbl-about{margin:4px 0}
 .view[data-view="tables"] .tbl-about-body{padding-top:6px}
+
+/* ---------- LEA map ---------- */
+.view[data-view="lea"] .lea-map-card{margin:10px 0}
+.view[data-view="lea"] .lea-usmap-wrap{max-width:680px;margin:8px auto 2px}
+.view[data-view="lea"] .lea-map-card .mapfallback{padding:18px 4px;text-align:center}
 
 /* ---------- LEA EXPLORER (merged into State & District Snapshot) ---------- */
 .view[data-view="lea"] .lea-controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 18px}
@@ -12094,6 +12088,12 @@ body.dark .view[data-view="lea"] .lea-mini-toggle button.on{background:#1f6fa8;c
   <div class="ctrl"><label for="leaStateSel">State</label><select id="leaStateSel" aria-label="Choose a State"></select></div>
   <div class="ctrl lea-pickwrap"><label for="leaPick">District (LEA)</label><select id="leaPick" aria-label="Choose a district"></select></div>
   <button type="button" id="leaBack" class="expdl lea-back" hidden>← All districts</button>
+</div>
+<div class="card lea-map-card" id="leaMapCard">
+  <div class="ey">Map · School Year 2024–25</div>
+  <h3>Children &amp; students served by State</h3>
+  <div class="note">Darker States serve more children and students under IDEA Part&nbsp;B (ages 3–21). Click any State to load its school districts below.</div>
+  <div class="usmap-wrap lea-usmap-wrap"><div id="leaMap"></div></div>
 </div>
 <div id="leaStatus" class="lea-status" aria-live="polite"></div>
 <div id="leaBody"></div>
@@ -15556,6 +15556,7 @@ function buildTrendsOverview(){
   <details class="lead-fold"><summary>About this page</summary>
   <p class="viewlead" data-folded="1">A 50-year view of how special education has grown and changed across the United States. These national charts follow the number of children and students with disabilities served under IDEA, the share of all students they represent, the primary disability categories reported, and the educational environments where students spend the school day, from School Year 1976–77 through 2024–25. The figures cover the 50 States, the District of Columbia, and the additional IDEA reporting entities (Puerto Rico, the Bureau of Indian Education, the outlying areas, and the freely associated states); recent years use the official Office of Special Education Programs total rows, while the long-term historical series follows the published national counts. They come from the IDEA Section&nbsp;618 data that each State and entity reports every year to the Office of Special Education Programs, together with the National Center for Education Statistics (NCES) Digest of Education Statistics for the historical series. Use the section tabs to move between the national snapshot, the trend over time, each category's trend, and category shares; open Explore for a single disability category or State, or Collections for every Section&nbsp;618 data file.</p>
   </details>
+  <div class="kpis" id="kpis"></div>
   <div class="card fig home-bubbles-hero" id="home-bubbles-card">
     <div class="ey">National Snapshot · School Year 2024–25</div>
     <h3>Children and Students Served, by Primary Disability Category</h3>
@@ -15568,7 +15569,6 @@ function buildTrendsOverview(){
     <div class="snap-stat"><span class="snap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/><path d="M3 21h18"/></svg></span><div class="snap-frac">2 in 3</div><div class="snap-desc">students with disabilities spent 80% or more of the school day in general education classrooms.</div></div>
     <div class="snap-stat"><span class="snap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11v4c0 1.1 2.2 2 5 2s5-.9 5-2v-4"/><path d="M21 9v4"/></svg></span><div class="snap-frac">3 in 4</div><div class="snap-desc">students with disabilities, ages 14–21, who left school did so with a regular high school diploma.</div></div>
   </div>
-  <div class="kpis" id="kpis"></div>
   <canvas id="nationalSnapshotChart" style="display:none"></canvas><canvas id="nationalPartCChart" style="display:none"></canvas>
 </section>`;
       if(h2) h2.insertAdjacentHTML('afterend', html);
@@ -15644,7 +15644,33 @@ function _leaPopulateStates(){
   var back=document.getElementById('leaBack');if(back)back.onclick=function(){LEA_SEL=null;_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});};
  }
  if(LEA_STATE)sel.value=LEA_STATE;
+ try{_leaBuildMap();}catch(e){}
  _leaRender();
+}
+var _leaMapPaths=null,_leaMapBuilt=false,_LEA_STATE_TOTALS=null;
+function _leaStateTotals(){
+ if(_LEA_STATE_TOTALS||!LEA_DATA)return _LEA_STATE_TOTALS;
+ var t={};Object.keys(LEA_DATA.byState).forEach(function(s){t[s]=LEA_DATA.byState[s].reduce(function(a,l){return a+(l.total||0);},0);});
+ _LEA_STATE_TOTALS=t;return t;
+}
+function _leaMapColor(v,maxV){if(v==null||!v)return '#e7edf3';var k=Math.sqrt(v/maxV);function mix(a,b){return Math.round(a+(b-a)*k);}return 'rgb('+mix(210,11)+','+mix(228,74)+','+mix(240,130)+')';}
+function _leaUpdateMapSel(){if(!_leaMapPaths)return;_leaMapPaths.classed('sel',function(){return this.getAttribute('data-name')===LEA_STATE;});}
+function _leaBuildMap(){
+ var box=document.getElementById('leaMap');if(!box)return;
+ if(_leaMapBuilt){_leaUpdateMapSel();return;}
+ if(typeof d3==='undefined'||typeof topojson==='undefined'||typeof US_ATLAS==='undefined'||!LEA_DATA){box.innerHTML='<div class="mapfallback note">A geographic map is unavailable here; use the State selector and the ranked list of districts below.</div>';return;}
+ try{
+  var totals=_leaStateTotals(),maxV=Math.max.apply(null,Object.keys(totals).map(function(s){return totals[s];}).concat([1]));
+  var W=960,H=600,fc=topojson.feature(US_ATLAS,US_ATLAS.objects.states),proj=d3.geoAlbersUsa().fitSize([W,H],fc),path=d3.geoPath(proj);
+  var svg=d3.select('#leaMap').append('svg').attr('class','usmap').attr('viewBox','0 0 '+W+' '+H);
+  _leaMapPaths=svg.selectAll('path').data(fc.features).enter().append('path').attr('class','st').attr('d',path)
+   .attr('data-name',function(d){return FIPS[String(d.id).padStart(2,'0')]||'';})
+   .attr('fill',function(d){var n=FIPS[String(d.id).padStart(2,'0')]||'';return _leaMapColor(totals[n],maxV);})
+   .on('mousemove',function(e){var n=this.getAttribute('data-name'),t=document.getElementById('maptip');if(!n||totals[n]==null){t.style.opacity=0;return;}t.innerHTML='<b>'+n+'</b>'+_leaFmt(totals[n])+' served · '+(LEA_DATA.byState[n]?LEA_DATA.byState[n].length:0)+' districts';t.style.left=Math.min(e.clientX+14,innerWidth-240)+'px';t.style.top=(e.clientY+14)+'px';t.style.opacity=1;})
+   .on('mouseleave',function(){var t=document.getElementById('maptip');if(t)t.style.opacity=0;})
+   .on('click',function(){var n=this.getAttribute('data-name');if(n&&LEA_DATA.byState[n]){var sel=document.getElementById('leaStateSel');if(sel){sel.value=n;sel.dispatchEvent(new Event('change'));var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}}});
+  _leaMapBuilt=true;_leaUpdateMapSel();
+ }catch(e){box.innerHTML='<div class="mapfallback note">A geographic map is unavailable here; use the State selector and the ranked list of districts below.</div>';}
 }
 function _leaRender(){
  var body=document.getElementById('leaBody'),pick=document.getElementById('leaPick'),back=document.getElementById('leaBack'),status=document.getElementById('leaStatus');
@@ -15654,6 +15680,7 @@ function _leaRender(){
   body.innerHTML='<div class="card lea-landing"><h3>Pick a State to begin</h3><p class="note">Choose a State above to see all of its school districts plotted by size and IDEA funding, then open any district for a full profile of who it serves and the funds it receives.</p></div>';return;}
  var list=LEA_DATA.byState[LEA_STATE]||[];
  if(pick){pick.disabled=false;pick.innerHTML='<option value="-1">All districts (overview)</option>'+list.map(function(l,i){return '<option value="'+i+'">'+l.name+(l.total!=null?' — '+_leaFmt(l.total):'')+'</option>';}).join('');pick.value=LEA_SEL?String(list.indexOf(LEA_SEL)):'-1';}
+ try{_leaUpdateMapSel();}catch(e){}
  if(LEA_SEL){if(back)back.hidden=false;_leaRenderProfile(LEA_SEL,list);}
  else{if(back)back.hidden=true;_leaRenderState(LEA_STATE,list);}
 }
