@@ -15772,7 +15772,7 @@ function _leaRenderNation(){
  if(rl){rl.innerHTML=topN.map(function(l,i){var w=Math.max(2,(l.served/maxT*100));return '<button type="button" class="lea-rankrow" data-nat-idx="'+i+'"><span class="lr-rank">'+(i+1)+'</span><span class="lr-name">'+l.name+' <small style="color:var(--muted);font-weight:600;font-size:.8em">'+l._state+'</small></span><span class="lr-bar"><span class="lr-fill" style="width:'+w+'%"></span></span><span class="lr-val">'+_leaFmt(l.served)+'</span></button>';}).join('');
  rl.querySelectorAll('[data-nat-idx]').forEach(function(b){b.onclick=function(){_leaPickNation(topN[+b.getAttribute('data-nat-idx')]);};});}
  _leaLandscapeChart(withFund.length>=3?withFund:withCount,{
-  showState:true,pick:_leaPickNation,minR:2.4,spanR:20,border:.6,fill:.5,
+  showState:true,pick:_leaPickNation,minR:1.2,spanR:6,border:.4,fill:.55,
   title:'United States — districts by size and IDEA funding',
   subtitle:'Each bubble is one district: children and students served (2024–25) vs. total IDEA Part B allocation (2021–22). Color = the State’s MOE determination (2021–22).',
   fileslug:'idea618_us_districts_landscape.png',csvslug:'idea618_us_districts',
@@ -15813,12 +15813,12 @@ function _leaLandscapeChart(items,opts){
  opts=opts||{};
  var cv=document.getElementById('leaLandscape');if(!cv||typeof Chart==='undefined'||!items.length)return;
  var maxT=Math.max.apply(null,items.map(function(l){return l.served||0;}).concat([1]));
- var minR=(opts.minR!=null?opts.minR:6),spanR=(opts.spanR!=null?opts.spanR:22),bw=(opts.border!=null?opts.border:1.2),fa=(opts.fill!=null?opts.fill:.42),ss=!!opts.showState;
+ var minR=(opts.minR!=null?opts.minR:2.5),spanR=(opts.spanR!=null?opts.spanR:9),bw=(opts.border!=null?opts.border:.7),fa=(opts.fill!=null?opts.fill:.5),ss=!!opts.showState;
  var GROUPS=[{key:'1',label:'Meets requirements',c:'#2e8540'},{key:'2',label:'Needs assistance',c:'#b8860b'},{key:'3',label:'Needs intervention',c:'#cc5a33'},{key:'4',label:'Needs substantial intervention',c:'#b8472f'},{key:'na',label:'Not reported',c:'#9aa6b2'}];
  function _detGrp(l){var d=(l.fund&&l.fund.det!=null)?(''+l.fund.det).trim():'';return _leaDetInfo(d)?d:'na';}
  var datasets=GROUPS.map(function(g){
   var pts=items.filter(function(l){return _detGrp(l)===g.key;}).map(function(l){return {x:l.served||0,y:(l.fund&&l.fund.ftot!=null?l.fund.ftot:0),r:minR+spanR*Math.sqrt((l.served||0)/maxT),_name:l.name+(ss&&l._state?' · '+l._state:''),_det:g.label,_item:l};});
-  return {label:g.label,data:pts,backgroundColor:shade(g.c,fa),borderColor:g.c,borderWidth:bw,hoverBackgroundColor:shade(g.c,.7)};
+  return {label:g.label+' ('+pts.length.toLocaleString()+')',data:pts,backgroundColor:shade(g.c,fa),borderColor:g.c,borderWidth:bw,hoverBackgroundColor:shade(g.c,.7)};
  }).filter(function(d){return d.data.length;});
  var pick=opts.pick||function(){};
  _leaChart1=new Chart(cv,{type:'bubble',data:{datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:8,right:34,bottom:2,left:2}},onClick:function(e,els){if(els&&els.length){var el=els[0],ds=datasets[el.datasetIndex];var p=ds&&ds.data[el.index];if(p&&p._item)pick(p._item);}},onHover:function(e,els){e.native&&e.native.target&&(e.native.target.style.cursor=els.length?'pointer':'default');},
@@ -15835,7 +15835,8 @@ function _leaDetInfo(code){var m={
 function _leaFundCard(f){
  if(!f)return '<div class="note" style="margin-top:10px">No matching 2021–22 funding record was found for this district. Districts open, close, and merge between years, so a 2024–25 district may not appear in the 2021–22 funding file.</div>';
  function row(k,v){return '<div class="lea-fund-row"><span>'+k+'</span><b>'+v+'</b></div>';}
- var met=f.met==='Y'?'Yes':(f.met==='N'?'No':'—'),ceis=f.ceis==='Y'?'Yes':(f.ceis==='N'?'No':'—');
+ function _ynm(v){v=(''+(v==null?'':v)).trim().toUpperCase();return (v==='1'||v==='Y'||v==='YES')?'Yes':((v==='0'||v==='N'||v==='NO')?'No':'—');}
+ var met=_ynm(f.met),ceis=_ynm(f.ceis);
  var det=_leaDetInfo(f.det);
  var detBlock=det?('<div class="lea-det lea-det-'+det.c+'"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600 · 2021–22</small></span><span class="lea-det-v"><span class="lea-det-dot" aria-hidden="true"></span>'+det.l+'</span></div><div class="lea-det-w">“'+det.w+'”</div></div>'):'<div class="lea-det lea-det-na"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600 · 2021–22</small></span><span class="lea-det-v">Not reported</span></div></div>';
  var alignNote='<div class="lea-align-note">⚠ Funding and MOE figures are <b>SY 2021–22</b>; child counts are <b>2024–25</b>. The collections are matched by NCES ID and may not align exactly for every district.</div>';
