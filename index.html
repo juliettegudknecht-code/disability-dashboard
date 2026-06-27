@@ -16229,7 +16229,7 @@ function _sppPill(status){
  var cls=(typeof det2026Class==='function')?det2026Class(status):'na';
  var col=cls==='meets'?'#2e8540':(cls==='assist'?'#b8860b':(cls==='intervention'?'#cc5a33':'#9aa6b2'));
  var lbl=/Meets/i.test(status)?'Meets requirements':(/one year/i.test(status)?'Needs assistance (1 yr)':(/two or more/i.test(status)?'Needs assistance (2+ yrs)':(/substantial/i.test(status)?'Needs substantial intervention':(/intervention/i.test(status)?'Needs intervention':status))));
- return '<div class="lea-osep" title="OSEP 2026 IDEA Part B determination (based on FFY 2024 SPP/APR)" style="border-left-color:'+col+'"><span class="lea-osep-dot" style="background:'+col+'"></span><span class="lea-osep-lbl">OSEP 2026</span><span class="lea-osep-v" style="color:'+col+'">'+lbl+'</span></div>';
+ return '<div class="lea-osep" title="OSEP 2026 IDEA, Part B determination (based on FFY 2024 SPP/APR)" style="border-left-color:'+col+'"><span class="lea-osep-dot" style="background:'+col+'"></span><span class="lea-osep-lbl">OSEP 2026</span><span class="lea-osep-v" style="color:'+col+'">'+lbl+'</span></div>';
 }
 var _LEA_SC_STATS=[];
 function _leaStateStats(){
@@ -16381,7 +16381,7 @@ function _leaFundCard(f){
  var met=_ynm(f.met),ceis=_ynm(f.ceis);
  var det=_leaDetInfo(f.det);
  var detBlock=det?('<div class="lea-det lea-det-'+det.c+'" title="'+det.w+'"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600(a)(2) · 2021–22</small></span><span class="lea-det-v"><span class="lea-det-dot" aria-hidden="true"></span>'+det.l+'</span></div></div>'):'<div class="lea-det lea-det-na"><div class="lea-det-head"><span class="lea-det-k">MOE determination<small>34 CFR 300.600(a)(2) · 2021–22</small></span><span class="lea-det-v">Not reported</span></div></div>';
- var alignNote='<div class="lea-align-note">⚠ Funding and MOE numbers are from <b>SY 2021–22</b>; child counts are from <b>2024–25</b>. They&rsquo;re matched by NCES ID, so they won&rsquo;t line up perfectly for every district.</div>';
+ var alignNote='<div class="lea-align-note">⚠ Funding and MOE numbers are from <b>School Year 2021–22</b>; child counts are from <b>School Year 2024–25</b>. They&rsquo;re matched by NCES ID, so they won&rsquo;t line up perfectly for every district.</div>';
  return detBlock+'<div class="lea-fundgrid">'+row('Section 611 allocation',_leaMoney(f.f611))+row('Section 619 allocation',_leaMoney(f.f619))+row('Total Section 611 + 619',_leaMoney(f.ftot))+row('Met the MOE standard',met)+row('Reduction of funds taken',_leaMoney(f.red))+row('Required to reserve CEIS',ceis)+(f.ceisN!=null?row('Children receiving CEIS',_leaFmt(f.ceisN)):'')+'</div>'+alignNote;
 }
 function _leaRenderProfile(lea,list){
