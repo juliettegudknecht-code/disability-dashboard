@@ -11931,6 +11931,21 @@ body.dark .gpra-sectnav .gsec-btn{background:#18212e;color:#d9d9d5;border-color:
 body.dark .gpra-sectnav .gsec-btn.on{background:#1f6fa8;border-color:#1f6fa8;color:#fff}
 body.hc .gpra-sectnav,body.hc .gpra-sectnav .gsec-btn{border-width:2px}
 
+/* --- GPRA: one tidy control bar holding the section filter (left) and table/chart toggle (right) --- */
+.gpra-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 14px;margin:6px 0 18px}
+.gpra-controls .gpra-sectnav{flex:1 1 auto;margin:0}
+.gpra-controls .gpra-viewtoggle{flex:0 0 auto;margin:0}
+.gpra-sectnav .gsec-label{flex:0 0 auto}
+@media(max-width:720px){
+  .gpra-controls{flex-direction:column;align-items:stretch}
+  .gpra-controls .gpra-viewtoggle{align-self:flex-start}
+  /* keep the chips on one scrollable line instead of stacking into a tall block */
+  .gpra-sectnav{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .gpra-sectnav .gsec-btn{flex:0 0 auto;white-space:nowrap}
+  .gpra-sectnav .gsec-label{position:sticky;left:0;background:var(--card);padding-right:4px;z-index:1}
+  body.dark .gpra-sectnav .gsec-label{background:#121b27}
+}
+
 /* --- LEA Explorer landing: hide the District picker until a State is chosen --- */
 .view[data-view="lea"] .lea-controls .lea-pickwrap[hidden]{display:none!important}
 .view[data-view="lea"] .lea-controls .lea-statepick{min-width:280px}
@@ -11956,26 +11971,35 @@ body.hc .view[data-view="lea"] .lea-deepdive,body.hc .view[data-view="lea"] .lea
 .sources-fold:not([open]) > *:not(summary){display:none!important}
 .sources-fold>summary{border-left:4px solid var(--ff-gold);padding-left:10px;border-radius:8px}
 
-/* --- GPRA: each measure is a collapsible card (summary = title + met badge + latest/target) --- */
+/* --- GPRA: each measure is an at-a-glance scorecard; only the year-by-year history folds away --- */
 #gpraBody .grid.g2{grid-template-columns:1fr}
-.gpra-mfold{padding:0!important;overflow:hidden}
-.gpra-mfold>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr;column-gap:12px;row-gap:7px;align-items:start;padding:14px 16px}
-.gpra-mfold>summary::-webkit-details-marker{display:none}
-.gpra-mfold>summary:before{content:"\25B8";color:var(--muted);font-size:.95em;transition:transform .15s;margin-top:3px}
-.gpra-mfold[open]>summary:before{transform:rotate(90deg)}
-.gpra-mfold>summary:hover .gpra-msum-title{color:var(--primary)}
-.gpra-msum-title{grid-column:2;font-weight:800;font-size:1.02rem;line-height:1.3;color:var(--navy)}
+.gpra-measure{padding:14px 16px 13px!important;border-left:4px solid #cfd6dd}
+.gpra-measure[data-met="yes"]{border-left-color:#2e8540}
+.gpra-measure[data-met="no"]{border-left-color:#cc5a33}
+.gpra-measure[data-met="tbd"]{border-left-color:#b9c2cc}
+body.dark .gpra-measure{border-left-color:#3a4654}
+body.dark .gpra-measure[data-met="yes"]{border-left-color:#3aa35a}
+body.dark .gpra-measure[data-met="no"]{border-left-color:#e0764f}
+.gpra-mhead{display:flex;align-items:baseline;flex-wrap:wrap;gap:7px 12px;padding-right:92px}
+.gpra-msum-title{font-weight:800;font-size:1.04rem;line-height:1.3;color:var(--navy)}
 body.dark .gpra-msum-title{color:#9fc3ec}
-.gpra-msum-meta{grid-column:2;display:inline-flex;align-items:center;gap:11px;flex-wrap:wrap}
+.gpra-mhead .gpra-dir{margin:0}
 .gpra-msum-stat{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.gpra-mbody{padding:0 16px 15px}
-.gpra-mfold[data-met="yes"] .gpra-scale-badge{background:rgba(46,133,64,.13);color:#206b32}
-.gpra-mfold[data-met="yes"] .gpra-scale-badge:before{background:#2e8540}
-.gpra-mfold[data-met="no"] .gpra-scale-badge{background:rgba(204,90,51,.15);color:#a8431f}
-.gpra-mfold[data-met="no"] .gpra-scale-badge:before{background:#cc5a33}
-.gpra-mfold[data-met="tbd"] .gpra-scale-badge{background:rgba(91,100,114,.13);color:#5b6472}
-.gpra-mfold[data-met="tbd"] .gpra-scale-badge:before{background:#8b95a3}
-@media(max-width:560px){.gpra-mfold>summary{gap:6px}.gpra-msum-stat{flex-basis:100%}}
+.gpra-mdesc{font-size:.84rem;line-height:1.5;color:var(--muted);margin:5px 0 2px;max-width:92ch}
+.gpra-mbody{padding:2px 0 2px}
+/* the single per-measure disclosure (history) */
+.gpra-detailfold{margin-top:12px;border-top:1px solid var(--line2);padding-top:2px}
+body.dark .gpra-detailfold{border-top-color:#2b3645}
+.gpra-detailfold>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-size:.82rem;font-weight:700;color:var(--primary);padding:8px 0 3px}
+.gpra-detailfold>summary::-webkit-details-marker{display:none}
+.gpra-detailfold>summary:before{content:"\25B8";font-size:.9em;transition:transform .15s}
+.gpra-detailfold[open]>summary:before{transform:rotate(90deg)}
+.gpra-detailfold>summary:hover{text-decoration:underline}
+.gpra-detailfold>summary:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:4px}
+.gpra-mnote,.gpra-msrc{font-size:.75rem;line-height:1.45;color:var(--muted);margin-top:10px}
+.gpra-mnote b,.gpra-msrc b{color:var(--ink)}
+body.dark .gpra-mnote b,body.dark .gpra-msrc b{color:#d9d9d5}
+@media(max-width:560px){.gpra-msum-stat{flex-basis:100%}}
 
 /* --- GPRA target scale: at-a-glance latest-vs-target with met/not-met (Fast Facts colors) --- */
 .gpra-scale{margin:11px 0 4px;padding:13px 15px 11px;border:1px solid var(--line);border-radius:11px;background:var(--card)}
@@ -12090,7 +12114,7 @@ body.dark #viewTabs .navtrigger.active,body.hc #viewTabs .navtrigger.active{box-
 /* Keep exports/print complete: never hide content in the PDF/print path */
 body.printing .home-launchpad,body.printing .explain-wrap{display:none!important}
 body.printing .gpra-group.gsec-hidden{display:block!important}
-body.printing .gpra-mfold>.gpra-mbody{display:block!important}
+body.printing .gpra-detailfold>.gpra-mbody{display:block!important}
 body.printing .lea-deepdive>.lea-deepdive-body{display:block!important}
 
 /* ===== Friendly "Start here" guide button + welcome overlay (general-public onboarding) ===== */
@@ -12107,8 +12131,14 @@ body.printing .lea-deepdive>.lea-deepdive-body{display:block!important}
 .guidebtn:hover{filter:brightness(1.04);box-shadow:0 6px 16px rgba(0,0,0,.16)}
 .guidebtn:focus-visible{outline:3px solid #73b3e7;outline-offset:2px}
 body.printing .guidebtn{display:none}
-@media(max-width:900px){nav.appbar .appbar-tools .guidebtn{width:100%;justify-content:center;margin-left:0}}
 @media(max-width:820px){.appbar-tools .guidebtn{font-size:.73rem;padding:7px 9px}}
+/* On narrow screens, the header action buttons share one full-width row instead of overflowing their grid cell */
+@media(max-width:900px){
+  nav.appbar .appbar-tools .appbar-actions{grid-column:1/-1;display:flex!important;flex-wrap:wrap;gap:6px;width:100%;margin-top:2px}
+  nav.appbar .appbar-tools .appbar-actions>.guidebtn,
+  nav.appbar .appbar-tools .appbar-actions>.menuwrap,
+  nav.appbar .appbar-tools .appbar-actions>.a11ybtn{flex:1 1 0;width:auto!important;min-width:0;margin:0;justify-content:center}
+}
 
 .welcome-overlay{
   position:fixed;inset:0;z-index:9000;
@@ -15554,25 +15584,29 @@ function _gpraCard(group,m){
  var predLabel=known?('Most recent result · FY'+up.year):'Predicted measure';
  var yearLine=(pf&&pf.dataYear)?'<div class="gpra-predict-year">Based on '+pf.dataYear+' data</div>':'';
  var predBlock='<div class="gpra-predict'+(pf?' is-derived':'')+(known?' is-reported':'')+'"><div class="gpra-predict-head"><span class="gpra-predict-k">'+predLabel+'</span><span class="gpra-predict-v">'+predVal+'</span></div>'+yearLine+'<div class="gpra-predict-note">'+predNote+'</div></div>';
- var noteBlock=m.note?'<details class="gpra-notefold"><summary>Why some years are blank</summary><div class="gpra-note-body">'+m.note+'</div></details>':'';
- var srcBlock=m.src?'<details class="tbl-srcfold gpra-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">'+m.src+'</div></details>':'';
+ var noteBlock=m.note?'<div class="gpra-mnote"><b>Why some years are blank:</b> '+m.note+'</div>':'';
+ var srcBlock=m.src?'<div class="gpra-msrc"><b>Source:</b> '+m.src+'</div>':'';
+ var dir='<span class="gpra-dir '+(m.goodHigh?'is-good':'is-watch')+'">'+(m.goodHigh?'Higher is better':'Lower is better')+'</span>';
  var _lt=null,_i; for(_i=m.rows.length-1;_i>=0;_i--){ if(m.rows[_i][2]!=null){ _lt=m.rows[_i]; break; } }
  var _tg=_lt?_lt[1]:null; if(_tg==null){ for(_i=m.rows.length-1;_i>=0;_i--){ if(m.rows[_i][1]!=null){ _tg=m.rows[_i][1]; break; } } }
- var _dataMet,_badge,_stat;
- if(_lt==null){ _dataMet='tbd'; _badge='Not yet reported'; _stat='Target '+(_tg!=null?_gpraFmt(_tg,m.unit):'–'); }
- else { var _a=_lt[2],_met=m.goodHigh?(_a>=_tg):(_a<=_tg); _dataMet=_met?'yes':'no'; _badge=_met?'Target met':(m.goodHigh?'Below target':'Above target'); _stat='FY'+_lt[0]+': '+_gpraFmt(_a,m.unit)+' · Target '+_gpraFmt(_tg,m.unit); }
- return '<details class="gpra-card gpra-mfold card" data-gpra-card data-met="'+_dataMet+'">'
- +'<summary class="gpra-msum"><span class="gpra-msum-title">'+m.title+'</span><span class="gpra-msum-meta"><span class="gpra-scale-badge">'+_badge+'</span><span class="gpra-msum-stat">'+_stat+'</span></span></summary>'
- +'<div class="gpra-mbody">'
- +'<div class="gpra-dir '+(m.goodHigh?'is-good':'is-watch')+'">'+(m.goodHigh?'Higher is better':'Lower is better')+'</div>'
- +'<div class="note">'+m.desc+' Shown in '+unitLabel+'.</div>'
+ var _dataMet;
+ if(_lt==null){ _dataMet='tbd'; }
+ else { var _a=_lt[2],_met=m.goodHigh?(_a>=_tg):(_a<=_tg); _dataMet=_met?'yes':'no'; }
+ /* The measure is a scorecard: title, direction, and the at-a-glance scale (badge + latest vs target)
+    are always visible. Only the year-by-year history (chart/table + prediction + notes) folds away. */
+ return '<div class="gpra-card gpra-measure card" data-met="'+_dataMet+'">'
+ +'<div class="gpra-mhead"><span class="gpra-msum-title">'+m.title+'</span>'+dir+'</div>'
+ +'<div class="gpra-mdesc">'+m.desc+' Shown in '+unitLabel+'.</div>'
  +_gpraScale(m)
+ +'<details class="gpra-detailfold"><summary><span class="gdf-txt">Year-by-year history</span></summary>'
+ +'<div class="gpra-mbody">'
  +'<div class="gpra-chartwrap"><div class="canvas-box"><canvas id="gpra_'+m.id+'" aria-label="Target vs. actual chart for '+m.title+'"></canvas></div></div>'
  +'<div class="gpra-tablewrap"><div class="dd-tablewrap"><table class="dd-table"><thead><tr><th>Year</th><th class="dd-c">Target</th><th class="dd-c">Actual</th></tr></thead><tbody>'+rowsHtml+'</tbody></table></div></div>'
  +predBlock
  +noteBlock
  +srcBlock
- +'</div></details>';
+ +'</div></details>'
+ +'</div>';
 }
 function _gpraChart(m){
  var el=document.getElementById('gpra_'+m.id); if(!el||typeof Chart==='undefined')return;
@@ -15611,7 +15645,8 @@ function renderGPRA(){
  }).join('');
  if(!_gpraInit){_gpraInit=true;document.querySelectorAll('#gpraViewToggle button').forEach(function(b){b.addEventListener('click',function(){_setGpraView(b.dataset.gv);});});}
  _setGpraView(gpraView);
- body.querySelectorAll('.gpra-mfold').forEach(function(d){ d.addEventListener('toggle',function(){ if(!d.open)return; setTimeout(function(){ try{ d.querySelectorAll('canvas').forEach(function(c){ var ch=(window.Chart&&Chart.getChart)?Chart.getChart(c):null; if(ch){ try{ch.resize();ch.update('none');}catch(_){} } }); }catch(e){} try{if(typeof countUpRoot==='function')countUpRoot(d);}catch(e){} },30); }); });
+ body.querySelectorAll('.gpra-detailfold').forEach(function(d){ d.addEventListener('toggle',function(){ if(!d.open)return; setTimeout(function(){ try{ d.querySelectorAll('canvas').forEach(function(c){ var ch=(window.Chart&&Chart.getChart)?Chart.getChart(c):null; if(ch){ try{ch.resize();ch.update('none');}catch(_){} } }); }catch(e){} try{if(typeof countUpRoot==='function')countUpRoot(d);}catch(e){} },30); }); });
+ try{setupGpraSectNav();}catch(e){}
 }
 function showView(v,scrollId){
   if(!PROTO_VIEWS.includes(v))v='home';
@@ -16744,7 +16779,7 @@ try{ var _sv_ns=showView; showView=function(){ var r=_sv_ns.apply(this,arguments
 try{ var _asc_ns=afterStateChange; afterStateChange=function(){ var r=_asc_ns.apply(this,arguments); updateNavSelection(); try{setupStateSubtabs();}catch(e){} return r; }; }catch(e){}
 try{ var _rex_ns=renderExplorer; renderExplorer=function(){ var r=_rex_ns.apply(this,arguments); updateNavSelection(); try{if(document.body.getAttribute('data-view')==='explorer'&&VIEW_SUBTABS.explorer)applyViewSubtabs('explorer',VIEW_SUBTABS.explorer);}catch(e){} return r; }; }catch(e){}
 /* ---- GPRA section navigation: focus one measure group at a time ---- */
-var _gpraSect='0';
+var _gpraSect='all';
 function showGpraSect(key){
   var body=document.getElementById('gpraBody'); if(!body)return;
   _gpraSect=key;
@@ -16760,14 +16795,18 @@ function setupGpraSectNav(){
   groups.forEach(function(g,i){ g.setAttribute('data-gsec',i); });
   if(!document.getElementById('gpraSectNav')){
     var toggle=document.getElementById('gpraViewToggle');
-    var nav=document.createElement('div'); nav.id='gpraSectNav'; nav.className='gpra-sectnav'; nav.setAttribute('role','group'); nav.setAttribute('aria-label','Show one GPRA measure group at a time');
-    var html='<span class="gsec-label">Sections</span><button type="button" class="gsec-btn" data-gsec="all">All sections</button>';
+    var nav=document.createElement('div'); nav.id='gpraSectNav'; nav.className='gpra-sectnav'; nav.setAttribute('role','group'); nav.setAttribute('aria-label','Jump to one GPRA measure group');
+    var html='<span class="gsec-label">Jump to</span><button type="button" class="gsec-btn" data-gsec="all">All measures</button>';
     groups.forEach(function(g,i){ var h=g.querySelector('.gpra-group-head h3'); html+='<button type="button" class="gsec-btn" data-gsec="'+i+'">'+(h?h.textContent.trim():('Section '+(i+1)))+'</button>'; });
     nav.innerHTML=html;
-    if(toggle&&toggle.parentNode){ toggle.parentNode.insertBefore(nav,toggle.nextSibling); } else { body.parentNode.insertBefore(nav,body); }
+    if(toggle&&toggle.parentNode){
+      /* Group the section filter and the table/chart toggle into one tidy control bar */
+      var wrap=document.getElementById('gpraControls');
+      if(!wrap){ wrap=document.createElement('div'); wrap.id='gpraControls'; wrap.className='gpra-controls'; toggle.parentNode.insertBefore(wrap,toggle); wrap.appendChild(nav); wrap.appendChild(toggle); }
+    } else { body.parentNode.insertBefore(nav,body); }
     nav.addEventListener('click',function(e){ var b=e.target.closest?e.target.closest('.gsec-btn'):null; if(b)showGpraSect(b.getAttribute('data-gsec')); });
   }
-  if(_gpraSect!=='all'){ var n=parseInt(_gpraSect,10); if(!(n>=0&&n<groups.length))_gpraSect='0'; }
+  if(_gpraSect!=='all'){ var n=parseInt(_gpraSect,10); if(!(n>=0&&n<groups.length))_gpraSect='all'; }
   showGpraSect(_gpraSect);
 }
 try{ var _rg_ns=renderGPRA; renderGPRA=function(){ var r=_rg_ns.apply(this,arguments); try{setupGpraSectNav();}catch(e){} return r; }; }catch(e){}
