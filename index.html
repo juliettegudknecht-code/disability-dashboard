@@ -11822,7 +11822,17 @@ body.dark .view[data-view="lea"] .lea-det-v{color:#ededeb}
 .view[data-view="lea"] .lea-map-card .mapfallback{padding:18px 4px;text-align:center}
 
 /* ---------- LEA EXPLORER (merged into State & District Snapshot) ---------- */
-.view[data-view="lea"] .lea-controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 18px}
+.view[data-view="lea"] .lea-controls{display:flex;flex-direction:column;align-items:stretch;gap:15px}
+.view[data-view="lea"] .lea-picks{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 18px}
+/* "Choose a state to begin" prompt, shown until a state is picked (mirrors the GPRA landing) */
+.view[data-view="lea"] .lea-begin{display:flex;align-items:flex-start;gap:14px}
+.view[data-view="lea"] .lea-begin[hidden]{display:none}
+.view[data-view="lea"] .lea-begin-ic{flex:0 0 auto;width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(0,94,162,.10);color:var(--primary)}
+body.dark .view[data-view="lea"] .lea-begin-ic{background:rgba(115,179,231,.16);color:var(--primary-lt)}
+.view[data-view="lea"] .lea-begin-ic svg{width:24px;height:24px}
+.view[data-view="lea"] .lea-begin-tx h3{margin:0 0 4px;font-size:1.15rem;color:var(--navy)}
+body.dark .view[data-view="lea"] .lea-begin-tx h3{color:#eaf1f8}
+.view[data-view="lea"] .lea-begin-tx p{margin:0;font-size:.9rem;line-height:1.5;color:var(--muted);max-width:74ch}
 .view[data-view="lea"] .lea-controls .ctrl{display:flex;flex-direction:column;gap:5px;margin:0}
 .view[data-view="lea"] .lea-controls label{font-weight:800;font-size:.7rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
 .view[data-view="lea"] .lea-controls select{padding:9px 12px;border:1px solid #c8cdd4;border-radius:8px;font-size:.95rem;font-weight:700;background:#fff;color:var(--ink);min-width:230px;max-width:420px}
@@ -12273,11 +12283,10 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
       <div class="navgroup">
         <button class="tab navtrigger" aria-haspopup="true" aria-expanded="false">Explore <span class="caret">▾</span></button>
         <div class="navmenu" role="menu" aria-label="Explore views">
-          <!-- Disability Explorer and Collections removed from nav (views + code kept intact, still reachable via #explorer / #collections). -->
+          <!-- Disability Explorer, Collections, and the Part B Performance Measures (GPRA) page are intentionally not in the nav (views + code kept intact, still reachable via search / #explorer / #collections / #gpra). -->
           <button class="navitem" role="menuitem" data-view="states">State Snapshot</button>
           <button class="navitem" role="menuitem" data-view="lea">Part B LEA Explorer</button>
           <button class="navitem" role="menuitem" data-view="tables">SEA Tables</button>
-          <button class="navitem" role="menuitem" data-view="gpra">Part B GPRA Analysis</button>
         </div>
       </div>
     </div>
@@ -12331,36 +12340,36 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     <div class="welcome-accent" aria-hidden="true"></div>
     <div class="welcome-head">
       <button type="button" class="welcome-x" id="welcomeClose" aria-label="Close guide">×</button>
-      <div class="welcome-ey">Welcome</div>
-      <h2 id="welcomeTitle">Let's find what you're looking for</h2>
-      <p>This is the U.S. Department of Education's public data on children and students with disabilities in our schools. You don't need to be a data expert. Pick a starting point below, and you can always change views from the menu at the top.</p>
+      <div class="welcome-ey">Start here</div>
+      <h2 id="welcomeTitle">Four ways into the data</h2>
+      <p>Each year the U.S. Department of Education publishes data, under IDEA Section&nbsp;618, on the children and students with disabilities that schools serve. This tool puts it all in one place. You don't need to be a data person to use it. Most people start with one of these:</p>
     </div>
     <div class="welcome-grid">
       <button type="button" class="wtask" data-go="states">
         <span class="wt-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.7-7-11a7 7 0 0 1 14 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
-        <span class="wt-body"><span class="wt-title">Look up my state <span class="wt-arrow" aria-hidden="true">→</span></span><span class="wt-desc">See how any state is doing and how it ranks across the country.</span></span>
+        <span class="wt-body"><span class="wt-title">A state</span><span class="wt-desc">How one state is doing, and where it ranks across the country.</span></span>
       </button>
       <button type="button" class="wtask" data-go="lea">
         <span class="wt-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01M15 10h.01"/></svg></span>
-        <span class="wt-body"><span class="wt-title">Find a school district <span class="wt-arrow" aria-hidden="true">→</span></span><span class="wt-desc">Search a local school district and the federal funding it receives.</span></span>
+        <span class="wt-body"><span class="wt-title">A school district</span><span class="wt-desc">Look up any district and the IDEA funding it receives.</span></span>
       </button>
       <button type="button" class="wtask" data-go="trends">
         <span class="wt-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M7 15l4-5 3 3 5-7"/></svg></span>
-        <span class="wt-body"><span class="wt-title">See the big picture <span class="wt-arrow" aria-hidden="true">→</span></span><span class="wt-desc">National trends over the last 50 years, in plain charts.</span></span>
+        <span class="wt-body"><span class="wt-title">The national picture</span><span class="wt-desc">How the numbers have changed over the last 50 years.</span></span>
       </button>
       <button type="button" class="wtask" data-go="tables">
         <span class="wt-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg></span>
-        <span class="wt-body"><span class="wt-title">Browse the data tables <span class="wt-arrow" aria-hidden="true">→</span></span><span class="wt-desc">Pull exact numbers and compare states side by side.</span></span>
+        <span class="wt-body"><span class="wt-title">The full tables</span><span class="wt-desc">Exact figures from every collection, with states side by side.</span></span>
       </button>
     </div>
     <div class="welcome-foot">
       <button type="button" class="welcome-plain" id="welcomePlain" role="switch" aria-checked="false">
         <span class="wp-knob" aria-hidden="true"></span>
-        <span class="wp-txt"><b>Use everyday words</b> instead of technical terms</span>
+        <span class="wp-txt">Prefer <b>everyday words</b>? Swap the technical terms.</span>
       </button>
       <span class="wf-spacer"></span>
-      <button type="button" class="welcome-skip" id="welcomeSkip">Explore on my own</button>
-      <label class="welcome-dontshow"><input type="checkbox" id="welcomeDontShow"> Don't show this welcome again</label>
+      <button type="button" class="welcome-skip" id="welcomeSkip">Skip for now</button>
+      <label class="welcome-dontshow"><input type="checkbox" id="welcomeDontShow"> Don't show this again</label>
     </div>
   </div>
 </div>
@@ -12652,9 +12661,15 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <h2 class="section-title" id="lea">Part B LEA Explorer</h2>
 <p class="viewlead">Explore individual school districts, the Local Educational Agencies (LEAs) that serve Children and Students with Disabilities under IDEA, Part&nbsp;B. Choose a State to see all of its districts, then open any district for its full profile of Children and Students with Disabilities served and IDEA funds received. Child counts are School Year&nbsp;2024–25; funding figures are School Year&nbsp;2021–22.</p>
 <div class="card lea-controls">
-  <div class="ctrl lea-statepick"><label for="leaStateSel">Choose a State to begin</label><select id="leaStateSel" aria-label="Choose a State"></select></div>
-  <div class="ctrl lea-pickwrap"><label for="leaPick">District (LEA)</label><select id="leaPick" aria-label="Choose a district"></select></div>
-  <button type="button" id="leaBack" class="expdl lea-back" hidden>← All districts</button>
+  <div class="lea-begin" id="leaBegin">
+    <span class="lea-begin-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.7-7-11a7 7 0 0 1 14 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
+    <div class="lea-begin-tx"><h3>Choose a state to begin</h3><p>Pick a state to see all of its school districts, then open any district for its full profile. You can also click a state on the map below, or search a district by name up top.</p></div>
+  </div>
+  <div class="lea-picks">
+    <div class="ctrl lea-statepick"><label for="leaStateSel">State</label><select id="leaStateSel" aria-label="Choose a State"></select></div>
+    <div class="ctrl lea-pickwrap"><label for="leaPick">District (LEA)</label><select id="leaPick" aria-label="Choose a district"></select></div>
+    <button type="button" id="leaBack" class="expdl lea-back" hidden>← All districts</button>
+  </div>
 </div>
 <div class="card lea-map-card" id="leaMapCard">
   <div class="ey">Map · School Year 2024–25</div>
@@ -12861,6 +12876,22 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </details>
 </div>
 
+<script>
+/* Pre-paint view sync: the main script below is large and the browser paints the
+   page before it finishes running. Without this, refreshing on a deep view (e.g. #states)
+   briefly shows the default Home view first, then switches. This tiny synchronous step
+   activates the view matching the URL hash right away, so the first paint is already correct. */
+(function(){try{
+  var h=(location.hash||'').replace('#','').replace(/[^a-z]/gi,'');
+  if(h==='home')h='trends';
+  if(!h)return;
+  var match=document.querySelector('.view[data-view="'+h+'"]');
+  if(!match)return;
+  var els=document.querySelectorAll('.view');
+  for(var i=0;i<els.length;i++)els[i].classList.toggle('active',els[i]===match);
+  document.body.setAttribute('data-view',h);
+}catch(e){}})();
+</script>
 <script>
 /* ============ EMBEDDED DATA (verified from OSEP / NCES) ============ */
 const YEARS=['1976-77','1980-81','1990-91','2000-01','2008-09','2009-10','2010-11','2011-12','2012-13','2013-14','2014-15','2015-16','2016-17','2017-18','2018-19','2019-20','2020-21','2021-22','2022-23','2023-24','2024-25'];
@@ -16540,6 +16571,7 @@ function _leaBuildMap(){
 function _leaRender(){
  var body=document.getElementById('leaBody'),pick=document.getElementById('leaPick'),back=document.getElementById('leaBack'),status=document.getElementById('leaStatus');
  if(!body||!LEA_DATA)return;
+ var begin=document.getElementById('leaBegin'); if(begin)begin.hidden=!!LEA_STATE;
  var pw=pick?pick.closest('.lea-pickwrap'):null;
  if(_leaChart1){try{_leaChart1.destroy();}catch(e){}_leaChart1=null;} if(_leaChart2){try{_leaChart2.destroy();}catch(e){}_leaChart2=null;}
  if(!LEA_STATE){if(pw)pw.hidden=true;if(pick){pick.innerHTML='<option>–</option>';pick.disabled=true;}if(back)back.hidden=true;try{_leaUpdateMapSel();}catch(e){}_leaRenderNation();return;}
