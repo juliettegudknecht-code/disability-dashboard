@@ -11947,6 +11947,13 @@ body.dark .view[data-view="lea"] .lea-deepdive{background:#16202c;border-color:#
 body.dark .view[data-view="lea"] .lea-deepdive>summary .ldd-t{color:#9fc3ec}
 body.hc .view[data-view="lea"] .lea-deepdive,body.hc .view[data-view="lea"] .lea-deepdive>summary{border-width:2px}
 
+/* --- LEA map metric selector + legend --- */
+.view[data-view="lea"] .lea-map-ctrl{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:9px 0 8px}
+.view[data-view="lea"] .lea-map-ctrl label{font-size:.82rem;font-weight:700;color:var(--muted)}
+.view[data-view="lea"] #leaMapLegend{display:flex;align-items:center;gap:9px;margin-top:11px;font-size:.74rem;color:var(--muted)}
+.view[data-view="lea"] #leaMapLegend .mlg-grad{flex:1;min-width:80px;height:10px;border-radius:5px;border:1px solid var(--line)}
+.view[data-view="lea"] #leaMapLegend .mlg-cap{white-space:nowrap;font-weight:700}
+
 /* --- SEA Tables empty state ("Pick a collection to begin") --- */
 .view[data-view="tables"] .tables-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;
   margin:18px 0 4px;padding:46px 28px;border:1.5px dashed var(--line);border-radius:16px;background:linear-gradient(180deg,#fbfcfe 0%,#f4f8fc 100%)}
@@ -11958,6 +11965,33 @@ body.hc .view[data-view="lea"] .lea-deepdive,body.hc .view[data-view="lea"] .lea
 body.dark .view[data-view="tables"] .tables-empty{background:linear-gradient(180deg,#161f2b 0%,#131b25 100%);border-color:#2b3645}
 body.dark .view[data-view="tables"] .tables-empty h3{color:#dbe8f6}
 body.hc .view[data-view="tables"] .tables-empty{border-style:solid;border-width:2px}
+
+/* ===== Top navigation polish: unified buttons, clearer hover/focus, dropdown, search ===== */
+/* Unify corner radius across tabs and toolbar buttons (tabs were 7px, buttons 6px) */
+nav.appbar .tab,#viewTabs .tab,#viewTabs .navtrigger{border-radius:8px!important}
+.appbar-tools .iconbtn,.appbar-tools .plainbtn,.appbar-tools .themebtn,.appbar-tools .a11ybtn{border-radius:8px!important;min-height:36px!important;padding:7px 13px!important;font-size:.78rem!important;font-weight:700!important;transition:background .15s,border-color .15s,box-shadow .15s,color .15s!important}
+/* Clearer toolbar-button hover (light): faint blue tint + defined border instead of ~2% shift */
+body:not(.dark) .appbar-tools .iconbtn:hover,body:not(.dark) .appbar-tools .themebtn:hover,body:not(.dark) .appbar-tools .a11ybtn:hover{background:#eaf2fb!important;border-color:#9cc3e6!important;color:#0f3a5f!important}
+body.dark .appbar-tools .iconbtn:hover,body.dark .appbar-tools .themebtn:hover,body.dark .appbar-tools .a11ybtn:hover{background:#1d2b3a!important;border-color:#3a4858!important}
+/* Visible focus ring on toolbar buttons + dropdown items */
+.appbar-tools .iconbtn:focus-visible,.appbar-tools .themebtn:focus-visible,.appbar-tools .a11ybtn:focus-visible,.navmenu .navitem:focus-visible{outline:3px solid var(--primary)!important;outline-offset:2px!important;border-radius:8px}
+/* Export = the bar's one subtle primary action */
+body:not(.dark) .appbar-tools #exportBtn{background:#0f3a5f!important;border-color:#0f3a5f!important;color:#fff!important}
+body:not(.dark) .appbar-tools #exportBtn:hover{background:#15486f!important;border-color:#15486f!important;color:#fff!important}
+body.dark .appbar-tools #exportBtn{background:#1f6fa8!important;border-color:#1f6fa8!important;color:#fff!important}
+body.dark .appbar-tools #exportBtn:hover{background:#2480c0!important;border-color:#2480c0!important}
+/* Search input: white field with a defined border (was #f6f6f4 on #fff, near-invisible) + clear focus */
+body:not(.dark) nav.appbar .search input{background:#ffffff!important;border:1px solid #cdd7e1!important;border-radius:8px!important;box-shadow:inset 0 1px 2px rgba(16,42,67,.05)!important}
+body:not(.dark) nav.appbar .search input:focus{border-color:var(--primary)!important;box-shadow:0 0 0 3px rgba(0,94,162,.16)!important}
+body.dark nav.appbar .search input{border-radius:8px!important}
+body.dark nav.appbar .search input:focus{border-color:#5aa6e8!important;box-shadow:0 0 0 3px rgba(90,166,232,.22)!important}
+/* Explore dropdown: softer radius, deeper shadow, tidy items */
+#viewTabs .navgroup.open .navmenu{border-radius:11px!important;box-shadow:0 12px 30px rgba(16,42,67,.16)!important;padding:7px!important}
+.navmenu .navitem{border-radius:7px!important;padding:8px 12px!important;font-weight:700!important;transition:background .13s,color .13s!important}
+body:not(.dark) .navmenu .navitem:hover{background:#eaf2fb!important;color:#0f3a5f!important}
+body.dark .navmenu .navitem:hover{background:#1d2b3a!important;color:#dbe8f6!important}
+/* Active "Explore" trigger gets the same green underline in dark/high-contrast as it has in light */
+body.dark #viewTabs .navtrigger.active,body.hc #viewTabs .navtrigger.active{box-shadow:inset 0 -3px 0 #2e8540!important}
 
 /* Keep exports/print complete: never hide content in the PDF/print path */
 body.printing .home-launchpad,body.printing .explain-wrap{display:none!important}
@@ -12343,9 +12377,19 @@ body.printing .lea-deepdive>.lea-deepdive-body{display:block!important}
 </div>
 <div class="card lea-map-card" id="leaMapCard">
   <div class="ey">Map · School Year 2024–25</div>
-  <h3>Children &amp; students served by State</h3>
-  <div class="note">Darker = more children served (ages 3–21). Click a State to load its districts below.</div>
+  <h3 id="leaMapTitle">Children &amp; students served by State</h3>
+  <div class="ctrl lea-map-ctrl">
+    <label for="leaMapMetric">Color States by:</label>
+    <select id="leaMapMetric" aria-label="Choose how to color the map">
+      <option value="served" selected>Children &amp; students served</option>
+      <option value="districts">Number of districts (LEAs)</option>
+      <option value="avg">Average students per district</option>
+      <option value="pctMeet">% of districts meeting IDEA requirements</option>
+    </select>
+  </div>
+  <div class="note" id="leaMapNote">Darker = more children and students served (ages 3–21). Click a State to load its districts below.</div>
   <div class="usmap-wrap lea-usmap-wrap"><div id="leaMap"></div></div>
+  <div class="maplegend" id="leaMapLegend"></div>
 </div>
 <div id="leaStatus" class="lea-status" aria-live="polite"></div>
 <div id="leaBody"></div>
@@ -15993,22 +16037,53 @@ function _leaStateTotals(){
 }
 function _leaMapColor(v,maxV){if(v==null||!v)return '#e7edf3';var k=Math.sqrt(v/maxV);function mix(a,b){return Math.round(a+(b-a)*k);}return 'rgb('+mix(210,11)+','+mix(228,74)+','+mix(240,130)+')';}
 function _leaUpdateMapSel(){if(!_leaMapPaths)return;_leaMapPaths.classed('sel',function(){return this.getAttribute('data-name')===LEA_STATE;});}
+var _LEA_MAP_VALS=null;
+var _LEA_MAP_MET={
+ served:{title:'Children & students served by State',note:'Darker = more children and students served (ages 3–21). Click a State to load its districts below.',fmt:function(v){return _leaFmt(v)+' served';}},
+ districts:{title:'Number of districts (LEAs) by State',note:'Darker = more school districts (LEAs) reporting under IDEA Part B. Click a State to load its districts below.',fmt:function(v){return _leaFmt(v)+' districts';}},
+ avg:{title:'Average students served per district',note:'Darker = more children and students served per district, on average (ages 3–21). Click a State to load its districts below.',fmt:function(v){return _leaFmt(v)+' per district';}},
+ pctMeet:{title:'Share of districts meeting IDEA requirements',note:'Darker = a higher share of the State’s districts met IDEA Part B requirements (2021–22 MOE determination). Click a State to load its districts below.',fmt:function(v){return v+'% meeting';},pct:true}
+};
+function _leaMapMetric(){var s=document.getElementById('leaMapMetric');return (s&&_LEA_MAP_MET[s.value])?s.value:'served';}
+function _leaMapVals(metric){
+ var v={};if(!LEA_DATA)return v;
+ if(metric==='served'){var t=_leaStateTotals()||{};Object.keys(t).forEach(function(s){v[s]=t[s];});return v;}
+ if(metric==='districts'){Object.keys(LEA_DATA.byState).forEach(function(s){v[s]=LEA_DATA.byState[s].length;});return v;}
+ _leaStateStats().forEach(function(r){
+  if(metric==='avg')v[r.state]=(r.districts?Math.round(r.served/r.districts):null);
+  else if(metric==='pctMeet')v[r.state]=r.pctMeet;
+ });
+ return v;
+}
+function _leaMapColorize(){
+ if(!_leaMapPaths)return;
+ var metric=_leaMapMetric(),met=_LEA_MAP_MET[metric]||_LEA_MAP_MET.served;
+ var vals=_leaMapVals(metric);_LEA_MAP_VALS=vals;
+ var nums=Object.keys(vals).map(function(s){return vals[s];}).filter(function(x){return x!=null&&!isNaN(x);});
+ var maxV=Math.max.apply(null,nums.concat([1]));
+ _leaMapPaths.attr('fill',function(){var n=this.getAttribute('data-name');return _leaMapColor(vals[n],maxV);});
+ var ttl=document.getElementById('leaMapTitle');if(ttl)ttl.textContent=met.title;
+ var nt=document.getElementById('leaMapNote');if(nt)nt.textContent=met.note;
+ var leg=document.getElementById('leaMapLegend');
+ if(leg){var stops=[0,.2,.4,.6,.8,1].map(function(f){return _leaMapColor(f*maxV,maxV);});
+  leg.innerHTML='<span class="mlg-cap">'+(met.pct?'0%':'Fewer')+'</span><span class="mlg-grad" style="background:linear-gradient(90deg,'+stops.join(',')+')"></span><span class="mlg-cap">'+(met.pct?'100%':'More')+'</span>';}
+}
 function _leaBuildMap(){
  var box=document.getElementById('leaMap');if(!box)return;
- if(_leaMapBuilt){_leaUpdateMapSel();return;}
+ if(_leaMapBuilt){_leaUpdateMapSel();_leaMapColorize();return;}
  if(typeof d3==='undefined'||typeof topojson==='undefined'||typeof US_ATLAS==='undefined'||!LEA_DATA){box.innerHTML='<div class="mapfallback note">A geographic map is unavailable here; use the State selector and the ranked list of districts below.</div>';return;}
  try{
-  var totals=_leaStateTotals(),maxV=Math.max.apply(null,Object.keys(totals).map(function(s){return totals[s];}).concat([1]));
   var W=960,H=600,fc=topojson.feature(US_ATLAS,US_ATLAS.objects.states),proj=d3.geoAlbersUsa().fitSize([W,H],fc),path=d3.geoPath(proj);
   var svg=d3.select('#leaMap').append('svg').attr('class','usmap').attr('viewBox','0 0 '+W+' '+H);
   _leaMapPaths=svg.selectAll('path').data(fc.features).enter().append('path').attr('class','st').attr('d',path)
    .attr('data-name',function(d){return FIPS[String(d.id).padStart(2,'0')]||'';})
-   .attr('fill',function(d){var n=FIPS[String(d.id).padStart(2,'0')]||'';return _leaMapColor(totals[n],maxV);})
-   .on('mousemove',function(e){var n=this.getAttribute('data-name'),t=document.getElementById('maptip');if(!n||totals[n]==null){t.style.opacity=0;return;}t.innerHTML='<b>'+n+'</b>'+_leaFmt(totals[n])+' served · '+(LEA_DATA.byState[n]?LEA_DATA.byState[n].length:0)+' districts';t.style.left=Math.min(e.clientX+14,innerWidth-240)+'px';t.style.top=(e.clientY+14)+'px';t.style.opacity=1;})
+   .on('mousemove',function(e){var n=this.getAttribute('data-name'),t=document.getElementById('maptip');var vals=_LEA_MAP_VALS||{},met=_LEA_MAP_MET[_leaMapMetric()]||_LEA_MAP_MET.served;if(!n||vals[n]==null){t.style.opacity=0;return;}t.innerHTML='<b>'+n+'</b>'+met.fmt(vals[n])+' · '+(LEA_DATA.byState[n]?LEA_DATA.byState[n].length:0)+' districts';t.style.left=Math.min(e.clientX+14,innerWidth-240)+'px';t.style.top=(e.clientY+14)+'px';t.style.opacity=1;})
    .on('mouseleave',function(){var t=document.getElementById('maptip');if(t)t.style.opacity=0;})
    .on('click',function(){var n=this.getAttribute('data-name');if(n&&LEA_DATA.byState[n]){var sel=document.getElementById('leaStateSel');if(sel){sel.value=n;sel.dispatchEvent(new Event('change'));var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}}});
+  _leaMapColorize();
   _leaMapBuilt=true;_leaUpdateMapSel();
-  _addCardTools(document.getElementById('leaMapCard'),function(){_gfxSvgPNG(document.querySelector('#leaMap svg'),'Children & students served by State','IDEA Part B child count by State, ages 3–21, School Year 2024–25 (darker = more served).','idea618_served_by_state_map');},function(){var t=_leaStateTotals()||{};var rows=[['State','Children and students served, 2024–25','Districts (LEAs)']];Object.keys(t).sort().forEach(function(s){rows.push([s,t[s],(LEA_DATA.byState[s]?LEA_DATA.byState[s].length:0)]);});_gfxCSV(rows,'idea618_served_by_state');});
+  var msel=document.getElementById('leaMapMetric');if(msel&&!msel._wired){msel._wired=true;msel.addEventListener('change',function(){_leaMapColorize();});}
+  _addCardTools(document.getElementById('leaMapCard'),function(){var met=_LEA_MAP_MET[_leaMapMetric()]||_LEA_MAP_MET.served;_gfxSvgPNG(document.querySelector('#leaMap svg'),met.title,'IDEA Part B LEA data by State, School Year 2024–25 (darker = higher). Click a State to load its districts.','idea618_lea_map');},function(){var metric=_leaMapMetric(),met=_LEA_MAP_MET[metric]||_LEA_MAP_MET.served,vals=_leaMapVals(metric);var rows=[['State',met.title,'Districts (LEAs)']];Object.keys(vals).sort().forEach(function(s){rows.push([s,vals[s],(LEA_DATA.byState[s]?LEA_DATA.byState[s].length:0)]);});_gfxCSV(rows,'idea618_lea_map');});
  }catch(e){box.innerHTML='<div class="mapfallback note">A geographic map is unavailable here; use the State selector and the ranked list of districts below.</div>';}
 }
 function _leaRender(){
