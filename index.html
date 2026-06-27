@@ -11947,6 +11947,18 @@ body.dark .view[data-view="lea"] .lea-deepdive{background:#16202c;border-color:#
 body.dark .view[data-view="lea"] .lea-deepdive>summary .ldd-t{color:#9fc3ec}
 body.hc .view[data-view="lea"] .lea-deepdive,body.hc .view[data-view="lea"] .lea-deepdive>summary{border-width:2px}
 
+/* --- SEA Tables empty state ("Pick a collection to begin") --- */
+.view[data-view="tables"] .tables-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;
+  margin:18px 0 4px;padding:46px 28px;border:1.5px dashed var(--line);border-radius:16px;background:linear-gradient(180deg,#fbfcfe 0%,#f4f8fc 100%)}
+.view[data-view="tables"] .tables-empty-ic{width:60px;height:60px;border-radius:15px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(155deg,#1c4f74,#13354e);color:#fff;box-shadow:0 4px 12px rgba(19,53,78,.25);margin-bottom:6px}
+.view[data-view="tables"] .tables-empty-ic svg{width:30px;height:30px}
+.view[data-view="tables"] .tables-empty h3{margin:0;font-size:1.3rem;color:var(--navy)}
+.view[data-view="tables"] .tables-empty p{margin:0;max-width:54ch;font-size:.92rem;line-height:1.55;color:var(--muted)}
+body.dark .view[data-view="tables"] .tables-empty{background:linear-gradient(180deg,#161f2b 0%,#131b25 100%);border-color:#2b3645}
+body.dark .view[data-view="tables"] .tables-empty h3{color:#dbe8f6}
+body.hc .view[data-view="tables"] .tables-empty{border-style:solid;border-width:2px}
+
 /* Keep exports/print complete: never hide content in the PDF/print path */
 body.printing .home-launchpad,body.printing .explain-wrap{display:none!important}
 body.printing .gpra-group.gsec-hidden{display:block!important}
@@ -12079,9 +12091,9 @@ body.printing .lea-deepdive>.lea-deepdive-body{display:block!important}
 
 <section class="home-launchpad" aria-label="Explore the rest of the data tool">
   <div class="home-launchpad-head">
-    <span class="lp-eyebrow">Keep exploring</span>
-    <h3>Go deeper into the data</h3>
-    <span class="lp-sub">Open a focused view of the IDEA Section&nbsp;618 data. Each one stands on its own, so you can go as deep as you like, or not at all.</span>
+    <span class="lp-eyebrow">More IDEA Section&nbsp;618 data</span>
+    <h3>Explore the data in depth</h3>
+    <span class="lp-sub">Each view focuses on a different part of the public IDEA Section&nbsp;618 data that States and the additional reporting entities report to the Office of Special Education Programs (OSEP) each year. Select one to explore it in detail.</span>
   </div>
   <div class="launchgrid">
     <button type="button" class="launchcard" onclick="showView('states')" aria-label="Open State Snapshot">
@@ -12274,7 +12286,7 @@ body.printing .lea-deepdive>.lea-deepdive-body{display:block!important}
 <p class="viewlead">Exact figures from the official IDEA Section 618 collections. Pick one or more collections, choose whether to compare States or disability categories, then add what you want to see side by side. Any table can switch between counts and percentages, turn into a chart with <strong>Visualize</strong>, or download as a CSV.</p>
 <div class="tables-setup">
 <div class="tables-collrail" role="tablist" aria-label="Data collections">
-  <div class="tcr-group"><span class="tcr-label">Part B</span><button type="button" class="tcr-pill on" data-coll="ccee">Child Count &amp; Environments</button><button type="button" class="tcr-pill" data-coll="exitB">Exiting</button><button type="button" class="tcr-pill" data-coll="discB">Discipline</button><button type="button" class="tcr-pill" data-coll="persB">Personnel</button><button type="button" class="tcr-pill" data-coll="asmtB">Assessment</button></div>
+  <div class="tcr-group"><span class="tcr-label">Part B</span><button type="button" class="tcr-pill" data-coll="ccee">Child Count &amp; Environments</button><button type="button" class="tcr-pill" data-coll="exitB">Exiting</button><button type="button" class="tcr-pill" data-coll="discB">Discipline</button><button type="button" class="tcr-pill" data-coll="persB">Personnel</button><button type="button" class="tcr-pill" data-coll="asmtB">Assessment</button></div>
   <span class="tcr-sep" aria-hidden="true"></span>
   <div class="tcr-group"><span class="tcr-label">Part C</span><button type="button" class="tcr-pill" data-coll="pcSettings">Child Count &amp; Settings</button><button type="button" class="tcr-pill" data-coll="pcExit">Exiting</button></div><span class="tcr-hint">Pick one or more</span>
 </div>
@@ -12613,6 +12625,14 @@ Chart.defaults.plugins.tooltip.borderColor='rgba(237,207,54,.55)';
 Chart.defaults.plugins.tooltip.borderWidth=1;
 Chart.defaults.plugins.tooltip.cornerRadius=8;
 Chart.defaults.plugins.tooltip.padding=10;
+/* Tasteful global graph animation defaults. setChartTheme() forces duration to 0 whenever the Animations toggle (no-anim) or Reduce motion (reduce) is active, so motion preferences are always respected. */
+Chart.defaults.animation.duration=850;
+Chart.defaults.animation.easing='easeOutQuart';
+Chart.defaults.animations.colors=false;
+Chart.defaults.animations.x={type:'number',easing:'easeOutQuart',duration:850,from:NaN,delay:function(c){return c.type==='data'&&c.mode==='default'?c.dataIndex*16:0;}};
+Chart.defaults.animations.y={type:'number',easing:'easeOutQuart',duration:850,from:function(c){return c.chart.chartArea?c.chart.chartArea.bottom:0;}};
+if(Chart.overrides&&Chart.overrides.doughnut){Chart.overrides.doughnut.animation={animateRotate:true,animateScale:true,duration:850,easing:'easeOutQuart'};}
+if(Chart.overrides&&Chart.overrides.pie){Chart.overrides.pie.animation={animateRotate:true,animateScale:true,duration:850,easing:'easeOutQuart'};}
 const modernGraphPlugin={id:'modernGraph',beforeDraw:function(chart){var ca=chart.chartArea;if(!ca)return;var ctx=chart.ctx,dark=document.body.classList.contains('dark'),hc=document.body.classList.contains('hc');ctx.save();ctx.fillStyle=hc?'transparent':(dark?'rgba(255,255,255,.025)':'rgba(22,54,92,.025)');ctx.fillRect(ca.left,ca.top,ca.right-ca.left,ca.bottom-ca.top);ctx.strokeStyle=hc?(dark?'rgba(255,255,255,.35)':'rgba(0,0,0,.35)'):(dark?'rgba(255,255,255,.09)':'rgba(22,54,92,.10)');ctx.lineWidth=1;ctx.strokeRect(ca.left,ca.top,ca.right-ca.left,ca.bottom-ca.top);ctx.restore();},afterDatasetsDraw:function(chart){if(document.body.classList.contains('hc'))return;var ctx=chart.ctx;chart.data.datasets.forEach(function(ds,di){var meta=chart.getDatasetMeta(di);if(!meta||meta.hidden||!meta.data||!meta.data.length)return;var type=ds.type||chart.config.type;if(type!=='line')return;var idx=ds.data.length-1;while(idx>=0&&(ds.data[idx]==null||isNaN(ds.data[idx])))idx--;if(idx<0||!meta.data[idx])return;var p=meta.data[idx].getProps(['x','y'],true),col=ds.borderColor||'#005ea2';ctx.save();ctx.shadowColor=col;ctx.shadowBlur=10;ctx.fillStyle='#fff';ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(p.x,p.y,4.5,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();});}};
 try{Chart.register(modernGraphPlugin);}catch(e){}
 /* ===== OSEP Fast Facts value labels: print the number on single-series bar
@@ -12657,7 +12677,7 @@ function kpis(){
  const sld=2517135, sldShare=pct(2517,8194);
  const cards=[
   {l:'IDEA Part B, ages 3–21',v:'8,194,424',c:'Children and students with disabilities served, School Year 2024–25; the 50 States, the District of Columbia, and the additional IDEA reporting entities (Puerto Rico, the Bureau of Indian Education, the outlying areas, and the freely associated states)',cls:''},
-  {l:'50-year Part B child count series',v:'1976–77 to 2024–25',c:'Ages 3–21, national series spanning the first 50 years of IDEA',cls:'up'},
+  {l:'50 years of IDEA Part B, ages 3–21',v:'More than doubled',c:'Children and students served grew from about 3.7 million in School Year 1976–77 to 8.2 million in 2024–25, the first half-century of IDEA',cls:'up'},
   {l:'IDEA Part B, ages 5–21',v:incAll.toFixed(1)+'%',c:'Served in the regular class 80% or more of the school day, School Year 2024–25',cls:'good'},
   {l:'IDEA Part C, birth through age 2',v:'458,920',c:'Infants and toddlers with disabilities served, School Year 2024–25',cls:'good'}
  ];
@@ -12694,7 +12714,7 @@ function renderTrend(){
  var selected=trendSelected.filter(function(k){return DIS[k];});
  const ds=[{type:'line',label:'All disabilities, ages 3–21',data:ALL,borderColor:'#2e8540',backgroundColor:'#2e8540',borderWidth:3.2,fill:false,tension:.28,pointRadius:0,pointHoverRadius:5,pointHitRadius:12,order:0}];
  selected.forEach(function(k,i){var col=COLORS[k]||'#1f6fa8';ds.push({type:'line',label:k,data:DIS[k],borderColor:col,backgroundColor:shade(col,.10),borderWidth:2.2,tension:.28,pointRadius:0,pointHoverRadius:5,pointHitRadius:12,spanGaps:true,order:i+1});});
- const cfg={type:'line',data:{labels:YEARS,datasets:ds},options:{responsive:true,maintainAspectRatio:false,animation:false,
+ const cfg={type:'line',data:{labels:YEARS,datasets:ds},options:{responsive:true,maintainAspectRatio:false,
    interaction:{mode:'index',intersect:false},
    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10,weight:'800'}}},
     tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtK(c.parsed.y);}}}},
@@ -12718,7 +12738,7 @@ function renderComp(){
  const data=COMP_ORDER.map(k=>DIS[k][yi]);
  compChart=new Chart(document.getElementById('compChart'),{type:'bar',
   data:{labels:COMP_ORDER.slice(),datasets:[{data:data,backgroundColor:COMP_ORDER.map(k=>shade(COLORS[k],.85)),borderRadius:4}]},
-  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const y=+document.getElementById('yearSel').value;return `${fmtK(c.parsed.x)}  (${pct(c.parsed.x,ALL[y]).toFixed(1)}% of total)`;}}}},
    scales:{x:{beginAtZero:true,title:{display:true,text:'Students (thousands)'}},y:{ticks:{font:{size:11}}}}}});
  try{renderCategoryShift();}catch(e){console.warn('composition rings',e);}
@@ -12869,7 +12889,6 @@ function renderTrendChange(){
    }]
   },
   options:{
-   animation:false,
    indexAxis:'y',
    responsive:true,
    maintainAspectRatio:false,
@@ -13189,7 +13208,7 @@ function renderExplorer(){
  const envVals=EX_ENV.map(e=>expMode==='pct'?+((c.env[e[0]]||0)/c.sa_total*100).toFixed(1):(c.env[e[0]]||0));
  const raceVals=EX_RACE.map(r=>expMode==='pct'?+((c.race[r[0]]||0)/c.total*100).toFixed(1):(c.race[r[0]]||0));
  const ageVals=EX_AGES.map(a=>expMode==='pct'?+((c.ages[a]||0)/c.total*100).toFixed(2):(c.ages[a]||0));
- const ANIM=false;
+ const ANIM=undefined;
  // ---- Figure 1: trend (rebuilt each switch for reliable repaint) ----
  const tds=[]; if(!isAll)tds.push(ctxDS); tds.push(mainDS);
  exDestroy('t');exC.t=new Chart(document.getElementById('expTrend'),{type:'line',data:{labels:YEARS,datasets:tds},
@@ -13212,7 +13231,7 @@ function renderExplorer(){
  const sexCenter={id:'sexCenter',afterDraw:function(ch){var ctx=ch.ctx,ca=ch.chartArea;if(!ca)return;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=getCSS('--muted')||'#526172';ctx.font='800 11px '+Chart.defaults.font.family;ctx.fillStyle=getCSS('--navy')||'#16365c';ctx.font='950 18px '+Chart.defaults.font.family;ctx.fillText('Sex', (ca.left+ca.right)/2, (ca.top+ca.bottom)/2);ctx.restore();}};
  exDestroy('s');exC.s=new Chart(document.getElementById('expSex'),{type:'doughnut',
   data:{labels:sexRows.map(function(r){return r.label;}),datasets:[{label:'Reported sex',data:sexRows.map(function(r){return r.raw;}),backgroundColor:sexRows.map(function(r){return shade(r.color,.88);}),borderColor:sexRows.map(function(r){return r.color;}),borderWidth:2,hoverOffset:4,_raw:sexRows.map(function(r){return r.raw;}),_share:sexRows.map(function(r){return r.share;})}]},
-  options:{responsive:true,maintainAspectRatio:false,animation:false,cutout:'62%',plugins:{legend:{display:true,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:12,font:{size:11,weight:'800'}}},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:true,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:12,font:{size:11,weight:'800'}}},
    tooltip:{callbacks:{label:function(o){return o.label+': '+fmt(o.dataset._raw[o.dataIndex])+' students, '+o.dataset._share[o.dataIndex].toFixed(1)+'%';}}}}},plugins:[sexCenter]});
  // ---- Figure 4: race and ethnicity composition ----
  const raceRows=EX_RACE.map(function(r){var raw=c.race[r[0]]||0,share=pct(raw,c.total||1),val=expMode==='pct'?+share.toFixed(1):raw;return {key:r[0],label:r[1],color:r[2],raw:raw,share:share,val:val};}).filter(function(r){return r.raw>0;}).sort(function(a,b){return b.val-a.val;});
@@ -13524,7 +13543,7 @@ function renderCollections(){
  const dl=['Removed 1 day total','Removed 2–10 days total','Removed >10 days total'],
   dv=[dch.d1,dch.d2to10,dch.dgt10],dc=['#fdae61','#e8833a','#cc5a33'];
  new Chart(document.getElementById('dscChart'),{type:'bar',data:{labels:dl,datasets:[{label:'Students',data:dv,backgroundColor:dc,borderRadius:4}]},
-  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
    tooltip:{callbacks:{label:o=>fmt(o.parsed.x)+' students'}}},scales:{x:{beginAtZero:true,ticks:{callback:v=>v.toLocaleString()}},y:{ticks:{font:{size:11}}}}}});
  const bt=C.discipline.byType,dtRows=[['Children Suspended Expelled 10 Days or Less OSS',bt.oss_le10,'#1f6fa8'],['Children Suspended 10 Days or Less ISS',bt.iss_le10,'#2e8540'],['Children Suspended Expelled more than 10 Days OSS',bt.oss_gt10,'#cc5a33'],['Children Suspended more than 10 Days ISS',bt.iss_gt10,'#f2a541'],['Children Unilaterally Removed to an IAES',bt.iaes,'#7048a8'],['Children Removed by Hearing Officer likely injury',bt.hearing,'#5b6472']].filter(function(r){return r[1]!=null;});
  var rankList=document.getElementById('dscTypeList');
@@ -13541,10 +13560,10 @@ function renderCollections(){
  const exRows=exMap.map(m=>[m[1],ex[m[0]]||0,m[2]]).sort((a,b)=>b[1]-a[1]);
  const exTot=exRows.reduce((a,b)=>a+b[1],0)||1;
  new Chart(document.getElementById('exitChart'),{type:'bar',data:{labels:exRows.map(r=>r[0]),datasets:[{data:exRows.map(r=>+(r[1]/exTot*100).toFixed(1)),backgroundColor:exRows.map(r=>r[2]),borderRadius:4,_raw:exRows.map(r=>r[1])}]},
-  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
    tooltip:{callbacks:{label:o=>o.parsed.x+'% of all exiters ('+fmt(o.dataset._raw[o.dataIndex])+' students)'}}},scales:{x:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}},y:{ticks:{font:{size:11}}}}}});
  const exitGroups=[['Diploma or certificate',ex['Graduated with regular high school diploma']+ex['Graduated with an alternate diploma']+ex['Received a certificate'],'#2e8540'],['Continuing education or services',ex['Transferred to regular education']+ex['Moved, known to be continuing'],'#1f6fa8'],['Dropped out',ex['Dropped out'],'#cc5a33'],['Other exits',ex['Reached maximum age']+ex['Died'],'#5b6472']];
- if(document.getElementById('exitGroupChart'))new Chart(document.getElementById('exitGroupChart'),{type:'doughnut',data:{labels:exitGroups.map(function(r){return r[0];}),datasets:[{data:exitGroups.map(function(r){return r[1];}),backgroundColor:exitGroups.map(function(r){return r[2];}),borderColor:'#fff',borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,animation:false,cutout:'58%',plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10}}},tooltip:{callbacks:{label:function(o){var v=o.parsed||0;return o.label+': '+fmt(v)+' students ('+(v/exTot*100).toFixed(1)+'%)';}}}}}});
+ if(document.getElementById('exitGroupChart'))new Chart(document.getElementById('exitGroupChart'),{type:'doughnut',data:{labels:exitGroups.map(function(r){return r[0];}),datasets:[{data:exitGroups.map(function(r){return r[1];}),backgroundColor:exitGroups.map(function(r){return r[2];}),borderColor:'#fff',borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10}}},tooltip:{callbacks:{label:function(o){var v=o.parsed||0;return o.label+': '+fmt(v)+' students ('+(v/exTot*100).toFixed(1)+'%)';}}}}}});
  // Personnel (stacked)
  const P=C.personnel;
  const tT=(P.teachers_cert+P.teachers_notcert)||1,pT=(P.paras_qual+P.paras_notqual)||1;
@@ -13554,33 +13573,33 @@ function renderCollections(){
   options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:12}},
    tooltip:{callbacks:{label:o=>o.dataset.label+': '+o.parsed.x+'% ('+fmt(o.dataset._raw[o.dataIndex])+' FTE)'}}},scales:{x:{stacked:true,beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}},y:{stacked:true}}}});
  const fteRows=[['Special education teachers',P.teachers_cert,P.teachers_notcert],['Paraprofessionals',P.paras_qual,P.paras_notqual]];
- if(document.getElementById('persFteChart'))new Chart(document.getElementById('persFteChart'),{type:'bar',data:{labels:fteRows.map(function(r){return r[0];}),datasets:[{label:'Certified or qualified',data:fteRows.map(function(r){return r[1];}),backgroundColor:'#1f6fa8',borderRadius:4},{label:'Not fully certified or qualified',data:fteRows.map(function(r){return r[2];}),backgroundColor:'#f2a541',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10}},tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+fmt(o.parsed.x)+' FTE';}}}},scales:{x:{beginAtZero:true,stacked:false,ticks:{callback:function(v){return v>=1000?Math.round(v/1000)+'k':v;}}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+ if(document.getElementById('persFteChart'))new Chart(document.getElementById('persFteChart'),{type:'bar',data:{labels:fteRows.map(function(r){return r[0];}),datasets:[{label:'Certified or qualified',data:fteRows.map(function(r){return r[1];}),backgroundColor:'#1f6fa8',borderRadius:4},{label:'Not fully certified or qualified',data:fteRows.map(function(r){return r[2];}),backgroundColor:'#f2a541',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10}},tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+fmt(o.parsed.x)+' FTE';}}}},scales:{x:{beginAtZero:true,stacked:false,ticks:{callback:function(v){return v>=1000?Math.round(v/1000)+'k':v;}}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
  // Assessment proficiency, national aggregate display
  const aMath=C.assessment.math_rate,aRead=C.assessment.read_rate;
  const asmtRows=[['Mathematics',aMath,C.assessment.math_prof,C.assessment.math_part,'#005ea2'],['Reading / ELA',aRead,C.assessment.read_prof,C.assessment.read_part,'#1a4480']];
  new Chart(document.getElementById('asmtChart'),{type:'bar',data:{labels:asmtRows.map(function(r){return r[0];}),datasets:[{label:'Percent proficient or above',data:asmtRows.map(function(r){return r[1];}),backgroundColor:asmtRows.map(function(r){return shade(r[4],.84);}),borderColor:asmtRows.map(function(r){return r[4];}),borderWidth:1,borderRadius:5,_prof:asmtRows.map(function(r){return r[2];}),_part:asmtRows.map(function(r){return r[3];})}]},
-  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
    tooltip:{callbacks:{label:function(o){return o.parsed.x+'% proficient or above, '+fmt(o.dataset._prof[o.dataIndex])+' of '+fmt(o.dataset._part[o.dataIndex])+' participants with IEPs';}}}},
    scales:{x:{beginAtZero:true,max:100,ticks:{callback:function(v){return v+'%';}},title:{display:true,text:'Percent proficient or above'}},y:{grid:{display:false},ticks:{font:{size:12,weight:'900'}}}}}});
- if(document.getElementById('asmtOutcomeChart'))new Chart(document.getElementById('asmtOutcomeChart'),{type:'bar',data:{labels:asmtRows.map(function(r){return r[0];}),datasets:[{label:'Proficient or above',data:asmtRows.map(function(r){return r[2];}),backgroundColor:'#2e8540',borderRadius:4},{label:'Below proficient',data:asmtRows.map(function(r){return Math.max(0,r[3]-r[2]);}),backgroundColor:'#c7d2e0',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10}},tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+fmt(o.parsed.x)+' participants';}}}},scales:{x:{stacked:true,beginAtZero:true,ticks:{callback:function(v){return v>=1000000?(v/1000000).toFixed(1)+'M':Math.round(v/1000)+'k';}}},y:{stacked:true,grid:{display:false},ticks:{font:{size:10}}}}}});
+ if(document.getElementById('asmtOutcomeChart'))new Chart(document.getElementById('asmtOutcomeChart'),{type:'bar',data:{labels:asmtRows.map(function(r){return r[0];}),datasets:[{label:'Proficient or above',data:asmtRows.map(function(r){return r[2];}),backgroundColor:'#2e8540',borderRadius:4},{label:'Below proficient',data:asmtRows.map(function(r){return Math.max(0,r[3]-r[2]);}),backgroundColor:'#c7d2e0',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10}},tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+fmt(o.parsed.x)+' participants';}}}},scales:{x:{stacked:true,beginAtZero:true,ticks:{callback:function(v){return v>=1000000?(v/1000000).toFixed(1)+'M':Math.round(v/1000)+'k';}}},y:{stacked:true,grid:{display:false},ticks:{font:{size:10}}}}}});
  const al=document.getElementById('asmtLegend');
  if(al)al.innerHTML=asmtRows.map(function(r){return `<div class="ar"><span class="sw" style="background:${r[4]}"></span><span class="nm">${r[0]}</span><span class="vv">${r[1]}%</span><span class="cap">${fmt(r[2])} of ${fmt(r[3])} participants with IEPs met or exceeded proficiency, School Year 2023–24</span></div>`;}).join('');
  // Part C settings, percent bar display
  const ps=C.partc_count.settings;
  const pcRows=[['Home',ps.Home,'#005ea2'],['Community-based',ps['Community-Based Setting'],'#4575b4'],['Other setting',ps['Other Setting'],'#9aa0a6']];
  new Chart(document.getElementById('pcCountChart'),{type:'doughnut',data:{labels:pcRows.map(r=>r[0]),datasets:[{data:pcRows.map(r=>r[1]),backgroundColor:pcRows.map(r=>r[2]),borderColor:'#ffffff',borderWidth:2,_raw:pcRows.map(r=>r[1])}]},
-  options:{responsive:true,maintainAspectRatio:false,animation:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11,weight:'600'}}},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11,weight:'600'}}},
    tooltip:{callbacks:{label:o=>`${o.label}: ${(o.parsed/C.partc_count.total*100).toFixed(1)}% (${fmt(o.parsed)} infants and toddlers)`}}}}});
  const race=C.partc_count.race,raceRows=[['Hispanic/Latino',race.Hispanic,'#1f6fa8'],['American Indian or Alaska Native',race.AIAN,'#8c6d31'],['Asian',race.Asian,'#2e8540'],['Black or African American',race.Black,'#7048a8'],['Native Hawaiian or Other Pacific Islander',race.NHPI,'#cc5a33'],['White',race.White,'#5b6472'],['Two or more races',race.Multi,'#f2a541']].filter(function(r){return r[1]!=null;});
  const raceTotal=raceRows.reduce(function(a,r){return a+r[1];},0)||1;
- if(document.getElementById('pcRaceChart'))new Chart(document.getElementById('pcRaceChart'),{type:'bar',data:{labels:raceRows.map(function(r){return r[0];}),datasets:[{data:raceRows.map(function(r){return +(r[1]/raceTotal*100).toFixed(1);}),backgroundColor:raceRows.map(function(r){return r[2];}),borderRadius:4,_raw:raceRows.map(function(r){return r[1];})}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){return o.parsed.x+'% ('+fmt(o.dataset._raw[o.dataIndex])+' infants and toddlers)';}}}},scales:{x:{beginAtZero:true,max:60,ticks:{callback:function(v){return v+'%';}}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+ if(document.getElementById('pcRaceChart'))new Chart(document.getElementById('pcRaceChart'),{type:'bar',data:{labels:raceRows.map(function(r){return r[0];}),datasets:[{data:raceRows.map(function(r){return +(r[1]/raceTotal*100).toFixed(1);}),backgroundColor:raceRows.map(function(r){return r[2];}),borderRadius:4,_raw:raceRows.map(function(r){return r[1];})}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){return o.parsed.x+'% ('+fmt(o.dataset._raw[o.dataIndex])+' infants and toddlers)';}}}},scales:{x:{beginAtZero:true,max:60,ticks:{callback:function(v){return v+'%';}}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
  const sx=C.partc_count.sex,sexRows=[['Male',sx.Male,'#1f6fa8'],['Female',sx.Female,'#2e8540']],sexTotal=sexRows.reduce(function(a,r){return a+r[1];},0)||1;
- if(document.getElementById('pcSexChart'))new Chart(document.getElementById('pcSexChart'),{type:'doughnut',data:{labels:sexRows.map(function(r){return r[0];}),datasets:[{data:sexRows.map(function(r){return r[1];}),backgroundColor:sexRows.map(function(r){return r[2];}),borderColor:'#fff',borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,animation:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10}},tooltip:{callbacks:{label:function(o){var v=o.parsed||0;return o.label+': '+fmt(v)+' infants and toddlers ('+(v/sexTotal*100).toFixed(1)+'%)';}}}}}});
+ if(document.getElementById('pcSexChart'))new Chart(document.getElementById('pcSexChart'),{type:'doughnut',data:{labels:sexRows.map(function(r){return r[0];}),datasets:[{data:sexRows.map(function(r){return r[1];}),backgroundColor:sexRows.map(function(r){return r[2];}),borderColor:'#fff',borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10}},tooltip:{callbacks:{label:function(o){var v=o.parsed||0;return o.label+': '+fmt(v)+' infants and toddlers ('+(v/sexTotal*100).toFixed(1)+'%)';}}}}}});
  // Part C national trend: infants & toddlers (birth-2) served, 2005-06..2024-25
  const PCTL=["2005–06", "2006–07", "2007–08", "2008–09", "2009–10", "2010–11", "2011–12", "2012–13", "2013–14", "2014–15", "2015–16", "2016–17", "2017–18", "2018–19", "2019–20", "2020–21", "2021–22", "2022–23", "2023–24", "2024–25"],PCTD=[294714, 299848, 316761, 337618, 343203, 337576, 331636, 329859, 335023, 346394, 354081, 369672, 386155, 406582, 424318, 361462, 403567, 438988, 460321, 456434];
  new Chart(document.getElementById('pcTrendChart'),{type:'line',data:{labels:PCTL,datasets:[{label:'Infants & toddlers served, birth to age 2',data:PCTD,borderColor:'#2e8540',backgroundColor:shade('#2e8540',.10),borderWidth:3,fill:true,tension:.3,pointRadius:0,pointHoverRadius:5}]},  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},   tooltip:{callbacks:{title:it=>it[0].label,label:o=>fmt(o.parsed.y)+' served'}}},   scales:{x:{grid:{display:false},ticks:{maxRotation:60,minRotation:60,autoSkip:true,font:{size:10}}},    y:{beginAtZero:true,title:{display:true,text:'Infants & toddlers served'},ticks:{callback:v=>v.toLocaleString()}}}}});
  const yoyRows=PCTD.slice(1).map(function(v,i){return {year:PCTL[i+1],change:v-PCTD[i]};});
- if(document.getElementById('pcYoyChart'))new Chart(document.getElementById('pcYoyChart'),{type:'bar',data:{labels:yoyRows.map(function(r){return r.year;}),datasets:[{label:'Annual change',data:yoyRows.map(function(r){return r.change;}),backgroundColor:yoyRows.map(function(r){return r.change>=0?'#2e8540':'#cc5a33';}),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){var v=o.parsed.y;return (v>=0?'+':'')+fmt(v)+' infants and toddlers';}}}},scales:{x:{grid:{display:false},ticks:{maxRotation:60,minRotation:60,autoSkip:true,font:{size:9}}},y:{ticks:{callback:function(v){return (v>0?'+':'')+Math.round(v/1000)+'k';}}}}}});
+ if(document.getElementById('pcYoyChart'))new Chart(document.getElementById('pcYoyChart'),{type:'bar',data:{labels:yoyRows.map(function(r){return r.year;}),datasets:[{label:'Annual change',data:yoyRows.map(function(r){return r.change;}),backgroundColor:yoyRows.map(function(r){return r.change>=0?'#2e8540':'#cc5a33';}),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){var v=o.parsed.y;return (v>=0?'+':'')+fmt(v)+' infants and toddlers';}}}},scales:{x:{grid:{display:false},ticks:{maxRotation:60,minRotation:60,autoSkip:true,font:{size:9}}},y:{ticks:{callback:function(v){return (v>0?'+':'')+Math.round(v/1000)+'k';}}}}}});
  // Part C exiting
  const pe=C.partc_exit.reasons,peRows=Object.keys(pe).map(r=>[r.replace('Part B','Pt B').replace(' - exit',' –'),pe[r]]).sort((a,b)=>b[1]-a[1]);
  const peTot=peRows.reduce((a,b)=>a+b[1],0)||1;
@@ -13588,7 +13607,7 @@ function renderCollections(){
   options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
    tooltip:{callbacks:{label:o=>o.parsed.x+'% of all exiters ('+fmt(o.dataset._raw[o.dataIndex])+' infants/toddlers)'}}},scales:{x:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}},y:{ticks:{font:{size:10}}}}}});
  const exitPathRows=[['Part B eligible',pe['Part B eligible, exiting Part C']+pe['Part B eligible, Continuing in Part C'],'#1f6fa8'],['Not eligible or not determined',pe['Not eligible Part B - exit with no referrals']+pe['Not eligible Part B - exit to other program']+pe['Part B eligibility not determined'],'#f2a541'],['Family, contact, or moved',pe['Moved out of state']+pe['Withdrawal by parent']+pe['Attempts to contact unsuccessful'],'#7048a8'],['Completed IFSP',pe['Completion of IFSP prior to max age'],'#2e8540'],['Deceased',pe['Deceased'],'#5b6472']];
- if(document.getElementById('pcExitGroupChart'))new Chart(document.getElementById('pcExitGroupChart'),{type:'doughnut',data:{labels:exitPathRows.map(function(r){return r[0];}),datasets:[{data:exitPathRows.map(function(r){return r[1];}),backgroundColor:exitPathRows.map(function(r){return r[2];}),borderColor:'#fff',borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,animation:false,cutout:'58%',plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:8,padding:9,font:{size:10}}},tooltip:{callbacks:{label:function(o){var v=o.parsed||0;return o.label+': '+fmt(v)+' infants and toddlers ('+(v/peTot*100).toFixed(1)+'%)';}}}}}});
+ if(document.getElementById('pcExitGroupChart'))new Chart(document.getElementById('pcExitGroupChart'),{type:'doughnut',data:{labels:exitPathRows.map(function(r){return r[0];}),datasets:[{data:exitPathRows.map(function(r){return r[1];}),backgroundColor:exitPathRows.map(function(r){return r[2];}),borderColor:'#fff',borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:8,padding:9,font:{size:10}}},tooltip:{callbacks:{label:function(o){var v=o.parsed||0;return o.label+': '+fmt(v)+' infants and toddlers ('+(v/peTot*100).toFixed(1)+'%)';}}}}}});
  setSup('sup-disc',C.discipline.sup,'IDEA Part B Discipline Collection, School Year 2023–24');setSup('sup-exit',C.exiting.sup,'IDEA Part B Exiting Collection, School Year 2023–24');setSup('sup-pers',C.personnel.sup,'IDEA Part B Personnel Collection, School Year 2023–24');
  setSup('sup-asmt',C.assessment.sup,'IDEA Part B Assessment Collection, School Year 2023–24');setSup('sup-pct',{x:0,star:0,na:0},'IDEA Part C Child Count Collection, School Years 2005–06 through 2011–12, and IDEA Part C Child Count and Settings Collection, School Years 2012–13 through 2024–25');setSup('sup-pcc',C.partc_count.sup,'IDEA Part C Child Count and Settings Collection, School Year 2024–25');setSup('sup-pce',C.partc_exit.sup,'IDEA Part C Exiting Collection, School Year 2023–24');
  renderCollectionTree();
@@ -13614,7 +13633,7 @@ let naepMode='scores';
 function renderNAEP(){
  const kpiBox=document.getElementById('naepKpis'), el=document.getElementById('naepChart');if(!kpiBox||!el)return;
  Chart.getChart('naepChart')?.destroy();
- const A=NAEP.assessments, cap=document.getElementById('naepCaption'), ANIM=false;
+ const A=NAEP.assessments, cap=document.getElementById('naepCaption'), ANIM=undefined;
  kpiBox.innerHTML=A.map((a,i)=>{const gap=a.nsd-a.sd;
   return `<div class="k ${i%2?'alt':''}"><div class="l">${a.k} gap</div><div class="v">${gap} pts</div>
    <div class="l" style="font-weight:600;text-transform:none;letter-spacing:0;margin-top:2px">SD ${a.sd} vs ${a.nsd} · ${a.yr}</div></div>`;}).join('');
@@ -13663,14 +13682,14 @@ function renderACS(){
  // sex comparison, simple percent bars
  const _mkSex=(id,male,colM)=>new Chart(document.getElementById(id),{type:'doughnut',
   data:{labels:['Male','Female'],datasets:[{data:[male,+(100-male).toFixed(1)],backgroundColor:[colM,'#cfd8e3'],borderColor:'#ffffff',borderWidth:2}]},
-  options:{responsive:true,maintainAspectRatio:false,animation:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:10,weight:'600'}}},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:10,weight:'600'}}},
    tooltip:{callbacks:{label:o=>o.label+': '+o.parsed+'%'}}}}});
  _mkSex('acsSexIDEA',ACS.idea_male,'#005ea2');
  _mkSex('acsSexUS',ACS.us_male,'#005ea2');
  // share served by age band
  new Chart(document.getElementById('acsAgeChart'),{type:'bar',
   data:{labels:ACS.byAge.map(a=>a[0]),datasets:[{data:ACS.byAge.map(a=>a[1]),backgroundColor:'#009E73',borderRadius:4}]},
-  options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
    tooltip:{callbacks:{label:o=>o.parsed.y+'% of U.S. children this age receive IDEA services'}}},
    scales:{y:{beginAtZero:true,suggestedMax:20,ticks:{callback:v=>v+'%'},title:{display:true,text:'Percent of all U.S. children'}},x:{grid:{display:false}}}}});
 }
@@ -13795,13 +13814,13 @@ function exportStateReportPNG(){
  var cols=3,cw=306,ch=94,pad=28,W=cols*cw+pad*2,nr=Math.ceil(items.length/cols),H=pad+58+nr*ch+34;
  var cv=document.createElement('canvas');cv.width=W;cv.height=H;var x=cv.getContext('2d');
  x.fillStyle='#fff';x.fillRect(0,0,W,H);x.fillStyle='#edcf36';x.fillRect(0,0,W,7);
- x.fillStyle='#13354e';x.font='800 22px "Source Sans 3", Arial';x.fillText('State Snapshot',pad,pad+32);x.font='700 14px "Source Sans 3", Arial';x.fillText(focusState,pad,pad+54);
- x.fillStyle='#555';x.font='600 12px "Source Sans 3", Arial';x.fillText('Latest available year per collection · U.S. = 50 states + DC.',pad,pad+52);
+ x.fillStyle='#13354e';x.font='800 22px Calibri, Carlito, "Source Sans 3", Arial';x.fillText('State Snapshot',pad,pad+32);x.font='700 14px Calibri, Carlito, "Source Sans 3", Arial';x.fillText(focusState,pad,pad+54);
+ x.fillStyle='#555';x.font='600 12px Calibri, Carlito, "Source Sans 3", Arial';x.fillText('Latest available year per collection · U.S. = 50 states + DC.',pad,pad+52);
  items.forEach(function(it,i){var cx=pad+(i%cols)*cw,cy=pad+58+Math.floor(i/cols)*ch;
   x.strokeStyle='#dfe1e6';x.lineWidth=1;x.strokeRect(cx,cy,cw-14,ch-12);x.fillStyle='#0b4a8f';x.fillRect(cx,cy,4,ch-12);
-  x.fillStyle='#565c65';x.font='700 11px "Source Sans 3", Arial';x.fillText(it[0].slice(0,44),cx+14,cy+24);
-  x.fillStyle='#13354e';x.font='900 25px "Source Sans 3", Arial';x.fillText(it[1],cx+14,cy+58);});
- x.fillStyle='#666';x.font='600 11px "Source Sans 3", Arial';x.fillText('Source: U.S. Department of Education, Office of Special Education Programs, IDEA Section 618 data collections.',pad,H-15);
+  x.fillStyle='#565c65';x.font='700 11px Calibri, Carlito, "Source Sans 3", Arial';x.fillText(it[0].slice(0,44),cx+14,cy+24);
+  x.fillStyle='#13354e';x.font='900 25px Calibri, Carlito, "Source Sans 3", Arial';x.fillText(it[1],cx+14,cy+58);});
+ x.fillStyle='#666';x.font='600 11px Calibri, Carlito, "Source Sans 3", Arial';x.fillText('Source: U.S. Department of Education, Office of Special Education Programs, IDEA Section 618 data collections.',pad,H-15);
  var a=document.createElement('a');a.href=cv.toDataURL('image/png',1);a.download='state_report_'+focusState.replace(/\s/g,'_')+'.png';a.click();
 }
 function srRank(state,vf,desc){
@@ -13946,7 +13965,7 @@ function renderNationalSnapshot(){
  var all=DEMO.cur['All Disabilities'];
  var topCats=['Specific learning disability','Speech or language impairment','Other health impairment','Autism','Developmental delay'];
  var rows=topCats.map(function(k){var n=(DEMO.cur[k]&&DEMO.cur[k].total)||0;return {label:k,value:pct(n,all.total),count:n,color:COLORS[k]||'#005ea2',note:'IDEA Part B Child Count and Educational Environments Collection, ages 3–21, School Year 2024–25'};});
- new Chart(el,{type:'bar',data:{labels:rows.map(function(r){return r.label;}),datasets:[{label:'Percent of Part B child count',data:rows.map(function(r){return +r.value.toFixed(1);}),backgroundColor:rows.map(function(r){return shade(r.color,.86);}),borderColor:rows.map(function(r){return r.color;}),borderWidth:1,borderRadius:7,_note:rows.map(function(r){return r.note;}),_count:rows.map(function(r){return r.count;})}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){return o.parsed.x+'% of Part B child count, '+fmt(o.dataset._count[o.dataIndex])+' children and students · '+o.dataset._note[o.dataIndex];}}}},scales:{x:{beginAtZero:true,max:35,ticks:{callback:function(v){return v+'%';}},title:{display:true,text:'Percent of children and students served under Part B'}},y:{grid:{display:false},ticks:{font:{size:11,weight:'700'}}}}}});
+ new Chart(el,{type:'bar',data:{labels:rows.map(function(r){return r.label;}),datasets:[{label:'Percent of Part B child count',data:rows.map(function(r){return +r.value.toFixed(1);}),backgroundColor:rows.map(function(r){return shade(r.color,.86);}),borderColor:rows.map(function(r){return r.color;}),borderWidth:1,borderRadius:7,_note:rows.map(function(r){return r.note;}),_count:rows.map(function(r){return r.count;})}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){return o.parsed.x+'% of Part B child count, '+fmt(o.dataset._count[o.dataIndex])+' children and students · '+o.dataset._note[o.dataIndex];}}}},scales:{x:{beginAtZero:true,max:35,ticks:{callback:function(v){return v+'%';}},title:{display:true,text:'Percent of children and students served under Part B'}},y:{grid:{display:false},ticks:{font:{size:11,weight:'700'}}}}}});
  if(pc){
   var st=COLL.partc_count.settings;
   var pcRows=[
@@ -13954,7 +13973,7 @@ function renderNationalSnapshot(){
    {label:'Community-Based Setting',value:pct(st['Community-Based Setting'],COLL.partc_count.total),color:'#005ea2',note:'IDEA Part C, birth through age 2, School Year 2024–25'},
    {label:'Other setting',value:pct(st['Other Setting'],COLL.partc_count.total),color:'#cc5a33',note:'IDEA Part C, birth through age 2, School Year 2024–25'}
   ];
-  new Chart(pc,{type:'bar',data:{labels:pcRows.map(function(r){return r.label;}),datasets:[{label:'Percent of infants and toddlers served',data:pcRows.map(function(r){return +r.value.toFixed(1);}),backgroundColor:pcRows.map(function(r){return r.color;}),borderRadius:7,_note:pcRows.map(function(r){return r.note;})}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){return o.parsed.x+'% · '+o.dataset._note[o.dataIndex];}}}},scales:{x:{beginAtZero:true,max:100,ticks:{callback:function(v){return v+'%';}},title:{display:true,text:'Percent of infants and toddlers served under Part C'}},y:{grid:{display:false},ticks:{font:{size:11,weight:'700'}}}}}});
+  new Chart(pc,{type:'bar',data:{labels:pcRows.map(function(r){return r.label;}),datasets:[{label:'Percent of infants and toddlers served',data:pcRows.map(function(r){return +r.value.toFixed(1);}),backgroundColor:pcRows.map(function(r){return r.color;}),borderRadius:7,_note:pcRows.map(function(r){return r.note;})}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){return o.parsed.x+'% · '+o.dataset._note[o.dataIndex];}}}},scales:{x:{beginAtZero:true,max:100,ticks:{callback:function(v){return v+'%';}},title:{display:true,text:'Percent of infants and toddlers served under Part C'}},y:{grid:{display:false},ticks:{font:{size:11,weight:'700'}}}}}});
  }
 }
 function renderCategoryShift(){
@@ -13965,7 +13984,7 @@ function renderCategoryShift(){
  var lab=document.getElementById('categoryShiftYear');if(lab)lab.textContent='School Year '+YEARS[yi].replace('-', '–');
  var rows=COMP_ORDER.map(function(k){var b=pct(DIS[k][base]||0,ALL[base]||1),c=pct(DIS[k][yi]||0,ALL[yi]||1);return {label:k,base:b,current:c,diff:c-b,color:COLORS[k]||'#005ea2'};}).sort(function(a,b){return Math.abs(b.diff)-Math.abs(a.diff);}).slice(0,9);
  var max=Math.max(3,Math.ceil(Math.max.apply(null,rows.map(function(r){return Math.abs(r.diff);}))));
- new Chart(el,{type:'bar',data:{labels:rows.map(function(r){return r.label;}),datasets:[{label:'Percentage-point change',data:rows.map(function(r){return +r.diff.toFixed(2);}),backgroundColor:rows.map(function(r){return r.diff>=0?'#005ea2':'#cc5a33';}),borderRadius:6,_base:rows.map(function(r){return r.base;}),_current:rows.map(function(r){return r.current;})}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){var b=o.dataset._base[o.dataIndex],c=o.dataset._current[o.dataIndex],d=o.parsed.x;return (d>=0?'+':'')+d.toFixed(1)+' percentage points · '+b.toFixed(1)+'% to '+c.toFixed(1)+'%';}}}},scales:{x:{min:-max,max:max,ticks:{callback:function(v){return (v>0?'+':'')+v+' pp';}},title:{display:true,text:'Change in share of all students served'}},y:{grid:{display:false},ticks:{font:{size:11,weight:'700'}}}}}});
+ new Chart(el,{type:'bar',data:{labels:rows.map(function(r){return r.label;}),datasets:[{label:'Percentage-point change',data:rows.map(function(r){return +r.diff.toFixed(2);}),backgroundColor:rows.map(function(r){return r.diff>=0?'#005ea2':'#cc5a33';}),borderRadius:6,_base:rows.map(function(r){return r.base;}),_current:rows.map(function(r){return r.current;})}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){var b=o.dataset._base[o.dataIndex],c=o.dataset._current[o.dataIndex],d=o.parsed.x;return (d>=0?'+':'')+d.toFixed(1)+' percentage points · '+b.toFixed(1)+'% to '+c.toFixed(1)+'%';}}}},scales:{x:{min:-max,max:max,ticks:{callback:function(v){return (v>0?'+':'')+v+' pp';}},title:{display:true,text:'Change in share of all students served'}},y:{grid:{display:false},ticks:{font:{size:11,weight:'700'}}}}}});
 }
 function renderStateMeasureChart(){
  var panel=document.getElementById('stateMeasurePanel'),box=document.getElementById('stateMeasureCards');if(!panel||!box)return;
@@ -14025,7 +14044,7 @@ function renderOfficialDisplayViz(mode){
  var note=document.getElementById('officialDisplayChartNote');
  if(note)note.textContent='Published Part B measures for '+focusState+', Publication Year '+d.year+'. Shows the six largest percentage-point differences from the national value.';
  var max=Math.max(2,Math.ceil(Math.max.apply(null,rows.map(function(row){return Math.abs(row.diff);}))*1.1));
- new Chart(el,{type:'bar',data:{labels:rows.map(function(row){return row.label;}),datasets:[{label:'Percentage-point difference from U.S.',data:rows.map(function(row){return +row.diff.toFixed(2);}),backgroundColor:rows.map(function(row){return row.diff>=0?'#005ea2':'#cc5a33';}),borderRadius:6,_state:rows.map(function(row){return row.state;}),_nation:rows.map(function(row){return row.nation;})}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){var d=o.parsed.x,sv=o.dataset._state[o.dataIndex],nv=o.dataset._nation[o.dataIndex];return (d>=0?'+':'')+d.toFixed(2)+' percentage points · '+focusState+' '+sv.toFixed(2)+'%, U.S. '+nv.toFixed(2)+'%';}}}},scales:{x:{min:-max,max:max,ticks:{callback:function(v){return (v>0?'+':'')+v+' pp';}},title:{display:true,text:'Difference from U.S. value'}},y:{grid:{display:false},ticks:{font:{size:11,weight:'700'}}}}}});
+ new Chart(el,{type:'bar',data:{labels:rows.map(function(row){return row.label;}),datasets:[{label:'Percentage-point difference from U.S.',data:rows.map(function(row){return +row.diff.toFixed(2);}),backgroundColor:rows.map(function(row){return row.diff>=0?'#005ea2':'#cc5a33';}),borderRadius:6,_state:rows.map(function(row){return row.state;}),_nation:rows.map(function(row){return row.nation;})}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){var d=o.parsed.x,sv=o.dataset._state[o.dataIndex],nv=o.dataset._nation[o.dataIndex];return (d>=0?'+':'')+d.toFixed(2)+' percentage points · '+focusState+' '+sv.toFixed(2)+'%, U.S. '+nv.toFixed(2)+'%';}}}},scales:{x:{min:-max,max:max,ticks:{callback:function(v){return (v>0?'+':'')+v+' pp';}},title:{display:true,text:'Difference from U.S. value'}},y:{grid:{display:false},ticks:{font:{size:11,weight:'700'}}}}}});
 }
 
 
@@ -14045,7 +14064,10 @@ let reduceMotion=(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce
 function setChartTheme(){const dark=document.body.classList.contains('dark'),hc=document.body.classList.contains('hc');
  Chart.defaults.color=hc?(dark?'#ffffff':'#000000'):(dark?'#b6c2d2':'#5b6472');
  Chart.defaults.borderColor=hc?(dark?'rgba(255,255,255,.45)':'rgba(0,0,0,.4)'):(dark?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)');
- Chart.defaults.animation=false;}
+ var _anOff=document.body.classList.contains('no-anim')||document.body.classList.contains('reduce')||reduceMotion,_anD=_anOff?0:850;
+ Chart.defaults.animation.duration=_anD;Chart.defaults.animation.easing='easeOutQuart';
+ if(Chart.defaults.animations){if(Chart.defaults.animations.x)Chart.defaults.animations.x.duration=_anD;if(Chart.defaults.animations.y)Chart.defaults.animations.y.duration=_anD;}
+ if(Chart.overrides){if(Chart.overrides.doughnut&&Chart.overrides.doughnut.animation)Chart.overrides.doughnut.animation.duration=_anD;if(Chart.overrides.pie&&Chart.overrides.pie.animation)Chart.overrides.pie.animation.duration=_anD;}}
 function reRenderTheme(){setChartTheme();
  // destroy every chart so they rebuild with the new theme colors
  if(compChart){compChart.destroy();compChart=null;}
@@ -14068,7 +14090,7 @@ function setTextSize(l){document.body.style.removeProperty('zoom');document.docu
 function toggleContrast(on){document.body.classList.toggle('hc',on);setSwitch('swContrast',on);lsSet('idea618hc',on?'1':'0');reRenderTheme();}
 function toggleMotion(on){reduceMotion=on;document.body.classList.toggle('reduce',on);setSwitch('swMotion',on);lsSet('idea618rm',on?'1':'0');reRenderTheme();}
 function toggleUL(on){document.body.classList.toggle('ul',on);setSwitch('swUL',on);lsSet('idea618ul',on?'1':'0');}
-function toggleAnim(on){document.body.classList.toggle('no-anim',!on);setSwitch('swAnim',on);lsSet('idea618anim',on?'1':'0');}
+function toggleAnim(on){document.body.classList.toggle('no-anim',!on);setSwitch('swAnim',on);lsSet('idea618anim',on?'1':'0');reRenderTheme();}
 function renderAll(){
  kpis();renderNationalSnapshot();renderTrend();renderTrendShare();renderTrendChange();renderComp();renderCategoryShift();renderEnv();renderIncl();renderSparks();renderHomeBubbles();
  renderExplorer();renderStateBar();renderStateDetail();renderStateReport();renderStateRankBanner();try{renderSnapshotDeterminations();}catch(e){}renderStateMeasureChart();renderTable();renderCollections();renderNAEP();renderACS();renderCompare();if(mapReady)colorMap();
@@ -14086,7 +14108,7 @@ function _wrapLines(ctx,text,font,maxW){ctx.font=font;const ws=(text||'').split(
  for(const w of ws){const t=ln?ln+' '+w:w;if(ctx.measureText(t).width>maxW&&ln){out.push(ln);ln=w;}else ln=t;}if(ln)out.push(ln);return out;}
 function _captionedPNG(srcCanvas,title,note,filename,source){
  if(!srcCanvas||!srcCanvas.width||!srcCanvas.height){try{alert('Open the chart (Visualize) and let it finish drawing before saving the PNG.');}catch(e){}return;}
- var cw=srcCanvas.width||900,pad=Math.round(cw*0.045),W=cw+pad*2,FONT='"Source Sans 3", Arial';
+ var cw=srcCanvas.width||900,pad=Math.round(cw*0.045),W=cw+pad*2,FONT='Calibri, Carlito, "Source Sans 3", Arial';
  var fT=Math.max(18,Math.round(cw*0.030)),fN=Math.max(12,Math.round(cw*0.018)),fS=Math.max(10,Math.round(cw*0.0135));
  var lhT=fT*1.22,lhN=fN*1.35,lhS=fS*1.32,maxW=W-2*pad;
  var m=document.createElement('canvas').getContext('2d');
@@ -14149,14 +14171,14 @@ function exportExplorerPNG(){
  const W=900,pad=24,headH=78,chH=250,gap=20;
  const cv=document.createElement('canvas');cv.width=W;cv.height=headH+items.length*(chH+gap)+pad+54;
  const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
- ctx.fillStyle='#162e51';ctx.font='800 20px "Source Sans 3", Arial';ctx.fillText('Disability Category Explorer',pad,38);
- ctx.fillStyle='#555';ctx.font='600 13px "Source Sans 3", Arial';ctx.fillText((cat+'   '+big).slice(0,90),pad,60);
+ ctx.fillStyle='#162e51';ctx.font='800 20px Calibri, Carlito, "Source Sans 3", Arial';ctx.fillText('Disability Category Explorer',pad,38);
+ ctx.fillStyle='#555';ctx.font='600 13px Calibri, Carlito, "Source Sans 3", Arial';ctx.fillText((cat+'   '+big).slice(0,90),pad,60);
  let y=headH;
- items.forEach(([t,c])=>{ctx.fillStyle='#162e51';ctx.font='700 13px "Source Sans 3", Arial';ctx.fillText(t,pad,y+2);
+ items.forEach(([t,c])=>{ctx.fillStyle='#162e51';ctx.font='700 13px Calibri, Carlito, "Source Sans 3", Arial';ctx.fillText(t,pad,y+2);
   const s=c.canvas,r=Math.min((W-2*pad)/s.width,chH/s.height);
   ctx.drawImage(s,pad,y+10,s.width*r,s.height*r);y+=chH+gap;});
- ctx.fillStyle='#666';ctx.font='600 12px "Source Sans 3", Arial';
- _wrapLines(ctx,SRC_NOTE,'600 12px "Source Sans 3", Arial',W-2*pad).forEach((l,k)=>ctx.fillText(l,pad,y+4+k*16));
+ ctx.fillStyle='#666';ctx.font='600 12px Calibri, Carlito, "Source Sans 3", Arial';
+ _wrapLines(ctx,SRC_NOTE,'600 12px Calibri, Carlito, "Source Sans 3", Arial',W-2*pad).forEach((l,k)=>ctx.fillText(l,pad,y+4+k*16));
  const a=document.createElement('a');a.href=cv.toDataURL('image/png',1);a.download='disability_explorer.png';a.click();
 }
 function exportExplorerPDF(){
@@ -14416,7 +14438,7 @@ function setupDrilldowns(){
 }
 
 /* ===== Data Tables view (multi-state, multi-collection, real IDEA Section 618) ===== */
-var tablesCollections=['ccee'];
+var tablesCollections=[];
 var tablesExtra=[];
 var tablesPrimary='__USALL__';
 var tablesMode='count';
@@ -14596,7 +14618,7 @@ function _renderVizChart(sid){
   var showLc=(st.showLabels!==false);
   var ffCmp={id:'ffCmp',afterDatasetsDraw:function(chart){if(!showLc)return;var ctx=chart.ctx,dark=document.body.classList.contains('dark');ctx.save();ctx.font='800 10px '+(Chart.defaults.font.family||'sans-serif');ctx.fillStyle=dark?'#e9eef5':'#13354e';chart.data.datasets.forEach(function(d,di){var meta=chart.getDatasetMeta(di);if(!meta||meta.hidden)return;meta.data.forEach(function(el,i){var v=d.data[i];if(v==null||isNaN(v))return;var t=cmpFmt(v);if(horizC){ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(t,el.x+5,el.y);}else{ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(t,el.x,el.y-4);}});});ctx.restore();}};
   if(noteEl)noteEl.textContent='Percent proficient on statewide assessments: '+spec.compare.aLabel+' vs '+spec.compare.bLabel+'. State results are not comparable across States.';
-  new Chart(canvas,{type:'bar',data:{labels:labsCmp,datasets:dsCmp},plugins:[ffCmp],options:{indexAxis:horizC?'y':'x',responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:horizC?{right:46}:{top:16}},
+  new Chart(canvas,{type:'bar',data:{labels:labsCmp,datasets:dsCmp},plugins:[ffCmp],options:{indexAxis:horizC?'y':'x',responsive:true,maintainAspectRatio:false,layout:{padding:horizC?{right:46}:{top:16}},
    plugins:{ffValues:false,legend:{display:true,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10,weight:'700'}}},tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+cmpFmt(o.parsed[horizC?'x':'y']);}}}},
    scales:horizC?{x:{beginAtZero:true,grid:{color:'rgba(120,140,160,.13)',drawBorder:false},ticks:{callback:function(v){return v+'%';}}},y:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'}}}}:{x:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'},autoSkip:false,maxRotation:50}},y:{beginAtZero:true,grid:{color:'rgba(120,140,160,.13)',drawBorder:false},ticks:{callback:function(v){return v+'%';}}}}}});
   return;
@@ -14650,11 +14672,11 @@ function _renderVizChart(sid){
   var bPal=TBL_PIE_COLORS,showL=ffFlag;
   var ffPb={id:'ffPb',afterDatasetsDraw:function(chart){if(!showL)return;var meta=chart.getDatasetMeta(0);if(!meta||!meta.data)return;var ctx=chart.ctx,dark=document.body.classList.contains('dark');ctx.save();ctx.font='800 10px '+(Chart.defaults.font.family||'sans-serif');ctx.fillStyle=dark?'#e9eef5':'#13354e';ctx.textAlign='center';ctx.textBaseline='bottom';meta.data.forEach(function(el,i){var p=chart.data.datasets[0].data[i];var rr=(el.options&&el.options.radius)||6;ctx.fillText(unitFmt(p._v),el.x,el.y-rr-3);});ctx.restore();}};
   noteTxt=(metricMode?_stripHtml(spec.metrics[pmi].label):spec.cap)+' Bubble size is proportional to the value.';if(noteEl)noteEl.textContent=noteTxt;
-  cfg={type:'bubble',data:{datasets:[{data:bPts,backgroundColor:bPts.map(function(_,i){return shade(bPal[i%bPal.length],.8);}),borderColor:bPts.map(function(_,i){return bPal[i%bPal.length];}),borderWidth:1.5,hoverBorderWidth:2}]},plugins:[ffPb],options:{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:26,bottom:4,left:8,right:8}},
+  cfg={type:'bubble',data:{datasets:[{data:bPts,backgroundColor:bPts.map(function(_,i){return shade(bPal[i%bPal.length],.8);}),borderColor:bPts.map(function(_,i){return bPal[i%bPal.length];}),borderWidth:1.5,hoverBorderWidth:2}]},plugins:[ffPb],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:26,bottom:4,left:8,right:8}},
    plugins:{legend:{display:false},tooltip:{callbacks:{title:function(it){return it[0].raw._l;},label:function(o){return unitFmt(o.raw._v);}}}},
    scales:{x:{type:'linear',min:-0.6,max:(bN-0.4),grid:{display:false,drawBorder:false},ticks:{stepSize:1,autoSkip:false,callback:function(v){var p=bPts[Math.round(v)];if(!p)return '';var s=p._l;return s.length>16?s.slice(0,15)+'…':s;},font:{size:9,weight:'700'},maxRotation:42,minRotation:0}},y:{display:false,min:0,max:2,grid:{display:false}}}}};
  }else if(pieType){
-  cfg={type:st.type,data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,cutout:st.type==='doughnut'?'58%':0,layout:{padding:6},
+  cfg={type:st.type,data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,cutout:st.type==='doughnut'?'58%':0,layout:{padding:6},
    plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:10,padding:7,font:{size:10,weight:'600'}}},
     tooltip:{callbacks:{label:function(o){var sum=o.dataset.data.reduce(function(a,b){return a+(b||0);},0);var share=sum?(o.parsed/sum*100):0;return o.label+': '+unitFmt(o.parsed)+(pct?'':' ('+share.toFixed(1)+'%)');}}}}}};
  }else{
@@ -14663,7 +14685,7 @@ function _renderVizChart(sid){
   // single series -> give each bar its own colour (cleaner, more readable, more "Fast Facts")
   if(single&&datasets[0]){var _pal=TBL_PIE_COLORS;datasets[0].backgroundColor=labels.map(function(_,i){return shade(_pal[i%_pal.length],.9);});datasets[0].borderColor=labels.map(function(_,i){return _pal[i%_pal.length];});datasets[0].borderWidth=1;datasets[0].borderRadius=4;datasets[0].maxBarThickness=46;}
   // value labels are drawn by the global ffValueLabels plugin; ffValues toggles them per chart
-  cfg={type:'bar',data:{labels:labels,datasets:datasets},options:{indexAxis:horizontal?'y':'x',responsive:true,maintainAspectRatio:false,animation:false,
+  cfg={type:'bar',data:{labels:labels,datasets:datasets},options:{indexAxis:horizontal?'y':'x',responsive:true,maintainAspectRatio:false,
    plugins:{ffValues:ffFlag,legend:{display:datasets.length>1,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10,weight:'700'}}},
     tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+unitFmt(o.parsed[horizontal?'x':'y']);}}}},
    scales:horizontal?{x:{beginAtZero:true,max:pct?100:undefined,grid:{color:GRIDC,drawBorder:false},ticks:{callback:function(v){return pct?v+'%':v.toLocaleString();}}},y:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'}}}}:{x:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'600'},autoSkip:false,maxRotation:55,minRotation:0}},y:{beginAtZero:true,max:pct?100:undefined,grid:{color:GRIDC,drawBorder:false},ticks:{callback:function(v){return pct?v+'%':v.toLocaleString();}}}}}};
@@ -14999,7 +15021,6 @@ function _setupTablesControls(){
  try{var _cb=localStorage.getItem('idea618_tablesCompareBy'); if(_cb==='state'||_cb==='category')tablesCompareBy=_cb;}catch(e){}
  try{var _cp=localStorage.getItem('idea618_tablesCatPrimary'); if(_cp&&CCEE.cats.indexOf(_cp)>=0)tablesCatPrimary=_cp;}catch(e){}
  try{var _ce=JSON.parse(localStorage.getItem('idea618_tablesCatExtra')||'null'); if(_ce&&_ce.length)tablesCatExtra=_ce.filter(function(c){return CCEE.cats.indexOf(c)>=0;}).slice(0,5);}catch(e){}
- if(!tablesCollections.length)tablesCollections=['ccee'];
  _renderStateChips(); _renderTablesCat();
  var psel=document.getElementById('tablesStateSel');
  if(psel){psel.addEventListener('change',function(){var v=psel.value; if(v!==TBL_USALL&&!CCEE.data[v])return; tablesPrimary=v; _persistPrimary(); if(v!==TBL_USALL){if(typeof focusState!=='undefined')focusState=v; var ss=document.getElementById('stateSel'); if(ss)ss.value=v;} try{updateNavSelection();}catch(e){} _renderStateChips(); renderTablesView();});}
@@ -15007,7 +15028,7 @@ function _setupTablesControls(){
  if(add){add.addEventListener('change',function(){var v=add.value; if(v&&CCEE.data[v]&&_tblStates().indexOf(v)<0&&_tblStates().length<6){tablesExtra.push(v);_persistStates();_renderStateChips();renderTablesView();} add.value='';});}
  var catSel=document.getElementById('tablesCatSel');
  if(catSel){catSel.addEventListener('change',function(){tablesCat=catSel.value;renderTablesView();});}
- document.querySelectorAll('.tcr-pill').forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.coll; var i=tablesCollections.indexOf(k); if(i>=0){ if(tablesCollections.length>1)tablesCollections.splice(i,1); } else { tablesCollections.push(k); } _persistColls(); renderTablesView();});});
+ document.querySelectorAll('.tcr-pill').forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.coll; var i=tablesCollections.indexOf(k); if(i>=0){ tablesCollections.splice(i,1); } else { tablesCollections.push(k); } _persistColls(); renderTablesView();});});
  document.querySelectorAll('#tablesModeToggle button').forEach(function(b){b.addEventListener('click',function(){tablesMode=b.dataset.tm;try{lsSet('idea618_tablesMode',tablesMode);}catch(e){}renderTablesView();});});
  document.querySelectorAll('#tablesCompareToggle button').forEach(function(b){b.addEventListener('click',function(){tablesCompareBy=b.dataset.cmp;_persistCatCompare();renderTablesView();});});
  var cps=document.getElementById('tablesCatPrimarySel');
@@ -15023,6 +15044,14 @@ function renderTablesView(){
  var toggle=document.getElementById('tablesModeToggle'); var usesToggle=tablesCollections.some(function(k){return TOGGLE_COLL[k];}); if(toggle)toggle.style.display=usesToggle?'':'none';
  document.querySelectorAll('#tablesModeToggle button').forEach(function(b){var on=b.dataset.tm===tablesMode;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});
  var box=document.getElementById('tablesBody'); if(!box)return;
+ var _tbToolbar=document.querySelector('.tables-toolbar'),_tbKey=document.getElementById('tablesKey');
+ if(!tablesCollections.length){
+  if(_tbToolbar)_tbToolbar.style.display='none'; if(_tbKey)_tbKey.style.display='none';
+  try{if(typeof Chart!=='undefined')box.querySelectorAll('.tbl-viz-canvas').forEach(function(cv){var c=Chart.getChart(cv.id);if(c)c.destroy();});}catch(e){}
+  box.innerHTML='<div class="tables-empty"><div class="tables-empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg></div><h3>Pick a collection to begin</h3><p>Choose one or more data collections from the buttons above to see the IDEA Section&nbsp;618 tables. You can combine Part&nbsp;B and Part&nbsp;C, switch between counts and percentages, and download any table as a CSV.</p></div>';
+  return;
+ }
+ if(_tbToolbar)_tbToolbar.style.display=''; if(_tbKey)_tbKey.style.display='';
  try{if(typeof Chart!=='undefined')box.querySelectorAll('.tbl-viz-canvas').forEach(function(cv){var c=Chart.getChart(cv.id);if(c)c.destroy();});}catch(e){}
  var byCat=(tablesCompareBy==='category');
  var sel=_selColls();
@@ -15198,7 +15227,7 @@ function _gpraChart(m){
  var last=m.rows[m.rows.length-1];
  var pf=(last[2]==null)?_gpraPredictFrom(m):null;
  if(pf){var predData=m.rows.map(function(r){return null;}); predData[predData.length-1]=Math.round(pf.value*10)/10; datasets.push({label:'Predicted',data:predData,borderColor:'#c79a1f',backgroundColor:'#c79a1f',pointStyle:'triangle',pointRadius:8,pointHoverRadius:10,showLine:false,spanGaps:false});}
- var cfg={type:'line',data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},
+ var cfg={type:'line',data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:12,font:{size:11,weight:'700'}}},
      tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+(o.parsed.y==null?'not reported':_gpraFmt(o.parsed.y,m.unit));}}}},
    scales:{x:{grid:{display:false},title:{display:true,text:'Fiscal year'}},
@@ -15335,7 +15364,7 @@ function renderCompare2(){
     new Chart(document.getElementById('cmp2Chart'),{type:'line',data:{labels:YEARS,datasets:[
       {label:cmpA,data:DIS[cmpA],borderColor:_catColor(cmpA),backgroundColor:shade(_catColor(cmpA),.20),borderWidth:3.2,tension:.28,pointRadius:0,pointHoverRadius:6,pointHitRadius:12,fill:false,spanGaps:true},
       {label:cmpB,data:DIS[cmpB],borderColor:_catColor(cmpB),backgroundColor:shade(_catColor(cmpB),.20),borderWidth:3.2,tension:.28,pointRadius:0,pointHoverRadius:6,pointHitRadius:12,fill:false,spanGaps:true}]},
-      options:{animation:false,responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
         plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:12}},tooltip:{callbacks:{label:o=>o.dataset.label+': '+fmt(o.parsed.y)+' thousand'}}},
         scales:{x:{grid:{display:false},ticks:{maxRotation:0,minRotation:0,autoSkip:true,maxTicksLimit:9}},y:{beginAtZero:true,title:{display:true,text:'Students served (thousands)'},ticks:{callback:v=>v.toLocaleString()}}}}});
   }else{
@@ -15373,7 +15402,7 @@ function renderCompare2(){
         var cv=document.getElementById('cmp2mini_'+m.key);if(!cv)return;
         var miniLabels={id:'mini_'+m.key,afterDatasetsDraw:function(ch){var ctx=ch.ctx;ctx.save();ctx.font='800 12px '+Chart.defaults.font.family;ctx.textAlign='center';var meta=ch.getDatasetMeta(0);meta.data.forEach(function(el,i){var v=ch.data.datasets[0].data[i];ctx.fillStyle=Chart.defaults.color;if(v==null){ctx.textBaseline='middle';ctx.fillText('N/A',el.x,(ch.chartArea.top+ch.chartArea.bottom)/2);return;}var t=(m.key==='growth'&&v>0?'+':'')+(+v).toFixed(1)+'%';ctx.textBaseline=(v>=0?'bottom':'top');ctx.fillText(t,el.x,(v>=0?el.y-6:el.y+6));});ctx.restore();}};
         new Chart(cv,{type:'bar',data:{labels:[cmpA,cmpB],datasets:[{data:[m.a,m.b],backgroundColor:[shade(navy,.86),shade(rust,.86)],borderColor:[navy,rust],borderWidth:1,borderRadius:7,maxBarThickness:66}]},
-          options:{animation:false,responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},
+          options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},
             plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){return o.label+': '+(o.parsed.y==null?'N/A':((m.key==='growth'&&o.parsed.y>0?'+':'')+o.parsed.y.toFixed(1)+'%'));}}}},
             scales:{x:{grid:{display:false},ticks:{font:{size:12}}},y:{beginAtZero:true,ticks:{callback:function(v){return v+'%';}}}}},plugins:[miniLabels]});
       });
@@ -15467,7 +15496,7 @@ function _addCardTools(card,onPNG,onCSV){
 }
 function _composeViewPNG(view,items){
   if(!items.length){alert('This page has no charts to export as an image. Choose “Full PDF” for the whole data tool.');return;}
-  const W=940,pad=30,gap=20,headH=94,maxCh=300,FONT='"Source Sans 3", Arial';
+  const W=940,pad=30,gap=20,headH=94,maxCh=300,FONT='Calibri, Carlito, "Source Sans 3", Arial';
   const vlabel=({home:'National Trends',trends:'National Trends',composition:'Composition',explorer:'Disability Explorer',states:'State Snapshot',lea:'Part B LEA Explorer',tables:'SEA Tables',gpra:'Part B GPRA Analysis',collections:'Data Collections',sources:'Sources'})[view]||view;
   const sized=items.map(([t,cv])=>{const r=Math.min((W-2*pad)/cv.width,maxCh/cv.height);return [t,cv,Math.round(cv.width*r),Math.round(cv.height*r)];});
   const bodyH=sized.reduce((a,s)=>a+26+s[3]+gap,0);
@@ -16134,7 +16163,7 @@ function _leaRenderNation(){
    '<div class="card"><div class="ey">Ranked · nationwide</div><h3>Largest districts</h3><div class="note">By children served. Click one to open it.</div><div class="lea-ranklist" id="leaRankList"></div></div>'+
   '</div>'+
   '<details class="lea-deepdive" id="leaDeepDive"><summary><span class="ldd-t">Explore the national picture</span><small>How districts and students compare, where the dollars go, and a card for every State</small></summary><div class="lea-deepdive-body">'+
-  '<div class="card fig"><div class="ey">Students, not districts</div><h3>The same ratings, counted two ways</h3><div class="note">The left grid counts <b>districts</b>; the right counts the <b>students</b> they enroll. Both cover the '+totD.toLocaleString()+' districts that got a determination, and each square is about 1%.</div><div class="lea-waffles"><div class="lea-waffle-col"><div class="lbl">Share of <b>districts</b> ('+totD.toLocaleString()+')</div>'+_leaWaffleHTML(distParts)+'</div><div class="lea-waffle-col"><div class="lbl">Share of <b>students</b> ('+_leaFmt(totS)+')</div>'+_leaWaffleHTML(studParts)+'</div></div>'+_leaDetLeg()+'<div class="lea-punch">Most districts (<b>'+pctMeetD+'%</b>) meet IDEA requirements, but they only enroll <b>'+pctMeetS+'%</b> of students. Around <b>'+_leaFmt(needIntS)+'</b> kids are in districts their state flagged as needing intervention or substantial intervention.</div></div>'+
+  '<div class="card fig"><h3>The same ratings, counted two ways</h3><div class="note">The left grid counts <b>districts</b>; the right counts the <b>students</b> they enroll. Both cover the '+totD.toLocaleString()+' districts that got a determination, and each square is about 1%.</div><div class="lea-waffles"><div class="lea-waffle-col"><div class="lbl">Share of <b>districts</b> ('+totD.toLocaleString()+')</div>'+_leaWaffleHTML(distParts)+'</div><div class="lea-waffle-col"><div class="lbl">Share of <b>students</b> ('+_leaFmt(totS)+')</div>'+_leaWaffleHTML(studParts)+'</div></div>'+_leaDetLeg()+'<div class="lea-punch">Most districts (<b>'+pctMeetD+'%</b>) meet IDEA requirements, but they only enroll <b>'+pctMeetS+'%</b> of students. Around <b>'+_leaFmt(needIntS)+'</b> kids are in districts their state flagged as needing intervention or substantial intervention.</div></div>'+
   '<div class="card fig"><div class="ey">Funding flow</div><h3>Where IDEA Part B dollars go</h3><div class="note">The grant splits into Section&nbsp;611 (school-age) and Section&nbsp;619 (preschool). A slice gets set aside for Coordinated Early Intervening Services (CEIS), and the rest pays for special education and related services. SY&nbsp;2021–22.</div><div class="lea-sc-bar"><label for="leaFlowState">Funding for</label><select id="leaFlowState"><option value="">United States (all States &amp; territories)</option>'+Object.keys(LEA_DATA.flow).filter(function(s){return s!=='__US__';}).sort().map(function(s){return '<option value="'+s.replace(/"/g,'&quot;')+'">'+s+'</option>';}).join('')+'</select></div><div id="leaFlow">'+_leaFlowSVG(flUS)+'</div><div class="lea-flow-note" id="leaFlowNote">'+_leaFlowNoteHTML(flUS)+'</div></div>'+
   '<div class="card fig"><div class="ey">State report cards</div><h3>How states compare</h3><div class="note">Children served (2024–25) next to MOE compliance (2021–22). The color shows how many of a state&rsquo;s districts meet requirements. Click a card to open that state.</div><div class="lea-sc-bar"><label for="leaScSort">Sort by</label><select id="leaScSort"><option value="served">Children served (high → low)</option><option value="meet">% districts meeting requirements</option><option value="met">% met the MOE standard</option><option value="ceis">CEIS-required districts</option><option value="nomoe">Districts without MOE match</option><option value="name">State name (A → Z)</option></select></div><div class="lea-sc-legend"><span><i style="background:#2e8540"></i>75%+ meeting</span><span><i style="background:#b8860b"></i>50–74%</span><span><i style="background:#cc5a33"></i>25–49%</span><span><i style="background:#8c1d1d"></i>under 25%</span></div><div class="lea-scards" id="leaScards"></div></div>'+'</div></details>';
  var rl=document.getElementById('leaRankList');var topN=sorted.slice(0,25),maxT=topN.length?(topN[0].served||1):1;
