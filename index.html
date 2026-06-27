@@ -11667,12 +11667,17 @@ body.dark .view[data-view="tables"] .tbl-cmp-btn.on{background:#1f6fa8;border-co
 /* ---------- HOME : CRDC-style packed bubble cluster ---------- */
 .home-bubblewrap{margin:10px auto 4px;max-width:760px}
 .home-bubblewrap svg{display:block;width:100%;height:auto;max-height:440px;overflow:visible}
-.home-bubblewrap .hb-bubble{cursor:pointer;transition:transform .15s ease}
-.home-bubblewrap .hb-bubble circle{transition:filter .15s ease}
-body:not(.no-anim):not(.reduce) .home-bubblewrap .hb-bubble:hover{transform:scale(1.04)}
-.home-bubblewrap .hb-bubble:hover circle,.home-bubblewrap .hb-bubble:focus-visible circle{filter:brightness(1.07)}
+.home-bubblewrap .hb-bubble{cursor:pointer;transform-box:fill-box;transform-origin:center;transition:transform .18s cubic-bezier(.34,1.4,.5,1),opacity .2s ease}
+.home-bubblewrap .hb-bubble circle{transition:filter .18s ease,stroke-width .18s ease}
+body:not(.no-anim):not(.reduce) .home-bubblewrap .hb-bubble:hover,body:not(.no-anim):not(.reduce) .home-bubblewrap .hb-bubble:focus-visible{transform:scale(1.08)}
+.home-bubblewrap .hb-bubble:hover circle,.home-bubblewrap .hb-bubble:focus-visible circle{filter:brightness(1.08) drop-shadow(0 3px 8px rgba(16,42,67,.30));stroke-width:3}
 .home-bubblewrap .hb-bubble:focus-visible{outline:none}
-.home-bubblewrap .hb-bubble:focus-visible circle{stroke-width:3}
+/* focus effect: dim the other bubbles while one is hovered/focused */
+.home-bubblewrap.hb-focusing .hb-bubble:not(:hover){opacity:.42}
+.home-bubblewrap:focus-within .hb-bubble:not(:focus-visible):not(:hover){opacity:.42}
+/* staggered pop-in entrance (per-bubble delay set inline) */
+@keyframes hbPop{0%{opacity:0;transform:scale(.2)}55%{opacity:1}100%{opacity:1;transform:scale(1)}}
+body:not(.no-anim):not(.reduce) .home-bubblewrap .hb-bubble{animation:hbPop .55s cubic-bezier(.34,1.56,.5,1) backwards}
 .home-bubblewrap .hb-v{fill:#fff;font-weight:900;font-variant-numeric:tabular-nums;font-family:Calibri,Carlito,'Source Sans 3','Segoe UI',system-ui,-apple-system,sans-serif}
 .home-bubblewrap .hb-l{fill:rgba(255,255,255,.92);font-weight:700;font-family:Calibri,Carlito,'Source Sans 3','Segoe UI',system-ui,-apple-system,sans-serif}
 body.hc .home-bubblewrap .hb-v,body.hc .home-bubblewrap .hb-l{fill:#fff}
@@ -11947,6 +11952,56 @@ body.dark .view[data-view="lea"] .lea-deepdive{background:#16202c;border-color:#
 body.dark .view[data-view="lea"] .lea-deepdive>summary .ldd-t{color:#9fc3ec}
 body.hc .view[data-view="lea"] .lea-deepdive,body.hc .view[data-view="lea"] .lea-deepdive>summary{border-width:2px}
 
+/* --- Fix: the global "Sources, data notes & suppression key" disclosure never collapsed, because the .catalog (display:grid) and footer rules overrode the native <details> collapse, so the whole source catalog + data notes showed at the bottom of every view. Force the content hidden when closed. --- */
+.sources-fold:not([open]) > *:not(summary){display:none!important}
+.sources-fold>summary{border-left:4px solid var(--ff-gold);padding-left:10px;border-radius:8px}
+
+/* --- GPRA: each measure is a collapsible card (summary = title + met badge + latest/target) --- */
+#gpraBody .grid.g2{grid-template-columns:1fr}
+.gpra-mfold{padding:0!important;overflow:hidden}
+.gpra-mfold>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr;column-gap:12px;row-gap:7px;align-items:start;padding:14px 16px}
+.gpra-mfold>summary::-webkit-details-marker{display:none}
+.gpra-mfold>summary:before{content:"\25B8";color:var(--muted);font-size:.95em;transition:transform .15s;margin-top:3px}
+.gpra-mfold[open]>summary:before{transform:rotate(90deg)}
+.gpra-mfold>summary:hover .gpra-msum-title{color:var(--primary)}
+.gpra-msum-title{grid-column:2;font-weight:800;font-size:1.02rem;line-height:1.3;color:var(--navy)}
+body.dark .gpra-msum-title{color:#9fc3ec}
+.gpra-msum-meta{grid-column:2;display:inline-flex;align-items:center;gap:11px;flex-wrap:wrap}
+.gpra-msum-stat{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.gpra-mbody{padding:0 16px 15px}
+.gpra-mfold[data-met="yes"] .gpra-scale-badge{background:rgba(46,133,64,.13);color:#206b32}
+.gpra-mfold[data-met="yes"] .gpra-scale-badge:before{background:#2e8540}
+.gpra-mfold[data-met="no"] .gpra-scale-badge{background:rgba(204,90,51,.15);color:#a8431f}
+.gpra-mfold[data-met="no"] .gpra-scale-badge:before{background:#cc5a33}
+.gpra-mfold[data-met="tbd"] .gpra-scale-badge{background:rgba(91,100,114,.13);color:#5b6472}
+.gpra-mfold[data-met="tbd"] .gpra-scale-badge:before{background:#8b95a3}
+@media(max-width:560px){.gpra-mfold>summary{gap:6px}.gpra-msum-stat{flex-basis:100%}}
+
+/* --- GPRA target scale: at-a-glance latest-vs-target with met/not-met (Fast Facts colors) --- */
+.gpra-scale{margin:11px 0 4px;padding:13px 15px 11px;border:1px solid var(--line);border-radius:11px;background:var(--card)}
+.gpra-scale-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;justify-content:space-between}
+.gpra-scale-badge{display:inline-flex;align-items:center;gap:7px;font-weight:800;font-size:.78rem;padding:4px 12px;border-radius:999px}
+.gpra-scale-badge:before{content:"";width:8px;height:8px;border-radius:50%}
+.gpra-scale[data-met="yes"] .gpra-scale-badge{background:rgba(46,133,64,.13);color:#206b32}
+.gpra-scale[data-met="yes"] .gpra-scale-badge:before{background:#2e8540}
+.gpra-scale[data-met="no"] .gpra-scale-badge{background:rgba(204,90,51,.15);color:#a8431f}
+.gpra-scale[data-met="no"] .gpra-scale-badge:before{background:#cc5a33}
+.gpra-scale[data-met="tbd"] .gpra-scale-badge{background:rgba(91,100,114,.13);color:#5b6472}
+.gpra-scale[data-met="tbd"] .gpra-scale-badge:before{background:#8b95a3}
+.gpra-scale-vals{font-size:.82rem;color:var(--muted)}
+.gpra-scale-vals b{color:var(--ink);font-variant-numeric:tabular-nums}
+.gpra-scale-track{position:relative;height:13px;border-radius:7px;background:#eef2f6;margin:22px 0 5px}
+body.dark .gpra-scale-track{background:#1c2735}
+.gpra-scale-fill{position:absolute;left:0;top:0;bottom:0;border-radius:7px;transition:width .7s ease}
+.gpra-scale[data-met="yes"] .gpra-scale-fill{background:linear-gradient(90deg,#3aa35a,#2e8540)}
+.gpra-scale[data-met="no"] .gpra-scale-fill{background:linear-gradient(90deg,#e0764f,#cc5a33)}
+.gpra-scale-target{position:absolute;top:-7px;bottom:-7px;width:0;border-left:2px dashed var(--ff-gold-deep);z-index:2}
+.gpra-scale-tlabel{position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-size:.62rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#9a7d12;white-space:nowrap}
+.gpra-scale-axis{display:flex;justify-content:space-between;font-size:.66rem;color:var(--muted);font-variant-numeric:tabular-nums}
+body.dark .gpra-scale{background:#16202c;border-color:#2f3a48}
+body.dark .gpra-scale-tlabel{color:var(--ff-gold)}
+body.hc .gpra-scale,body.hc .gpra-scale-track{border:1px solid currentColor}
+
 /* --- GPRA program-goal/objective: tucked into a disclosure --- */
 .view[data-view="gpra"] .gpra-goalfold{border:1px solid var(--line);border-left:4px solid var(--ff-gold);border-radius:10px;background:var(--card);margin:0 0 14px}
 .view[data-view="gpra"] .gpra-goalfold>summary{list-style:none;cursor:pointer;padding:11px 16px;font-weight:800;font-size:.95rem;color:var(--navy);display:flex;align-items:center;gap:8px}
@@ -11968,6 +12023,17 @@ body.printing .view[data-view="gpra"] .gpra-goalfold-body{display:block!importan
 .view[data-view="lea"] #leaMapLegend .mlg-grad{flex:1;min-width:80px;height:10px;border-radius:5px;border:1px solid var(--line)}
 .view[data-view="lea"] #leaMapLegend .mlg-cap{white-space:nowrap;font-weight:700}
 
+/* --- Home KPI icons: small Fast Facts-colored glyphs --- */
+#kpis .kpi{position:relative}
+#kpis .kpi-ic{display:inline-flex;width:36px;height:36px;border-radius:10px;align-items:center;justify-content:center;margin-bottom:9px}
+#kpis .kpi-ic svg{width:21px;height:21px}
+.view[data-view="trends"] #kpis .kpi:nth-child(1) .kpi-ic{color:#005ea2;background:rgba(0,94,162,.10)}
+.view[data-view="trends"] #kpis .kpi:nth-child(2) .kpi-ic{color:#9a7d12;background:rgba(230,216,74,.24)}
+.view[data-view="trends"] #kpis .kpi:nth-child(3) .kpi-ic{color:#2e8540;background:rgba(46,133,64,.12)}
+.view[data-view="trends"] #kpis .kpi:nth-child(4) .kpi-ic{color:#1f6fa8;background:rgba(31,111,168,.12)}
+body.dark #kpis .kpi-ic{background:rgba(255,255,255,.06)}
+body.hc #kpis .kpi-ic{background:transparent;border:1.5px solid currentColor}
+
 /* --- Shared "pick X to begin" empty state (State Snapshot + others) --- */
 .pick-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin:18px 0 4px;padding:46px 28px;border:1.5px dashed var(--line);border-radius:16px;background:linear-gradient(180deg,#fbfcfe 0%,#f4f8fc 100%)}
 .pick-empty-ic{width:60px;height:60px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:linear-gradient(155deg,#1c4f74,#13354e);color:#fff;box-shadow:0 4px 12px rgba(19,53,78,.25);margin-bottom:6px}
@@ -11978,11 +12044,9 @@ body.dark .pick-empty{background:linear-gradient(180deg,#161f2b 0%,#131b25 100%)
 body.dark .pick-empty h3{color:#dbe8f6}
 body.hc .pick-empty{border-style:solid;border-width:2px}
 /* State Snapshot: until a State is picked, hide the State-specific panels but keep the map + rankings (the picker) visible */
-body.state-unpicked .view[data-view="states"] [data-drill-group="states"][data-drill-panel="profile"],
-body.state-unpicked .view[data-view="states"] [data-drill-group="states"][data-drill-panel="advanced"],
-body.state-unpicked .view[data-view="states"] #stateAdvancedSection,
-body.state-unpicked .view[data-view="states"] #stateDeterminations,
-body.state-unpicked .view[data-view="states"] .state-page-nav{display:none!important}
+/* While unpicked, the Map subtab is shown as the picker (setupStateSubtabs); hide the section nav and the map's own heading so only the prompt + map appear. */
+body.state-unpicked .view[data-view="states"] .state-page-nav,
+body.state-unpicked .view[data-view="states"] #stateMapSection{display:none!important}
 
 /* --- SEA Tables empty state ("Pick a collection to begin") --- */
 .view[data-view="tables"] .tables-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;
@@ -12026,6 +12090,7 @@ body.dark #viewTabs .navtrigger.active,body.hc #viewTabs .navtrigger.active{box-
 /* Keep exports/print complete: never hide content in the PDF/print path */
 body.printing .home-launchpad,body.printing .explain-wrap{display:none!important}
 body.printing .gpra-group.gsec-hidden{display:block!important}
+body.printing .gpra-mfold>.gpra-mbody{display:block!important}
 body.printing .lea-deepdive>.lea-deepdive-body{display:block!important}
 
 </style>
@@ -12155,7 +12220,6 @@ body.printing .lea-deepdive>.lea-deepdive-body{display:block!important}
 
 <section class="home-launchpad" aria-label="Explore the rest of the data tool">
   <div class="home-launchpad-head">
-    <span class="lp-eyebrow">More IDEA Section&nbsp;618 data</span>
     <h3>Explore the data in depth</h3>
     <span class="lp-sub">Each view focuses on a different part of the public IDEA Section&nbsp;618 data that States and the additional reporting entities report to the Office of Special Education Programs (OSEP) each year. Select one to explore it in detail.</span>
   </div>
@@ -12762,8 +12826,15 @@ function kpis(){
   {l:'IDEA, Part B, Ages 5 Through 21',v:incAll.toFixed(1)+'%',c:'Served in the regular class 80% or more of the school day, School Year 2024–25',cls:'good'},
   {l:'IDEA, Part C, Birth Through Age 2',v:'458,920',c:'Infants and toddlers with disabilities served, School Year 2024–25',cls:'good'}
  ];
- document.getElementById('kpis').innerHTML=cards.map(k=>
+ const KPI_ICONS=[
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="3.2"/><path d="M22 19v-1a4 4 0 0 0-3-3.87"/><path d="M16 4.13a4 4 0 0 1 0 7.75"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M16 7h5v5"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l9-5 9 5v12"/><path d="M9 21v-6h6v6"/><path d="M3 21h18"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r="2.6"/><path d="M12 8.2v6.3"/><path d="M8.5 11.2 12 10l3.5 1.2"/><path d="M10.6 14.5 9 20M13.4 14.5 15 20"/></svg>'
+ ];
+ document.getElementById('kpis').innerHTML=cards.map((k,i)=>
   `<div class="kpi ${k.cls==='autism'?'autism':k.cls==='good'?'good':''}">
+    <span class="kpi-ic" aria-hidden="true">${KPI_ICONS[i]||''}</span>
     <div class="l">${k.l}</div><div class="v">${k.v}</div>
     <div class="c ${k.cls==='up'?'up':''}">${k.c}</div></div>`).join('');
 }
@@ -12887,9 +12958,9 @@ function _packedBubbles(el,items,opts){
  function wrap(name,maxc){var w=(''+name).split(' '),lines=[],cur='';w.forEach(function(word){if(!cur)cur=word;else if((cur+' '+word).length<=maxc)cur=cur+' '+word;else{lines.push(cur);cur=word;}});if(cur)lines.push(cur);if(lines.length>2)lines=[lines[0],lines.slice(1).join(' ')];return lines;}
  var click=!!opts.onClick;
  var svg='<svg viewBox="'+(minX-pad).toFixed(1)+' '+(minY-pad).toFixed(1)+' '+vbW.toFixed(1)+' '+vbH.toFixed(1)+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Bubble cluster sized by value">';
- placed.forEach(function(it){
+ placed.forEach(function(it,bi){
   var col=it.color||'#227aa7';
-  svg+='<g class="hb-bubble"'+(click?' data-hbcat="'+(''+it.name).replace(/"/g,'')+'" tabindex="0" role="button"':'')+'><title>'+it.name+': '+it.v.toLocaleString()+'</title>'+
+  svg+='<g class="hb-bubble" style="animation-delay:'+(bi*0.045).toFixed(2)+'s"'+(click?' data-hbcat="'+(''+it.name).replace(/"/g,'')+'" tabindex="0" role="button"':'')+'><title>'+it.name+': '+it.v.toLocaleString()+'</title>'+
    '<circle cx="'+it.x.toFixed(1)+'" cy="'+it.y.toFixed(1)+'" r="'+it.r.toFixed(1)+'" fill="'+shade(col,.85)+'" stroke="'+col+'" stroke-width="1.6"/>';
   if(it.r>=23){
    var fs=Math.max(8.5,Math.min(15,it.r*0.3)),lfs=Math.max(7,fs*0.6);
@@ -12902,7 +12973,14 @@ function _packedBubbles(el,items,opts){
  });
  svg+='</svg>';
  el.innerHTML=svg;
- if(click){el.querySelectorAll('.hb-bubble').forEach(function(g){var act=function(){try{opts.onClick(g.getAttribute('data-hbcat'));}catch(e){}};g.addEventListener('click',act);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();act();}});});}
+ var _tot=items.reduce(function(s,d){return s+(d.v||0);},0)||1;
+ var _bubs=el.querySelectorAll('.hb-bubble');
+ placed.forEach(function(it,bi){ var g=_bubs[bi]; if(!g)return;
+  g.addEventListener('mouseenter',function(){el.classList.add('hb-focusing');});
+  g.addEventListener('mousemove',function(e){var t=document.getElementById('maptip');if(!t)return;t.innerHTML='<b>'+it.name+'</b>'+it.v.toLocaleString()+' served · '+(it.v/_tot*100).toFixed(1)+'% of the total';t.style.left=Math.min(e.clientX+14,window.innerWidth-240)+'px';t.style.top=(e.clientY+14)+'px';t.style.opacity=1;});
+  g.addEventListener('mouseleave',function(){el.classList.remove('hb-focusing');var t=document.getElementById('maptip');if(t)t.style.opacity=0;});
+ });
+ if(click){_bubs.forEach(function(g){var act=function(){try{opts.onClick(g.getAttribute('data-hbcat'));}catch(e){}};g.addEventListener('click',act);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();act();}});});}
 }
 function renderHomeBubbles(){
  var el=document.getElementById('homeBubbles');if(!el||typeof DEMO==='undefined'||!DEMO.cur)return;
@@ -13992,14 +14070,15 @@ function _renderStatePickPrompt(){
  if(document.getElementById('statePickPrompt'))return;
  var v=document.querySelector('.view[data-view="states"]');if(!v)return;
  var anchor=document.getElementById('stateMapSection')||v.querySelector('.grid');if(!anchor||!anchor.parentNode)return;
- var div=document.createElement('div');div.id='statePickPrompt';div.className='pick-empty';
+ var div=document.createElement('div');div.id='statePickPrompt';div.className='pick-empty';div.setAttribute('data-stab','stateMapSection');
  div.innerHTML='<div class="pick-empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><h3>Pick a State to begin</h3><p>Choose a State from the menu above, or click any State on the map below, to see its IDEA Section&nbsp;618 data, how it ranks nationally, and its federal determination.</p>';
- anchor.parentNode.insertBefore(div,anchor);
+ anchor.parentNode.insertBefore(div,anchor.nextSibling);
 }
 function afterStateChange(){
- if(!focusState){document.body.classList.add('state-unpicked');_renderStatePickPrompt();try{renderStateBar();}catch(e){}try{colorMap();}catch(e){}return;}
+ var _wasUnpicked=document.body.classList.contains('state-unpicked');
+ if(!focusState){document.body.classList.add('state-unpicked');_renderStatePickPrompt();try{renderStateBar();}catch(e){}try{colorMap();}catch(e){}try{showStateTab('stateMapSection');}catch(e){}return;}
  document.body.classList.remove('state-unpicked');var _pp=document.getElementById('statePickPrompt');if(_pp)_pp.remove();
- updateStateSnapshotHeading();var _isS=STATES.some(function(x){return x[0]===focusState;});document.body.classList.toggle('entity-focus',!_isS);if(_isS){renderStateDetail();renderStateReport();renderStateRankBanner();renderStateMeasureChart();renderStateBar();renderTable();renderCompare();colorMap();}else{try{renderEntityMode();}catch(e){console.warn('entity mode',e);}}try{renderDeterminations();}catch(e){console.warn('determinations',e);}try{renderSnapshotDeterminations();}catch(e){console.warn('snapshot determinations',e);}try{renderOfficialDisplay();}catch(e){console.warn('official display',e);}}
+ updateStateSnapshotHeading();var _isS=STATES.some(function(x){return x[0]===focusState;});document.body.classList.toggle('entity-focus',!_isS);if(_isS){renderStateDetail();renderStateReport();renderStateRankBanner();renderStateMeasureChart();renderStateBar();renderTable();renderCompare();colorMap();}else{try{renderEntityMode();}catch(e){console.warn('entity mode',e);}}try{renderDeterminations();}catch(e){console.warn('determinations',e);}try{renderSnapshotDeterminations();}catch(e){console.warn('snapshot determinations',e);}try{renderOfficialDisplay();}catch(e){console.warn('official display',e);}if(_wasUnpicked){try{showStateTab('stateRankBanner');}catch(e){}}}
 function renderEntityMode(){var n=focusState,info=entityInfo(n),d=(typeof DD!=='undefined'&&DD[n])||null;var cnt=(info.count!=null?info.count:(d&&d.ident?d.ident.cwdState:null));var pub=d&&d.year?'Publication Year '+d.year:'published measures when available';var note='<div class="note" style="margin:0"><b>'+n+'</b> is an additional IDEA reporting entity. Maps, ranks, and national comparison bars on this page use the 50 States and the District of Columbia.</div>';var el;if(el=document.getElementById('stateRankBanner')){el.hidden=true;el.innerHTML='';}if(el=document.getElementById('stateRptTitle'))el.textContent='Additional Reporting Entity';if(el=document.getElementById('stateProfileNote'))el.innerHTML='Additional reporting entity. Available measures are shown separately from the 50 + DC ranking set.';if(el=document.getElementById('stateInsight'))el.innerHTML='<div class="state-insight-grid entity-insight"><div class="mini"><b>Classification</b><span class="snap-num small">'+info.classification+'</span><span class="snap-unit">Included in IDEA Section 618 reporting.</span></div><div class="mini"><b>Part B, ages 3–21</b><span class="snap-num">'+(cnt!=null?fmt(cnt):'N/A')+'</span><span class="snap-unit">children and students served in School Year 2024–25 when available.</span></div><div class="mini"><b>2026 IDEA determination</b><span class="snap-num small">'+(det2026Status('partB',n)||'Not listed')+'</span><span class="snap-unit">U.S. Department of Education determination for Part B, based on Federal Fiscal Year 2024.</span></div></div>';if(el=document.getElementById('stateReport'))el.innerHTML=note;if(el=document.getElementById('stateMeasurePanel'))el.hidden=true;if(el=document.getElementById('stateMeasureTitle'))el.textContent='Published data available below';if(el=document.getElementById('stateMeasureCards'))el.innerHTML='';if(el=document.getElementById('statePanelTitle'))el.textContent=n+' reporting entity';if(el=document.getElementById('statePanelStats'))el.innerHTML='<div class="dd-mut">Not included in the 50 + DC map, ranking, or trend displays.</div>';if(el=document.getElementById('statePanelTitleSnap'))el.textContent=n+' reporting entity';if(el=document.getElementById('statePanelStatsSnap'))el.innerHTML='<div class="dd-mut">Not included in the 50 + DC map, ranking, or trend displays.</div>';if(typeof stateTrendSnap!=='undefined'&&stateTrendSnap){try{stateTrendSnap.destroy();}catch(e){}stateTrendSnap=null;}if(el=document.getElementById('cmpPanel'))el.innerHTML=note;try{renderDeterminations();}catch(e){}}
 
 /* ============ OFFICE OF SPECIAL EDUCATION PROGRAMS PUBLISHED STATE MEASURES ============ */
@@ -15290,6 +15369,30 @@ function _gpraPredictFrom(m){
  }catch(e){}
  return null;
 }
+function _gpraScaleTrack(actual,target,max,m){
+ var aPct=actual!=null?Math.max(1.5,Math.min(100,actual/max*100)):null;
+ var tPct=target!=null?Math.max(0,Math.min(100,target/max*100)):null;
+ var fill=aPct!=null?'<div class="gpra-scale-fill" style="width:'+aPct.toFixed(1)+'%"></div>':'';
+ var tgt=tPct!=null?'<div class="gpra-scale-target" style="left:'+tPct.toFixed(1)+'%" title="Target '+_gpraFmt(target,m.unit)+'"><span class="gpra-scale-tlabel">Target '+_gpraFmt(target,m.unit)+'</span></div>':'';
+ var hi=(m.unit==='%')?'100%':_gpraFmt(max,m.unit);
+ return '<div class="gpra-scale-track">'+fill+tgt+'</div><div class="gpra-scale-axis"><span>0</span><span>'+hi+'</span></div>';
+}
+function _gpraScale(m){
+ var latest=null,i;
+ for(i=m.rows.length-1;i>=0;i--){ if(m.rows[i][2]!=null){ latest=m.rows[i]; break; } }
+ var target=latest?latest[1]:null;
+ if(target==null){ for(i=m.rows.length-1;i>=0;i--){ if(m.rows[i][1]!=null){ target=m.rows[i][1]; break; } } }
+ var max;
+ if(m.unit==='%'){ max=100; }
+ else { var vals=[]; m.rows.forEach(function(r){ if(r[1]!=null)vals.push(r[1]); if(r[2]!=null)vals.push(r[2]); }); max=Math.ceil(Math.max.apply(null,vals.concat([1]))*1.18); }
+ if(latest==null){
+  return '<div class="gpra-scale" data-met="tbd"><div class="gpra-scale-head"><span class="gpra-scale-badge">Not yet reported</span><span class="gpra-scale-vals">Target: <b>'+(target!=null?_gpraFmt(target,m.unit):'–')+'</b></span></div>'+_gpraScaleTrack(null,target,max,m)+'</div>';
+ }
+ var actual=latest[2];
+ var met=m.goodHigh?(actual>=target):(actual<=target);
+ var badge=met?'Target met':(m.goodHigh?'Below target':'Above target');
+ return '<div class="gpra-scale" data-met="'+(met?'yes':'no')+'"><div class="gpra-scale-head"><span class="gpra-scale-badge">'+badge+'</span><span class="gpra-scale-vals">Latest (FY'+latest[0]+'): <b>'+_gpraFmt(actual,m.unit)+'</b> · Target: <b>'+_gpraFmt(target,m.unit)+'</b></span></div>'+_gpraScaleTrack(actual,target,max,m)+'</div>';
+}
 function _gpraCard(group,m){
  var rowsHtml=m.rows.map(function(r){return '<tr><td>'+r[0]+'</td><td class="dd-c">'+_gpraFmt(r[1],m.unit)+'</td><td class="dd-c">'+_gpraFmt(r[2],m.unit)+'</td></tr>';}).join('');
  var unitLabel=m.unit==='days'?'days':(m.unit==='pts'?'percentage points':'percent');
@@ -15306,16 +15409,23 @@ function _gpraCard(group,m){
  var predBlock='<div class="gpra-predict'+(pf?' is-derived':'')+(known?' is-reported':'')+'"><div class="gpra-predict-head"><span class="gpra-predict-k">'+predLabel+'</span><span class="gpra-predict-v">'+predVal+'</span></div>'+yearLine+'<div class="gpra-predict-note">'+predNote+'</div></div>';
  var noteBlock=m.note?'<details class="gpra-notefold"><summary>Why some years are blank</summary><div class="gpra-note-body">'+m.note+'</div></details>':'';
  var srcBlock=m.src?'<details class="tbl-srcfold gpra-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">'+m.src+'</div></details>':'';
- return '<div class="gpra-card card" data-gpra-card>'
- +'<h3>'+m.title+'</h3>'
+ var _lt=null,_i; for(_i=m.rows.length-1;_i>=0;_i--){ if(m.rows[_i][2]!=null){ _lt=m.rows[_i]; break; } }
+ var _tg=_lt?_lt[1]:null; if(_tg==null){ for(_i=m.rows.length-1;_i>=0;_i--){ if(m.rows[_i][1]!=null){ _tg=m.rows[_i][1]; break; } } }
+ var _dataMet,_badge,_stat;
+ if(_lt==null){ _dataMet='tbd'; _badge='Not yet reported'; _stat='Target '+(_tg!=null?_gpraFmt(_tg,m.unit):'–'); }
+ else { var _a=_lt[2],_met=m.goodHigh?(_a>=_tg):(_a<=_tg); _dataMet=_met?'yes':'no'; _badge=_met?'Target met':(m.goodHigh?'Below target':'Above target'); _stat='FY'+_lt[0]+': '+_gpraFmt(_a,m.unit)+' · Target '+_gpraFmt(_tg,m.unit); }
+ return '<details class="gpra-card gpra-mfold card" data-gpra-card data-met="'+_dataMet+'">'
+ +'<summary class="gpra-msum"><span class="gpra-msum-title">'+m.title+'</span><span class="gpra-msum-meta"><span class="gpra-scale-badge">'+_badge+'</span><span class="gpra-msum-stat">'+_stat+'</span></span></summary>'
+ +'<div class="gpra-mbody">'
  +'<div class="gpra-dir '+(m.goodHigh?'is-good':'is-watch')+'">'+(m.goodHigh?'Higher is better':'Lower is better')+'</div>'
  +'<div class="note">'+m.desc+' Shown in '+unitLabel+'.</div>'
+ +_gpraScale(m)
  +'<div class="gpra-chartwrap"><div class="canvas-box"><canvas id="gpra_'+m.id+'" aria-label="Target vs. actual chart for '+m.title+'"></canvas></div></div>'
  +'<div class="gpra-tablewrap"><div class="dd-tablewrap"><table class="dd-table"><thead><tr><th>Year</th><th class="dd-c">Target</th><th class="dd-c">Actual</th></tr></thead><tbody>'+rowsHtml+'</tbody></table></div></div>'
  +predBlock
  +noteBlock
  +srcBlock
- +'</div>';
+ +'</div></details>';
 }
 function _gpraChart(m){
  var el=document.getElementById('gpra_'+m.id); if(!el||typeof Chart==='undefined')return;
@@ -15354,6 +15464,7 @@ function renderGPRA(){
  }).join('');
  if(!_gpraInit){_gpraInit=true;document.querySelectorAll('#gpraViewToggle button').forEach(function(b){b.addEventListener('click',function(){_setGpraView(b.dataset.gv);});});}
  _setGpraView(gpraView);
+ body.querySelectorAll('.gpra-mfold').forEach(function(d){ d.addEventListener('toggle',function(){ if(!d.open)return; setTimeout(function(){ try{ d.querySelectorAll('canvas').forEach(function(c){ var ch=(window.Chart&&Chart.getChart)?Chart.getChart(c):null; if(ch){ try{ch.resize();ch.update('none');}catch(_){} } }); }catch(e){} try{if(typeof countUpRoot==='function')countUpRoot(d);}catch(e){} },30); }); });
 }
 function showView(v,scrollId){
   if(!PROTO_VIEWS.includes(v))v='home';
@@ -15956,7 +16067,8 @@ function setupStateSubtabs(){
       links.forEach(function(a){ a.addEventListener('click', function(e){ e.preventDefault(); showStateTab(a.getAttribute('href').slice(1)); }); });
       nav.setAttribute('data-stab-init','1');
     }
-    showStateTab(_stabActive && order.indexOf(_stabActive)>=0 ? _stabActive : order[0]);
+    var _firstTab=(!focusState && order.indexOf('stateMapSection')>=0)?'stateMapSection':((_stabActive && order.indexOf(_stabActive)>=0)?_stabActive:order[0]);
+    showStateTab(_firstTab);
   }catch(e){}
 }
 var VIEW_SUBTABS={
