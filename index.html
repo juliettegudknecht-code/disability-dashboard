@@ -14802,7 +14802,8 @@ const VIEW_REFRESH={
   collections:()=>['renderCollections'].forEach(_run),
   sources:()=>['renderNAEP','renderACS'].forEach(_run),
   tables:()=>_run('renderTablesView'),
-  gpra:()=>_run('renderGPRA')
+  gpra:()=>_run('renderGPRA'),
+  lea:()=>{try{initLEA();}catch(e){console.warn('lea refresh',e);}}
 };
 let _curView=null;
 
