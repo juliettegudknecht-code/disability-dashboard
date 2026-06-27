@@ -11945,6 +11945,15 @@ body.hc .gpra-sectnav,body.hc .gpra-sectnav .gsec-btn{border-width:2px}
   .gpra-sectnav .gsec-label{position:sticky;left:0;background:var(--card);padding-right:4px;z-index:1}
   body.dark .gpra-sectnav .gsec-label{background:#121b27}
 }
+/* GPRA landing: friendly "pick a topic" empty state, shown until a topic is chosen */
+.gpra-empty{text-align:center;max-width:560px;margin:24px auto 30px;padding:30px 26px;border:1px dashed var(--line);border-radius:14px;background:var(--card)}
+body.dark .gpra-empty{background:#16202c;border-color:#34414f}
+.gpra-empty-ic{display:inline-flex;width:56px;height:56px;align-items:center;justify-content:center;border-radius:50%;background:rgba(0,94,162,.10);color:var(--primary);margin-bottom:13px}
+body.dark .gpra-empty-ic{background:rgba(115,179,231,.16);color:var(--primary-lt)}
+.gpra-empty-ic svg{width:28px;height:28px}
+.gpra-empty h3{margin:0 0 7px;font-size:1.2rem;color:var(--navy)}
+body.dark .gpra-empty h3{color:#eaf1f8}
+.gpra-empty p{margin:0 auto;font-size:.92rem;line-height:1.55;color:var(--muted);max-width:44ch}
 
 /* --- LEA Explorer landing: hide the District picker until a State is chosen --- */
 .view[data-view="lea"] .lea-controls .lea-pickwrap[hidden]{display:none!important}
@@ -12273,7 +12282,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     </div>
     <div class="appbar-tools">
       <div class="search" id="searchWrap">
-        <input id="searchInput" type="search" placeholder="Search a State, school district, collection, category, performance measure, or topic…" autocomplete="off" aria-label="Search states, state abbreviations, school districts (LEAs), disability categories, data collections, GPRA performance measures, and topics">
+        <input id="searchInput" type="search" placeholder="Search any State, school district, disability category, or performance measure…" autocomplete="off" aria-label="Search states, state abbreviations, individual school districts (LEAs), disability categories, and Part B performance measures">
         <div class="search-results" id="searchResults" role="listbox" aria-label="Search results"></div>
       </div>
       <div class="appbar-actions">
@@ -12667,12 +12676,16 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <div class="fn"><b>Source:</b> U.S. Department of Education, Office of Special Education Programs. EDPass: “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” 2024–25 (LEA file, specifications 002 and 089); and the IDEA Part&nbsp;B LEA Maintenance of Effort (MOE) Reduction and Coordinated Early Intervening Services (CEIS) collection, SY&nbsp;2021–22. Suppressed cells are shown as “–”.</div>
 </div>
 <div class="view" data-view="gpra" role="tabpanel" aria-label="Part B GPRA Performance Analysis">
-<h2 class="section-title" id="gpra">Part B GPRA Performance Analysis</h2>
-<p class="viewlead">The official <abbr title="Government Performance and Results Act">GPRA</abbr> performance measures for the <strong>IDEA Part&nbsp;B Grants to States</strong> program, drawn from the U.S. Department of Education's Fiscal Year 2025 Budget Request (Congressional Justification). Each measure pairs the Department's annual <strong>target</strong> with the <strong>actual</strong> result reported. Every figure shown is taken directly from that document; where a result has not been reported it is shown as a dash (–), and the upcoming year's result is marked <strong>TBD</strong> rather than estimated.</p>
-<div class="gpra-goalbox" id="gpraGoal"></div>
-<div class="tbl-toggle gpra-viewtoggle" id="gpraViewToggle" role="group" aria-label="Show GPRA measures as tables or charts">
+<h2 class="section-title" id="gpra">Part B Performance Measures</h2>
+<p class="viewlead">These are the official national performance measures for the <strong>IDEA Part&nbsp;B Grants to States</strong> program. They come from a federal law called the <strong>Government Performance and Results Act</strong> (GPRA), which asks every federal program to set a yearly <strong>target</strong> and then report the <strong>actual</strong> result. The figures below are taken directly from the U.S. Department of Education's yearly budget request to Congress for 2025 (a public document known as the <strong>Congressional Justification</strong>, which is where an agency explains and justifies the money it is asking for). Where a result has not been reported yet, it is shown as a dash (–) or marked <strong>TBD</strong>, never estimated.</p>
+<div class="tbl-toggle gpra-viewtoggle" id="gpraViewToggle" role="group" aria-label="Show measures as tables or charts">
   <button type="button" data-gv="table" class="on" aria-pressed="true">Tables</button>
   <button type="button" data-gv="chart" aria-pressed="false">Charts</button>
+</div>
+<div id="gpraEmpty" class="gpra-empty" hidden>
+  <span class="gpra-empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.6"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></span>
+  <h3>Pick a topic to begin</h3>
+  <p>Choose a topic above to see how IDEA Part&nbsp;B is doing against its national targets, or choose <b>All measures</b> to see every measure at once.</p>
 </div>
 <div id="gpraBody"></div>
 <div class="exp-src">Source: U.S. Department of Education, <em>Fiscal Year 2025 Budget Request, Special Education</em>, State Grants: Grants to States, Program Performance Information (printed pp.&nbsp;28–32). NAEP "students with disabilities" includes any student a school classifies as having a disability, including those served under a Section&nbsp;504 plan. A dash (–) means data were not yet available when the budget was published; State-assessment results for 2020 were waived due to the COVID-19 pandemic.</div>
@@ -15635,8 +15648,6 @@ function _setGpraView(v){
  if(gpraView==='chart')GPRA_DATA.groups.forEach(function(g){g.measures.forEach(_gpraChart);});
 }
 function renderGPRA(){
- var goal=document.getElementById('gpraGoal');
- if(goal)goal.innerHTML='<details class="gpra-goalfold"><summary>Program goal &amp; objective</summary><div class="gpra-goalfold-body"><div class="ey">Program goal</div><p>'+GPRA_DATA.goal+'</p><div class="ey">Objective</div><p>'+GPRA_DATA.objective+'</p></div></details>';
  var body=document.getElementById('gpraBody'); if(!body)return;
  try{if(typeof Chart!=='undefined')body.querySelectorAll('canvas').forEach(function(cv){var c=Chart.getChart(cv.id);if(c)c.destroy();});}catch(e){}
  body.innerHTML=GPRA_DATA.groups.map(function(g){
@@ -15807,8 +15818,40 @@ function renderCompare2(){
 }
 
 /* ---- global SEARCH ---- */
+var SEARCH_ABBR={Alabama:'AL',Alaska:'AK',Arizona:'AZ',Arkansas:'AR',California:'CA',Colorado:'CO',Connecticut:'CT',Delaware:'DE','District of Columbia':'DC',Florida:'FL',Georgia:'GA',Hawaii:'HI',Idaho:'ID',Illinois:'IL',Indiana:'IN',Iowa:'IA',Kansas:'KS',Kentucky:'KY',Louisiana:'LA',Maine:'ME',Maryland:'MD',Massachusetts:'MA',Michigan:'MI',Minnesota:'MN',Mississippi:'MS',Missouri:'MO',Montana:'MT',Nebraska:'NE',Nevada:'NV','New Hampshire':'NH','New Jersey':'NJ','New Mexico':'NM','New York':'NY','North Carolina':'NC','North Dakota':'ND',Ohio:'OH',Oklahoma:'OK',Oregon:'OR',Pennsylvania:'PA','Rhode Island':'RI','South Carolina':'SC','South Dakota':'SD',Tennessee:'TN',Texas:'TX',Utah:'UT',Vermont:'VT',Virginia:'VA',Washington:'WA','West Virginia':'WV',Wisconsin:'WI',Wyoming:'WY'};
+/* Precompute lowercased label + haystack once so the per-keystroke scan stays fast even with ~18k districts indexed. */
+function _precomputeSearch(arr){arr.forEach(function(x){x._ll=(x.label||'').toLowerCase();x._hay=((x.label||'')+' '+(x.sub||'')+' '+(x.terms||'')).toLowerCase();});return arr;}
+/* One searchable entry per individual school district, built from the LEA child-count data once it has loaded. */
+function _districtSearchEntries(){
+  if(!LEA_DATA)return [];
+  var out=[];
+  (LEA_DATA.states||[]).forEach(function(st){var ab=SEARCH_ABBR[st]||'';(LEA_DATA.byState[st]||[]).forEach(function(rec,i){out.push({type:'Districts (LEA)',label:rec.name,key:{st:st,i:i},color:'#5b6472',sub:(ab?ab+' · ':'')+st+' school district',terms:[rec.name,st,ab,(rec.nces||''),'school district lea local educational agency'].join(' ')});});});
+  return out;
+}
+function _applyDistrictIndex(){try{SEARCH_IDX=_precomputeSearch(buildSearchData().concat(_districtSearchEntries()));var inp=document.getElementById('searchInput');if(inp&&inp.value)runSearch(inp.value);}catch(e){}}
+var _distDone=false,_distBusy=false;
+/* Lazily load the full district list (a few MB of CSV) the first time the user uses Search, then fold every
+   district into the search index. Decoupled from initLEA so neither double-fetches: whoever loads first wins. */
+function ensureDistrictsIndexed(){
+  if(_distDone)return;
+  if(LEA_DATA){_distDone=true;_applyDistrictIndex();return;}
+  if(_distBusy)return;_distBusy=true;
+  var start=Date.now();
+  (function attempt(){
+    if(LEA_DATA){_distBusy=false;_distDone=true;_applyDistrictIndex();return;}
+    if(typeof LEA_STATUS==='undefined'||LEA_STATUS!=='loading'){
+      try{LEA_STATUS='loading';}catch(e){}
+      loadLEAData().then(function(d){LEA_DATA=d;try{LEA_STATUS='ready';}catch(e){}_distBusy=false;_distDone=true;_applyDistrictIndex();try{if(typeof _leaPopulateStates==='function')_leaPopulateStates();}catch(e){}}).catch(function(){try{LEA_STATUS='error';}catch(e){}_distBusy=false;});
+      return;
+    }
+    if(Date.now()-start>20000){_distBusy=false;return;}
+    setTimeout(attempt,200);
+  })();
+}
+/* Open a single district's profile straight from a search result. */
+function openLEADistrict(st,i){showView('lea');var tries=0;(function go(){var sel=document.getElementById('leaStateSel');if(LEA_DATA&&sel&&[].some.call(sel.options,function(o){return o.value===st;})){sel.value=st;LEA_STATE=st;LEA_SEL=(LEA_DATA.byState[st]||[])[i]||null;try{_leaRender();}catch(e){}var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}else if(tries++<60){setTimeout(go,150);}})();}
 function buildSearchData(){
-  const abbr={Alabama:'AL',Alaska:'AK',Arizona:'AZ',Arkansas:'AR',California:'CA',Colorado:'CO',Connecticut:'CT',Delaware:'DE','District of Columbia':'DC',Florida:'FL',Georgia:'GA',Hawaii:'HI',Idaho:'ID',Illinois:'IL',Indiana:'IN',Iowa:'IA',Kansas:'KS',Kentucky:'KY',Louisiana:'LA',Maine:'ME',Maryland:'MD',Massachusetts:'MA',Michigan:'MI',Minnesota:'MN',Mississippi:'MS',Missouri:'MO',Montana:'MT',Nebraska:'NE',Nevada:'NV','New Hampshire':'NH','New Jersey':'NJ','New Mexico':'NM','New York':'NY','North Carolina':'NC','North Dakota':'ND',Ohio:'OH',Oklahoma:'OK',Oregon:'OR',Pennsylvania:'PA','Rhode Island':'RI','South Carolina':'SC','South Dakota':'SD',Tennessee:'TN',Texas:'TX',Utah:'UT',Vermont:'VT',Virginia:'VA',Washington:'WA','West Virginia':'WV',Wisconsin:'WI',Wyoming:'WY'};
+  const abbr=SEARCH_ABBR;
   const cats=Object.keys(DEMO.cur).map(function(c){return {type:'Categories',label:c==='All Disabilities'?'All disabilities':c,key:c,color:_catColor(c),sub:'Disability Explorer',terms:'primary disability category child count demographics educational environment'};});
   const sts=STATES.map(function(s){return {type:'States',label:s[0],key:s[0],color:'#1a4480',sub:(abbr[s[0]]?abbr[s[0]]+' · ':'')+'State profile',terms:[abbr[s[0]]||'',s[0],'state data display profile snapshot map ranking Part B Part C graduation assessment child count'].join(' ')};});
   const secs=[
@@ -15816,15 +15859,13 @@ function buildSearchData(){
     {type:'Sections',label:'State Snapshot',key:'states',color:'#edcf36',sub:'Page',terms:'state profile map rankings table data display determination spp apr'},
     {type:'Sections',label:'Part B LEA Explorer',key:'lea',color:'#edcf36',sub:'Page',terms:'lea local educational agency school district districts funding maintenance of effort moe ceis map landscape'},
     {type:'Sections',label:'SEA Tables',key:'tables',color:'#edcf36',sub:'Page',terms:'sea tables data figures child count environments exiting discipline personnel assessment part c visualize csv compare'},
-    {type:'Sections',label:'Part B GPRA Performance Analysis',key:'gpra',color:'#edcf36',sub:'Page',terms:'gpra government performance results act part b grants to states targets actuals measures naep state assessment proficiency achievement gap graduation postsecondary efficiency predicted projection budget tbd'},
-    {type:'Sections',label:'Data Collections',key:'collections',color:'#edcf36',sub:'Page',terms:'collections discipline exiting personnel assessment Part C NAEP Census ACS source files'},
-    {type:'Sections',label:'Disability Explorer',key:'explorer',color:'#edcf36',sub:'Page',terms:'category demographics race sex age environment by disability'},
-    {type:'Sections',label:'Sources and Notes',key:'sources',color:'#edcf36',sub:'Page',terms:'references data sources notes suppression'}];
+    {type:'Sections',label:'Part B Performance Measures',key:'gpra',color:'#edcf36',sub:'Page',terms:'gpra government performance results act part b grants to states targets actuals measures naep state assessment proficiency achievement gap graduation postsecondary efficiency predicted projection budget tbd congressional justification'},
+    {type:'Sections',label:'Disability Explorer',key:'explorer',color:'#edcf36',sub:'Page',terms:'category demographics race sex age environment by disability'}];
   const gpraMeasures=(typeof GPRA_DATA!=='undefined'?GPRA_DATA.groups.reduce(function(acc,g){g.measures.forEach(function(m){acc.push({type:'GPRA measures',label:m.title,key:m.id,color:'#1c7b37',sub:g.title,terms:(g.title+' '+m.desc+' gpra performance measure target actual prediction').toLowerCase()});});return acc;},[]):[]);
   const collections=(typeof COLLECTION_TREE_META!=='undefined'?COLLECTION_TREE_META.map(function(c){var hasChart=(c.panels||[]).length>0;var hasRows=false;try{hasRows=typeof collectionTableRows==='function'&&collectionTableRows(c).rows.length>0;}catch(e){}var level=c.level==='LEA'?'LEA':'SEA';return {type:'Collections',label:level+' Part '+c.part+' '+c.name+' Collection',key:c.key,color:c.level==='LEA'?'#5b6472':(c.part==='B'?'#1f6fa8':'#2e8540'),sub:c.years+' · '+(hasChart?'Graph and table':(hasRows?'Table':'Official source files')),terms:[level,c.name,c.desc,c.status,c.years,c.url,'IDEA Section 618 collection Part '+c.part,'data.ed.gov'].join(' ')};}):(typeof CATALOG!=='undefined'?CATALOG:[]).map(function(c){return {type:'Collections',label:'IDEA Part '+c[0]+' '+c[1]+' Collection',key:'collections',color:c[0]==='B'?'#1f6fa8':'#2e8540',sub:c[4],terms:(c[2]||'')+' '+(c[1]||'')+' IDEA Section 618 data collection'};}));
   const areas=(typeof ENTITIES_618!=='undefined'?ENTITIES_618:[]).map(function(e){return {type:'Outlying Areas',label:e[0],key:e[0],color:'#cc5a33',sub:e[1],terms:'additional reporting entities territory freely associated state outlying area'};});
   const leas=STATES.map(function(s){return {type:'Districts (LEA)',label:s[0]+' school districts',key:s[0],color:'#5b6472',sub:(abbr[s[0]]?abbr[s[0]]+' · ':'')+'Part B LEA Explorer',terms:[abbr[s[0]]||'',s[0],'lea leas local educational agency school district districts funding maintenance of effort moe ceis allocation'].join(' ')};});
-  return secs.concat(sts).concat(cats).concat(collections).concat(areas).concat(leas).concat(gpraMeasures);
+  return secs.concat(sts).concat(cats).concat(areas).concat(leas).concat(gpraMeasures);
 }
 let SEARCH_IDX=[],_srItems=[],_srSel=-1;
 function openCategory(c){showView('explorer');const es=document.getElementById('expSel');if(es){es.value=c;es.dispatchEvent(new Event('change'));}}
@@ -15834,12 +15875,12 @@ function runSearch(q){
   const box=document.getElementById('searchResults');q=(q||'').trim().toLowerCase();
   if(!q){box.classList.remove('open');box.innerHTML='';_srItems=[];_srSel=-1;return;}
   const words=q.split(/\s+/).filter(Boolean);
-  const hits=SEARCH_IDX.map(function(x){var hay=(x.label+' '+(x.sub||'')+' '+(x.terms||'')).toLowerCase();var score=0;words.forEach(function(w){if(x.label.toLowerCase()===w)score+=8;if(x.label.toLowerCase().indexOf(w)===0)score+=5;if(hay.indexOf(w)>=0)score+=2;});return Object.assign({score:score},x);}).filter(function(x){return x.score>0;}).sort(function(a,b){return b.score-a.score||a.label.localeCompare(b.label);});
+  const hits=SEARCH_IDX.map(function(x){var ll=x._ll||(x._ll=(x.label||'').toLowerCase());var hay=x._hay||(x._hay=((x.label||'')+' '+(x.sub||'')+' '+(x.terms||'')).toLowerCase());var score=0;words.forEach(function(w){if(ll===w)score+=8;if(ll.indexOf(w)===0)score+=5;if(hay.indexOf(w)>=0)score+=2;});return Object.assign({score:score},x);}).filter(function(x){return x.score>0;}).sort(function(a,b){return b.score-a.score||a.label.localeCompare(b.label);});
   const groups={};hits.forEach(function(h){(groups[h.type]=groups[h.type]||[]).push(h);});
   let html='',idx=0;_srItems=[];
   ['States','Districts (LEA)','Sections','Collections','Categories','GPRA measures','Outlying Areas'].forEach(function(g){if(!groups[g])return;html+=`<div class="sr-h">${g}</div>`;
     groups[g].slice(0,g==='States'?10:7).forEach(function(h){html+=`<button type="button" data-i="${idx}"><span class="dot" style="background:${h.color}"></span><span class="sr-main">${h.label}</span><span class="sr-sub">${h.sub}</span></button>`;_srItems.push(h);idx++;});});
-  if(!_srItems.length)html='<div class="empty">No matches. Try a State or its abbreviation, a school district, a disability category, a collection, or a topic such as graduation, assessment, discipline, or Part C.</div>';
+  if(!_srItems.length)html='<div class="empty">No matches. Try a State or its abbreviation, a school district by name, a disability category, or a performance measure such as graduation or assessment.</div>';
   box.innerHTML=html;box.classList.add('open');_srSel=-1;
   box.querySelectorAll('button').forEach(function(b){b.onclick=function(){pickSearch(+b.dataset.i);};});
 }
@@ -15847,10 +15888,10 @@ function pickSearch(i){const h=_srItems[i];if(!h)return;
   document.getElementById('searchResults').classList.remove('open');
   const inp=document.getElementById('searchInput');if(inp)inp.value='';
   if(h.type==='Categories')openCategory(h.key);
-  else if(h.type==='Districts (LEA)')openLEAState(h.key);
+  else if(h.type==='Districts (LEA)'){if(h.key&&typeof h.key==='object')openLEADistrict(h.key.st,h.key.i);else openLEAState(h.key);}
   else if(h.type==='States')openState(h.key);
   else if(h.type==='Collections'){showView('collections');setTimeout(function(){if(typeof showCollectionItem==='function'&&h.key!=='collections'){collectionFilter='all';showCollectionItem(h.key);var target=document.querySelector('[data-coll-panel]:not([hidden])')||document.getElementById('collectionDataCard')||document.getElementById('bycollection');if(target)target.scrollIntoView({behavior:document.body.classList.contains('reduce')?'auto':'smooth',block:'start'});}else showView('collections','bycollection');},80);}
-  else if(h.type==='GPRA measures'){showView('gpra');setTimeout(function(){var el=document.getElementById('gpra_'+h.key);var card=el?el.closest('.gpra-card'):null;if(card)card.scrollIntoView({behavior:document.body.classList.contains('reduce')?'auto':'smooth',block:'start'});},90);}
+  else if(h.type==='GPRA measures'){showView('gpra');setTimeout(function(){var el=document.getElementById('gpra_'+h.key);var card=el?el.closest('.gpra-measure'):null;if(card){var grp=card.closest('.gpra-group');if(grp&&typeof showGpraSect==='function'){var idx=grp.getAttribute('data-gsec');if(idx!=null)showGpraSect(idx);}setTimeout(function(){card.scrollIntoView({behavior:document.body.classList.contains('reduce')?'auto':'smooth',block:'start'});},30);}},120);}
   else if(h.type==='Outlying Areas'){showView('states');var ss=document.getElementById('stateSel');if(ss){var opts=[].slice.call(ss.options);var hit=opts.find(function(o){return o.value===h.label||o.textContent===h.label;})||opts.find(function(o){return /Puerto Rico|Guam|American Samoa|Virgin Islands|Micronesia|Marshall|Palau|Northern Mariana|Bureau of Indian Education/.test(o.textContent);});if(hit){ss.value=hit.value;focusState=hit.value;afterStateChange();}}}
   else showView(h.key);
 }
@@ -16013,7 +16054,7 @@ function initStateView(){try{stateViewMode=localStorage.getItem('idea618_state_v
 
 /* ---- wire everything up ---- */
 function setupPrototype(){
-  SEARCH_IDX=buildSearchData();
+  SEARCH_IDX=_precomputeSearch(buildSearchData());
   // data-year badges on each section header
   /* per-section year badges removed; year and source shown per section and per graph instead */
   // tuck verbose source/footnote text into collapsible "Source & notes" blocks
@@ -16050,7 +16091,7 @@ function setupPrototype(){
   // search
   const inp=document.getElementById('searchInput'),box=document.getElementById('searchResults');
   if(inp){inp.addEventListener('input',()=>runSearch(inp.value));
-    inp.addEventListener('focus',()=>{if(inp.value)runSearch(inp.value);});
+    inp.addEventListener('focus',()=>{try{ensureDistrictsIndexed();}catch(e){}if(inp.value)runSearch(inp.value);});
     inp.addEventListener('keydown',e=>{
       if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const n=box.querySelectorAll('button').length;if(!n)return;
         _srSel=(_srSel+(e.key==='ArrowDown'?1:-1)+n)%n;box.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('kbd',i===_srSel));}
@@ -16779,14 +16820,16 @@ try{ var _sv_ns=showView; showView=function(){ var r=_sv_ns.apply(this,arguments
 try{ var _asc_ns=afterStateChange; afterStateChange=function(){ var r=_asc_ns.apply(this,arguments); updateNavSelection(); try{setupStateSubtabs();}catch(e){} return r; }; }catch(e){}
 try{ var _rex_ns=renderExplorer; renderExplorer=function(){ var r=_rex_ns.apply(this,arguments); updateNavSelection(); try{if(document.body.getAttribute('data-view')==='explorer'&&VIEW_SUBTABS.explorer)applyViewSubtabs('explorer',VIEW_SUBTABS.explorer);}catch(e){} return r; }; }catch(e){}
 /* ---- GPRA section navigation: focus one measure group at a time ---- */
-var _gpraSect='all';
+var _gpraSect='';
 function showGpraSect(key){
   var body=document.getElementById('gpraBody'); if(!body)return;
   _gpraSect=key;
+  var none=(key===''||key==null);
   var groups=[].slice.call(body.querySelectorAll('.gpra-group'));
-  groups.forEach(function(g,i){ var show=(key==='all'||String(i)===String(key)); g.classList.toggle('gsec-hidden',!show); });
+  groups.forEach(function(g,i){ var show=(!none)&&(key==='all'||String(i)===String(key)); g.classList.toggle('gsec-hidden',!show); });
+  var empty=document.getElementById('gpraEmpty'); if(empty)empty.hidden=!none;
   var nav=document.getElementById('gpraSectNav');
-  if(nav)nav.querySelectorAll('.gsec-btn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-gsec')===String(key)); });
+  if(nav)nav.querySelectorAll('.gsec-btn').forEach(function(b){ b.classList.toggle('on', !none&&b.getAttribute('data-gsec')===String(key)); });
   setTimeout(function(){ try{ body.querySelectorAll('.gpra-group:not(.gsec-hidden) canvas').forEach(function(c){ var ch=(window.Chart&&Chart.getChart)?Chart.getChart(c):null; if(ch){try{ch.resize();ch.update('none');}catch(_){}} }); }catch(e){} },40);
 }
 function setupGpraSectNav(){
@@ -16795,8 +16838,8 @@ function setupGpraSectNav(){
   groups.forEach(function(g,i){ g.setAttribute('data-gsec',i); });
   if(!document.getElementById('gpraSectNav')){
     var toggle=document.getElementById('gpraViewToggle');
-    var nav=document.createElement('div'); nav.id='gpraSectNav'; nav.className='gpra-sectnav'; nav.setAttribute('role','group'); nav.setAttribute('aria-label','Jump to one GPRA measure group');
-    var html='<span class="gsec-label">Jump to</span><button type="button" class="gsec-btn" data-gsec="all">All measures</button>';
+    var nav=document.createElement('div'); nav.id='gpraSectNav'; nav.className='gpra-sectnav'; nav.setAttribute('role','group'); nav.setAttribute('aria-label','Choose a performance topic to show');
+    var html='<span class="gsec-label">Choose a topic</span><button type="button" class="gsec-btn" data-gsec="all">All measures</button>';
     groups.forEach(function(g,i){ var h=g.querySelector('.gpra-group-head h3'); html+='<button type="button" class="gsec-btn" data-gsec="'+i+'">'+(h?h.textContent.trim():('Section '+(i+1)))+'</button>'; });
     nav.innerHTML=html;
     if(toggle&&toggle.parentNode){
@@ -16806,7 +16849,7 @@ function setupGpraSectNav(){
     } else { body.parentNode.insertBefore(nav,body); }
     nav.addEventListener('click',function(e){ var b=e.target.closest?e.target.closest('.gsec-btn'):null; if(b)showGpraSect(b.getAttribute('data-gsec')); });
   }
-  if(_gpraSect!=='all'){ var n=parseInt(_gpraSect,10); if(!(n>=0&&n<groups.length))_gpraSect='all'; }
+  if(_gpraSect&&_gpraSect!=='all'){ var n=parseInt(_gpraSect,10); if(!(n>=0&&n<groups.length))_gpraSect=''; }
   showGpraSect(_gpraSect);
 }
 try{ var _rg_ns=renderGPRA; renderGPRA=function(){ var r=_rg_ns.apply(this,arguments); try{setupGpraSectNav();}catch(e){} return r; }; }catch(e){}
