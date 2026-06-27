@@ -1388,6 +1388,7 @@ body.dark .a11ypanel .seg button,body.dark .cardtools button{
   background:#0f1722;
   color:var(--ink);
 }
+body.dark .a11ypanel .seg button.on{background:var(--primary);color:#06121f;border-color:transparent}
 body.dark .a11ysw .knob{background:#33414f}
 body.dark .maplegend,body.dark .lead,body.dark .card .note,body.dark .exp-intro{color:var(--muted)}
 body.dark .sitenav{
@@ -12677,7 +12678,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <div class="view" data-view="gpra" role="tabpanel" aria-label="Part B GPRA Performance Analysis">
 <h2 class="section-title" id="gpra">Part B Performance Measures</h2>
-<p class="viewlead">These are the official national performance measures for the <strong>IDEA Part&nbsp;B Grants to States</strong> program. They come from a federal law called the <strong>Government Performance and Results Act</strong> (GPRA), which asks every federal program to set a yearly <strong>target</strong> and then report the <strong>actual</strong> result. The figures below are taken directly from the U.S. Department of Education's yearly budget request to Congress for 2025 (a public document known as the <strong>Congressional Justification</strong>, which is where an agency explains and justifies the money it is asking for). Where a result has not been reported yet, it is shown as a dash (–) or marked <strong>TBD</strong>, never estimated.</p>
+<p class="viewlead" data-pl="These are the national goals for the federal special-education money given to states (IDEA Part&nbsp;B). A federal law asks every program to set a yearly <strong>target</strong> and then report what actually happened (the <strong>actual</strong> result). The numbers come straight from the U.S. Department of Education's yearly budget request to Congress for 2025. If a result is not in yet, it shows a dash (–) or says <strong>TBD</strong>, and nothing is ever guessed.">These are the official national performance measures for the <strong>IDEA Part&nbsp;B Grants to States</strong> program. They come from a federal law called the <strong>Government Performance and Results Act</strong> (GPRA), which asks every federal program to set a yearly <strong>target</strong> and then report the <strong>actual</strong> result. The figures below are taken directly from the U.S. Department of Education's yearly budget request to Congress for 2025 (a public document known as the <strong>Congressional Justification</strong>, which is where an agency explains and justifies the money it is asking for). Where a result has not been reported yet, it is shown as a dash (–) or marked <strong>TBD</strong>, never estimated.</p>
 <div class="tbl-toggle gpra-viewtoggle" id="gpraViewToggle" role="group" aria-label="Show measures as tables or charts">
   <button type="button" data-gv="table" class="on" aria-pressed="true">Tables</button>
   <button type="button" data-gv="chart" aria-pressed="false">Charts</button>
@@ -13348,6 +13349,10 @@ const PLAIN_PHRASES=[
  ['IEPs','education plans'],
  ['IEP','education plan'],
  ['FAPE','a free, appropriate public education'],
+ ['Local Educational Agencies','school districts'],
+ ['Local Educational Agency','school district'],
+ ['Congressional Justification','yearly budget request to Congress'],
+ ['Grants to States','money given to states'],
  ['IDEA Section 618','federal special-education reporting']
 ];
 function rxFor(p){const esc=p.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');const lb=/\w/.test(p[0])?'\\b':'';const rb=/\w/.test(p[p.length-1])?'\\b':'';return new RegExp(lb+esc+rb,'g');}
@@ -15862,7 +15867,6 @@ function buildSearchData(){
     {type:'Sections',label:'Part B Performance Measures',key:'gpra',color:'#edcf36',sub:'Page',terms:'gpra government performance results act part b grants to states targets actuals measures naep state assessment proficiency achievement gap graduation postsecondary efficiency predicted projection budget tbd congressional justification'},
     {type:'Sections',label:'Disability Explorer',key:'explorer',color:'#edcf36',sub:'Page',terms:'category demographics race sex age environment by disability'}];
   const gpraMeasures=(typeof GPRA_DATA!=='undefined'?GPRA_DATA.groups.reduce(function(acc,g){g.measures.forEach(function(m){acc.push({type:'GPRA measures',label:m.title,key:m.id,color:'#1c7b37',sub:g.title,terms:(g.title+' '+m.desc+' gpra performance measure target actual prediction').toLowerCase()});});return acc;},[]):[]);
-  const collections=(typeof COLLECTION_TREE_META!=='undefined'?COLLECTION_TREE_META.map(function(c){var hasChart=(c.panels||[]).length>0;var hasRows=false;try{hasRows=typeof collectionTableRows==='function'&&collectionTableRows(c).rows.length>0;}catch(e){}var level=c.level==='LEA'?'LEA':'SEA';return {type:'Collections',label:level+' Part '+c.part+' '+c.name+' Collection',key:c.key,color:c.level==='LEA'?'#5b6472':(c.part==='B'?'#1f6fa8':'#2e8540'),sub:c.years+' · '+(hasChart?'Graph and table':(hasRows?'Table':'Official source files')),terms:[level,c.name,c.desc,c.status,c.years,c.url,'IDEA Section 618 collection Part '+c.part,'data.ed.gov'].join(' ')};}):(typeof CATALOG!=='undefined'?CATALOG:[]).map(function(c){return {type:'Collections',label:'IDEA Part '+c[0]+' '+c[1]+' Collection',key:'collections',color:c[0]==='B'?'#1f6fa8':'#2e8540',sub:c[4],terms:(c[2]||'')+' '+(c[1]||'')+' IDEA Section 618 data collection'};}));
   const areas=(typeof ENTITIES_618!=='undefined'?ENTITIES_618:[]).map(function(e){return {type:'Outlying Areas',label:e[0],key:e[0],color:'#cc5a33',sub:e[1],terms:'additional reporting entities territory freely associated state outlying area'};});
   const leas=STATES.map(function(s){return {type:'Districts (LEA)',label:s[0]+' school districts',key:s[0],color:'#5b6472',sub:(abbr[s[0]]?abbr[s[0]]+' · ':'')+'Part B LEA Explorer',terms:[abbr[s[0]]||'',s[0],'lea leas local educational agency school district districts funding maintenance of effort moe ceis allocation'].join(' ')};});
   return secs.concat(sts).concat(cats).concat(areas).concat(leas).concat(gpraMeasures);
