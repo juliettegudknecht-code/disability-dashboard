@@ -72,7 +72,7 @@ html{
   box-sizing:border-box;
 }
 body{
-  font-family:'Source Sans 3','Source Sans Pro','Helvetica Neue',Helvetica,Roboto,Arial,sans-serif;
+  font-family:Calibri,Carlito,'Source Sans 3','Segoe UI',system-ui,-apple-system,sans-serif;
   background:var(--bg);
   color:var(--ink);
   line-height:1.5;
@@ -192,7 +192,7 @@ body.no-anim *,body.no-anim *::before,body.no-anim *::after{
   animation:none!important;
   transition:none!important;
 }
-h1,h2,h3{font-family:'Source Sans 3','Source Sans Pro',sans-serif}
+h1,h2,h3{font-family:Calibri,Carlito,'Source Sans 3','Segoe UI',system-ui,-apple-system,sans-serif}
 .wrap{
   max-width:1320px;
   margin:0 auto;
@@ -253,7 +253,7 @@ header.top .hinner{text-align:center}
   background:rgba(255,255,255,.05);
 }
 .seal b{
-  font-family:'Source Sans 3',sans-serif;
+  font-family:Calibri,Carlito,'Source Sans 3','Segoe UI',system-ui,-apple-system,sans-serif;
   font-size:1.85rem;
   font-weight:900;
   color:var(--gold);
@@ -791,7 +791,7 @@ body.dark .expdl{
   font-weight:900;
   color:rgba(255,190,46,.10);
   line-height:1;
-  font-family:'Source Sans 3',sans-serif;
+  font-family:Calibri,Carlito,'Source Sans 3','Segoe UI',system-ui,-apple-system,sans-serif;
   pointer-events:none;
 }
 .anniv .k{
@@ -11673,8 +11673,8 @@ body:not(.no-anim):not(.reduce) .home-bubblewrap .hb-bubble:hover{transform:scal
 .home-bubblewrap .hb-bubble:hover circle,.home-bubblewrap .hb-bubble:focus-visible circle{filter:brightness(1.07)}
 .home-bubblewrap .hb-bubble:focus-visible{outline:none}
 .home-bubblewrap .hb-bubble:focus-visible circle{stroke-width:3}
-.home-bubblewrap .hb-v{fill:#fff;font-weight:900;font-variant-numeric:tabular-nums;font-family:'Source Sans 3',sans-serif}
-.home-bubblewrap .hb-l{fill:rgba(255,255,255,.92);font-weight:700;font-family:'Source Sans 3',sans-serif}
+.home-bubblewrap .hb-v{fill:#fff;font-weight:900;font-variant-numeric:tabular-nums;font-family:Calibri,Carlito,'Source Sans 3','Segoe UI',system-ui,-apple-system,sans-serif}
+.home-bubblewrap .hb-l{fill:rgba(255,255,255,.92);font-weight:700;font-family:Calibri,Carlito,'Source Sans 3','Segoe UI',system-ui,-apple-system,sans-serif}
 body.hc .home-bubblewrap .hb-v,body.hc .home-bubblewrap .hb-l{fill:#fff}
 
 /* ---------- TABLES PAGE : tighter spacing (less white space) ---------- */
@@ -11862,27 +11862,39 @@ body.dark .view[data-view="lea"] .lea-mini-toggle button.on{background:#1f6fa8;c
    and GPRA section navigation. All additive and theme-aware.
    =================================================================== */
 
-/* --- Home launchpad: optional click-throughs into the deeper views --- */
-.home-launchpad{margin:30px 0 6px}
-.home-launchpad-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 2px}
-.home-launchpad-head h3{margin:0;font-size:1.18rem;color:var(--navy)}
-.home-launchpad-head .lp-sub{font-size:.88rem;color:var(--muted)}
-.launchgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:12px;margin-top:14px}
-.launchcard{display:flex;gap:13px;align-items:flex-start;text-align:left;width:100%;
-  border:1px solid var(--line);border-left:4px solid var(--primary);border-radius:12px;background:var(--card);
-  padding:15px 16px;cursor:pointer;font:inherit;color:inherit;transition:border-color .15s,box-shadow .15s,transform .1s}
-.launchcard:hover{border-left-color:var(--ff-gold);box-shadow:0 6px 16px rgba(16,42,67,.12);transform:translateY(-1px)}
+/* --- Home launchpad: optional click-throughs into the deeper views (OSEP Fast Facts vibe) --- */
+.home-launchpad{margin:36px 0 6px;padding-top:24px;border-top:1px solid var(--line)}
+.home-launchpad-head{margin:0 0 2px}
+.lp-eyebrow{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ff-gold-deep);margin-bottom:6px}
+.home-launchpad-head h3{margin:0;font-size:1.32rem;color:var(--navy);letter-spacing:-.01em}
+.home-launchpad-head .lp-sub{display:block;margin:6px 0 0;font-size:.9rem;line-height:1.5;color:var(--muted);max-width:72ch}
+.launchgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(246px,1fr));gap:14px;margin-top:18px}
+.launchcard{position:relative;display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;overflow:hidden;
+  border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#ffffff 0%,#f5f8fc 100%);
+  padding:17px 18px 17px 21px;cursor:pointer;font:inherit;color:inherit;
+  box-shadow:0 1px 2px rgba(16,42,67,.05);transition:border-color .16s,box-shadow .18s,transform .12s}
+.launchcard:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--navy);transition:background .16s}
+.launchcard:hover{border-color:#cdd9e6;box-shadow:0 10px 26px rgba(16,42,67,.15);transform:translateY(-2px)}
+.launchcard:hover:before{background:var(--ff-gold)}
 .launchcard:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
-.launchcard .lc-ic{flex:none;width:38px;height:38px;border-radius:10px;background:#eaf2fa;color:var(--primary);display:inline-flex;align-items:center;justify-content:center}
+.launchcard .lc-ic{flex:none;width:42px;height:42px;border-radius:11px;background:linear-gradient(155deg,#1c4f74,#13354e);color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(19,53,78,.26)}
 .launchcard .lc-ic svg{width:22px;height:22px}
+.launchcard:hover .lc-ic{background:linear-gradient(155deg,#235d87,#16406b)}
 .launchcard .lc-body{min-width:0}
-.launchcard .lc-title{display:flex;align-items:center;gap:6px;font-weight:800;font-size:.97rem;color:var(--navy)}
-.launchcard .lc-arrow{color:var(--primary);transition:transform .15s;font-weight:800}
-.launchcard:hover .lc-arrow{transform:translateX(3px)}
-.launchcard .lc-desc{margin:5px 0 0;font-size:.85rem;line-height:1.45;color:var(--muted)}
-body.dark .launchcard .lc-ic{background:#16293c;color:var(--primary)}
+.launchcard .lc-title{display:flex;align-items:center;gap:7px;font-weight:800;font-size:1.01rem;color:var(--navy)}
+.launchcard .lc-arrow{color:var(--primary);transition:transform .16s,color .16s;font-weight:800}
+.launchcard:hover .lc-arrow{transform:translateX(4px);color:var(--ff-gold-deep)}
+.launchcard .lc-desc{margin:5px 0 0;font-size:.85rem;line-height:1.48;color:var(--muted)}
+body.dark .home-launchpad{border-top-color:#26323f}
+body.dark .lp-eyebrow{color:var(--ff-gold)}
 body.dark .home-launchpad-head h3,body.dark .launchcard .lc-title{color:#dbe8f6}
+body.dark .launchcard{background:linear-gradient(180deg,#1a2533 0%,#161f2b 100%);border-color:#2b3645;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+body.dark .launchcard:hover{border-color:#3a4858;box-shadow:0 10px 26px rgba(0,0,0,.42)}
+body.dark .launchcard:before{background:#3a5d80}
+body.dark .launchcard:hover:before{background:var(--ff-gold)}
+body.dark .launchcard .lc-ic{background:linear-gradient(155deg,#1c4f74,#0f2a40)}
 body.hc .launchcard{border-width:2px}
+body.hc .launchcard:before{width:5px}
 @media(max-width:620px){.launchgrid{grid-template-columns:1fr}}
 
 /* --- Per-chart "explain this": plain-language readout on demand --- */
@@ -11914,9 +11926,31 @@ body.dark .gpra-sectnav .gsec-btn{background:#18212e;color:#d9d9d5;border-color:
 body.dark .gpra-sectnav .gsec-btn.on{background:#1f6fa8;border-color:#1f6fa8;color:#fff}
 body.hc .gpra-sectnav,body.hc .gpra-sectnav .gsec-btn{border-width:2px}
 
+/* --- LEA Explorer landing: hide the District picker until a State is chosen --- */
+.view[data-view="lea"] .lea-controls .lea-pickwrap[hidden]{display:none!important}
+.view[data-view="lea"] .lea-controls .lea-statepick{min-width:280px}
+.view[data-view="lea"] .lea-controls .lea-statepick label{font-weight:800;color:var(--navy)}
+body.dark .view[data-view="lea"] .lea-controls .lea-statepick label{color:#9fc3ec}
+
+/* --- LEA Explorer landing: "Explore the national picture" disclosure --- */
+.view[data-view="lea"] .lea-deepdive{margin:16px 0 0;border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden}
+.view[data-view="lea"] .lea-deepdive>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 18px;border-left:4px solid var(--ff-gold)}
+.view[data-view="lea"] .lea-deepdive>summary::-webkit-details-marker{display:none}
+.view[data-view="lea"] .lea-deepdive>summary .ldd-t{font-weight:800;font-size:1.05rem;color:var(--navy)}
+.view[data-view="lea"] .lea-deepdive>summary small{font-weight:600;color:var(--muted);font-size:.78rem}
+.view[data-view="lea"] .lea-deepdive>summary:after{content:"\25B8";margin-left:auto;color:var(--muted);font-size:1.05em;transition:transform .15s}
+.view[data-view="lea"] .lea-deepdive[open]>summary:after{transform:rotate(90deg)}
+.view[data-view="lea"] .lea-deepdive>summary:hover .ldd-t{color:var(--primary)}
+.view[data-view="lea"] .lea-deepdive-body{padding:2px 16px 18px}
+.view[data-view="lea"] .lea-deepdive-body>.card{margin-top:16px}
+body.dark .view[data-view="lea"] .lea-deepdive{background:#16202c;border-color:#2f3a48}
+body.dark .view[data-view="lea"] .lea-deepdive>summary .ldd-t{color:#9fc3ec}
+body.hc .view[data-view="lea"] .lea-deepdive,body.hc .view[data-view="lea"] .lea-deepdive>summary{border-width:2px}
+
 /* Keep exports/print complete: never hide content in the PDF/print path */
 body.printing .home-launchpad,body.printing .explain-wrap{display:none!important}
 body.printing .gpra-group.gsec-hidden{display:block!important}
+body.printing .lea-deepdive>.lea-deepdive-body{display:block!important}
 
 </style>
 </head>
@@ -12045,17 +12079,14 @@ body.printing .gpra-group.gsec-hidden{display:block!important}
 
 <section class="home-launchpad" aria-label="Explore the rest of the data tool">
   <div class="home-launchpad-head">
-    <h3>Explore the data</h3>
-    <span class="lp-sub">Jump into any part of the tool. Each one opens a focused view you can dig into as deeply as you like.</span>
+    <span class="lp-eyebrow">Keep exploring</span>
+    <h3>Go deeper into the data</h3>
+    <span class="lp-sub">Open a focused view of the IDEA Section&nbsp;618 data. Each one stands on its own, so you can go as deep as you like, or not at all.</span>
   </div>
   <div class="launchgrid">
     <button type="button" class="launchcard" onclick="showView('states')" aria-label="Open State Snapshot">
       <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.7-7-11a7 7 0 0 1 14 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
       <span class="lc-body"><span class="lc-title">State Snapshot <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">See any State's IDEA data, how it ranks nationally, and its federal determination.</span></span>
-    </button>
-    <button type="button" class="launchcard" onclick="showView('explorer')" aria-label="Open Disability Explorer">
-      <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5-8 4.5-8-4.5L12 3z"/><path d="M4 12l8 4.5 8-4.5"/><path d="M4 16.5L12 21l8-4.5"/></svg></span>
-      <span class="lc-body"><span class="lc-title">Disability Explorer <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">Pick one disability category and explore its counts, settings, demographics, and trend.</span></span>
     </button>
     <button type="button" class="launchcard" onclick="showView('tables')" aria-label="Open SEA Tables">
       <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg></span>
@@ -12068,10 +12099,6 @@ body.printing .gpra-group.gsec-hidden{display:block!important}
     <button type="button" class="launchcard" onclick="showView('gpra')" aria-label="Open Part B GPRA Performance Analysis">
       <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.4"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></span>
       <span class="lc-body"><span class="lc-title">GPRA Analysis <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">Track Part&nbsp;B program performance against its annual federal targets.</span></span>
-    </button>
-    <button type="button" class="launchcard" onclick="showView('collections')" aria-label="Open Data Collections">
-      <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></span>
-      <span class="lc-body"><span class="lc-title">Data Collections <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">Browse the full set of public Section&nbsp;618 data files, tables, and source documents.</span></span>
     </button>
   </div>
 </section>
@@ -12296,9 +12323,9 @@ body.printing .gpra-group.gsec-hidden{display:block!important}
 </div>
 <div class="view" data-view="lea" role="tabpanel" aria-label="Part B LEA Explorer">
 <h2 class="section-title" id="lea">Part B LEA Explorer</h2>
-<p class="viewlead">Explore individual school districts, the Local Educational Agencies (LEAs) that serve students under IDEA Part&nbsp;B. Choose a State to see all of its districts as an interactive landscape, then open any district to see how many children and students with disabilities it serves by category, alongside the IDEA funds it receives. Child counts are from School Year&nbsp;2024–25; funding and Maintenance-of-Effort figures are from SY&nbsp;2021–22.</p>
+<p class="viewlead">Explore individual school districts, the Local Educational Agencies (LEAs) that serve students under IDEA Part&nbsp;B. Choose a State to see all of its districts, then open any district for its full profile of children served and IDEA funds received. Child counts are School Year&nbsp;2024–25; funding figures are SY&nbsp;2021–22.</p>
 <div class="card lea-controls">
-  <div class="ctrl"><label for="leaStateSel">State</label><select id="leaStateSel" aria-label="Choose a State"></select></div>
+  <div class="ctrl lea-statepick"><label for="leaStateSel">Choose a State to begin</label><select id="leaStateSel" aria-label="Choose a State"></select></div>
   <div class="ctrl lea-pickwrap"><label for="leaPick">District (LEA)</label><select id="leaPick" aria-label="Choose a district"></select></div>
   <button type="button" id="leaBack" class="expdl lea-back" hidden>← All districts</button>
 </div>
@@ -12573,7 +12600,7 @@ const fmt=n=>n==null?', ':n.toLocaleString();
 const fmtK=n=>n==null?', ':(n*1000).toLocaleString();
 const pct=(a,b)=>b?(a/b*100):0;
 function shade(hex,a){const c=hex.replace('#','');const r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);return`rgba(${r},${g},${b},${a})`;}
-Chart.defaults.font.family="'Source Sans 3','Source Sans Pro','Helvetica Neue',Helvetica,Roboto,Arial,sans-serif";
+Chart.defaults.font.family="Calibri,Carlito,'Source Sans 3','Segoe UI',system-ui,-apple-system,sans-serif";
 Chart.defaults.font.size=12;Chart.defaults.color='#5b6472';
 Chart.defaults.elements.bar.borderRadius=7;
 Chart.defaults.elements.bar.borderSkipped=false;
@@ -12665,7 +12692,7 @@ function renderTrendFocusSummary(){
 }
 function renderTrend(){
  var selected=trendSelected.filter(function(k){return DIS[k];});
- const ds=[{type:'line',label:'All disabilities, ages 3–21',data:ALL,borderColor:'#2e8540',backgroundColor:shade('#2e8540',.12),borderWidth:3.2,fill:true,tension:.28,pointRadius:0,pointHoverRadius:5,pointHitRadius:12,order:0}];
+ const ds=[{type:'line',label:'All disabilities, ages 3–21',data:ALL,borderColor:'#2e8540',backgroundColor:'#2e8540',borderWidth:3.2,fill:false,tension:.28,pointRadius:0,pointHoverRadius:5,pointHitRadius:12,order:0}];
  selected.forEach(function(k,i){var col=COLORS[k]||'#1f6fa8';ds.push({type:'line',label:k,data:DIS[k],borderColor:col,backgroundColor:shade(col,.10),borderWidth:2.2,tension:.28,pointRadius:0,pointHoverRadius:5,pointHitRadius:12,spanGaps:true,order:i+1});});
  const cfg={type:'line',data:{labels:YEARS,datasets:ds},options:{responsive:true,maintainAspectRatio:false,animation:false,
    interaction:{mode:'index',intersect:false},
@@ -12767,8 +12794,8 @@ function _packedBubbles(el,items,opts){
    var fs=Math.max(8.5,Math.min(15,it.r*0.3)),lfs=Math.max(7,fs*0.6);
    var maxc=Math.max(6,Math.floor((it.r*1.7)/(lfs*0.54)));
    var lines=wrap(it.name,maxc),blockH=fs+lines.length*lfs*1.02,vy=it.y-blockH/2+fs;
-   svg+='<text class="hb-v" x="'+it.x.toFixed(1)+'" y="'+vy.toFixed(1)+'" text-anchor="middle" font-size="'+fs.toFixed(1)+'" fill="#ffffff" font-weight="900" font-family="\'Source Sans 3\',Arial,sans-serif">'+fmtV(it.v)+'</text>';
-   lines.forEach(function(ln,li){svg+='<text class="hb-l" x="'+it.x.toFixed(1)+'" y="'+(vy+(li+1)*lfs*1.02).toFixed(1)+'" text-anchor="middle" font-size="'+lfs.toFixed(1)+'" fill="#ffffff" fill-opacity="0.93" font-weight="700" font-family="\'Source Sans 3\',Arial,sans-serif">'+ln+'</text>';});
+   svg+='<text class="hb-v" x="'+it.x.toFixed(1)+'" y="'+vy.toFixed(1)+'" text-anchor="middle" font-size="'+fs.toFixed(1)+'" fill="#ffffff" font-weight="900" font-family="Calibri,Carlito,\'Source Sans 3\',Arial,sans-serif">'+fmtV(it.v)+'</text>';
+   lines.forEach(function(ln,li){svg+='<text class="hb-l" x="'+it.x.toFixed(1)+'" y="'+(vy+(li+1)*lfs*1.02).toFixed(1)+'" text-anchor="middle" font-size="'+lfs.toFixed(1)+'" fill="#ffffff" fill-opacity="0.93" font-weight="700" font-family="Calibri,Carlito,\'Source Sans 3\',Arial,sans-serif">'+ln+'</text>';});
   }
   svg+='</g>';
  });
@@ -15958,8 +15985,10 @@ function _leaBuildMap(){
 function _leaRender(){
  var body=document.getElementById('leaBody'),pick=document.getElementById('leaPick'),back=document.getElementById('leaBack'),status=document.getElementById('leaStatus');
  if(!body||!LEA_DATA)return;
+ var pw=pick?pick.closest('.lea-pickwrap'):null;
  if(_leaChart1){try{_leaChart1.destroy();}catch(e){}_leaChart1=null;} if(_leaChart2){try{_leaChart2.destroy();}catch(e){}_leaChart2=null;}
- if(!LEA_STATE){if(pick){pick.innerHTML='<option>–</option>';pick.disabled=true;}if(back)back.hidden=true;try{_leaUpdateMapSel();}catch(e){}_leaRenderNation();return;}
+ if(!LEA_STATE){if(pw)pw.hidden=true;if(pick){pick.innerHTML='<option>–</option>';pick.disabled=true;}if(back)back.hidden=true;try{_leaUpdateMapSel();}catch(e){}_leaRenderNation();return;}
+ if(pw)pw.hidden=false;
  var list=LEA_DATA.byState[LEA_STATE]||[];
  if(pick){pick.disabled=false;pick.innerHTML='<option value="-1">All districts (overview)</option>'+list.map(function(l,i){return '<option value="'+i+'">'+l.name+(l.served!=null?' · '+_leaFmt(l.served):'')+'</option>';}).join('');pick.value=LEA_SEL?String(list.indexOf(LEA_SEL)):'-1';}
  try{_leaUpdateMapSel();}catch(e){}
@@ -16094,7 +16123,7 @@ function _leaRenderNation(){
  var distParts=[{v:dD['1'],c:'#2e8540'},{v:dD['2'],c:'#b8860b'},{v:dD['3'],c:'#cc5a33'},{v:dD['4'],c:'#8c1d1d'}];
  var studParts=[{v:dS['1'],c:'#2e8540'},{v:dS['2'],c:'#b8860b'},{v:dS['3'],c:'#cc5a33'},{v:dS['4'],c:'#8c1d1d'}];
  if(status)status.innerHTML='';
- body.innerHTML='<div class="lea-supnote">This is <b>every district in the country</b>. Pick a state up top or click the map to zoom in, then open a district to see its full profile.</div>'+
+ body.innerHTML='<div class="lea-supnote">A national snapshot of <b>every reporting district</b>. Choose a State above to zoom in, or open <b>Explore the national picture</b> below for the full State-by-State comparison.</div>'+
   '<div class="kpis lea-kpis">'+
    '<div class="kpi"><div class="l">Districts (LEAs)</div><div class="v">'+all.length.toLocaleString()+'</div><div class="c">reporting a 2024–25 child count, across '+states.length+' States &amp; territories</div></div>'+
    '<div class="kpi"><div class="l">Children &amp; students served</div><div class="v">'+_leaFmt(totalServed)+'</div><div class="c">IDEA Part B, 2024–25</div></div>'+
@@ -16104,9 +16133,10 @@ function _leaRenderNation(){
    '<div class="card fig"><div class="ey">District landscape · nationwide</div><h3>Every district by size and IDEA funding</h3><div class="note">One bubble per district (the '+withFund.length.toLocaleString()+' that have both a 2024–25 child count and a 2021–22 MOE record). Left to right is children served (2024–25), bottom to top is IDEA Part&nbsp;B funding (2021–22), and the color is the state&rsquo;s MOE rating. Click a bubble to open it. Different years, matched by NCES&nbsp;ID, so they won&rsquo;t line up perfectly everywhere.</div><div class="canvas-box tall"><canvas id="leaLandscape"></canvas></div></div>'+
    '<div class="card"><div class="ey">Ranked · nationwide</div><h3>Largest districts</h3><div class="note">By children served. Click one to open it.</div><div class="lea-ranklist" id="leaRankList"></div></div>'+
   '</div>'+
+  '<details class="lea-deepdive" id="leaDeepDive"><summary><span class="ldd-t">Explore the national picture</span><small>How districts and students compare, where the dollars go, and a card for every State</small></summary><div class="lea-deepdive-body">'+
   '<div class="card fig"><div class="ey">Students, not districts</div><h3>The same ratings, counted two ways</h3><div class="note">The left grid counts <b>districts</b>; the right counts the <b>students</b> they enroll. Both cover the '+totD.toLocaleString()+' districts that got a determination, and each square is about 1%.</div><div class="lea-waffles"><div class="lea-waffle-col"><div class="lbl">Share of <b>districts</b> ('+totD.toLocaleString()+')</div>'+_leaWaffleHTML(distParts)+'</div><div class="lea-waffle-col"><div class="lbl">Share of <b>students</b> ('+_leaFmt(totS)+')</div>'+_leaWaffleHTML(studParts)+'</div></div>'+_leaDetLeg()+'<div class="lea-punch">Most districts (<b>'+pctMeetD+'%</b>) meet IDEA requirements, but they only enroll <b>'+pctMeetS+'%</b> of students. Around <b>'+_leaFmt(needIntS)+'</b> kids are in districts their state flagged as needing intervention or substantial intervention.</div></div>'+
-  '<div class="card fig"><div class="ey">Funding flow</div><h3>Where IDEA Part B dollars go</h3><div class="note">The grant splits into Section&nbsp;611 (school-age) and Section&nbsp;619 (preschool). A slice gets set aside for Coordinated Early Intervening Services (CEIS), and the rest pays for special education and related services. SY&nbsp;2021–22.</div><div class="lea-sc-bar"><label for="leaFlowState">Show</label><select id="leaFlowState"><option value="">United States (all States &amp; territories)</option>'+Object.keys(LEA_DATA.flow).filter(function(s){return s!=='__US__';}).sort().map(function(s){return '<option value="'+s.replace(/"/g,'&quot;')+'">'+s+'</option>';}).join('')+'</select></div><div id="leaFlow">'+_leaFlowSVG(flUS)+'</div><div class="lea-flow-note" id="leaFlowNote">'+_leaFlowNoteHTML(flUS)+'</div></div>'+
-  '<div class="card fig"><div class="ey">State report cards</div><h3>How states compare</h3><div class="note">Children served (2024–25) next to MOE compliance (2021–22). The color shows how many of a state&rsquo;s districts meet requirements. Click a card to open that state.</div><div class="lea-sc-bar"><label for="leaScSort">Sort by</label><select id="leaScSort"><option value="served">Children served (high → low)</option><option value="meet">% districts meeting requirements</option><option value="met">% met the MOE standard</option><option value="ceis">CEIS-required districts</option><option value="nomoe">Districts without MOE match</option><option value="name">State name (A → Z)</option></select></div><div class="lea-sc-legend"><span><i style="background:#2e8540"></i>75%+ meeting</span><span><i style="background:#b8860b"></i>50–74%</span><span><i style="background:#cc5a33"></i>25–49%</span><span><i style="background:#8c1d1d"></i>under 25%</span></div><div class="lea-scards" id="leaScards"></div></div>';
+  '<div class="card fig"><div class="ey">Funding flow</div><h3>Where IDEA Part B dollars go</h3><div class="note">The grant splits into Section&nbsp;611 (school-age) and Section&nbsp;619 (preschool). A slice gets set aside for Coordinated Early Intervening Services (CEIS), and the rest pays for special education and related services. SY&nbsp;2021–22.</div><div class="lea-sc-bar"><label for="leaFlowState">Funding for</label><select id="leaFlowState"><option value="">United States (all States &amp; territories)</option>'+Object.keys(LEA_DATA.flow).filter(function(s){return s!=='__US__';}).sort().map(function(s){return '<option value="'+s.replace(/"/g,'&quot;')+'">'+s+'</option>';}).join('')+'</select></div><div id="leaFlow">'+_leaFlowSVG(flUS)+'</div><div class="lea-flow-note" id="leaFlowNote">'+_leaFlowNoteHTML(flUS)+'</div></div>'+
+  '<div class="card fig"><div class="ey">State report cards</div><h3>How states compare</h3><div class="note">Children served (2024–25) next to MOE compliance (2021–22). The color shows how many of a state&rsquo;s districts meet requirements. Click a card to open that state.</div><div class="lea-sc-bar"><label for="leaScSort">Sort by</label><select id="leaScSort"><option value="served">Children served (high → low)</option><option value="meet">% districts meeting requirements</option><option value="met">% met the MOE standard</option><option value="ceis">CEIS-required districts</option><option value="nomoe">Districts without MOE match</option><option value="name">State name (A → Z)</option></select></div><div class="lea-sc-legend"><span><i style="background:#2e8540"></i>75%+ meeting</span><span><i style="background:#b8860b"></i>50–74%</span><span><i style="background:#cc5a33"></i>25–49%</span><span><i style="background:#8c1d1d"></i>under 25%</span></div><div class="lea-scards" id="leaScards"></div></div>'+'</div></details>';
  var rl=document.getElementById('leaRankList');var topN=sorted.slice(0,25),maxT=topN.length?(topN[0].served||1):1;
  if(rl){rl.innerHTML=topN.map(function(l,i){var w=Math.max(2,(l.served/maxT*100));return '<button type="button" class="lea-rankrow" data-nat-idx="'+i+'"><span class="lr-rank">'+(i+1)+'</span><span class="lr-name">'+l.name+' <small style="color:var(--muted);font-weight:600;font-size:.8em">'+l._state+'</small></span><span class="lr-bar"><span class="lr-fill" style="width:'+w+'%"></span></span><span class="lr-val">'+_leaFmt(l.served)+'</span></button>';}).join('');
  rl.querySelectorAll('[data-nat-idx]').forEach(function(b){b.onclick=function(){_leaPickNation(topN[+b.getAttribute('data-nat-idx')]);};});}
@@ -16122,6 +16152,8 @@ function _leaRenderNation(){
  if(flowEl){var fcard=flowEl.closest('.card');if(fcard)_addCardTools(fcard,function(){var sc=(flowSel&&flowSel.value)||'';var lbl=sc||'United States';var cf=_leaFlowSums(sc);var sv=flowEl.querySelector('svg');if(sv)_gfxSvgPNG(sv,lbl+' – IDEA Part B funding flow','Total allocation → Section 611 / 619 → CEIS reserved + special education & related services. SY 2021–22.','idea618_'+_tblSlug(lbl)+'_funding_flow');},function(){var sc=(flowSel&&flowSel.value)||'';var lbl=sc||'United States';var cf=_leaFlowSums(sc);var totF=cf.ftot||(cf.f611+cf.f619);_gfxCSV([['Scope',lbl],['Flow stage','Amount ($)'],['Total IDEA Part B (611 + 619)',Math.round(totF)],['Section 611 (school-age)',Math.round(cf.f611)],['Section 619 (preschool)',Math.round(cf.f619)],['Reserved for required CEIS',Math.round(cf.ceisAmt)],['Reserved for voluntary CEIS',Math.round(cf.ceisVol)],['Special education & related services (remaining)',Math.round(Math.max(0,totF-cf.ceisAmt-cf.ceisVol))],['Reduction of local/state effort (separate, not federal)',Math.round(cf.red)]],'idea618_'+_tblSlug(lbl)+'_funding_flow');});}
  _LEA_SC_STATS=_leaStateStats();_leaRenderStateCards('served');
  var scSel=document.getElementById('leaScSort');if(scSel)scSel.onchange=function(){_leaRenderStateCards(scSel.value);};
+ var dd=document.getElementById('leaDeepDive');
+ if(dd&&!dd._wired){dd._wired=true;dd.addEventListener('toggle',function(){if(dd.open){try{if(typeof countUpRoot==='function')countUpRoot(dd);}catch(e){}}});}
 }
 function _leaRenderState(state,list){
  var status=document.getElementById('leaStatus'),body=document.getElementById('leaBody');
