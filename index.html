@@ -11857,6 +11857,67 @@ body.dark .view[data-view="lea"] .lea-mini-toggle{border-color:#2f3a48}
 body.dark .view[data-view="lea"] .lea-mini-toggle button{background:#15202c;color:#aeb9c6}
 body.dark .view[data-view="lea"] .lea-mini-toggle button.on{background:#1f6fa8;color:#fff}
 
+/* ===================================================================
+   Ease-of-use enhancements: Home launchpad, per-chart "explain this",
+   and GPRA section navigation. All additive and theme-aware.
+   =================================================================== */
+
+/* --- Home launchpad: optional click-throughs into the deeper views --- */
+.home-launchpad{margin:30px 0 6px}
+.home-launchpad-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 2px}
+.home-launchpad-head h3{margin:0;font-size:1.18rem;color:var(--navy)}
+.home-launchpad-head .lp-sub{font-size:.88rem;color:var(--muted)}
+.launchgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:12px;margin-top:14px}
+.launchcard{display:flex;gap:13px;align-items:flex-start;text-align:left;width:100%;
+  border:1px solid var(--line);border-left:4px solid var(--primary);border-radius:12px;background:var(--card);
+  padding:15px 16px;cursor:pointer;font:inherit;color:inherit;transition:border-color .15s,box-shadow .15s,transform .1s}
+.launchcard:hover{border-left-color:var(--ff-gold);box-shadow:0 6px 16px rgba(16,42,67,.12);transform:translateY(-1px)}
+.launchcard:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.launchcard .lc-ic{flex:none;width:38px;height:38px;border-radius:10px;background:#eaf2fa;color:var(--primary);display:inline-flex;align-items:center;justify-content:center}
+.launchcard .lc-ic svg{width:22px;height:22px}
+.launchcard .lc-body{min-width:0}
+.launchcard .lc-title{display:flex;align-items:center;gap:6px;font-weight:800;font-size:.97rem;color:var(--navy)}
+.launchcard .lc-arrow{color:var(--primary);transition:transform .15s;font-weight:800}
+.launchcard:hover .lc-arrow{transform:translateX(3px)}
+.launchcard .lc-desc{margin:5px 0 0;font-size:.85rem;line-height:1.45;color:var(--muted)}
+body.dark .launchcard .lc-ic{background:#16293c;color:var(--primary)}
+body.dark .home-launchpad-head h3,body.dark .launchcard .lc-title{color:#dbe8f6}
+body.hc .launchcard{border-width:2px}
+@media(max-width:620px){.launchgrid{grid-template-columns:1fr}}
+
+/* --- Per-chart "explain this": plain-language readout on demand --- */
+.explain-wrap{margin:8px 0 2px}
+.explain-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);
+  color:var(--primary);font:inherit;font-weight:700;font-size:.8rem;padding:5px 12px;border-radius:999px;cursor:pointer;transition:background .15s,border-color .15s}
+.explain-btn:hover,.explain-btn[aria-expanded="true"]{background:#eaf2fa;border-color:var(--primary)}
+.explain-btn:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.explain-btn .ex-ic{font-weight:800;font-size:.95em}
+.explain-body{margin-top:9px;background:#f1f5fb;border:1px solid var(--line);border-left:4px solid var(--primary);
+  border-radius:6px;padding:10px 13px;font-size:.84rem;line-height:1.5;color:var(--ink)}
+.explain-body strong{color:var(--navy)}
+body.dark .explain-btn:hover,body.dark .explain-btn[aria-expanded="true"]{background:#16293c}
+body.dark .explain-body{background:#16202c;border-color:#3a4658}
+body.hc .explain-btn,body.hc .explain-body{border-width:2px}
+/* When the global "Chart descriptions" toggle is on, standing readouts already show — avoid duplicate controls */
+body.showdesc .explain-wrap{display:none}
+
+/* --- GPRA section navigation: focus one measure group at a time --- */
+.gpra-sectnav{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0 16px;padding:7px 10px;border:1px solid var(--line);border-left:4px solid var(--ff-gold);border-radius:10px;background:var(--card)}
+.gpra-sectnav .gsec-label{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#6c7c8d;margin-right:4px}
+.gpra-sectnav .gsec-btn{border:1px solid #dcdcd7;background:#fff;color:#33415c;font:inherit;font-weight:700;font-size:.82rem;padding:6px 13px;border-radius:999px;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.gpra-sectnav .gsec-btn:hover{background:#f2f2f0;color:#0f3a5f}
+.gpra-sectnav .gsec-btn.on{background:#0f3a5f;color:#fff;border-color:#0f3a5f}
+.gpra-sectnav .gsec-btn:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.gpra-group.gsec-hidden{display:none!important}
+body.dark .gpra-sectnav{background:#121b27;border-color:#2b3645}
+body.dark .gpra-sectnav .gsec-btn{background:#18212e;color:#d9d9d5;border-color:#2b3645}
+body.dark .gpra-sectnav .gsec-btn.on{background:#1f6fa8;border-color:#1f6fa8;color:#fff}
+body.hc .gpra-sectnav,body.hc .gpra-sectnav .gsec-btn{border-width:2px}
+
+/* Keep exports/print complete: never hide content in the PDF/print path */
+body.printing .home-launchpad,body.printing .explain-wrap{display:none!important}
+body.printing .gpra-group.gsec-hidden{display:block!important}
+
 </style>
 </head>
 <body>
@@ -11981,6 +12042,39 @@ body.dark .view[data-view="lea"] .lea-mini-toggle button.on{background:#1f6fa8;c
 </div>
 
 <div class="fn"><b>Source:</b> U.S. Department of Education, National Center for Education Statistics, Digest of Education Statistics 2023, Table&nbsp;204.30; and Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” School Years 1976–77 through 2024–25.</div>
+
+<section class="home-launchpad" aria-label="Explore the rest of the data tool">
+  <div class="home-launchpad-head">
+    <h3>Explore the data</h3>
+    <span class="lp-sub">Jump into any part of the tool. Each one opens a focused view you can dig into as deeply as you like.</span>
+  </div>
+  <div class="launchgrid">
+    <button type="button" class="launchcard" onclick="showView('states')" aria-label="Open State Snapshot">
+      <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.7-7-11a7 7 0 0 1 14 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
+      <span class="lc-body"><span class="lc-title">State Snapshot <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">See any State's IDEA data, how it ranks nationally, and its federal determination.</span></span>
+    </button>
+    <button type="button" class="launchcard" onclick="showView('explorer')" aria-label="Open Disability Explorer">
+      <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5-8 4.5-8-4.5L12 3z"/><path d="M4 12l8 4.5 8-4.5"/><path d="M4 16.5L12 21l8-4.5"/></svg></span>
+      <span class="lc-body"><span class="lc-title">Disability Explorer <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">Pick one disability category and explore its counts, settings, demographics, and trend.</span></span>
+    </button>
+    <button type="button" class="launchcard" onclick="showView('tables')" aria-label="Open SEA Tables">
+      <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg></span>
+      <span class="lc-body"><span class="lc-title">SEA Tables <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">Pull exact figures from every Section&nbsp;618 collection and compare States side by side.</span></span>
+    </button>
+    <button type="button" class="launchcard" onclick="showView('lea')" aria-label="Open Part B LEA Explorer">
+      <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01M15 10h.01"/></svg></span>
+      <span class="lc-body"><span class="lc-title">LEA Explorer <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">Explore individual school districts and the IDEA Part&nbsp;B funds they receive.</span></span>
+    </button>
+    <button type="button" class="launchcard" onclick="showView('gpra')" aria-label="Open Part B GPRA Performance Analysis">
+      <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.4"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></span>
+      <span class="lc-body"><span class="lc-title">GPRA Analysis <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">Track Part&nbsp;B program performance against its annual federal targets.</span></span>
+    </button>
+    <button type="button" class="launchcard" onclick="showView('collections')" aria-label="Open Data Collections">
+      <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></span>
+      <span class="lc-body"><span class="lc-title">Data Collections <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">Browse the full set of public Section&nbsp;618 data files, tables, and source documents.</span></span>
+    </button>
+  </div>
+</section>
 
 </div>
 <div class="view" data-view="explorer" role="tabpanel" aria-label="Disability Explorer">
@@ -14174,6 +14268,36 @@ function buildChartDescriptions(){
  });
 }
 function toggleDescriptions(on){descOn=on;document.body.classList.toggle('showdesc',on);setSwitch('swDesc',on);lsSet('idea618desc',on?'1':'0');buildChartDescriptions();}
+/* ---- on-demand per-chart plain-language readout ("What does this mean?") ---- */
+function injectExplainButtons(root){
+  root=root||document.querySelector('.view.active')||document;
+  root.querySelectorAll('.canvas-box canvas[id]').forEach(function(cv){
+    if(cv.style.display==='none')return;
+    var box=cv.closest('.canvas-box'); if(!box)return;
+    var nx=box.nextElementSibling;
+    if(nx&&nx.classList&&nx.classList.contains('explain-wrap'))return;
+    var bid='explainbody_'+cv.id;
+    var wrap=document.createElement('div'); wrap.className='explain-wrap';
+    wrap.innerHTML='<button type="button" class="explain-btn" aria-expanded="false" aria-controls="'+bid+'"><span class="ex-ic" aria-hidden="true">?</span>What does this mean?</button>'
+      +'<div class="explain-body" id="'+bid+'" role="note" hidden></div>';
+    box.insertAdjacentElement('afterend',wrap);
+  });
+}
+try{ window.injectExplainButtons=injectExplainButtons; [300,800,1400].forEach(function(t){ setTimeout(function(){ try{injectExplainButtons(document);}catch(_){} },t); }); }catch(_){}
+document.addEventListener('click',function(e){
+  var btn=e.target.closest?e.target.closest('.explain-btn'):null; if(!btn)return;
+  var wrap=btn.closest('.explain-wrap'); if(!wrap)return;
+  var body=wrap.querySelector('.explain-body');
+  if(btn.getAttribute('aria-expanded')==='true'){
+    btn.setAttribute('aria-expanded','false'); if(body)body.hidden=true;
+    btn.innerHTML='<span class="ex-ic" aria-hidden="true">?</span>What does this mean?'; return;
+  }
+  var box=wrap.previousElementSibling, cv=box&&box.querySelector?box.querySelector('canvas[id]'):null;
+  var txt=''; if(cv){try{txt=describeChart(cv.id)||'';}catch(_){}}
+  if(body){body.innerHTML='<strong>In plain language:</strong> '+(txt||'A text summary is not available for this chart yet.'); body.hidden=false;}
+  btn.setAttribute('aria-expanded','true');
+  btn.innerHTML='<span class="ex-ic" aria-hidden="true">×</span>Hide explanation';
+});
 function swWire(id,fn){const el=document.getElementById(id);const t=()=>fn(!el.classList.contains('on'));
    el.onclick=t;el.onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();t();}};}
  swWire('swContrast',toggleContrast);swWire('swDark',applyTheme);swWire('swMotion',toggleMotion);swWire('swUL',toggleUL);swWire('swPlain',togglePlain);swWire('swAnim',toggleAnim);swWire('swDesc',toggleDescriptions);
@@ -15696,6 +15820,7 @@ function showViewSubtab(viewName,key){
     var _fix=function(){ try{ view.querySelectorAll('[data-vtab="'+key+'"] canvas').forEach(function(c){ var ch=(window.Chart&&Chart.getChart)?Chart.getChart(c):null,box=c.parentElement; if(ch&&box&&box.getBoundingClientRect().width>1){ try{ch.resize();ch.update('none');}catch(_){} } }); }catch(e){} };
     [40,160,360].forEach(function(t){ setTimeout(_fix,t); });
     setTimeout(function(){countUpRoot(view);},110);
+    try{[120,400].forEach(function(t){setTimeout(function(){if(window.injectExplainButtons)window.injectExplainButtons(view);},t);});}catch(e){}
   }catch(e){}
 }
 function buildTrendsOverview(){
@@ -15960,7 +16085,6 @@ function _leaRenderNation(){
  var withCount=all.filter(function(l){return l.served!=null;});
  var withFund=withCount.filter(function(l){return l.fund&&l.fund.ftot!=null;});
  var totalServed=withCount.reduce(function(a,l){return a+(l.served||0);},0);
- var noMoeUS=all.filter(function(l){return !l.fund;}).length;
  var sorted=withCount.slice().sort(function(a,b){return (b.served||0)-(a.served||0);});
  var dD={'1':0,'2':0,'3':0,'4':0},dS={'1':0,'2':0,'3':0,'4':0};
  all.forEach(function(l){var f=l.fund;if(!f)return;var d=(''+(f.det||'')).trim();if(dD[d]!=null){dD[d]++;dS[d]+=(l.served||0);}});
@@ -15972,7 +16096,7 @@ function _leaRenderNation(){
  if(status)status.innerHTML='';
  body.innerHTML='<div class="lea-supnote">This is <b>every district in the country</b>. Pick a state up top or click the map to zoom in, then open a district to see its full profile.</div>'+
   '<div class="kpis lea-kpis">'+
-   '<div class="kpi"><div class="l">Districts (LEAs)</div><div class="v">'+all.length.toLocaleString()+'</div><div class="c">across '+states.length+' States &amp; territories · '+noMoeUS.toLocaleString()+' with no 2021–22 MOE match</div></div>'+
+   '<div class="kpi"><div class="l">Districts (LEAs)</div><div class="v">'+all.length.toLocaleString()+'</div><div class="c">reporting a 2024–25 child count, across '+states.length+' States &amp; territories</div></div>'+
    '<div class="kpi"><div class="l">Children &amp; students served</div><div class="v">'+_leaFmt(totalServed)+'</div><div class="c">IDEA Part B, 2024–25</div></div>'+
    '<div class="kpi autism"><div class="l">Largest district</div><div class="v" style="font-size:1.2rem;line-height:1.15">'+(sorted[0]?sorted[0].name:'–')+'</div><div class="c">'+(sorted[0]?_leaFmt(sorted[0].served)+' served · '+sorted[0]._state:'')+'</div></div>'+
   '</div>'+
@@ -16109,9 +16233,37 @@ function _leaCatChart(lea,type){
   _addCardTools(card,function(){var ttl=dname+': students by primary disability category';var note='School-age (ages 5–21) child count by category, 2024–25.';if(type==='bubble'){_gfxSvgPNG(document.querySelector('#leaCatBubbles svg'),ttl,note,'idea618_'+_tblSlug(dname)+'_categories');}else{_captionedPNG(cv,ttl,note,'idea618_'+_tblSlug(dname)+'_categories.png',(typeof SRC_NOTE!=='undefined'?SRC_NOTE:''));}},function(){var rows=[['Primary disability category','School-age count, 2024–25']];items.forEach(function(p){rows.push([p.l,p.v]);});_gfxCSV(rows,'idea618_'+_tblSlug(dname)+'_categories');});
  }
 }
-try{ var _sv_ns=showView; showView=function(){ var r=_sv_ns.apply(this,arguments); updateNavSelection(); foldLeads(); foldNotes(); try{var _v=document.body.getAttribute('data-view'); if(_v==='states')setupStateSubtabs(); else if(VIEW_SUBTABS[_v])applyViewSubtabs(_v,VIEW_SUBTABS[_v]);}catch(e){} try{if(document.body.getAttribute('data-view')==='collections')buildAdditionalCollections();}catch(e){} try{if(document.body.getAttribute('data-view')==='lea')initLEA();}catch(e){} try{var _av=document.querySelector('.view.active'); if(_av)setTimeout(function(){countUpRoot(_av);},90);}catch(e){} return r; }; }catch(e){}
+try{ var _sv_ns=showView; showView=function(){ var r=_sv_ns.apply(this,arguments); updateNavSelection(); foldLeads(); foldNotes(); try{var _v=document.body.getAttribute('data-view'); if(_v==='states')setupStateSubtabs(); else if(VIEW_SUBTABS[_v])applyViewSubtabs(_v,VIEW_SUBTABS[_v]);}catch(e){} try{if(document.body.getAttribute('data-view')==='collections')buildAdditionalCollections();}catch(e){} try{if(document.body.getAttribute('data-view')==='lea')initLEA();}catch(e){} try{var _av=document.querySelector('.view.active'); if(_av)setTimeout(function(){countUpRoot(_av);},90);}catch(e){} try{[160,460].forEach(function(t){setTimeout(function(){if(window.injectExplainButtons)window.injectExplainButtons();},t);});}catch(e){} return r; }; }catch(e){}
 try{ var _asc_ns=afterStateChange; afterStateChange=function(){ var r=_asc_ns.apply(this,arguments); updateNavSelection(); try{setupStateSubtabs();}catch(e){} return r; }; }catch(e){}
 try{ var _rex_ns=renderExplorer; renderExplorer=function(){ var r=_rex_ns.apply(this,arguments); updateNavSelection(); try{if(document.body.getAttribute('data-view')==='explorer'&&VIEW_SUBTABS.explorer)applyViewSubtabs('explorer',VIEW_SUBTABS.explorer);}catch(e){} return r; }; }catch(e){}
+/* ---- GPRA section navigation: focus one measure group at a time ---- */
+var _gpraSect='0';
+function showGpraSect(key){
+  var body=document.getElementById('gpraBody'); if(!body)return;
+  _gpraSect=key;
+  var groups=[].slice.call(body.querySelectorAll('.gpra-group'));
+  groups.forEach(function(g,i){ var show=(key==='all'||String(i)===String(key)); g.classList.toggle('gsec-hidden',!show); });
+  var nav=document.getElementById('gpraSectNav');
+  if(nav)nav.querySelectorAll('.gsec-btn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-gsec')===String(key)); });
+  setTimeout(function(){ try{ body.querySelectorAll('.gpra-group:not(.gsec-hidden) canvas').forEach(function(c){ var ch=(window.Chart&&Chart.getChart)?Chart.getChart(c):null; if(ch){try{ch.resize();ch.update('none');}catch(_){}} }); }catch(e){} },40);
+}
+function setupGpraSectNav(){
+  var body=document.getElementById('gpraBody'); if(!body)return;
+  var groups=[].slice.call(body.querySelectorAll('.gpra-group')); if(!groups.length)return;
+  groups.forEach(function(g,i){ g.setAttribute('data-gsec',i); });
+  if(!document.getElementById('gpraSectNav')){
+    var toggle=document.getElementById('gpraViewToggle');
+    var nav=document.createElement('div'); nav.id='gpraSectNav'; nav.className='gpra-sectnav'; nav.setAttribute('role','group'); nav.setAttribute('aria-label','Show one GPRA measure group at a time');
+    var html='<span class="gsec-label">Sections</span><button type="button" class="gsec-btn" data-gsec="all">All sections</button>';
+    groups.forEach(function(g,i){ var h=g.querySelector('.gpra-group-head h3'); html+='<button type="button" class="gsec-btn" data-gsec="'+i+'">'+(h?h.textContent.trim():('Section '+(i+1)))+'</button>'; });
+    nav.innerHTML=html;
+    if(toggle&&toggle.parentNode){ toggle.parentNode.insertBefore(nav,toggle.nextSibling); } else { body.parentNode.insertBefore(nav,body); }
+    nav.addEventListener('click',function(e){ var b=e.target.closest?e.target.closest('.gsec-btn'):null; if(b)showGpraSect(b.getAttribute('data-gsec')); });
+  }
+  if(_gpraSect!=='all'){ var n=parseInt(_gpraSect,10); if(!(n>=0&&n<groups.length))_gpraSect='0'; }
+  showGpraSect(_gpraSect);
+}
+try{ var _rg_ns=renderGPRA; renderGPRA=function(){ var r=_rg_ns.apply(this,arguments); try{setupGpraSectNav();}catch(e){} return r; }; }catch(e){}
 updateNavSelection();
 foldLeads();
 foldNotes();
