@@ -12594,6 +12594,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     <div class="a11ysw on" id="swAnim" role="switch" tabindex="0" aria-checked="true"><span class="t">Animations</span><span class="knob"></span></div>
     <div class="a11ysw" id="swMotion" role="switch" tabindex="0" aria-checked="false"><span class="t">Reduce motion</span><span class="knob"></span></div>
     <div class="a11ysw" id="swUL" role="switch" tabindex="0" aria-checked="false"><span class="t">Underline links</span><span class="knob"></span></div>
+    <div class="a11ysw" id="swCVD" role="switch" tabindex="0" aria-checked="false"><span class="t">Colorblind-safe palette</span><span class="knob"></span></div>
   </div>
   <div class="grp"><span class="glab">Reading</span>
     <div class="a11ysw" id="swPlain" role="switch" tabindex="0" aria-checked="false"><span class="t">Plain language</span><span class="knob"></span></div>
@@ -13264,6 +13265,23 @@ const ENV={"Inside regular class 80% or more of the day":[3482,3542,3622,3708,38
 const ENV_COL={'Inside regular class 80% or more of the day':'#1a9850','Inside regular class 40% through 79% of the day':'#91cf60',
  'Inside regular class less than 40% of the day':'#d9ef8b','Separate School, School Age':'#fee08b','Residential Facility, School Age':'#fc8d59',
  'Parentally Placed in Private Schools':'#4575b4','Homebound/Hospital':'#bbbbbb','Correctional Facilities':'#555555'};
+
+/* ===== Opt-in colorblind-safe (CVD) palette: Okabe-Ito + Paul Tol. OFF by default.
+   Swapped in place so every render-time read of COLORS[k]/ENV_COL[k] picks it up. ===== */
+const COLORS_ORIG=Object.assign({},COLORS);
+const ENV_COL_ORIG=Object.assign({},ENV_COL);
+const COLORS_CVD={'Specific learning disability':'#0072B2','Speech or language impairment':'#56B4E9','Other health impairment':'#009E73','Autism':'#D55E00','Developmental delay':'#E69F00','Intellectual disability':'#CC79A7','Emotional disturbance':'#882255','Multiple disabilities':'#44AA99','Hearing impairment':'#117733','Orthopedic impairment':'#999999','Traumatic brain injury':'#AA4499','Visual impairment':'#332288','Deaf-blindness':'#DDCC77'};
+const ENV_COL_CVD={'Inside regular class 80% or more of the day':'#56B4E9','Inside regular class 40% through 79% of the day':'#0072B2','Inside regular class less than 40% of the day':'#332288','Separate School, School Age':'#E69F00','Residential Facility, School Age':'#D55E00','Parentally Placed in Private Schools':'#117733','Homebound/Hospital':'#999999','Correctional Facilities':'#444444'};
+let cvdOn=false;
+function applyPalette(on){
+  cvdOn=!!on;
+  var cs=on?COLORS_CVD:COLORS_ORIG, es=on?ENV_COL_CVD:ENV_COL_ORIG;
+  Object.keys(cs).forEach(function(k){COLORS[k]=cs[k];});
+  Object.keys(es).forEach(function(k){ENV_COL[k]=es[k];});
+}
+/* Apply early (before first render) if the user previously turned it on. */
+try{ if(localStorage.getItem('idea618cvd')==='1') applyPalette(true); }catch(e){}
+
 
 // Inclusion by disability 2024-25 [in 80%+, total] (school-age)
 const INCL={"Autism":[452819,1111435],"Specific learning disability":[1983527,2516690],"Speech or language impairment":[1165608,1309525],"Other health impairment":[894998,1234765],"Developmental delay":[227847,328961],"Intellectual disability":[87399,416534],"Emotional disturbance":[180952,310855],"Multiple disabilities":[38776,157588],"Hearing impairment":[41281,62472],"Orthopedic impairment":[15532,25638],"Traumatic brain injury":[12071,23570],"Visual impairment":[16288,22870],"Deaf-blindness":[521,1679]};
@@ -14022,7 +14040,7 @@ function renderExplorer(){
    scales:{x:{grid:{display:false},ticks:{maxRotation:60,minRotation:60,font:{size:10},autoSkip:true}},
     y:{beginAtZero:true,title:{display:true,text:'Students (thousands)'},ticks:{callback:v=>v.toLocaleString()}}}}});
  // ---- Figure 2: educational environment ----
- const envRows=EX_ENV.map(function(e){var raw=c.env[e[0]]||0,share=pct(raw,c.sa_total||1),val=expMode==='pct'?+share.toFixed(1):raw;return {label:e[1],raw:raw,share:share,val:val,color:e[2]};}).sort(function(a,b){return b.val-a.val;});
+ const envRows=EX_ENV.map(function(e){var raw=c.env[e[0]]||0,share=pct(raw,c.sa_total||1),val=expMode==='pct'?+share.toFixed(1):raw;return {label:e[1],raw:raw,share:share,val:val,color:(cvdOn&&ENV_COL_CVD[e[0]])?ENV_COL_CVD[e[0]]:e[2]};}).sort(function(a,b){return b.val-a.val;});
  exDestroy('e');exC.e=new Chart(document.getElementById('expEnv'),{type:'bar',
   data:{labels:envRows.map(function(r){return r.label;}),datasets:[{label:expMode==='pct'?'Percent of school-aged students':'Students',data:envRows.map(function(r){return r.val;}),backgroundColor:envRows.map(function(r){return shade(r.color,.84);}),borderColor:envRows.map(function(r){return r.color;}),borderWidth:1,borderRadius:4,_raw:envRows.map(function(r){return r.raw;}),_share:envRows.map(function(r){return r.share;})}]},
   options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:ANIM,plugins:{legend:{display:false},
@@ -14926,6 +14944,7 @@ function setTextSize(l){document.body.style.removeProperty('zoom');document.docu
 function toggleContrast(on){document.body.classList.toggle('hc',on);setSwitch('swContrast',on);lsSet('idea618hc',on?'1':'0');reRenderTheme();}
 function toggleMotion(on){reduceMotion=on;document.body.classList.toggle('reduce',on);setSwitch('swMotion',on);lsSet('idea618rm',on?'1':'0');reRenderTheme();}
 function toggleUL(on){document.body.classList.toggle('ul',on);setSwitch('swUL',on);lsSet('idea618ul',on?'1':'0');}
+function toggleCVD(on){applyPalette(on);setSwitch('swCVD',on);lsSet('idea618cvd',on?'1':'0');try{reRenderTheme();}catch(e){}try{renderCompare2();}catch(e){}}
 function toggleAnim(on){document.body.classList.toggle('no-anim',!on);setSwitch('swAnim',on);lsSet('idea618anim',on?'1':'0');reRenderTheme();}
 function renderAll(){
  kpis();renderNationalSnapshot();setupTrendUnitToggle();renderTrend();renderTrendShare();renderTrendChange();renderComp();renderCategoryShift();renderEnv();renderIncl();renderSparks();renderHomeBubbles();
@@ -15186,7 +15205,7 @@ document.addEventListener('click',function(e){
 });
 function swWire(id,fn){const el=document.getElementById(id);const t=()=>fn(!el.classList.contains('on'));
    el.onclick=t;el.onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();t();}};}
- swWire('swContrast',toggleContrast);swWire('swDark',applyTheme);swWire('swMotion',toggleMotion);swWire('swUL',toggleUL);swWire('swPlain',togglePlain);swWire('swAnim',toggleAnim);swWire('swDesc',toggleDescriptions);
+ swWire('swContrast',toggleContrast);swWire('swDark',applyTheme);swWire('swMotion',toggleMotion);swWire('swUL',toggleUL);swWire('swCVD',toggleCVD);swWire('swPlain',togglePlain);swWire('swAnim',toggleAnim);swWire('swDesc',toggleDescriptions);
  // NAEP view toggle
  document.querySelectorAll('#naepToggle button').forEach(b=>b.onclick=()=>{naepMode=b.dataset.m;document.querySelectorAll('#naepToggle button').forEach(x=>x.classList.toggle('on',x===b));renderNAEP();});
  // restore saved preferences
@@ -15194,6 +15213,7 @@ function swWire(id,fn){const el=document.getElementById(id);const t=()=>fn(!el.c
  if(lsGet('idea618hc')==='1'){document.body.classList.add('hc');setSwitch('swContrast',true);}
  try{updateScopeFlag();}catch(e){}
  if(lsGet('idea618ul')==='1'){document.body.classList.add('ul');setSwitch('swUL',true);}
+ if(lsGet('idea618cvd')==='1'){setSwitch('swCVD',true);}
  const rm=lsGet('idea618rm');
  if(rm==='1'||(rm===null&&reduceMotion)){reduceMotion=true;document.body.classList.add('reduce');setSwitch('swMotion',true);}else if(rm==='0'){reduceMotion=false;}
  const fs=lsGet('idea618fs');setTextSize(fs!==null?+fs:0);
