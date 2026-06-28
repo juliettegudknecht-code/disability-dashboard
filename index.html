@@ -13429,7 +13429,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   </div>
 </footer>
 <script>(function(){
-  try{var u=document.getElementById('sfUpdated');var d=document.lastModified?new Date(document.lastModified):null;if(u&&d&&!isNaN(d))u.textContent='Last updated '+d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});}catch(e){}
+  try{var u=document.getElementById('sfUpdated');var d=document.lastModified?new Date(document.lastModified):null;if(u&&d&&!isNaN(d))u.textContent='Last updated '+d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})+' at '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}catch(e){}
   function on(id,fn){var b=document.getElementById(id);if(b)b.addEventListener('click',fn);}
   [].slice.call(document.querySelectorAll('.site-footer [data-goto]')).forEach(function(b){b.addEventListener('click',function(){try{showView(b.getAttribute('data-goto'));window.scrollTo(0,0);}catch(e){}});});
   on('sfBuild',function(){var f=document.getElementById('chartBuilderFab');if(f)f.click();});
@@ -18434,6 +18434,10 @@ body.pink:not(.dark) .cb-catsfold>summary .cb-drill-title{color:#a8266e}
 .cb-chart-title:empty{display:none}
 body.dark .cb-chart-title{color:#dbe8f6}
 body.pink:not(.dark) .cb-chart-title{color:#a8266e}
+/* Flatter, more editorial cards: a single hairline shadow, defined mainly by their border. */
+.card,.kpi,.picto,.sparkcard,.cmp2-col,.qlink,.launchcard,.cat,.snap-stat{box-shadow:0 1px 2px rgba(16,42,67,.06)!important}
+body:not(.no-anim):not(.reduce) .card:hover,body:not(.no-anim):not(.reduce) .kpi:hover,body:not(.no-anim):not(.reduce) .qlink:hover,body:not(.no-anim):not(.reduce) .launchcard:hover{box-shadow:0 3px 10px rgba(22,46,81,.10)!important}
+body.dark .card,body.dark .kpi,body.dark .picto,body.dark .sparkcard,body.dark .cmp2-col,body.dark .qlink,body.dark .launchcard,body.dark .cat,body.dark .snap-stat{box-shadow:0 1px 2px rgba(0,0,0,.28)!important}
 .cb-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:108px;overflow:auto}
 .cb-chip{font:inherit;font-size:.78rem;font-weight:600;color:var(--muted);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:4px 11px;cursor:pointer;transition:all .12s}
 .cb-chip:hover{border-color:var(--primary-lt);color:var(--ink)}
@@ -18444,9 +18448,9 @@ body.dark .cb-chip.on{background:var(--primary);border-color:var(--primary);colo
 .cb-canvasbox{height:clamp(220px,40vh,360px);position:relative;min-height:0}
 /* footer: editable title + save buttons */
 .cb-foot{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
-.cb-titlefield{flex:1 1 280px;display:flex;flex-direction:column;gap:4px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-.cb-titlefield input{font:inherit;text-transform:none;letter-spacing:0;font-weight:600;font-size:.92rem;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink)}
-.cb-titlefield input:focus-visible{outline:2px solid var(--primary);outline-offset:1px;border-color:var(--primary)}
+.cb-titlefield{flex:1 1 100%;display:flex;flex-direction:column;gap:4px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.cb-titlefield textarea{font:inherit;font-family:inherit;text-transform:none;letter-spacing:0;font-weight:600;font-size:.92rem;line-height:1.4;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);width:100%;box-sizing:border-box;resize:vertical;min-height:40px}
+.cb-titlefield textarea:focus-visible{outline:2px solid var(--primary);outline-offset:1px;border-color:var(--primary)}
 .cb-actions{display:flex;gap:8px;flex:0 0 auto}
 .cb-savebtn{font:inherit;font-weight:800;font-size:.88rem;color:#fff;background:var(--navy);border:none;border-radius:10px;padding:10px 16px;cursor:pointer}
 .cb-savebtn:hover{filter:brightness(1.08)}
@@ -18602,7 +18606,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
       <div class="tbl-viz-note" id="cbChart_note"></div>
     </div>
     <div class="cb-foot">
-      <label class="cb-titlefield"><span>Title for the saved image</span><input type="text" id="cbTitle" placeholder="A title will be filled in for you — type here to change it"></label>
+      <label class="cb-titlefield"><span>Title for the saved image</span><textarea id="cbTitle" rows="2" placeholder="A title will be filled in for you — type here to change it"></textarea></label>
       <div class="cb-actions"><button type="button" class="cb-savebtn" id="cbPng">Save image</button><button type="button" class="cb-savebtn cb-savebtn-2" id="cbCsv">Save data (CSV)</button></div>
     </div>
   </div>
