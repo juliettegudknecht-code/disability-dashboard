@@ -17792,6 +17792,8 @@ body.pink .trend-chip.on{background:#a8266e!important;border-color:#a8266e!impor
 body.pink .tbl-toggle button.on,body.pink .tbl-viz-seg.on{background:#a8266e!important;color:#fff!important}
 body.pink .guidebtn{background:#ff8fc8!important;border-color:#ff6fb0!important;color:#7a0d3d!important}
 body.pink .section-title:before{background:#e6398a!important}
+body.pink .vst-btn:before{color:#e6398a!important}
+body.pink .vst-btn.vst-active:before{color:#fff!important}
 body.pink .view .trend-chip.on{background:#a8266e!important;border-color:#a8266e!important;color:#fff!important}
 
 /* Per-view accent borders were hardcoded blue/green/gold and out-specified the old pink rules.
@@ -17826,7 +17828,20 @@ body.pink .view .tcg-key-demo  .tcg-label:before{background:#bf5af2!important}
 body.pink .view .tcg-key-overview .tcg-label:before{background:#a8266e!important}
 /* nav active underline + state sub-nav: pink, not gold/navy */
 body.pink nav.appbar .tab.active:after{background:#e6398a!important}
+body.pink:not(.dark):not(.hc) #viewTabs .tab.active{background:#fff0f7!important;color:#a8266e!important;border-color:#ffc4dd!important;box-shadow:inset 0 -3px 0 #e6398a!important}
+body.pink:not(.dark):not(.hc) #viewTabs .navtrigger.active{box-shadow:inset 0 -3px 0 #e6398a!important}
 body.pink .view .state-page-nav a.stab-active{background:#a8266e!important;border-color:#a8266e!important}
+/* card + panel headings were hardcoded navy; make them plum so nothing reads "blue" */
+body.pink .card h3,body.pink .card.fig h3,body.pink .insightpanel h3,body.pink .snap-head,body.pink .exp-h2{color:#a8266e!important}
+/* blue/green icon chips, toolbars and selected segments -> pink */
+body.pink .kpi-ic{background:rgba(168,38,110,.12)!important;color:#a8266e!important}
+body.pink .state-toolbar{border-top-color:#e6398a!important}
+body.pink .exp-hero{border-top-color:#e6398a!important}
+body.pink .state-insight{border-left-color:#e6398a!important}
+body.pink .toggle .on,body.pink .seg.on,body.pink .gpra-viewtoggle button.on,body.pink #naepToggle button.on{background:#a8266e!important;border-color:#a8266e!important;color:#fff!important}
+body.pink .kpi .v,body.pink .kpi.good .v,body.pink .state-insight .snap-num{color:#a8266e!important}
+/* big stat numbers were hardcoded navy across cards -> plum */
+body.pink .sparkcard .val,body.pink .snap-num,body.pink .snap-frac,body.pink .snap-big,body.pink .exp-kpi-num,body.pink .k .num{color:#a8266e!important}
 /* a soft fairy glow around the chart cards */
 body.pink .card.fig{box-shadow:0 1px 2px rgba(168,38,110,.08),0 8px 26px rgba(230,57,138,.13)}
 /* purple-dust accents sprinkled into a few surfaces */
