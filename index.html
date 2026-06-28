@@ -12824,13 +12824,6 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   </div>
 </div>
 <div class="grid g2 trend-extra-grid">
-  <div class="card fig" id="trend-share-card" data-drill-group="trends" data-drill-panel="categories">
-    <div class="ey">Share of total</div>
-    <h3>Each Category as a Share of the Total</h3>
-    <div class="note">Each selected primary disability category shown as its share of all Children and Students with Disabilities served under IDEA, Part&nbsp;B, ages 3 through 21, in School Year 2024–25.</div>
-    <div class="shareband-box" id="trendShareBands" role="img" aria-label="Share bands for selected primary disability categories as a share of total IDEA Part B child count"></div>
-    <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” 2024–25.</div></details>
-  </div>
   <div class="card fig" id="trend-change-card" data-drill-group="trends" data-drill-panel="categories">
     <div class="ey">Change</div>
     <h3>Largest Changes in Count by Category</h3>
@@ -17258,8 +17251,7 @@ var VIEW_SUBTABS={
   trends:{ after:'#trends', groups:[
     {key:'t-snap', label:'Snapshot', idx:[1]},
     {key:'t-over', label:'Over time', idx:[2]},
-    {key:'t-mini', label:'Category trends', idx:[3]},
-    {key:'t-share', label:'Share bands', idx:[4]}
+    {key:'t-mini', label:'Category trends', idx:[3,4]}
   ]},
   explorer:{ container:'.explorer-modern', after:'.exp-kpis', groups:[
     {key:'e-main', label:'Counts & environment', idx:[3]},
