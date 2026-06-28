@@ -15004,7 +15004,8 @@ function toggleContrast(on){document.body.classList.toggle('hc',on);setSwitch('s
 function toggleMotion(on){reduceMotion=on;document.body.classList.toggle('reduce',on);setSwitch('swMotion',on);lsSet('idea618rm',on?'1':'0');reRenderTheme();}
 function toggleUL(on){document.body.classList.toggle('ul',on);setSwitch('swUL',on);lsSet('idea618ul',on?'1':'0');}
 function toggleCVD(on){applyPalette(on);setSwitch('swCVD',on);lsSet('idea618cvd',on?'1':'0');try{reRenderTheme();}catch(e){}try{renderCompare2();}catch(e){}}
-function togglePink(on){document.body.classList.toggle('pink',on);setSwitch('swPink',on);lsSet('idea618pink',on?'1':'0');}
+function _pinkChrome(on){try{['exportBtn'].forEach(function(id){var e=document.getElementById(id);if(e){e.style.background=on?'#a8266e':'';e.style.borderColor=on?'#a8266e':'';e.style.color=on?'#fff':'';}});}catch(e){}}
+function togglePink(on){document.body.classList.toggle('pink',on);setSwitch('swPink',on);lsSet('idea618pink',on?'1':'0');_pinkChrome(on);}
 function toggleAnim(on){document.body.classList.toggle('no-anim',!on);setSwitch('swAnim',on);lsSet('idea618anim',on?'1':'0');reRenderTheme();}
 function renderAll(){
  kpis();renderNationalSnapshot();setupTrendUnitToggle();renderTrend();renderTrendShare();renderTrendChange();renderComp();renderCategoryShift();renderEnv();renderIncl();renderSparks();renderHomeBubbles();
@@ -15274,7 +15275,7 @@ function swWire(id,fn){const el=document.getElementById(id);const t=()=>fn(!el.c
  try{updateScopeFlag();}catch(e){}
  if(lsGet('idea618ul')==='1'){document.body.classList.add('ul');setSwitch('swUL',true);}
  if(lsGet('idea618cvd')==='1'){setSwitch('swCVD',true);}
- if(lsGet('idea618pink')==='1'){document.body.classList.add('pink');setSwitch('swPink',true);}
+ if(lsGet('idea618pink')==='1'){document.body.classList.add('pink');setSwitch('swPink',true);_pinkChrome(true);}
  const rm=lsGet('idea618rm');
  if(rm==='1'||(rm===null&&reduceMotion)){reduceMotion=true;document.body.classList.add('reduce');setSwitch('swMotion',true);}else if(rm==='0'){reduceMotion=false;}
  const fs=lsGet('idea618fs');setTextSize(fs!==null?+fs:0);
