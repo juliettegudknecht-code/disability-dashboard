@@ -3047,6 +3047,25 @@ body.dark .shareband-row{
   border-color:#28445f;
 }
 body.dark .shareband-stack{border-color:#0f1b29}
+/* ===== Exiting funnel: vertical tapering bars where each tier is a true subset of the one above ===== */
+.funnel-box{border-radius:14px;border:1px solid var(--line);background:#fbfffc;padding:16px 16px 14px;overflow:hidden}
+body.dark .funnel-box{background:#132338;border-color:#28445f}
+.funnel-head{margin:0 0 15px;color:var(--ink)}
+.funnel-head b{font-size:1.02rem;color:var(--navy)}
+body.dark .funnel-head b{color:#eaf4ff}
+.funnel-head span{display:block;color:var(--muted);font-weight:700;font-size:.84rem;margin-top:3px;max-width:74ch;line-height:1.45}
+.funnel-tiers{display:flex;flex-direction:column;align-items:center;gap:5px}
+.funnel-tier{width:100%;display:flex;flex-direction:column;align-items:center;gap:4px}
+.funnel-tier:not(:last-child)::after{content:"\25BE";color:#aebfcf;font-size:.8rem;line-height:1;margin:3px 0}
+body.dark .funnel-tier:not(:last-child)::after{color:#3d566f}
+.funnel-cap{font-weight:800;color:var(--navy);font-size:.86rem;text-align:center;line-height:1.25}
+body.dark .funnel-cap{color:#eaf4ff}
+.funnel-bar{height:44px;min-width:96px;max-width:100%;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1rem;font-variant-numeric:tabular-nums;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 6px 16px rgba(16,42,67,.12);transition:filter .15s ease;cursor:default}
+.funnel-bar:hover{filter:saturate(1.15) brightness(1.06)}
+.funnel-sub{color:var(--muted);font-weight:750;font-size:.75rem;text-align:center;font-variant-numeric:tabular-nums}
+.funnel-src{margin-top:15px;font-size:.72rem;color:var(--muted);line-height:1.45}
+body.hc .funnel-box{border:2px solid currentColor}
+body.hc .funnel-bar{box-shadow:inset 0 0 0 1px #fff;border:1px solid rgba(0,0,0,.3)}
 /* Compact advanced collection visuals. */
 .collection-mini-grid{
   display:grid;
@@ -12785,7 +12804,9 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     <div class="ey">Part B · Exiting · School Year 2023–24</div>
     <h3>Exiting Special Education, Part&nbsp;B Exiting Collection, Ages 14 Through 21, School Year 2023–24</h3>
     <div class="note">How Students with Disabilities, ages 14 through 21, left special education in School Year 2023–24, shown as a percent of all students reported in the Exiting collection. Graduating with a regular high school diploma is the most common reason students exit.</div>
-    <div class="canvas-box tall"><canvas id="exitChart"></canvas></div>
+    <div class="ey" style="margin-top:6px">From all who exited to a regular diploma</div>
+    <div class="funnel-box" id="exitFunnel" role="img" aria-label="Funnel of how Students with Disabilities, ages 14 through 21, exited special education: of all who exited, how many left school, and how many graduated with a regular high school diploma."></div>
+    <div class="canvas-box tall" style="margin-top:14px"><canvas id="exitChart"></canvas></div>
     <div class="collection-mini-grid">
       <div class="collection-mini"><h4>Grouped Exit Outcomes</h4><div class="mini-note">Grouped view of the same Exiting collection.</div><div class="canvas-box short"><canvas id="exitGroupChart"></canvas></div></div>
     </div>
@@ -13258,6 +13279,29 @@ function renderTrendShare(){
  el.innerHTML='<div class="shareband-head"><div><b>School Year 2024–25</b><span>Each segment shows percent of the IDEA Part B total, ages 3 through 21.</span></div><div class="shareband-total">Selected: '+combined.toFixed(1)+'%</div></div>'+
   '<div class="shareband-stack" aria-hidden="true">'+rows.map(function(d){return '<span class="shareband-seg" style="width:'+Math.max(.4,d.share).toFixed(2)+'%;background:'+d.color+'" title="'+d.name+': '+d.share.toFixed(1)+'%"></span>';}).join('')+'</div>'+
   '<div class="shareband-legend">'+rows.map(function(d){return '<div class="shareband-row"><span class="shareband-dot" style="background:'+d.color+'"></span><span class="shareband-name">'+d.name+'</span><span class="shareband-val">'+d.share.toFixed(1)+'%</span><span class="shareband-count">'+fmt(d.value*1000)+' children and students</span></div>';}).join('')+'</div>';
+}
+/* Exiting funnel: each tier is a strict subset of the one above (exited -> left school -> graduated with a regular diploma). */
+function renderExitFunnel(){
+ var el=document.getElementById('exitFunnel');if(!el)return;
+ var d=(typeof CCOLL!=='undefined'&&CCOLL.exitB&&CCOLL.exitB.data)?CCOLL.exitB.data['US, Outlying Areas, and Freely Associated States']:null;
+ var totalExit=d?d['Total exiting special education']:0;
+ if(!d||!totalExit){el.innerHTML='';return;}
+ var leftSchool=d['Total exiting school']||0, reg=d['Graduated with regular high school diploma']||0, alt=d['Graduated with an alternate diploma']||0;
+ var tiers=[
+  {name:'Exited special education',value:totalExit,color:'#13496b'},
+  {name:'Left school',value:leftSchool,color:'#1f6fa8'},
+  {name:'Graduated with a regular high school diploma',value:reg,color:'#2e8540'}
+ ];
+ var top=tiers[0].value||1;
+ var html='<div class="funnel-head"><div><b>School Year 2023&ndash;24</b><span>Of all Students with Disabilities, ages 14 through 21, who exited special education, this follows how many left school and how many graduated with a regular high school diploma. Each tier is a subset of the one above it.</span></div></div><div class="funnel-tiers">';
+ tiers.forEach(function(t,i){
+  var w=Math.max(20,t.value/top*100), pctTop=t.value/top*100, pctPrev=i>0?t.value/tiers[i-1].value*100:100;
+  var sub=fmt(t.value)+' students · '+pctTop.toFixed(0)+'% of all exiters'+(i>0?' · '+pctPrev.toFixed(0)+'% of the step above':'');
+  var tip=t.name+': '+fmt(t.value)+' students, '+pctTop.toFixed(1)+'% of all exiters'+(i>0?', '+pctPrev.toFixed(1)+'% of the step above':'');
+  html+='<div class="funnel-tier"><div class="funnel-cap">'+t.name+'</div><div class="funnel-bar" style="width:'+w.toFixed(1)+'%;background:'+t.color+'" title="'+tip.replace(/"/g,'&quot;')+'">'+fmt(t.value)+'</div><div class="funnel-sub">'+sub+'</div></div>';
+ });
+ html+='</div><div class="funnel-src"><b>Source:</b> U.S. Department of Education, EDFacts Data Warehouse (EDW): &ldquo;IDEA Part&nbsp;B Exiting Collection,&rdquo; 2023&ndash;24, US, Outlying Areas, and Freely Associated States. &ldquo;Left school&rdquo; is the reported total exiting school; it excludes students who moved and were known to be continuing or who transferred to regular education. A further '+fmt(alt)+' students graduated with an alternate diploma (not shown here).</div>';
+ el.innerHTML=html;
 }
 function renderTrendChange(){
  var el=document.getElementById('trendChangeChart');if(!el)return;
@@ -13972,6 +14016,7 @@ function renderCollections(){
    tooltip:{callbacks:{label:o=>o.parsed.x+'% of all exiters ('+fmt(o.dataset._raw[o.dataIndex])+' students)'}}},scales:{x:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}},y:{ticks:{font:{size:11}}}}}});
  const exitGroups=[['Diploma or certificate',ex['Graduated with regular high school diploma']+ex['Graduated with an alternate diploma']+ex['Received a certificate'],'#2e8540'],['Continuing education or services',ex['Transferred to regular education']+ex['Moved, known to be continuing'],'#1f6fa8'],['Dropped out',ex['Dropped out'],'#cc5a33'],['Other exits',ex['Reached maximum age']+ex['Died'],'#5b6472']];
  if(document.getElementById('exitGroupChart'))new Chart(document.getElementById('exitGroupChart'),{type:'doughnut',data:{labels:exitGroups.map(function(r){return r[0];}),datasets:[{data:exitGroups.map(function(r){return r[1];}),backgroundColor:exitGroups.map(function(r){return r[2];}),borderColor:'#fff',borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10}}},tooltip:{callbacks:{label:function(o){var v=o.parsed||0;return o.label+': '+fmt(v)+' students ('+(v/exTot*100).toFixed(1)+'%)';}}}}}});
+ try{renderExitFunnel();}catch(e){console.warn('exit funnel',e);}
  // Personnel (stacked)
  const P=C.personnel;
  const tT=(P.teachers_cert+P.teachers_notcert)||1,pT=(P.paras_qual+P.paras_notqual)||1;
