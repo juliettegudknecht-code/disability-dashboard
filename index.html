@@ -5879,6 +5879,12 @@ body.dark .a11y-card h3{color:#cfe2f4}
 body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;font-feature-settings:"kern" 1,"liga" 1}
 .kpi .v,.snap-num,.snap-frac,.srval,.cmp2-stat .sv,.rk-num,#stateTable td,#stateTable th,.heat td,.dd-table td,.dd-table th,.mapstat .v{font-variant-numeric:tabular-nums}
 h1,h2,.section-title,.welcome-head h2,h3{text-wrap:balance}
+/* Collapsible chart cards: click a figure card's title to fold it away (open by default). */
+.card.fig>h3{cursor:pointer;position:relative;padding-right:28px}
+.card.fig>h3::after{content:"";position:absolute;right:4px;top:50%;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-65%) rotate(45deg);transition:transform .2s}
+.card.fig.card-collapsed>h3::after{transform:translateY(-30%) rotate(-135deg)}
+.card.fig.card-collapsed>*:not(h3){display:none!important}
+.card.fig>h3:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:4px}
 /* Home landing hero: modern, on-brand navy with gold accents */
 .home-hero{position:relative;overflow:hidden;border-radius:16px;margin:4px 0 22px;padding:30px 36px;color:#fff;background:linear-gradient(135deg,#0c2236 0%,#13354e 52%,#1d4d72 100%);box-shadow:0 18px 50px rgba(13,36,62,.32)}
 .home-hero::before{content:"";position:absolute;right:-90px;top:-130px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(237,207,54,.20),transparent 70%);pointer-events:none}
@@ -14807,7 +14813,7 @@ function renderOfficialDisplay(){
  if(anyAsm)detail.push('<section class="dd-type-section"><div class="dd-type-kicker">Assessment</div><h4 class="dd-h">Percent Proficient on Statewide Assessments, Students with IEPs Served Under IDEA Part B in Assessed Grades, General Assessment</h4>'+_ddMeta('B','EDFacts statewide assessment results, general assessment','School Year 2021–22')+'<div class="note">Assessment results are retained as published data only and are not comparable across states.</div><div class="dd-tablewrap"><table class="dd-table"><thead><tr><th>Grade and subject</th><th class="dd-c">Students with disabilities</th><th class="dd-c">All students</th></tr></thead><tbody>'+rowsAsm+'</tbody></table></div></section>');
  if(anyNaep)detail.push('<section class="dd-type-section"><div class="dd-type-kicker">NAEP context</div><h4 class="dd-h">Percent at or Above Proficient on NAEP</h4>'+_ddMeta('N','National Assessment of Educational Progress (NCES). Not an IDEA Section 618 collection','2022')+'<div class="dd-tablewrap"><table class="dd-table"><thead><tr><th>Grade and subject</th><th class="dd-c">With disabilities</th><th class="dd-c">Without disabilities</th></tr></thead><tbody>'+rowsNaep+'</tbody></table></div></section>');
  if(anyRace)detail.push('<section class="dd-type-section"><div class="dd-type-kicker">Race and ethnicity</div><h4 class="dd-h">Race and Ethnicity, Students with Disabilities Served Under IDEA, Part B, Ages 5 Through 21, Percent Within Each Group</h4>'+_ddMeta('B','IDEA Section 618 Child Count, race and ethnicity',d.childYear)+'<div class="dd-tablewrap"><table class="dd-table dd-race"><thead>'+raceHead+'</thead><tbody>'+raceRows+'</tbody></table></div></section>');
- var detailHtml=detail.length?'<details class="srcfold dd-detailfold" open><summary>Tables by type (identification, environment, graduation, exiting, assessment, NAEP, race), Publication Year '+d.year+'</summary><div class="dd-detailblock"><div class="dd-legend"><span><span class="dd-sw s"></span> '+focusState+'</span><span><span class="dd-sw n"></span> National</span></div>'+detail.join('')+'<div class="dd-src">Source: U.S. Department of Education, Office of Special Education Programs, IDEA Section 618 and published Part B state tables for '+focusState+', Publication Year '+d.year+'. N/A means not available. # means a non-zero value rounded to zero.</div></div></details>':'';
+ var detailHtml=detail.length?'<details class="srcfold dd-detailfold"><summary>Tables by type (identification, environment, graduation, exiting, assessment, NAEP, race), Publication Year '+d.year+'</summary><div class="dd-detailblock"><div class="dd-legend"><span><span class="dd-sw s"></span> '+focusState+'</span><span><span class="dd-sw n"></span> National</span></div>'+detail.join('')+'<div class="dd-src">Source: U.S. Department of Education, Office of Special Education Programs, IDEA Section 618 and published Part B state tables for '+focusState+', Publication Year '+d.year+'. N/A means not available. # means a non-zero value rounded to zero.</div></div></details>':'';
  box.innerHTML='<div class="card dd-card"><div class="dd-banner"><div><h3 style="margin:0">By Disability Category: '+focusState+' vs. the Nation</h3><p class="dd-sub">Each primary disability category as a share of enrollment, and where those students learn, compared with the national value. Graduation, exiting, assessment, NAEP, and race detail are in the tables below.</p></div><button type="button" class="dd-export" onclick="exportOfficialDisplayCSV()" title="Download all of these tables as a CSV file, with source, year, and IDEA part labels">\u2913 Download CSV</button></div>'+chips+(vizHtml?'<div class="dd-visualgrid">'+vizHtml+'</div>':'')+detailHtml+'</div>';
  if(vizHtml){if(!hasByCat&&hasEnv)ddVizMode='environment';else if(hasByCat&&ddVizMode==='environment'&&!hasEnv)ddVizMode='identification';setupOfficialDisplayViz(ddVizMode);}else{try{Chart.getChart('officialDisplayChart')?.destroy();}catch(e){}}
  try{syncStateViewMode();}catch(e){}
@@ -17480,6 +17486,37 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
     });
     mo.observe(document.body,{childList:true,subtree:true});
   }catch(e){}
+})();
+
+/* ============ COLLAPSIBLE CHART CARDS ============
+   Lets a user fold any chart/figure card by clicking (or Enter/Space on) its title.
+   Cards stay open by default, so nothing is hidden until the user chooses to. */
+(function(){
+  function toggleFromTarget(t){
+    if(!t)return false;
+    if(t.closest('a,button,input,select,label,.cardtools,.expdl,.tbl-viz-switch,.tbl-cmp-btn'))return false;
+    var h=t.closest('h3'); if(!h)return false;
+    var card=h.parentElement;
+    if(card&&card.classList.contains('card')&&card.classList.contains('fig')){
+      card.classList.toggle('card-collapsed'); return true;
+    }
+    return false;
+  }
+  document.addEventListener('click',function(e){ toggleFromTarget(e.target); });
+  /* keyboard: make figure titles focusable + operable */
+  function wireTitles(){
+    document.querySelectorAll('.card.fig>h3:not([data-collap])').forEach(function(h){
+      h.setAttribute('data-collap','1'); h.setAttribute('tabindex','0'); h.setAttribute('role','button');
+      h.setAttribute('aria-label', (h.textContent||'').trim()+' (click to collapse this section)');
+    });
+  }
+  wireTitles();
+  document.addEventListener('keydown',function(e){
+    if((e.key==='Enter'||e.key===' ')&&e.target&&e.target.matches&&e.target.matches('.card.fig>h3')){
+      e.preventDefault(); e.target.parentElement.classList.toggle('card-collapsed');
+    }
+  });
+  try{ new MutationObserver(function(){wireTitles();}).observe(document.body,{childList:true,subtree:true}); }catch(e){}
 })();
 
 /* ============ SAVED / PINNED VIEWS ============
