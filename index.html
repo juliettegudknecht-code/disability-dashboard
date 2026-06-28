@@ -12635,6 +12635,27 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     if(up&&d&&!isNaN(d)){ up.textContent='Last updated '+d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}); }
   }catch(e){}
   try{ input.focus(); }catch(e){}
+  /* Typing animation on the "Password" placeholder: type it out, hold, erase, repeat.
+     Stops the moment the user starts typing, and is skipped for reduced-motion users. */
+  (function(){
+    var FULL='Password', CARET='▏', n=0, phase='type', stopped=false, t=null;
+    function set(txt){ try{ input.setAttribute('placeholder', txt); }catch(e){} }
+    function stop(){ stopped=true; if(t){clearTimeout(t);t=null;} set(FULL); }
+    function loop(){
+      if(stopped) return;
+      if(phase==='type'){
+        n++; set(FULL.slice(0,n)+CARET);
+        if(n>=FULL.length){ phase='erase'; t=setTimeout(loop,1700); } else { t=setTimeout(loop,115); }
+      } else {
+        n--; set(FULL.slice(0,n)+CARET);
+        if(n<=0){ phase='type'; t=setTimeout(loop,650); } else { t=setTimeout(loop,55); }
+      }
+    }
+    input.addEventListener('input', function(){ if(input.value) stop(); });
+    var rm=false; try{ rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+    if(rm){ set(FULL); return; }
+    set(CARET); t=setTimeout(loop, 450);
+  })();
   toggle.addEventListener('click', function(){
     var showing = input.type === 'text';
     input.type = showing ? 'password' : 'text';
