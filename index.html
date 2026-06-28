@@ -12557,10 +12557,12 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     e.preventDefault();
     var val = input.value.trim().toLowerCase();
     if(val === PASSWORD || val === 'edfairy'){
-      if(val === 'edfairy'){
-        /* secret: unlock straight into Fairy mode */
-        try{ if(typeof togglePink === 'function'){ togglePink(true); } else { localStorage.setItem('idea618pink','1'); document.body.classList.add('pink'); } }catch(err){}
-      }
+      /* edfairy = secret entry into Fairy mode; eddata = always plain/normal mode */
+      try{
+        if(typeof togglePink === 'function'){ togglePink(val === 'edfairy'); }
+        else if(val === 'edfairy'){ localStorage.setItem('idea618pink','1'); document.body.classList.add('pink'); }
+        else { localStorage.setItem('idea618pink','0'); document.body.classList.remove('pink'); }
+      }catch(err){}
       unlock();
     } else {
       gate.classList.remove('bad'); void gate.offsetWidth; gate.classList.add('bad');
@@ -12656,8 +12658,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     <div class="a11ysw" id="swMotion" role="switch" tabindex="0" aria-checked="false"><span class="t">Reduce motion</span><span class="knob"></span></div>
     <div class="a11ysw" id="swUL" role="switch" tabindex="0" aria-checked="false"><span class="t">Underline links</span><span class="knob"></span></div>
     <div class="a11ysw" id="swCVD" role="switch" tabindex="0" aria-checked="false"><span class="t">Colorblind-safe palette</span><span class="knob"></span></div>
-    <div class="a11ysw" id="swPink" role="switch" tabindex="0" aria-checked="false"><span class="t">Fairy mode</span><span class="knob"></span></div>
-    <div class="a11ysw" id="swFairyMusic" role="switch" tabindex="0" aria-checked="false"><span class="t">Fairy music</span><span class="knob"></span></div>
+    <button type="button" id="fairyReset" class="fairy-reset">Turn off Fairy mode ✨</button>
   </div>
   <div class="grp"><span class="glab">Reading</span>
     <div class="a11ysw" id="swPlain" role="switch" tabindex="0" aria-checked="false"><span class="t">Plain language</span><span class="knob"></span></div>
@@ -15333,9 +15334,12 @@ document.addEventListener('click',function(e){
   btn.setAttribute('aria-expanded','true');
   btn.innerHTML='<span class="ex-ic" aria-hidden="true">×</span>Hide explanation';
 });
-function swWire(id,fn){const el=document.getElementById(id);const t=()=>fn(!el.classList.contains('on'));
+function swWire(id,fn){const el=document.getElementById(id);if(!el)return;const t=()=>fn(!el.classList.contains('on'));
    el.onclick=t;el.onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();t();}};}
- swWire('swContrast',toggleContrast);swWire('swDark',applyTheme);swWire('swMotion',toggleMotion);swWire('swUL',toggleUL);swWire('swCVD',toggleCVD);swWire('swPink',togglePink);swWire('swFairyMusic',function(on){try{fairyMusic.toggle(on);}catch(e){}});swWire('swPlain',togglePlain);swWire('swAnim',toggleAnim);swWire('swDesc',toggleDescriptions);
+ swWire('swContrast',toggleContrast);swWire('swDark',applyTheme);swWire('swMotion',toggleMotion);swWire('swUL',toggleUL);swWire('swCVD',toggleCVD);swWire('swPlain',togglePlain);swWire('swAnim',toggleAnim);swWire('swDesc',toggleDescriptions);
+ /* Fairy mode is a secret (only the edfairy password turns it on). This reset button,
+    visible only while Fairy mode is active, lets someone turn it back off. */
+ (function(){var fr=document.getElementById('fairyReset');if(fr)fr.addEventListener('click',function(){try{togglePink(false);}catch(e){}});})();
  // NAEP view toggle
  document.querySelectorAll('#naepToggle button').forEach(b=>b.onclick=()=>{naepMode=b.dataset.m;document.querySelectorAll('#naepToggle button').forEach(x=>x.classList.toggle('on',x===b));renderNAEP();});
  // restore saved preferences
@@ -17977,6 +17981,15 @@ body.pink:not(.dark) .view .card.fig:nth-child(3n){border-top-color:#b14fd8!impo
 body.pink:not(.dark) .view #kpis .kpi:nth-child(3){border-top-color:#b14fd8!important}
 body.pink:not(.dark) .a11ybtn,body.pink:not(.dark) .plainbtn{border-color:#e3cffb!important}
 body.pink:not(.dark) .scopebar{background:#ece1ff!important;color:#7a3ea8!important}
+
+/* --- secret Fairy-mode reset button: only visible while Fairy mode is on --- */
+#fairyReset{display:none}
+body.pink #fairyReset{display:block;width:100%;margin-top:4px;padding:10px 14px;border:1.5px solid #e9c4f5;border-radius:10px;cursor:pointer;
+  font-weight:700;font-size:.9rem;color:#fff;font-family:var(--fairy-font);
+  background:linear-gradient(160deg,#ff9ed4,#b14fd8);box-shadow:0 4px 14px rgba(155,77,255,.28)}
+body.pink #fairyReset:hover{filter:brightness(1.05)}
+body.pink #fairyReset:active{transform:translateY(1px)}
+body.pink #fairyReset:focus-visible{outline:3px solid #a8266e;outline-offset:2px}
 
 /* --- zoom control: tucked away until you reach for it --- */
 #zoomCtl{opacity:.32;transition:opacity .25s ease}
