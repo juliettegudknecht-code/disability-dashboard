@@ -12975,9 +12975,8 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <details class="srcfold"><summary>About this page</summary><div class="srcbody">The snapshot reports, for the selected State, its number of Students with Disabilities served under IDEA, Part&nbsp;B, ages 3 through 21, how that count ranks nationally, and the U.S. Department of Education's most recent annual determination.</div></details>
 
-<nav class="state-page-nav" aria-label="State Snapshot sections"><span>Sections</span><a href="#stateRankBanner">Snapshot</a><a href="#stateMapSection">Compare States</a><a href="#stateProfile">618 Measures</a><a href="#stateDeterminations">SPP/APR</a></nav>
+<nav class="state-page-nav" aria-label="State Snapshot sections"><span>Sections</span><a href="#stateRankBanner">Snapshot</a><a href="#stateMapSection">Compare States</a><a href="#stateProfile">Measures</a><a href="#stateDeterminations">Accountability</a></nav>
 <div class="rankbanner state-rank-banner" id="stateRankBanner" data-drill-group="states" data-drill-panel="profile" aria-live="polite"></div>
-<div class="snapshot-determinations" id="snapshotDeterminations" data-drill-group="states" data-drill-panel="profile" aria-live="polite"></div>
 <div class="grid" id="snapTrendCard" data-drill-group="states" data-drill-panel="profile">
   <div class="card">
     <h3 id="statePanelTitleSnap">Child Count Trend</h3>
@@ -18438,6 +18437,18 @@ body.pink:not(.dark) .cb-chart-title{color:#a8266e}
 .card,.kpi,.picto,.sparkcard,.cmp2-col,.qlink,.launchcard,.cat,.snap-stat{box-shadow:0 1px 2px rgba(16,42,67,.06)!important}
 body:not(.no-anim):not(.reduce) .card:hover,body:not(.no-anim):not(.reduce) .kpi:hover,body:not(.no-anim):not(.reduce) .qlink:hover,body:not(.no-anim):not(.reduce) .launchcard:hover{box-shadow:0 3px 10px rgba(22,46,81,.10)!important}
 body.dark .card,body.dark .kpi,body.dark .picto,body.dark .sparkcard,body.dark .cmp2-col,body.dark .qlink,body.dark .launchcard,body.dark .cat,body.dark .snap-stat{box-shadow:0 1px 2px rgba(0,0,0,.28)!important}
+/* ===== State Snapshot redo: clean "Sections" pill bar (matches National Trends) ===== */
+.view[data-view="states"] .state-page-nav{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 16px!important;padding:7px 10px!important;border:1px solid var(--line);border-left:4px solid #c9a93a;border-radius:10px;background:#fff;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.view[data-view="states"] .state-page-nav span{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#6c7c8d;margin-right:4px}
+.view[data-view="states"] .state-page-nav a{border:1px solid #dcdcd7!important;background:#fff;color:#33415c!important;font-weight:700;font-size:.82rem!important;padding:6px 13px!important;border-radius:999px;text-decoration:none;display:inline-flex;align-items:center}
+.view[data-view="states"] .state-page-nav a:before{content:"\25C6";color:#c9a93a;font-size:.6em;margin-right:6px}
+.view[data-view="states"] .state-page-nav a:hover,.view[data-view="states"] .state-page-nav a:focus{background:#f2f2f0;color:#0f3a5f!important;border-color:#dcdcd7!important}
+.view[data-view="states"] .state-page-nav a.stab-active{background:#0f3a5f!important;color:#fff!important;border-color:#0f3a5f!important}
+.view[data-view="states"] .state-page-nav a.stab-active:before{color:#e6d84a}
+body.dark .view[data-view="states"] .state-page-nav{background:#121b27;border-color:#2b3645}
+body.dark .view[data-view="states"] .state-page-nav a{background:#18212e;color:#d9d9d5!important;border-color:#2b3645!important}
+/* rank banner: value/median sits on its own line, not floated off the right edge */
+.view[data-view="states"] .state-rank-banner .rk-sub{margin-left:0!important;max-width:none!important;flex-basis:100%;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.18);font-weight:650}
 .cb-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:108px;overflow:auto}
 .cb-chip{font:inherit;font-size:.78rem;font-weight:600;color:var(--muted);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:4px 11px;cursor:pointer;transition:all .12s}
 .cb-chip:hover{border-color:var(--primary-lt);color:var(--ink)}
