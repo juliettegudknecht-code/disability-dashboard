@@ -5846,6 +5846,7 @@ body.dark .rk-insight{background:rgba(255,255,255,.05)}
 .a11y-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;box-shadow:var(--shadow)}
 .a11y-card h3{margin:0 0 10px;font-size:1.05rem;color:var(--navy);display:flex;align-items:center;gap:8px}
 body.dark .a11y-card h3{color:#cfe2f4}
+.a11y-card .a11y-blurb{margin:-3px 0 11px;font-size:.8rem;color:var(--muted);line-height:1.4}
 .a11y-card .a11y-ic{display:inline-flex;align-items:center;color:var(--primary)}
 .a11y-card .a11y-ic svg{width:20px;height:20px;display:block}
 .feedback-btn{display:inline-block;margin-top:6px;padding:9px 18px;background:var(--primary);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem}
@@ -5865,6 +5866,26 @@ body.dark .a11y-card h3{color:#cfe2f4}
 body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;font-feature-settings:"kern" 1,"liga" 1}
 .kpi .v,.snap-num,.snap-frac,.srval,.cmp2-stat .sv,.rk-num,#stateTable td,#stateTable th,.heat td,.dd-table td,.dd-table th,.mapstat .v{font-variant-numeric:tabular-nums}
 h1,h2,.section-title,.welcome-head h2,h3{text-wrap:balance}
+/* Home landing hero: modern, on-brand navy with gold accents */
+.home-hero{position:relative;overflow:hidden;border-radius:16px;margin:4px 0 24px;padding:40px 38px;color:#fff;background:linear-gradient(135deg,#0c2236 0%,#13354e 52%,#1d4d72 100%);box-shadow:0 18px 50px rgba(13,36,62,.32)}
+.home-hero::before{content:"";position:absolute;right:-90px;top:-130px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(237,207,54,.20),transparent 70%);pointer-events:none}
+.home-hero::after{content:"50";position:absolute;right:30px;bottom:-58px;font-family:'Charter618',Charter,Georgia,serif;font-size:14rem;font-weight:700;line-height:1;color:rgba(255,255,255,.05);pointer-events:none;user-select:none}
+.home-hero-inner{position:relative;z-index:1;max-width:780px}
+.hh-eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#edcf36;margin-bottom:15px}
+.hh-50{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#edcf36;color:#13354e;font-size:.92rem;font-weight:900;letter-spacing:0}
+.hh-title{font-family:'Charter618',Charter,Georgia,serif;font-size:2.15rem;line-height:1.12;margin:0 0 13px;color:#fff;letter-spacing:-.01em}
+.hh-sub{font-size:1.02rem;line-height:1.55;color:#d3deea;margin:0 0 28px;max-width:62ch}
+.hh-stats{display:flex;flex-wrap:wrap;gap:18px 40px}
+.hh-num{font-size:2.05rem;font-weight:800;line-height:1;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.hh-lab{font-size:.8rem;color:#a7bdd2;margin-top:7px;max-width:24ch;line-height:1.4}
+@media(max-width:640px){.home-hero{padding:28px 22px}.hh-title{font-size:1.55rem}.hh-num{font-size:1.7rem}.hh-stats{gap:16px 26px}.home-hero::after{font-size:9rem;bottom:-36px}}
+body:not(.no-anim):not(.reduce) .home-hero{animation:heroIn .6s cubic-bezier(.2,.8,.2,1) both}
+body:not(.no-anim):not(.reduce) .home-hero-inner>*{animation:heroRise .55s cubic-bezier(.2,.8,.2,1) both}
+body:not(.no-anim):not(.reduce) .hh-title{animation-delay:.06s}
+body:not(.no-anim):not(.reduce) .hh-sub{animation-delay:.12s}
+body:not(.no-anim):not(.reduce) .hh-stats{animation-delay:.18s}
+@keyframes heroIn{from{opacity:0;transform:translateY(16px) scale(.995)}to{opacity:1;transform:none}}
+@keyframes heroRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 /* Saved / pinned views menu */
 .pin-menu{width:320px;max-width:88vw;padding:8px}
 .pin-head{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:3px 8px 8px}
@@ -13084,10 +13105,11 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <div class="view" data-view="accessibility" role="tabpanel" aria-label="Accessibility features">
 <h2 class="section-title" id="accessibility">Accessibility features</h2>
-<p class="viewlead">This tool is built to work the way you do, whether that means a keyboard instead of a mouse, a screen reader, a screen magnifier, or a calmer page with less motion and plainer words. The settings described below all live in the <b>Access</b> menu at the top of the page, and the choices you make are remembered the next time you open the tool. Each setting changes something real about how the data looks and behaves, and you can turn any of them on or off at any time.</p>
+<p class="viewlead">Good accessibility is not a special version of the tool, it is the tool working the way you do, whether that means a keyboard instead of a mouse, a screen reader, a screen magnifier, or a calmer page with less motion and plainer words. The features below are grouped by who they help most, because designing for one specific need almost always makes the data clearer for everyone. Every setting lives in the <b>Access</b> menu at the top of the page, you can turn any of them on or off at any time, and the choices you make are remembered the next time you open the tool.</p>
 <div class="a11y-page">
   <section class="a11y-card">
-    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span> Display and readability</h3>
+    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span> Seeing the data clearly</h3>
+    <p class="a11y-blurb">For low vision, light sensitivity, and anyone who magnifies the page.</p>
     <ul>
       <li><b>Dark mode</b> switches the whole tool to a darker color theme, which is easier on the eyes in low light and for anyone who finds bright white backgrounds tiring.</li>
       <li><b>High contrast</b> strengthens the difference between text and its background, so labels, numbers, and chart lines stay legible when ordinary contrast is not enough.</li>
@@ -13097,41 +13119,47 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     </ul>
   </section>
   <section class="a11y-card">
-    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span> Motion</h3>
-    <ul>
-      <li><b>Reduce motion</b> turns off the chart and tile animations for a calmer, steadier page, and it also respects the reduce-motion setting you may already have turned on in your device or browser, so you do not have to ask twice.</li>
-      <li><b>Animations</b> is a separate switch that lets you turn the tool's animations on or off directly, whenever you want a quieter view or simply prefer things to appear without movement.</li>
-    </ul>
-  </section>
-  <section class="a11y-card">
-    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span> Reading and comprehension</h3>
+    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span> Reading, focus, and avoiding overwhelm</h3>
+    <p class="a11y-blurb">For neurodivergent readers, anyone newer to the policy vocabulary, and anyone who finds a busy, moving page hard to settle into.</p>
     <ul>
       <li><b>Plain language</b> swaps the technical and legal wording used across the tool for everyday words, so you can follow the data without already knowing the policy vocabulary behind it.</li>
-      <li><b>Chart descriptions</b> let every chart show a written summary of what it shows, which screen readers can read aloud and which is there for anyone who simply takes in words more easily than graphics.</li>
+      <li><b>Chart descriptions</b> let every chart show a written summary of what it shows, for anyone who simply takes in words more easily than graphics.</li>
       <li><b>Data takeaways</b> add a short one-line summary of the main finding to the key views, so the central point is stated in plain words rather than left for you to work out from the chart alone.</li>
+      <li><b>Reduce motion</b> turns off the chart and tile animations for a calmer, steadier page, and it also respects the reduce-motion setting you may already have turned on in your device or browser.</li>
+      <li><b>Animations</b> is a separate switch that lets you turn the animations on or off directly, whenever you prefer things to appear without movement.</li>
     </ul>
   </section>
   <section class="a11y-card">
-    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg></span> Keyboard and screen readers</h3>
+    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg></span> Moving through the tool</h3>
+    <p class="a11y-blurb">For keyboard-only users, screen reader users, and anyone who does not navigate with a mouse.</p>
     <ul>
-      <li><b>Skip link</b>: pressing <kbd>Tab</kbd> as soon as the page loads brings up a link that jumps you straight past the menus and into the data, so you do not have to tab through the whole header first.</li>
-      <li><b>Keyboard navigation</b>: every control, tab, menu, and switch can be reached and operated with the keyboard alone, and a visible focus outline always shows you where you are on the page.</li>
-      <li><b>Sortable tables</b>: the column headers are buttons you can move to with the keyboard and activate with <kbd>Enter</kbd> or <kbd>Space</kbd>, and the new sort order is announced so you know how the table was just reordered.</li>
-      <li><b>Table structure</b>: every table is built with real column and row headers, so a screen reader announces each value together with the row and column it belongs to rather than reading a bare number out of context.</li>
-      <li><b>Labeled charts</b>: charts carry descriptive labels, and when you change a selection that change is announced, so you can tell what the chart is now showing without seeing it.</li>
+      <li><b>Skip link</b>: pressing <kbd>Tab</kbd> as soon as the page loads brings up a link that jumps you straight past the menus and into the data.</li>
+      <li><b>Keyboard navigation</b>: every control, tab, menu, and switch can be reached and operated with the keyboard alone, and a visible focus outline always shows you where you are.</li>
+      <li><b>Sortable tables</b>: the column headers are buttons you can move to with the keyboard and activate with <kbd>Enter</kbd> or <kbd>Space</kbd>, and the new sort order is announced.</li>
+      <li><b>Table structure</b>: every table is built with real column and row headers, so a screen reader announces each value together with the row and column it belongs to.</li>
+      <li><b>Labeled charts and live regions</b>: charts carry descriptive labels, and when you change a selection that change is announced, so you can tell what the chart is now showing without seeing it.</li>
     </ul>
   </section>
   <section class="a11y-card">
-    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span> Understanding the data</h3>
+    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span> Understanding what the numbers mean</h3>
+    <p class="a11y-blurb">For everyone, because a blank or marked cell should never be mistaken for a real value.</p>
     <ul>
-      <li><b>Suppressed-data explainers</b>: when a table shows a “–”, an “x”, or an “*” in place of a number, you can hover over it or move keyboard focus to it to read why that value is missing or has been withheld, so an empty cell is never mistaken for a zero.</li>
-      <li><b>Suppression key</b>: the full legend is always available in the sources note at the bottom of the page, where <b>x</b> means a value suppressed because the cell size was small, <b>*</b> means a value suppressed for data-quality reasons, and <b>–</b> means the value was not available in the first place.</li>
+      <li><b>Suppressed-data explainers</b>: when a table shows a “–”, an “x”, or an “*” in place of a number, you can hover over it or move keyboard focus to it to read why that value is missing or has been withheld.</li>
+      <li><b>Suppression key</b>: the full legend is always in the sources note at the bottom of the page, where <b>x</b> means suppressed because the cell size was small, <b>*</b> means suppressed for data-quality reasons, and <b>–</b> means the value was not available in the first place.</li>
+    </ul>
+  </section>
+  <section class="a11y-card">
+    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20M7 4v16M17 4v16"/></svg></span> A note on audio and video</h3>
+    <p class="a11y-blurb">What this tool does not need, and why.</p>
+    <ul>
+      <li>This is a text-and-chart data tool with no audio or video, so it does not need captions, audio descriptions, or transcripts.</li>
+      <li>Everything here is built to be read instead: the words, the tables, and the charts are written so a screen reader can speak them, and the descriptions and takeaways above carry the meaning a chart would otherwise show only by sight.</li>
     </ul>
   </section>
   <section class="a11y-card a11y-card-note">
     <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span> Standards and feedback</h3>
-    <p>This tool is built to meet WCAG 2.1 Level AA, the widely used international standard for accessible websites, and the display, motion, and reading choices you make are saved in your own browser so the tool opens the way you left it next time. None of that is a substitute for hearing from the people who actually use it, so if anything here is hard to use with a screen reader, a keyboard, a magnifier, or any other assistive technology, please tell me. I treat accessibility as part of getting the data right, not as an extra, and real feedback is what keeps it that way.</p>
-    <p>Use the Send feedback button below to tell me what is working and what is not, and what would make the data easier for you to reach.</p>
+    <p>This tool is built to meet WCAG 2.1 Level AA, the widely used international standard for accessible websites, and the display, motion, and reading choices you make are saved in your own browser so the tool opens the way you left it next time.</p>
+    <p>None of that is a substitute for hearing from the people who actually use it. If anything here is hard to use with a screen reader, a keyboard, a magnifier, or any other assistive technology, please tell me. I treat accessibility as part of getting the data right, not as an extra, and real feedback is what keeps it that way.</p>
     <p><a class="feedback-btn" id="a11yFeedbackBtn" href="#">Send feedback</a></p>
   </section>
 </div>
@@ -16711,7 +16739,7 @@ function countUpRoot(root){
     if(!root) return;
     if(document.body.classList.contains('no-anim')||document.body.classList.contains('reduce')) return;
     if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    root.querySelectorAll('.val,.snap-num,.srval,.sv,.v,.kpi b').forEach(function(el){
+    root.querySelectorAll('.val,.snap-num,.srval,.sv,.v,.kpi b,.hh-num').forEach(function(el){
       if(el.children.length) return;
       var txt=(el.textContent||'').trim();
       var m=txt.match(/^([+\-$]*)((?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?)(%?)$/);
@@ -16839,6 +16867,18 @@ function buildTrendsOverview(){
       var h2=document.getElementById('trends')||view.querySelector('.section-title');
       var html=`
 <section class="trends-overview" id="trendsOverview">
+  <div class="home-hero">
+    <div class="home-hero-inner">
+      <div class="hh-eyebrow"><span class="hh-50">50</span> Years of IDEA &nbsp;&middot;&nbsp; 1975&ndash;2025</div>
+      <h2 class="hh-title">Fifty years of special education data, in one place.</h2>
+      <p class="hh-sub">Every child and student with disabilities that U.S. schools serve under IDEA, reported by the States each year and brought together here, from School Year 1976&ndash;77 to today.</p>
+      <div class="hh-stats">
+        <div class="hh-stat"><div class="hh-num">8,194,424</div><div class="hh-lab">students served under IDEA in 2024&ndash;25</div></div>
+        <div class="hh-stat"><div class="hh-num">+122%</div><div class="hh-lab">growth since School Year 1976&ndash;77</div></div>
+        <div class="hh-stat"><div class="hh-num">51</div><div class="hh-lab">States and DC, plus reporting entities</div></div>
+      </div>
+    </div>
+  </div>
   <details class="lead-fold"><summary>About this page</summary>
   <p class="viewlead" data-folded="1">A 50-year view of how special education has grown and changed across the United States. These national charts follow the number of Children and Students with Disabilities served under IDEA, the share of all students they represent, the primary disability categories reported, and the educational environments where students spend the school day, from School Year 1976–77 through 2024–25. The figures cover the 50 States, the District of Columbia, and the additional IDEA reporting entities (Puerto Rico, the Bureau of Indian Education, the outlying areas, and the freely associated states); recent years use the official Office of Special Education Programs total rows, while the long-term historical series follows the published national counts. They come from the IDEA Section&nbsp;618 data that each State and entity reports every year to the Office of Special Education Programs, together with the National Center for Education Statistics (NCES) Digest of Education Statistics for the historical series. Use the section tabs to move between the national snapshot, the trend over time, each category's trend, and category shares; open Explore for a single disability category or State, or Collections for every Section&nbsp;618 data file.</p>
   </details>
