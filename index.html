@@ -5837,6 +5837,11 @@ body.dark .a11y-card h3{color:#cfe2f4}
 .a11y-page code{font-size:.86em;background:var(--line2);border-radius:4px;padding:1px 5px}
 .a11y-panel-link{display:block;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:.86rem;color:var(--primary);text-decoration:none;font-weight:600}
 .a11y-panel-link:hover{text-decoration:underline}
+/* Data vintage badge under view titles */
+.vintage-badge{display:inline-flex;align-items:center;gap:7px;margin:2px 0 14px;padding:4px 11px;font-size:.78rem;font-weight:600;color:var(--muted);background:var(--line2);border:1px solid var(--line);border-radius:999px}
+.vintage-badge .vintage-lbl{color:var(--ink);font-weight:700}
+.vintage-badge .vintage-dot{width:7px;height:7px;border-radius:50%;background:var(--good);flex:0 0 auto}
+body.dark .vintage-badge{background:rgba(255,255,255,.05)}
 .cmp2-col,.kpi,.picto,.cat,.sparkcard{transition:transform .17s ease,box-shadow .22s ease,border-color .2s}
 .iconbtn,.tab,.expdl,.plainbtn,.themebtn,.a11ybtn,.qlink{transition:transform .12s ease,background .14s,color .14s,border-color .14s,box-shadow .2s}
 .iconbtn:active,.expdl:active,.tab:active,.plainbtn:active{transform:translateY(1px)}
@@ -12556,6 +12561,10 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <div class="card fig trend-focus-card" id="trend-main" data-drill-group="trends" data-drill-panel="national">
     <h3>Children and Students with Disabilities Served Under IDEA, Part&nbsp;B, Ages 3 Through 21, 1976–2025</h3>
     <div class="note">This chart illustrates the consistent and significant growth in the number of Children and Students with Disabilities served under IDEA, Part&nbsp;B, ages 3 through 21, from School Year 1976–77 to today. Select one or more primary disability categories below to compare each category with the overall total.</div>
+    <div class="tbl-toggle trend-unit-toggle" id="trendUnitToggle" role="group" aria-label="Show the trend as counts or as a percent of enrollment">
+      <button type="button" data-unit="count" class="on" aria-pressed="true">Number of students</button>
+      <button type="button" data-unit="rate" aria-pressed="false">% of enrollment</button>
+    </div>
     <div class="trend-series-control" id="trendPills"></div>
     <div class="trend-focus-summary" id="trendFocusSummary" aria-live="polite"></div>
     <div class="canvas-box tall"><canvas id="trendChart"></canvas></div>
@@ -13310,6 +13319,16 @@ function buildPills(){
  var top=box.querySelector('[data-trend-action="top"]');if(top)top.onclick=function(){trendSelected=['Specific learning disability','Speech or language impairment','Other health impairment','Autism','Developmental delay'];buildPills();renderTrend();renderTrendShare();};
  var clear=box.querySelector('[data-trend-action="clear"]');if(clear)clear.onclick=function(){trendSelected=[];buildPills();renderTrend();renderTrendShare();};
 }
+function setupTrendUnitToggle(){
+ var box=document.getElementById('trendUnitToggle');if(!box||box._wired)return;box._wired=true;
+ box.querySelectorAll('button[data-unit]').forEach(function(b){
+   b.onclick=function(){
+     trendUnit=b.dataset.unit;
+     box.querySelectorAll('button[data-unit]').forEach(function(x){var on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on?'true':'false');});
+     renderTrend();
+   };
+ });
+}
 function renderTrendFocusSummary(){
  var el=document.getElementById('trendFocusSummary');if(!el)return;
  var latest=ALL[ALL.length-1], selected=trendSelected.filter(function(k){return DIS[k];});
@@ -13317,16 +13336,28 @@ function renderTrendFocusSummary(){
  var names=selected.slice(0,3).join(', ')+(selected.length>3?' +'+(selected.length-3)+' more':'');
  el.innerHTML='<div><span>SY 2024–25 total</span><b>'+fmtK(latest)+'</b></div><div><span>Selected overlays</span><b>'+(selected.length?selected.length+' categories':'None')+'</b></div>'+(selected.length?'<div><span>Combined selected</span><b>'+fmtK(latestSum)+'</b></div><div class="trend-summary-names">'+names+'</div>':'');
 }
+let trendUnit='count';
+/* Convert a category's counts to its share of public-school enrollment, using the
+   identity: cat% = (cat / all) * all%, where all% is the published ENROLL_PCT. */
+function trendRateSeries(arr){
+ return arr.map(function(v,i){
+   if(v==null||ALL[i]==null||ENROLL_PCT[i]==null)return null;
+   return +(v/ALL[i]*ENROLL_PCT[i]).toFixed(2);
+ });
+}
 function renderTrend(){
  var selected=trendSelected.filter(function(k){return DIS[k];});
- const ds=[{type:'line',label:'All disabilities, ages 3–21',data:ALL,borderColor:'#2e8540',backgroundColor:'#2e8540',borderWidth:3.2,fill:false,tension:.28,pointRadius:0,pointHoverRadius:5,pointHitRadius:12,order:0}];
- selected.forEach(function(k,i){var col=COLORS[k]||'#1f6fa8';ds.push({type:'line',label:k,data:DIS[k],borderColor:col,backgroundColor:shade(col,.10),borderWidth:2.2,tension:.28,pointRadius:0,pointHoverRadius:5,pointHitRadius:12,spanGaps:true,order:i+1});});
+ var rate=trendUnit==='rate';
+ var allData=rate?ENROLL_PCT.slice():ALL;
+ const ds=[{type:'line',label:'All disabilities, ages 3–21',data:allData,borderColor:'#2e8540',backgroundColor:'#2e8540',borderWidth:3.2,fill:false,tension:.28,pointRadius:0,pointHoverRadius:5,pointHitRadius:12,spanGaps:true,order:0}];
+ selected.forEach(function(k,i){var col=COLORS[k]||'#1f6fa8';ds.push({type:'line',label:k,data:rate?trendRateSeries(DIS[k]):DIS[k],borderColor:col,backgroundColor:shade(col,.10),borderWidth:2.2,tension:.28,pointRadius:0,pointHoverRadius:5,pointHitRadius:12,spanGaps:true,order:i+1});});
+ var fmtVal=rate?function(v){return v==null?'–':v.toFixed(1)+'%';}:fmtK;
  const cfg={type:'line',data:{labels:YEARS,datasets:ds},options:{responsive:true,maintainAspectRatio:false,
    interaction:{mode:'index',intersect:false},
    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10,weight:'800'}}},
-    tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtK(c.parsed.y);}}}},
+    tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtVal(c.parsed.y);}}}},
    scales:{x:{grid:{display:false},ticks:{maxRotation:0,minRotation:0,autoSkip:true,maxTicksLimit:10,font:{size:10}}},
-    y:{beginAtZero:true,title:{display:true,text:'Students served, thousands'},ticks:{callback:function(v){return v.toLocaleString();}}}}}};
+    y:{beginAtZero:true,title:{display:true,text:rate?'Percent of public-school enrollment':'Students served, thousands'},ticks:{callback:function(v){return rate?v+'%':v.toLocaleString();}}}}}};
  if(trendChart)trendChart.destroy();trendChart=new Chart(document.getElementById('trendChart'),cfg);
  renderTrendFocusSummary();
 }
@@ -13736,6 +13767,16 @@ function renderStateBar(){
 
 /* ============ STATE DETAIL ============ */
 let focusState='',stateTrend,stateTrendSnap;
+/* Mean count across the 50 States + DC for each of the four trend years, used as a benchmark line. */
+let _avgSeriesMemo=null;
+function stateAvgSeries(){
+ if(_avgSeriesMemo)return _avgSeriesMemo;
+ _avgSeriesMemo=[1,2,3,4].map(function(ci){
+   var vals=STATES.map(function(r){return r[ci];}).filter(function(v){return v!=null;});
+   return vals.length?Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length):null;
+ });
+ return _avgSeriesMemo;
+}
 function updateStateSnapshotHeading(){var h=document.getElementById('states');if(!h)return;var label='State Snapshot';h.textContent=label;h.dataset.pl=label;if(h.dataset.orig!=null)h.dataset.orig=label;}
 function renderStateDetail(){
  const s=STATES.find(x=>x[0]===focusState);
@@ -13744,26 +13785,26 @@ function renderStateDetail(){
  document.getElementById('statePanelTitle').innerHTML=titleHtml;
  const series=[s[1],s[2],s[3],s[4]];
  const grw=((s[4]-s[1])/s[1]*100);
+ const avgSeries=stateAvgSeries();
  const statsHtml=
   `<div>School Year 2024–25<br><b>${fmt(s[4])}</b></div>
    <div>Percent of enrollment, School Year 2022–23<br><b>${s[5]}%</b></div>
    <div>School Years 2000–01 to 2024–25<br><b>${grw>=0?'+':''}${grw.toFixed(0)}%</b></div>`;
  document.getElementById('statePanelStats').innerHTML=statsHtml;
- const cfg={type:'line',data:{labels:STATE_YEARS,datasets:[{data:series,borderColor:'#005ea2',
-   backgroundColor:shade('#005ea2',.12),borderWidth:2.5,fill:true,tension:.3,pointRadius:3}]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
-   tooltip:{callbacks:{label:c=>fmt(c.parsed.y)+' students'}}},
-   scales:{x:{grid:{display:false}},y:{beginAtZero:false,ticks:{callback:v=>v.toLocaleString()}}}}};
+ const _mkDsets=()=>[
+   {label:focusState,data:series.slice(),borderColor:'#005ea2',backgroundColor:shade('#005ea2',.12),borderWidth:2.5,fill:true,tension:.3,pointRadius:3,order:1},
+   {label:'Average State',data:avgSeries.slice(),borderColor:'#cc5a33',backgroundColor:'transparent',borderWidth:2,borderDash:[5,4],fill:false,tension:.3,pointRadius:2,order:2}
+ ];
+ const _opts=()=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:14}},
+   tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.y)+' students'}}},
+   scales:{x:{grid:{display:false}},y:{beginAtZero:false,ticks:{callback:v=>v.toLocaleString()}}}});
+ const cfg={type:'line',data:{labels:STATE_YEARS,datasets:_mkDsets()},options:_opts()};
  if(stateTrend)stateTrend.destroy();stateTrend=new Chart(document.getElementById('stateTrend'),cfg);
  /* mirror the Child Count Trend onto the Snapshot sub-tab */
  const snapTitle=document.getElementById('statePanelTitleSnap');if(snapTitle)snapTitle.innerHTML=titleHtml;
  const snapStats=document.getElementById('statePanelStatsSnap');if(snapStats)snapStats.innerHTML=statsHtml;
  const snapCanvas=document.getElementById('stateTrendSnap');
- if(snapCanvas){const cfgSnap={type:'line',data:{labels:STATE_YEARS,datasets:[{data:series.slice(),borderColor:'#005ea2',
-    backgroundColor:shade('#005ea2',.12),borderWidth:2.5,fill:true,tension:.3,pointRadius:3}]},
-   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
-    tooltip:{callbacks:{label:c=>fmt(c.parsed.y)+' students'}}},
-    scales:{x:{grid:{display:false}},y:{beginAtZero:false,ticks:{callback:v=>v.toLocaleString()}}}}};
+ if(snapCanvas){const cfgSnap={type:'line',data:{labels:STATE_YEARS,datasets:_mkDsets()},options:_opts()};
   if(stateTrendSnap)stateTrendSnap.destroy();stateTrendSnap=new Chart(snapCanvas,cfgSnap);}
 }
 
@@ -14778,7 +14819,7 @@ function toggleMotion(on){reduceMotion=on;document.body.classList.toggle('reduce
 function toggleUL(on){document.body.classList.toggle('ul',on);setSwitch('swUL',on);lsSet('idea618ul',on?'1':'0');}
 function toggleAnim(on){document.body.classList.toggle('no-anim',!on);setSwitch('swAnim',on);lsSet('idea618anim',on?'1':'0');reRenderTheme();}
 function renderAll(){
- kpis();renderNationalSnapshot();renderTrend();renderTrendShare();renderTrendChange();renderComp();renderCategoryShift();renderEnv();renderIncl();renderSparks();renderHomeBubbles();
+ kpis();renderNationalSnapshot();setupTrendUnitToggle();renderTrend();renderTrendShare();renderTrendChange();renderComp();renderCategoryShift();renderEnv();renderIncl();renderSparks();renderHomeBubbles();
  renderExplorer();renderStateBar();renderStateDetail();renderStateReport();renderStateRankBanner();try{renderSnapshotDeterminations();}catch(e){}renderStateMeasureChart();renderTable();renderCollections();renderNAEP();renderACS();renderCompare();if(mapReady)colorMap();
  try{if(typeof descOn!=='undefined'&&descOn)buildChartDescriptions();}catch(e){}
 }
@@ -15988,10 +16029,36 @@ function showView(v,scrollId){
   try{if(window.injectTools)injectTools();}catch(e){}
   countUpView();
   _curView=v;
+  try{updateVintageBadge(v);}catch(e){}
   try{history.replaceState(null,'','#'+v);}catch(e){}
   const reduced=document.body.classList.contains('reduce')||document.body.classList.contains('no-anim');
   if(scrollId){const t=document.getElementById(scrollId);if(t){requestAnimationFrame(()=>t.scrollIntoView({behavior:reduced?'auto':'smooth',block:'start'}));return;}}
   window.scrollTo({top:0,behavior:reduced?'auto':'smooth'});
+}
+/* Which school year(s) each view's data covers, shown as a small badge under the title. */
+const VIEW_VINTAGE={
+  trends:'School Years 1976–77 through 2024–25',
+  home:'School Years 1976–77 through 2024–25',
+  composition:'School Year 2024–25',
+  explorer:'School Year 2024–25',
+  states:'Child count 2024–25 · enrollment share 2022–23',
+  lea:'LEA child count 2024–25 · MOE/CEIS 2021–22',
+  tables:'Latest available year per collection',
+  collections:'Latest available year per collection',
+  gpra:'Targets and actuals through 2025'
+};
+function updateVintageBadge(v){
+  var view=document.querySelector('.view[data-view="'+v+'"]');
+  if(!view)return;
+  var h=view.querySelector('h2.section-title');
+  if(!h)return;
+  var txt=VIEW_VINTAGE[v];
+  /* Remove any existing badges first (the subtab layout can move them), then insert exactly one. */
+  view.querySelectorAll('.vintage-badge').forEach(function(b){b.remove();});
+  if(!txt)return;
+  var badge=document.createElement('div');badge.className='vintage-badge';
+  badge.innerHTML='<span class="vintage-dot" aria-hidden="true"></span><span class="vintage-lbl">Data covers</span> '+txt;
+  h.parentNode.insertBefore(badge,h.nextSibling);
 }
 
 /* ---- animated count-ups (respects reduce motion) ---- */
