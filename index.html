@@ -6094,8 +6094,11 @@ body:not(.no-anim):not(.reduce) .qlink:hover{box-shadow:0 14px 32px rgba(0,94,16
 body:not(.no-anim):not(.reduce) .qlink.autism:hover{box-shadow:0 14px 32px rgba(204,90,51,.22)}
 body:not(.no-anim):not(.reduce) .qlink.good:hover{box-shadow:0 14px 32px rgba(78,157,45,.20)}
 @keyframes vPop{0%{transform:scale(.97)}55%{transform:scale(1.05)}100%{transform:scale(1)}}
-body:not(.no-anim):not(.reduce) .view.active .kpi .v{
+body:not(.no-anim):not(.reduce) .view.active .kpi:not(.kpi-haspie) .v{
   display:inline-block;
+  animation:vPop .55s cubic-bezier(.2,.7,.3,1) both .12s;
+}
+body:not(.no-anim):not(.reduce) .view.active .kpi-haspie .v{
   animation:vPop .55s cubic-bezier(.2,.7,.3,1) both .12s;
 }
 @media print{
@@ -12668,7 +12671,6 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </svg>
 </template>
 <a class="skip" href="#trends">Skip to data tool content</a>
-<div class="govbar"><div class="govbar-in"><span class="gov-org"><b>U.S. Department of Education</b><span class="gov-sep">·</span>Office of Special Education Programs</span><a class="gov-link" href="https://data.ed.gov" target="_blank" rel="noopener">Public data · data.ed.gov<span class="gov-ext" aria-hidden="true">↗</span></a></div></div>
 <header class="top">
   <div class="hinner">
     <div class="hrow">
@@ -18358,7 +18360,7 @@ body.pink #chartBuilderFab .cbf-ic{background:linear-gradient(140deg,#e6398a,#a8
 .cb-close{flex:none;width:34px;height:34px;border:1px solid var(--line);background:var(--line2);border-radius:9px;cursor:pointer;font-size:1.3rem;line-height:1;color:var(--muted)}
 .cb-close:hover{background:var(--line);color:var(--ink)}
 /* sentence-style pickers */
-.cb-say{display:flex;align-items:center;flex-wrap:wrap;gap:7px 9px;margin:6px 0 16px;font-size:1.04rem;line-height:1.7;color:var(--ink)}
+.cb-say{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;margin:6px 0 16px;font-size:.9rem;line-height:1.55;color:var(--ink)}
 .cb-say .cb-word{font-weight:600;color:var(--muted)}
 .cb-say .cb-pick{font:inherit;font-weight:700;color:var(--navy);background:var(--line2);border:1.5px solid var(--line);border-radius:9px;padding:5px 9px;max-width:min(280px,60vw);cursor:pointer}
 .cb-say .cb-pick:hover{border-color:var(--primary-lt)}
