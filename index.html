@@ -8,6 +8,7 @@
 /* Soft password gate: lock the page before anything renders, unlock for the session once entered.
    This is a light access gate, not real security (the page is fully client-side). */
 (function(){ try{ document.documentElement.className+=' locked'; }catch(e){} })();
+(function(){ try{ var z=parseFloat(localStorage.getItem('idea618zoom')); if(!(z>0))z=0.9; document.documentElement.style.setProperty('--app-zoom',z); }catch(e){} })();
 /* Safety net: never let the loading screen get stuck, even if the main script errors. */
 setTimeout(function(){ try{ document.documentElement.classList.add('app-ready'); }catch(e){} }, 5000);
 window.addEventListener('load', function(){ try{ document.documentElement.classList.add('app-ready'); }catch(e){} });
@@ -17667,6 +17668,9 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
 })();
 /* App is set up and the active view is rendered: lift the loading screen. */
 try{ setTimeout(function(){ document.documentElement.classList.add('app-ready'); }, 60); }catch(e){ document.documentElement.classList.add('app-ready'); }
+
+function _initZoom(){var ctl=document.getElementById('zoomCtl');if(!ctl)return;function g(){var v=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-zoom'));return v>0?v:0.9;}function set(v){v=Math.max(0.6,Math.min(1.3,Math.round(v*10)/10));document.documentElement.style.setProperty('--app-zoom',v);var p=document.getElementById('zoomPct');if(p)p.textContent=Math.round(v*100)+'%';try{localStorage.setItem('idea618zoom',v);}catch(e){}}document.getElementById('zoomIn').addEventListener('click',function(){set(g()+0.1);});document.getElementById('zoomOut').addEventListener('click',function(){set(g()-0.1);});set(g());}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_initZoom);else _initZoom();
 </script>
 <style id="pinkModeOverrides">
 /* Loaded last so it wins on source order: force charts + key controls fully pink */
@@ -17694,7 +17698,15 @@ body.pink #pinkFairy{display:block;animation:fairyDance 28s ease-in-out infinite
 @keyframes fairyBob{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(-9px) rotate(7deg)}}
 @keyframes fairyFlutter{from{transform:scaleX(1)}to{transform:scaleX(.55)}}
 @media (prefers-reduced-motion: reduce){body.pink #pinkFairy{display:none}}
+.wrap{zoom:var(--app-zoom,0.9)}
+#zoomCtl{position:fixed;left:14px;bottom:14px;z-index:1200;display:flex;align-items:center;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:999px;box-shadow:var(--shadow);padding:3px}
+#zoomCtl button{width:30px;height:30px;border:none;background:none;font-size:18px;line-height:1;cursor:pointer;color:var(--navy);border-radius:50%;font-weight:700}
+#zoomCtl button:hover{background:var(--line2)}
+#zoomCtl #zoomPct{font-size:.74rem;font-weight:700;color:var(--muted);min-width:40px;text-align:center}
+body.pink #zoomCtl button{color:#a8266e}
+@media print{#zoomCtl{display:none}}
 </style>
 <div id="pinkFairy" aria-hidden="true"><svg viewBox="0 0 60 60" fill="none"><g class="pf-wing"><ellipse cx="22" cy="30" rx="11" ry="16" fill="#ffb3d9" opacity=".7"/><ellipse cx="38" cy="30" rx="11" ry="16" fill="#ffb3d9" opacity=".7"/></g><path d="M30 26 L40 50 L20 50 Z" fill="#e6398a"/><circle cx="30" cy="20" r="7" fill="#ffd9e8"/><circle cx="30" cy="13" r="3.5" fill="#ff8fc8"/><path d="M45 14 l1.6 4.2 4.2 1.6 -4.2 1.6 -1.6 4.2 -1.6 -4.2 -4.2 -1.6 4.2 -1.6 z" fill="#fff"/></svg></div>
+<div id="zoomCtl" role="group" aria-label="Zoom the data"><button id="zoomOut" type="button" aria-label="Zoom out" title="Zoom out">−</button><span id="zoomPct">90%</span><button id="zoomIn" type="button" aria-label="Zoom in" title="Zoom in">+</button></div>
 </body>
 </html>
