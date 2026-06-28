@@ -15727,6 +15727,7 @@ function _vizMeta(sid){
  var measure=spec?_stripHtml(spec.title):'Chart';
  var scope=spec?_vizScopeLabel(spec,sid):'';
  var title=scope?(scope+' – '+measure):measure;
+ if(spec&&spec._customTitle&&(''+spec._customTitle).trim())title=(''+spec._customTitle).trim();
  var note='',source='';
  if(spec){
   var pct=(tablesMode==='percent'&&!!TOGGLE_COLL[spec._coll]);
@@ -15735,7 +15736,7 @@ function _vizMeta(sid){
   var mm=fs.match(/[“]([^”]+)[”],?\s*([0-9]{4}-[0-9]{2})/);
   source=mm?('U.S. Department of Education, Office of Special Education Programs. '+mm[1].replace(/,\s*$/,'')+', '+mm[2]+'.'):(COLL_SRC[spec._coll]||SRC_NOTE);
  }
- var fname=sid; if(spec){var d=measure,bi=measure.indexOf(', by '); if(bi>=0)d=measure.slice(bi+2); fname=_tblSlug((scope||spec._coll||'idea-part-b')+' '+d.replace(/\.$/,''));}
+ var fname=sid; if(spec){ if(spec._customTitle&&(''+spec._customTitle).trim()){fname=_tblSlug((''+spec._customTitle).trim());} else {var d=measure,bi=measure.indexOf(', by '); if(bi>=0)d=measure.slice(bi+2); fname=_tblSlug((scope||spec._coll||'idea-part-b')+' '+d.replace(/\.$/,''));} }
  return {title:title,note:note,source:source,fname:fname};
 }
 function _vizPNG(sid){var c=Chart.getChart(sid+'_cv');if(!c)return;var m=_vizMeta(sid);_captionedPNG(c.canvas,m.title,m.note,m.fname+'.png',m.source);}
@@ -18285,16 +18286,57 @@ body.dark #chartBuilderFab{border-color:rgba(255,255,255,.3)}
 .cb-dialog-sub{margin:3px 0 0;font-size:.85rem;color:var(--muted);line-height:1.4;max-width:60ch}
 .cb-close{flex:none;width:34px;height:34px;border:1px solid var(--line);background:var(--line2);border-radius:9px;cursor:pointer;font-size:1.3rem;line-height:1;color:var(--muted)}
 .cb-close:hover{background:var(--line);color:var(--ink)}
-.cb-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px 14px;margin-bottom:14px}
-.cb-field{display:flex;flex-direction:column;gap:4px;font-size:.74rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-.cb-field select{font:inherit;text-transform:none;letter-spacing:0;font-weight:600;font-size:.92rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
-.cb-toolbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 12px}
+/* sentence-style pickers */
+.cb-say{display:flex;align-items:center;flex-wrap:wrap;gap:7px 9px;margin:6px 0 16px;font-size:1.04rem;line-height:1.7;color:var(--ink)}
+.cb-say .cb-word{font-weight:600;color:var(--muted)}
+.cb-say .cb-pick{font:inherit;font-weight:700;color:var(--navy);background:var(--line2);border:1.5px solid var(--line);border-radius:9px;padding:5px 9px;max-width:min(280px,60vw);cursor:pointer}
+.cb-say .cb-pick:hover{border-color:var(--primary-lt)}
+.cb-say .cb-pick:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
+body.dark .cb-say .cb-pick{background:#16242f;color:#dbe8f6;border-color:#2c3a47}
+/* option rows + segmented controls */
+.cb-opts{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin:0 0 14px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.cb-optgrp{display:flex;align-items:center;gap:8px}
+.cb-optlab{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.cb-seg{display:inline-flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:var(--line2)}
+.cb-seg button{display:inline-flex;align-items:center;gap:5px;font:inherit;font-size:.82rem;font-weight:700;color:var(--muted);background:none;border:none;padding:6px 11px;cursor:pointer;border-right:1px solid var(--line)}
+.cb-seg button:last-child{border-right:none}
+.cb-seg button svg{width:14px;height:14px;fill:currentColor}
+.cb-seg button:hover{color:var(--navy);background:rgba(0,94,162,.06)}
+.cb-seg button.on{background:var(--navy);color:#fff}
+body.dark .cb-seg{background:#16242f;border-color:#2c3a47}
+body.dark .cb-seg button{color:#a9bccd;border-color:#2c3a47}
+body.dark .cb-seg button.on{background:var(--primary);color:#fff}
 .cb-check{display:inline-flex;align-items:center;gap:7px;font-size:.85rem;font-weight:600;color:var(--ink);cursor:pointer}
 .cb-check input{width:16px;height:16px;cursor:pointer}
-.cb-hint{font-size:.78rem;color:var(--muted);font-style:italic}
+/* drill-down category chips */
+.cb-drill{margin:0 0 14px}
+.cb-drill-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+.cb-drill-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.cb-drill-actions{display:inline-flex;gap:5px}
+.cb-drill-actions button{font:inherit;font-size:.74rem;font-weight:700;color:var(--primary);background:none;border:1px solid var(--line);border-radius:7px;padding:3px 9px;cursor:pointer}
+.cb-drill-actions button:hover{background:var(--line2);border-color:var(--primary-lt)}
+.cb-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:108px;overflow:auto}
+.cb-chip{font:inherit;font-size:.78rem;font-weight:600;color:var(--muted);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:4px 11px;cursor:pointer;transition:all .12s}
+.cb-chip:hover{border-color:var(--primary-lt);color:var(--ink)}
+.cb-chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+body.dark .cb-chip{background:#16242f;color:#a9bccd;border-color:#2c3a47}
+body.dark .cb-chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
 .cb-card{margin:0}
 .cb-canvasbox{height:clamp(220px,40vh,360px);position:relative;min-height:0}
-.cb-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+/* footer: editable title + save buttons */
+.cb-foot{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.cb-titlefield{flex:1 1 280px;display:flex;flex-direction:column;gap:4px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.cb-titlefield input{font:inherit;text-transform:none;letter-spacing:0;font-weight:600;font-size:.92rem;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink)}
+.cb-titlefield input:focus-visible{outline:2px solid var(--primary);outline-offset:1px;border-color:var(--primary)}
+.cb-actions{display:flex;gap:8px;flex:0 0 auto}
+.cb-savebtn{font:inherit;font-weight:800;font-size:.88rem;color:#fff;background:var(--navy);border:none;border-radius:10px;padding:10px 16px;cursor:pointer}
+.cb-savebtn:hover{filter:brightness(1.08)}
+.cb-savebtn-2{background:var(--card);color:var(--navy);border:1.5px solid var(--line)}
+.cb-savebtn-2:hover{background:var(--line2);filter:none}
+body.dark .cb-savebtn-2{background:#16242f;color:#dbe8f6;border-color:#2c3a47}
+body.pink .cb-savebtn{background:#a8266e}
+body.pink .cb-seg button.on,body.pink .cb-chip.on{background:#a8266e;border-color:#a8266e}
+body.pink .cb-say .cb-pick{color:#a8266e}
 body.dark .cb-dialog{background:#12202e}
 body.pink .cb-dialog-title{color:#a8266e}
 body.pink .cb-close:hover{color:#a8266e}
@@ -18354,23 +18396,55 @@ body.pink .cb-close:hover{color:#a8266e}
   <div class="cb-modal-backdrop" data-cb-close></div>
   <div class="cb-dialog" role="document">
     <div class="cb-dialog-head">
-      <div><h2 class="cb-dialog-title">Chart builder</h2><p class="cb-dialog-sub" id="cbSub">Pick a collection, breakdown, and state, then choose a chart type.</p></div>
+      <div><h2 class="cb-dialog-title">Build your own chart</h2><p class="cb-dialog-sub">Start with the sentence below, then fine-tune the chart however you like. Everything updates as you go.</p></div>
       <button type="button" class="cb-close" data-cb-close aria-label="Close chart builder">×</button>
     </div>
-    <div class="cb-controls">
-      <label class="cb-field"><span>Collection</span><select id="cbColl"></select></label>
-      <label class="cb-field"><span>Breakdown</span><select id="cbBreak"></select></label>
-      <label class="cb-field"><span>State or entity</span><select id="cbState"></select></label>
-      <label class="cb-field"><span>Compare with</span><select id="cbCompare"></select></label>
-      <label class="cb-field"><span>Chart type</span><select id="cbType"><option value="bar">Bar</option><option value="doughnut">Donut</option><option value="pie">Pie</option><option value="bubble">Bubble</option></select></label>
-      <label class="cb-field"><span>Values</span><select id="cbVals"><option value="count">Count</option><option value="percent">Percent</option></select></label>
-      <label class="cb-field" id="cbOrientField"><span>Bar direction</span><select id="cbOrient"><option value="auto">Auto</option><option value="vertical">Vertical</option><option value="horizontal">Horizontal</option></select></label>
+    <div class="cb-say">
+      <span class="cb-word">Show me</span>
+      <select id="cbBreak" class="cb-pick" aria-label="What to break the data down by"></select>
+      <span class="cb-word">from the</span>
+      <select id="cbColl" class="cb-pick" aria-label="Which data collection"></select>
+      <span class="cb-word">data, for</span>
+      <select id="cbState" class="cb-pick" aria-label="Which state or entity"></select>
+      <span class="cb-word cb-vsword">compared with</span>
+      <select id="cbCompare" class="cb-pick" aria-label="A second state to compare"></select>
     </div>
-    <div class="cb-toolbar"><label class="cb-check"><input type="checkbox" id="cbLabels" checked> Show values on chart</label><span class="cb-hint" id="cbHint"></span></div>
+    <div class="cb-opts">
+      <div class="cb-optgrp"><span class="cb-optlab">Chart</span>
+        <div class="cb-seg" id="cbTypeSeg" role="group" aria-label="Chart type">
+          <button type="button" data-ct="bar" data-orient="horizontal" class="on" title="Horizontal bars"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="9" height="2.6" rx="1"/><rect x="1" y="6.7" width="13" height="2.6" rx="1"/><rect x="1" y="11.4" width="6" height="2.6" rx="1"/></svg>Bars</button>
+          <button type="button" data-ct="bar" data-orient="vertical" title="Vertical columns"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="6" width="2.6" height="8" rx="1"/><rect x="6.7" y="2" width="2.6" height="12" rx="1"/><rect x="11.4" y="9" width="2.6" height="5" rx="1"/></svg>Columns</button>
+          <button type="button" data-ct="doughnut" title="Donut"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a7 7 0 1 0 7 7h-3a4 4 0 1 1-4-4z"/></svg>Donut</button>
+          <button type="button" data-ct="pie" title="Pie"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a7 7 0 1 0 7 7H8z"/></svg>Pie</button>
+          <button type="button" data-ct="bubble" title="Bubble"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="6" cy="9" r="4.2"/><circle cx="12" cy="5" r="2.4"/></svg>Bubble</button>
+        </div>
+      </div>
+      <div class="cb-optgrp"><span class="cb-optlab">Values</span>
+        <div class="cb-seg" id="cbValsSeg" role="group" aria-label="Values">
+          <button type="button" data-v="count" class="on">Count</button>
+          <button type="button" data-v="percent">Percent</button>
+        </div>
+      </div>
+      <div class="cb-optgrp"><span class="cb-optlab">Sort</span>
+        <div class="cb-seg" id="cbSortSeg" role="group" aria-label="Sort order">
+          <button type="button" data-s="desc" class="on">Big → small</button>
+          <button type="button" data-s="asc">Small → big</button>
+          <button type="button" data-s="none">As listed</button>
+        </div>
+      </div>
+      <label class="cb-check"><input type="checkbox" id="cbLabels" checked> Show the numbers</label>
+    </div>
+    <div class="cb-drill" id="cbDrillWrap">
+      <div class="cb-drill-head"><span class="cb-drill-title" id="cbDrillTitle">Include</span><span class="cb-drill-actions"><button type="button" id="cbAll">All</button><button type="button" id="cbTop">Top 8</button><button type="button" id="cbNone">None</button></span></div>
+      <div class="cb-chips" id="cbCats"></div>
+    </div>
     <div class="card tbl-card cb-card" data-viz-card="cbChart" id="cbCardHost">
       <div class="tbl-viz-canvasbox cb-canvasbox"><canvas id="cbChart_cv" class="tbl-viz-canvas" aria-label="Custom chart"></canvas></div>
       <div class="tbl-viz-note" id="cbChart_note"></div>
-      <div class="cb-actions"><button type="button" class="tbl-viz-dlbtn" id="cbPng">⤓ PNG</button><button type="button" class="tbl-viz-dlbtn" id="cbCsv">⤓ CSV</button></div>
+    </div>
+    <div class="cb-foot">
+      <label class="cb-titlefield"><span>Title for the saved image</span><input type="text" id="cbTitle" placeholder="A title will be filled in for you — type here to change it"></label>
+      <div class="cb-actions"><button type="button" class="cb-savebtn" id="cbPng">Save image</button><button type="button" class="cb-savebtn cb-savebtn-2" id="cbCsv">Save data (CSV)</button></div>
     </div>
   </div>
 </div>
@@ -18385,9 +18459,10 @@ body.pink .cb-close:hover{color:#a8266e}
   function ready(fn){ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fn); else fn(); }
   ready(function(){
     var fab=$('chartBuilderFab'), modal=$('chartBuilderModal');
-    var cbColl=$('cbColl'),cbBreak=$('cbBreak'),cbState=$('cbState'),cbCompare=$('cbCompare'),cbType=$('cbType'),cbVals=$('cbVals'),cbOrient=$('cbOrient'),cbOrientField=$('cbOrientField'),cbLabels=$('cbLabels'),cbSub=$('cbSub'),cbHint=$('cbHint');
+    var cbColl=$('cbColl'),cbBreak=$('cbBreak'),cbState=$('cbState'),cbCompare=$('cbCompare'),
+        cbLabels=$('cbLabels'),cbCats=$('cbCats'),cbDrillTitle=$('cbDrillTitle'),cbTitle=$('cbTitle');
     if(!fab||!modal||!cbColl)return;
-    var built=false;
+    var built=false, S={type:'bar',orient:'horizontal',vals:'count',sort:'desc'}, selKeys=null;
     var BREAK_KW=[['educational environment','Educational environment'],['environment','Educational environment'],['race','Race / ethnicity'],['ethnicity','Race / ethnicity'],['english learner','English learner status'],['el status','English learner status'],['by sex','Sex'],[', sex','Sex'],['age group','Age group'],['grade','Grade level'],['qualification','Teacher qualification'],['early intervention setting','Early intervention setting'],['setting','Setting'],['type of removal','Type of removal'],['exit','Exit reason']];
     function breakLabel(sp){
       var t=(typeof _stripHtml==='function'?_stripHtml(sp.title||''):(sp.title||'')).toLowerCase();
@@ -18399,6 +18474,8 @@ body.pink .cb-close:hover{color:#a8266e}
       return age?(by+' · '+age):by;
     }
     function specsFor(coll){ try{return (typeof TBL_SPECS!=='undefined'&&TBL_SPECS[coll])?TBL_SPECS[coll]():[];}catch(e){return [];} }
+    function specNow(){ return specsFor(cbColl.value)[+cbBreak.value||0]||null; }
+    function chartMetricIdx(sp){ try{var m=_vizChartMetrics(sp);return (m&&m[0])?m[0].i:0;}catch(e){return 0;} }
     function fillColl(){
       if(typeof TBL_SPECS==='undefined'||typeof COLL_META==='undefined')return;
       cbColl.innerHTML=Object.keys(TBL_SPECS).filter(function(k){return COLL_META[k];}).map(function(k){
@@ -18409,9 +18486,9 @@ body.pink .cb-close:hover{color:#a8266e}
       var specs=specsFor(cbColl.value),seen={};
       cbBreak.innerHTML=specs.map(function(sp,i){var l=breakLabel(sp);if(seen[l]){seen[l]++;l+=' ('+seen[l]+')';}else seen[l]=1;return '<option value="'+i+'">'+l+'</option>';}).join('');
     }
-    function stateOpts(extra){
+    function stateOpts(){
       var names=(typeof STATES!=='undefined')?STATES.map(function(s){return s[0];}).slice().sort():[];
-      var opts=[extra||'<option value="__US__">U.S. national total</option>'];
+      var opts=['<option value="__US__">the U.S. as a whole</option>'];
       names.forEach(function(n){opts.push('<option value="'+n+'">'+n+'</option>');});
       return opts.join('');
     }
@@ -18419,44 +18496,74 @@ body.pink .cb-close:hover{color:#a8266e}
     function fillCompare(){
       if(!cbCompare)return;
       var names=(typeof STATES!=='undefined')?STATES.map(function(s){return s[0];}).slice().sort():[];
-      var opts=['<option value="__none__">None</option>','<option value="__US__">U.S. national total</option>'];
+      var opts=['<option value="__none__">nothing (just one)</option>','<option value="__US__">the U.S. as a whole</option>'];
       names.forEach(function(n){opts.push('<option value="'+n+'">'+n+'</option>');});
       cbCompare.innerHTML=opts.join('');
+    }
+    function syncChips(total){ if(!cbCats)return; [].slice.call(cbCats.querySelectorAll('.cb-chip')).forEach(function(c){var on=selKeys&&selKeys.has(c.getAttribute('data-k'));c.classList.toggle('on',!!on);c.setAttribute('aria-pressed',on?'true':'false');}); if(cbDrillTitle)cbDrillTitle.textContent='Include '+(selKeys?selKeys.size:0)+' of '+(total!=null?total:cbCats.querySelectorAll('.cb-chip').length); }
+    function topN(sp,rows,n){ var mi=chartMetricIdx(sp),usK=sp.usKey; return rows.slice().sort(function(a,b){return (_vizNum(sp,usK,b.key,mi)||0)-(_vizNum(sp,usK,a.key,mi)||0);}).slice(0,n); }
+    function fillCats(resetSel){
+      var sp=specNow(); if(!sp||!cbCats){ if(cbCats)cbCats.innerHTML=''; return; }
+      var rows=sp.rows.filter(function(r){return !r.isTotal;});
+      if(resetSel||!selKeys){ selKeys=new Set(); var pick=(rows.length>10)?topN(sp,rows,8):rows; pick.forEach(function(r){selKeys.add(String(r.key));}); }
+      cbCats.innerHTML=rows.map(function(r){var k=String(r.key),on=selKeys.has(k);return '<button type="button" class="cb-chip'+(on?' on':'')+'" data-k="'+k.replace(/"/g,'&quot;')+'" aria-pressed="'+(on?'true':'false')+'">'+_stripHtml(r.label)+'</button>';}).join('');
+      if(cbDrillTitle)cbDrillTitle.textContent='Include '+selKeys.size+' of '+rows.length;
+    }
+    function selectTop(n){ var sp=specNow(); if(!sp)return; var rows=sp.rows.filter(function(r){return !r.isTotal;}); selKeys=new Set(); topN(sp,rows,n).forEach(function(r){selKeys.add(String(r.key));}); syncChips(rows.length); render(); }
+    function suggestedTitle(sp){
+      var who=(cbState.value==='__US__')?'the U.S.':cbState.value;
+      var cmp=(cbCompare&&cbCompare.value&&cbCompare.value!=='__none__')?(' vs. '+(cbCompare.value==='__US__'?'the U.S.':cbCompare.value)):'';
+      return breakLabel(sp)+' — '+who+cmp+(S.vals==='percent'?' (% share)':'');
     }
     function render(){
       if(typeof TBL_SPECS==='undefined'||typeof _renderVizChart!=='function')return;
       var coll=cbColl.value;
       var prevMode=(typeof tablesMode!=='undefined')?tablesMode:'count';
-      var want=(cbVals&&cbVals.value)||'count';
       try{
-        try{ if(typeof tablesMode!=='undefined')tablesMode=want; }catch(_){}
-        var specs=specsFor(coll),sp=specs[+cbBreak.value||0]; if(!sp)return;
+        try{ if(typeof tablesMode!=='undefined')tablesMode=S.vals; }catch(_){}
+        var sp=specsFor(coll)[+cbBreak.value||0]; if(!sp)return;
         sp._coll=coll; sp._sid=CB;
         var usKey=sp.usKey||'__US__';
         var colFor=function(v){return (v==='__US__')?usKey:v;};
         var list=[colFor(cbState.value)];
         if(cbCompare&&cbCompare.value&&cbCompare.value!=='__none__'){var c2=colFor(cbCompare.value); if(c2!==list[0])list.push(c2);}
         sp.states=list;
+        /* drill-down: keep only the categories the user chose, then sort */
+        var dataRows=sp.rows.filter(function(r){return !r.isTotal;}), totals=sp.rows.filter(function(r){return r.isTotal;});
+        if(selKeys){ dataRows=dataRows.filter(function(r){return selKeys.has(String(r.key));}); }
+        if(S.sort!=='none'){ var mi=chartMetricIdx(sp),p=list[0];
+          dataRows.sort(function(a,b){var va=_vizNum(sp,p,a.key,mi),vb=_vizNum(sp,p,b.key,mi);va=(va==null?-1e15:va);vb=(vb==null?-1e15:vb);return S.sort==='asc'?(va-vb):(vb-va);}); }
+        sp.rows=dataRows.concat(totals);
+        if(cbTitle){ cbTitle.placeholder=suggestedTitle(sp); sp._customTitle=(cbTitle.value.trim()||cbTitle.placeholder); }
         window._tblSpecs=window._tblSpecs||{}; window._tblSpecs[CB]=sp;
         var st=(typeof _vizState==='function')?_vizState(CB):null;
-        if(st){st.on=true;st.type=cbType.value;st.showUS=(list.indexOf(usKey)>=0);st.usSet=true;st.rowIdx=null;st.metricIdx=null;st.compareOn=false;st.showLabels=(cbLabels?cbLabels.checked:true);st.orient=(cbOrient?cbOrient.value:'auto');}
-        if(cbOrientField)cbOrientField.style.display=(cbType.value==='bar')?'':'none';
+        if(st){st.on=true;st.type=S.type;st.showUS=(list.indexOf(usKey)>=0);st.usSet=true;st.rowIdx=null;st.metricIdx=null;st.compareOn=false;st.showLabels=(cbLabels?cbLabels.checked:true);st.orient=(S.type==='bar'?S.orient:'auto');}
         try{_renderVizChart(CB);}catch(e){}
-        if(cbSub)cbSub.textContent=(typeof _stripHtml==='function'?_stripHtml(sp.title||''):(sp.title||''));
-        if(cbHint){var pie=(cbType.value==='pie'||cbType.value==='doughnut');cbHint.textContent=(pie&&list.length>1)?'Pie and donut charts show the first state only; use Bar to compare two.':'';}
       }finally{ try{ if(typeof tablesMode!=='undefined')tablesMode=prevMode; }catch(_){} }
     }
-    function ensureBuilt(){ if(built)return; built=true; fillColl(); fillBreak(); fillState(); fillCompare(); }
+    function subjectChanged(){ fillCats(true); if(cbTitle)cbTitle.value=''; render(); }
+    function ensureBuilt(){ if(built)return; built=true; fillColl(); fillBreak(); fillState(); fillCompare(); fillCats(true); }
     function open(){ ensureBuilt(); modal.hidden=false; document.body.classList.add('cb-open'); setTimeout(render,30); }
     function close(){ modal.hidden=true; document.body.classList.remove('cb-open'); }
+    function wireSeg(id,apply){ var seg=$(id); if(!seg)return; seg.addEventListener('click',function(e){var b=e.target.closest('button'); if(!b||!seg.contains(b))return; [].slice.call(seg.querySelectorAll('button')).forEach(function(x){x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',x===b?'true':'false');}); apply(b); render(); }); }
     fab.addEventListener('click',open);
     modal.addEventListener('click',function(e){ if(e.target.closest('[data-cb-close]'))close(); });
     document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!modal.hidden)close(); });
-    cbColl.addEventListener('change',function(){ fillBreak(); render(); });
-    [cbBreak,cbState,cbCompare,cbType,cbVals,cbOrient].forEach(function(el){ if(el)el.addEventListener('change',render); });
+    cbColl.addEventListener('change',function(){ fillBreak(); subjectChanged(); });
+    cbBreak.addEventListener('change',subjectChanged);
+    if(cbState)cbState.addEventListener('change',render);
+    if(cbCompare)cbCompare.addEventListener('change',render);
     if(cbLabels)cbLabels.addEventListener('change',render);
-    var pg=$('cbPng'); if(pg)pg.addEventListener('click',function(){ try{_vizPNG(CB);}catch(e){} });
-    var cs=$('cbCsv'); if(cs)cs.addEventListener('click',function(){ try{_vizCSV(CB);}catch(e){} });
+    wireSeg('cbTypeSeg',function(b){S.type=b.getAttribute('data-ct');S.orient=b.getAttribute('data-orient')||'auto';});
+    wireSeg('cbValsSeg',function(b){S.vals=b.getAttribute('data-v');});
+    wireSeg('cbSortSeg',function(b){S.sort=b.getAttribute('data-s');});
+    if(cbCats)cbCats.addEventListener('click',function(e){var b=e.target.closest('.cb-chip');if(!b)return;var k=b.getAttribute('data-k');if(!selKeys)selKeys=new Set();if(selKeys.has(k))selKeys.delete(k);else selKeys.add(k);syncChips();render();});
+    var aAll=$('cbAll'); if(aAll)aAll.addEventListener('click',function(){ var sp=specNow();if(!sp)return; selKeys=new Set(); sp.rows.filter(function(r){return !r.isTotal;}).forEach(function(r){selKeys.add(String(r.key));}); syncChips(); render(); });
+    var aNone=$('cbNone'); if(aNone)aNone.addEventListener('click',function(){ selKeys=new Set(); syncChips(); render(); });
+    var aTop=$('cbTop'); if(aTop)aTop.addEventListener('click',function(){ selectTop(8); });
+    function exportTitle(){ try{ if(window._tblSpecs&&window._tblSpecs[CB])window._tblSpecs[CB]._customTitle=(cbTitle.value.trim()||cbTitle.placeholder); }catch(e){} }
+    var pg=$('cbPng'); if(pg)pg.addEventListener('click',function(){ exportTitle(); try{_vizPNG(CB);}catch(e){} });
+    var cs=$('cbCsv'); if(cs)cs.addEventListener('click',function(){ exportTitle(); try{_vizCSV(CB);}catch(e){} });
   });
 })();
 </script>
