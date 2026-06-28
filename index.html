@@ -12368,10 +12368,15 @@ body.hc #kpis .kpi-ic{background:transparent;border:1.5px solid currentColor}
 body.dark .pick-empty{background:linear-gradient(180deg,#161f2b 0%,#131b25 100%);border-color:#2b3645}
 body.dark .pick-empty h3{color:#dbe8f6}
 body.hc .pick-empty{border-style:solid;border-width:2px}
-/* State Snapshot: until a State is picked, hide the State-specific panels but keep the map + rankings (the picker) visible */
-/* While unpicked, the Map subtab is shown as the picker (setupStateSubtabs); hide the section nav and the map's own heading so only the prompt + map appear. */
-body.state-unpicked .view[data-view="states"] .state-page-nav,
-body.state-unpicked .view[data-view="states"] #stateMapSection{display:none!important}
+/* State Snapshot: until a State or entity is picked, collapse the whole page down to
+   just the selector card and the "Pick a State to begin" prompt. Everything else
+   (section nav, rank banner, map, rankings, measures, determinations) stays hidden. */
+body.state-unpicked .view[data-view="states"] > *{display:none!important}
+body.state-unpicked .view[data-view="states"] > h2.section-title{display:block!important}
+body.state-unpicked .view[data-view="states"] > #statePick{display:grid!important}
+body.state-unpicked .view[data-view="states"] > #statePickPrompt{display:flex!important}
+/* the export buttons do nothing until something is picked */
+body.state-unpicked .view[data-view="states"] .state-actions{display:none!important}
 
 /* --- SEA Tables empty state ("Pick a collection to begin") --- */
 .view[data-view="tables"] .tables-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;
@@ -14899,7 +14904,7 @@ function _renderStatePickPrompt(){
  var v=document.querySelector('.view[data-view="states"]');if(!v)return;
  var anchor=document.getElementById('stateMapSection')||v.querySelector('.grid');if(!anchor||!anchor.parentNode)return;
  var div=document.createElement('div');div.id='statePickPrompt';div.className='pick-empty';div.setAttribute('data-stab','stateMapSection');
- div.innerHTML='<div class="pick-empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><h3>Pick a State to begin</h3><p>Choose a State from the menu above, or click any State on the map below, to see its IDEA Section&nbsp;618 data, how it ranks nationally, and its federal determination.</p>';
+ div.innerHTML='<div class="pick-empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><h3>Pick a State to begin</h3><p>Choose a State or reporting entity from the menu above to see its IDEA Section&nbsp;618 data, how it ranks nationally, and its federal determination.</p>';
  anchor.parentNode.insertBefore(div,anchor.nextSibling);
 }
 function afterStateChange(){
@@ -17999,9 +18004,28 @@ body.pink .view .state-page-nav a.stab-active{background:#a8266e!important;borde
 body.pink .card h3,body.pink .card.fig h3,body.pink .insightpanel h3,body.pink .snap-head,body.pink .exp-h2{color:#a8266e!important}
 /* blue/green icon chips, toolbars and selected segments -> pink */
 body.pink .kpi-ic{background:rgba(168,38,110,.12)!important;color:#a8266e!important}
-body.pink .state-toolbar{border-top-color:#e6398a!important}
 body.pink .exp-hero{border-top-color:#e6398a!important}
 body.pink .state-insight{border-left-color:#e6398a!important}
+/* ===== Fairy mode: State Snapshot pieces that were still navy/green ===== */
+/* (prefixed with .view[data-view="states"] so they out-specify the per-view accent rules) */
+body.pink:not(.dark) .view[data-view="states"] .section-title{color:#a8266e!important}
+body.pink .view[data-view="states"] .state-toolbar,body.pink #statePick{border-top-color:#e6398a!important}
+body.pink .view[data-view="states"] .state-page-nav{border-left-color:#e6398a!important}
+body.pink .view[data-view="states"] .state-determinations{border-left-color:#e6398a!important}
+/* the rank banner: pink gradient instead of navy */
+body.pink .view[data-view="states"] .state-rank-banner,body.pink .view[data-view="states"] .rankbanner{background:linear-gradient(135deg,#a8266e 0%,#e6398a 58%,#ff8fc8 100%)!important;border-color:#ff8fc8!important;border-left-color:#ff8fc8!important}
+/* determination band heading + SPP indicator badges */
+body.pink .view[data-view="states"] .snap-det-title{color:#a8266e!important}
+body.pink .view[data-view="states"] .spp-badge{background:#a44bd0!important}
+/* the "Part B · ages 3–21" band underline + the snapshot stat-card accents */
+body.pink .view[data-view="states"] .srparthd{border-bottom-color:#e6398a!important}
+body.pink .view[data-view="states"] .state-insight-grid .mini{border-top-color:#ffc4dd!important;border-left-color:#e6398a!important}
+body.pink .view[data-view="states"] .state-insight-grid .mini:nth-child(2n){border-left-color:#a44bd0!important}
+body.pink .view[data-view="states"] .state-insight-grid .mini:nth-child(3n){border-left-color:#c43a86!important}
+/* "Pick a State to begin" empty-state prompt */
+body.pink .pick-empty-ic{background:linear-gradient(155deg,#e6398a,#a44bd0)!important;box-shadow:0 4px 12px rgba(155,77,255,.3)!important}
+body.pink .pick-empty h3{color:#a8266e!important}
+body.pink:not(.dark) .pick-empty{background:linear-gradient(180deg,#fff0f7 0%,#ffe7f4 100%)!important;border-color:#ffc4dd!important}
 body.pink .toggle .on,body.pink .seg.on,body.pink .gpra-viewtoggle button.on,body.pink #naepToggle button.on{background:#a8266e!important;border-color:#a8266e!important;color:#fff!important}
 body.pink .kpi .v,body.pink .kpi.good .v,body.pink .state-insight .snap-num{color:#a8266e!important}
 /* big stat numbers were hardcoded navy across cards -> plum */
