@@ -11823,6 +11823,17 @@ body.dark .view[data-view="tables"] .tbl-scroll .dd-table tbody tr:hover td:firs
 .view[data-view="tables"] .tch-titlewrap{display:flex;align-items:center;gap:11px;flex:1 1 auto;min-width:0}
 .view[data-view="tables"] .tables-collhead .tch-title{flex:0 1 auto}
 .view[data-view="tables"] .tables-collhead .tch-srcfold{margin-top:0;margin-left:auto;flex:none}
+/* Collapsible whole-collection sections */
+.view[data-view="tables"] .tables-collfold{margin:18px 0 0}
+.view[data-view="tables"] .tables-collfold>summary.tables-collhead{cursor:pointer;list-style:none;position:relative;padding-right:32px}
+.view[data-view="tables"] .tables-collfold>summary.tables-collhead::-webkit-details-marker{display:none}
+.view[data-view="tables"] .tables-collfold>summary.tables-collhead:after{content:"";position:absolute;right:8px;top:50%;width:10px;height:10px;border-right:2.5px solid var(--muted);border-bottom:2.5px solid var(--muted);transform:translateY(-70%) rotate(45deg);transition:transform .2s}
+.view[data-view="tables"] .tables-collfold[open]>summary.tables-collhead:after{transform:translateY(-30%) rotate(-135deg)}
+.view[data-view="tables"] .tables-collfold>summary.tables-collhead:hover .tch-title{color:var(--primary)}
+.view[data-view="tables"] .tables-collfold>summary.tables-collhead:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.view[data-view="tables"] .tables-collbody{padding-top:4px}
+.view[data-view="tables"] .tables-collbody .tch-meta-row{margin:8px 0 2px}
+.view[data-view="tables"] .tables-collbody .tch-srcfold{margin:0}
 /* Part B vs Part C: a clean colour-coded tag + a matching collection underline. */
 .view[data-view="tables"] .coll-part-tag{
   flex:none;font-size:.66rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;
@@ -12033,8 +12044,8 @@ body.dark .view[data-view="lea"] .lea-scard-h b{color:#9fc3ec}
 .view[data-view="lea"] .lea-scard-unmatched{margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);font-size:.7rem;line-height:1.35;color:var(--muted)}
 .view[data-view="lea"] .lea-osep{display:flex;align-items:center;gap:7px;margin:8px 0 2px;padding:5px 9px;border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:7px;background:var(--line2)}
 .view[data-view="lea"] .lea-osep-dot{width:9px;height:9px;border-radius:50%;flex:none}
-.view[data-view="lea"] .lea-osep-lbl{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-.view[data-view="lea"] .lea-osep-v{font-size:.76rem;font-weight:800;margin-left:auto;text-align:right}
+.view[data-view="lea"] .lea-osep-lbl{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);flex:1 1 auto;min-width:0;line-height:1.3}
+.view[data-view="lea"] .lea-osep-v{font-size:.76rem;font-weight:800;margin-left:auto;text-align:right;flex:none;padding-left:10px;white-space:nowrap}
 body.dark .view[data-view="lea"] .lea-osep{background:#16202c;border-color:#2f3a48}
 
 /* ---------- LEA Explorer entrance animations ---------- */
@@ -12976,8 +12987,11 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <div class="view" data-view="tables" role="tabpanel" aria-label="SEA Tables">
 <h2 class="section-title" id="tables">SEA Tables</h2>
-<p class="viewlead">Exact figures from the official IDEA Section 618 collections. Pick one or more collections, choose whether to compare States or disability categories, then add what you want to see side by side. Any table can switch between counts and percentages, turn into a chart with <strong>Visualize</strong>, or download as a CSV.</p>
-<div class="card"><div class="note">Every figure in these tables is an exact count reported to the U.S. Department of Education under IDEA Section&nbsp;618, not an estimate. Switch any table between <b>counts</b> (the number of children and students) and <b>percentages</b> (a share of the total). A dash (<b>–</b>) marks a cell the Department suppressed to protect student privacy when very few students are involved.</div></div>
+<!-- "About this page" and "What this shows" merged into one disclosure -->
+<details class="lead-fold"><summary>About this page</summary>
+  <p class="viewlead" data-folded="1">Exact figures from the official IDEA Section 618 collections. Pick one or more collections, choose whether to compare States or disability categories, then add what you want to see side by side. Any table can switch between counts and percentages, turn into a chart with <strong>Visualize</strong>, or download as a CSV.</p>
+  <p class="note" data-nf="skip" style="margin-top:8px">Every figure in these tables is an exact count reported to the U.S. Department of Education under IDEA Section&nbsp;618, not an estimate. Switch any table between <b>counts</b> (the number of children and students) and <b>percentages</b> (a share of the total). A dash (<b>–</b>) marks a cell the Department suppressed to protect student privacy when very few students are involved.</p>
+</details>
 <div class="tables-setup">
 <div class="tables-collrail" role="tablist" aria-label="Data collections">
   <div class="tcr-group"><span class="tcr-label">Part B</span><button type="button" class="tcr-pill" data-coll="ccee">Child Count &amp; Environments</button><button type="button" class="tcr-pill" data-coll="exitB">Exiting</button><button type="button" class="tcr-pill" data-coll="discB">Discipline</button><button type="button" class="tcr-pill" data-coll="persB">Personnel</button><button type="button" class="tcr-pill" data-coll="asmtB">Assessment</button></div>
@@ -16136,14 +16150,18 @@ function renderTablesView(){
   var m=COLL_META[k];
   var _srcTxt=(COLL_SRC[k]||('IDEA Part '+m.part+' · '+m.year)).replace(/^\s*Source:\s*/i,'');
   var _pc=(m.part==='C'?'c':'b');
-  var head='<div class="tables-collhead coll-part-'+_pc+'"><div class="tch-titlewrap"><span class="coll-part-tag part'+_pc+'">Part '+m.part+'</span><div class="tch-title">'+m.name+'</div></div><details class="tbl-srcfold tch-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">'+_srcTxt+'</div></details></div>';
-  var about='<details class="tbl-about"><summary>About this data</summary><div class="tbl-about-body"><p>'+m.desc+'</p><p class="tbl-about-meta"><strong>IDEA Part '+m.part+'</strong> · '+m.year+'. The U.S. row is the official national total covering all reporting entities; the other rows are individual States or entities. Suppressed cells (x, *) and unavailable values (–) keep their source-file codes; see the key above the tables. The full source is in the <strong>Source</strong> button above.</p></div></details>';
+  /* Each whole collection is now a collapsible section (open by default) so you can
+     fold an entire collection away when several are loaded. The Source fold moves
+     into the body since a <summary> can't contain another <details>. */
+  var head='<summary class="tables-collhead coll-part-'+_pc+'"><div class="tch-titlewrap"><span class="coll-part-tag part'+_pc+'">Part '+m.part+'</span><div class="tch-title">'+m.name+'</div></div></summary>';
+  var srcRow='<div class="tch-meta-row"><details class="tbl-srcfold tch-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">'+_srcTxt+'</div></details></div>';
+  var about='<details class="tbl-about"><summary>About this data</summary><div class="tbl-about-body"><p>'+m.desc+'</p><p class="tbl-about-meta"><strong>IDEA Part '+m.part+'</strong> · '+m.year+'. The U.S. row is the official national total covering all reporting entities; the other rows are individual States or entities. Suppressed cells (x, *) and unavailable values (–) keep their source-file codes; see the key above the tables. The full source is in the <strong>Source</strong> button below.</p></div></details>';
   if(byCat && !CAT_TBL_SPECS[k]){
-   return '<section class="tables-collsection">'+head+about+'<div class="card tbl-note-card"><div class="note">This collection is not broken out by disability category, so it can’t be compared by category. Switch to <strong>Compare States</strong> above, or choose <strong>Child Count &amp; Environments</strong> or <strong>Discipline</strong> to compare categories.</div></div></section>';
+   return '<details class="tables-collsection tables-collfold" open>'+head+'<div class="tables-collbody">'+srcRow+about+'<div class="card tbl-note-card"><div class="note">This collection is not broken out by disability category, so it can’t be compared by category. Switch to <strong>Compare States</strong> above, or choose <strong>Child Count &amp; Environments</strong> or <strong>Discipline</strong> to compare categories.</div></div></div></details>';
   }
   var specs=byCat?CAT_TBL_SPECS[k]():(TBL_SPECS[k]||function(){return [];})();
   specs.forEach(function(sp){sp._coll=k;sp.src=COLL_SRC[k]||sp.src;if(TBL_CAUTION[k])sp.caution=TBL_CAUTION[k];allSpecs.push(sp);});
-  return '<section class="tables-collsection">'+head+about+_renderSpecGroups(specs)+'</section>';
+  return '<details class="tables-collsection tables-collfold" open>'+head+'<div class="tables-collbody">'+srcRow+about+_renderSpecGroups(specs)+'</div></details>';
  }).join('');
  window._tblSpecs={}; allSpecs.forEach(function(sp){if(sp._sid)window._tblSpecs[sp._sid]=sp;});
  _setupVizDelegation();
@@ -17370,7 +17388,7 @@ function _sppPill(status){
  var cls=(typeof det2026Class==='function')?det2026Class(status):'na';
  var col=cls==='meets'?'#2e8540':(cls==='assist'?'#b8860b':(cls==='intervention'?'#cc5a33':'#9aa6b2'));
  var lbl=/Meets/i.test(status)?'Meets requirements':(/one year/i.test(status)?'Needs assistance (1 yr)':(/two or more/i.test(status)?'Needs assistance (2+ yrs)':(/substantial/i.test(status)?'Needs substantial intervention':(/intervention/i.test(status)?'Needs intervention':status))));
- return '<div class="lea-osep" title="OSEP 2026 IDEA, Part B determination (based on FFY 2024 SPP/APR)" style="border-left-color:'+col+'"><span class="lea-osep-dot" style="background:'+col+'"></span><span class="lea-osep-lbl">OSEP 2026</span><span class="lea-osep-v" style="color:'+col+'">'+lbl+'</span></div>';
+ return '<div class="lea-osep" title="OSEP 2026 Determination on Implementation of IDEA, Part B (based on FFY 2024 SPP/APR)" style="border-left-color:'+col+'"><span class="lea-osep-dot" style="background:'+col+'"></span><span class="lea-osep-lbl">OSEP 2026 Determination on Implementation of IDEA</span><span class="lea-osep-v" style="color:'+col+'">'+lbl+'</span></div>';
 }
 var _LEA_SC_STATS=[];
 function _leaStateStats(){
