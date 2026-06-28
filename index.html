@@ -18358,14 +18358,15 @@ body.pink .cb-close:hover{color:#a8266e}
     var cbColl=$('cbColl'),cbBreak=$('cbBreak'),cbState=$('cbState'),cbType=$('cbType'),cbSub=$('cbSub');
     if(!fab||!modal||!cbColl)return;
     var built=false;
+    var BREAK_KW=[['educational environment','Educational environment'],['environment','Educational environment'],['race','Race / ethnicity'],['ethnicity','Race / ethnicity'],['english learner','English learner status'],['el status','English learner status'],['by sex','Sex'],[', sex','Sex'],['age group','Age group'],['grade','Grade level'],['qualification','Teacher qualification'],['early intervention setting','Early intervention setting'],['setting','Setting'],['type of removal','Type of removal'],['exit','Exit reason']];
     function breakLabel(sp){
-      var t=(typeof _stripHtml==='function'?_stripHtml(sp.title||''):(sp.title||''));
-      var m=t.match(/\bby ([^.]*?) and (?:state|publication|year)/i);
-      var by=(m?m[1]:(sp.rowHeader||'breakdown')).replace(/\s+/g,' ').trim();
-      var am=t.match(/ages?\s+\d+[^,.]*?(?:through|to)\s*\d+/i);
-      var age=am?am[0].replace(/\b(students?|children?)\b/ig,'').replace(/\s+/g,' ').trim():'';
-      var lab=by.charAt(0).toUpperCase()+by.slice(1);
-      return age?(lab+' · '+age):lab;
+      var t=(typeof _stripHtml==='function'?_stripHtml(sp.title||''):(sp.title||'')).toLowerCase();
+      var by=null;
+      for(var i=0;i<BREAK_KW.length;i++){ if(t.indexOf(BREAK_KW[i][0])>=0){ by=BREAK_KW[i][1].trim(); break; } }
+      if(!by){ by=(sp.rowHeader||'Breakdown').replace(/\s+/g,' ').trim(); by=by.charAt(0).toUpperCase()+by.slice(1); }
+      var am=(sp.title||'').match(/ages?\s+\d+[^,.]*?(?:through|to)\s*\d+/i);
+      var age=am?am[0].replace(/\b(students?|children?|in kindergarten)\b/ig,'').replace(/[()]/g,'').replace(/\s+/g,' ').trim():'';
+      return age?(by+' · '+age):by;
     }
     function specsFor(coll){ try{return (typeof TBL_SPECS!=='undefined'&&TBL_SPECS[coll])?TBL_SPECS[coll]():[];}catch(e){return [];} }
     function fillColl(){
