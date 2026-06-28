@@ -4807,6 +4807,8 @@ body.dark .kpi,body.dark .picto{background:#19233180}
 .view[data-view="states"] .srval{font-size:1.12rem}
 .view[data-view="states"] .stategrid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
 .view[data-view="states"] .canvas-box.sm{height:168px}
+/* The Child Count Trend is a sparse 4-point line; give it room so it isn't smushed */
+.view[data-view="states"] #snapTrendCard .canvas-box.sm{height:250px!important}
 /* part B / part C dividers + data-year badges */
 .partdiv{margin-top:24px}
 .yrtag{
@@ -15188,30 +15190,47 @@ function _wrapLines(ctx,text,font,maxW){ctx.font=font;const ws=(text||'').split(
  for(const w of ws){const t=ln?ln+' '+w:w;if(ctx.measureText(t).width>maxW&&ln){out.push(ln);ln=w;}else ln=t;}if(ln)out.push(ln);return out;}
 function _captionedPNG(srcCanvas,title,note,filename,source){
  if(!srcCanvas||!srcCanvas.width||!srcCanvas.height){try{alert('Open the chart (Visualize) and let it finish drawing before saving the PNG.');}catch(e){}return;}
- var cw=srcCanvas.width||900,pad=Math.round(cw*0.045),W=cw+pad*2,FONT='Calibri, Carlito, "Source Sans 3", Arial';
- var fT=Math.max(18,Math.round(cw*0.030)),fN=Math.max(12,Math.round(cw*0.018)),fS=Math.max(10,Math.round(cw*0.0135));
- var lhT=fT*1.22,lhN=fN*1.35,lhS=fS*1.32,maxW=W-2*pad;
+ var cw=srcCanvas.width||900,ch=srcCanvas.height||500,pad=Math.round(cw*0.05),W=cw+pad*2,FONT='Calibri, Carlito, "Source Sans 3", Arial';
+ var fE=Math.max(10,Math.round(cw*0.0125)),fT=Math.max(18,Math.round(cw*0.030)),fN=Math.max(12,Math.round(cw*0.018)),fS=Math.max(10,Math.round(cw*0.0135));
+ var lhT=fT*1.22,lhN=fN*1.35,lhS=fS*1.34,maxW=W-2*pad,eyebrowH=Math.round(fE*1.05)+Math.round(fE*0.85);
  var m=document.createElement('canvas').getContext('2d');
  var tl=_wrapLines(m,title,'800 '+fT+'px '+FONT,maxW);
  var nl=note?_wrapLines(m,note,'600 '+fN+'px '+FONT,maxW):[];
  var sl=source?_wrapLines(m,source,'400 '+fS+'px '+FONT,maxW):[];
+ var _exp=''; try{_exp='Exported '+new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});}catch(e){}
+ var brand='IDEA Section 618 Data Tool'+(_exp?'  ·  '+_exp:'');
+ var footLines=sl.concat([brand]);
  var subGap=nl.length?Math.round(fN*0.6):0, ruleGap=Math.round(pad*0.5);
- var headH=pad+tl.length*lhT+subGap+nl.length*lhN+ruleGap;
- var footH=sl.length?(Math.round(pad*0.5)+sl.length*lhS+Math.round(pad*0.55)):Math.round(pad*0.5);
- var cv=document.createElement('canvas');cv.width=W;cv.height=Math.round(headH)+srcCanvas.height+Math.round(footH);
- var ctx=cv.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,cv.width,cv.height);
+ var headH=pad+eyebrowH+tl.length*lhT+subGap+nl.length*lhN+ruleGap;
+ var chartPad=Math.round(pad*0.45);
+ var footH=Math.round(pad*0.5)+footLines.length*lhS+Math.round(pad*0.55);
+ var cv=document.createElement('canvas');cv.width=W;cv.height=Math.round(headH)+chartPad*2+ch+Math.round(footH);
+ var ctx=cv.getContext('2d');
+ /* page background: a whisper of warm paper, chart sits on pure white */
+ ctx.fillStyle='#ffffff';ctx.fillRect(0,0,cv.width,cv.height);
  ctx.textBaseline='top';
  var y=pad;
+ /* eyebrow */
+ ctx.fillStyle='#c79a1f';ctx.font='800 '+fE+'px '+FONT;
+ var _eb='IDEA SECTION 618 · OFFICE OF SPECIAL EDUCATION PROGRAMS';
+ if(m.measureText?(m.font='800 '+fE+'px '+FONT,m.measureText(_eb).width>maxW):false)_eb='IDEA SECTION 618 DATA TOOL';
+ ctx.fillText(_eb,pad,y);y+=eyebrowH;
+ /* title */
  ctx.fillStyle='#13354e';ctx.font='800 '+fT+'px '+FONT;tl.forEach(function(l){ctx.fillText(l,pad,y);y+=lhT;});
  if(nl.length){y+=subGap;ctx.fillStyle='#5a6675';ctx.font='600 '+fN+'px '+FONT;nl.forEach(function(l){ctx.fillText(l,pad,y);y+=lhN;});}
+ /* gold rule under the header */
  var ry=Math.round(headH)-Math.round(ruleGap*0.55);
- ctx.strokeStyle='#c79a1f';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(pad,ry);ctx.lineTo(W-pad,ry);ctx.stroke();
- ctx.drawImage(srcCanvas,pad,Math.round(headH));
- if(sl.length){
-  var fy=Math.round(headH)+srcCanvas.height+Math.round(pad*0.35);
-  ctx.strokeStyle='#e3e7ee';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,fy);ctx.lineTo(W-pad,fy);ctx.stroke();
-  var yy=fy+Math.round(pad*0.35);ctx.fillStyle='#717b88';ctx.font='400 '+fS+'px '+FONT;sl.forEach(function(l){ctx.fillText(l,pad,yy);yy+=lhS;});
- }
+ ctx.strokeStyle='#c79a1f';ctx.lineWidth=Math.max(2,Math.round(cw*0.0022));ctx.beginPath();ctx.moveTo(pad,ry);ctx.lineTo(W-pad,ry);ctx.stroke();
+ /* chart, framed in a clean rounded panel */
+ var chX=pad,chY=Math.round(headH)+chartPad;
+ if(ctx.roundRect){ctx.beginPath();ctx.roundRect(chX-chartPad*0.5,chY-chartPad*0.5,ch?cw+chartPad:cw,ch+chartPad,Math.round(pad*0.18));ctx.fillStyle='#ffffff';ctx.fill();ctx.strokeStyle='#e3e7ee';ctx.lineWidth=1;ctx.stroke();}
+ ctx.drawImage(srcCanvas,chX,chY);
+ /* footer: source + tool/date */
+ var fy=chY+ch+chartPad+Math.round(pad*0.3);
+ ctx.strokeStyle='#e3e7ee';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,fy);ctx.lineTo(W-pad,fy);ctx.stroke();
+ var yy=fy+Math.round(pad*0.35);
+ sl.forEach(function(l){ctx.fillStyle='#717b88';ctx.font='400 '+fS+'px '+FONT;ctx.fillText(l,pad,yy);yy+=lhS;});
+ ctx.fillStyle='#9aa6b2';ctx.font='700 '+fS+'px '+FONT;ctx.fillText(brand,pad,yy);
  var a=document.createElement('a');a.href=cv.toDataURL('image/png',1);a.download=filename;a.click();
 }
 function exportPNG(id){const c=Chart.getChart(id);if(!c)return;_captionedPNG(c.canvas,_chartTitle(id),_chartNote(id),id+'.png');}
