@@ -7,7 +7,7 @@
 <script>
 /* Soft password gate: lock the page before anything renders, unlock for the session once entered.
    This is a light access gate, not real security (the page is fully client-side). */
-(function(){ try{ if(localStorage.getItem('idea618_unlocked')!=='1'){ document.documentElement.className+=' locked'; } }catch(e){} })();
+(function(){ try{ document.documentElement.className+=' locked'; }catch(e){} })();
 /* Safety net: never let the loading screen get stuck, even if the main script errors. */
 setTimeout(function(){ try{ document.documentElement.classList.add('app-ready'); }catch(e){} }, 5000);
 window.addEventListener('load', function(){ try{ document.documentElement.classList.add('app-ready'); }catch(e){} });
@@ -56,9 +56,7 @@ window.addEventListener('load', function(){ try{ document.documentElement.classL
   }
   #pwGate button.gate-go:hover{ background:#1c4a6e; }
   #pwGate button.gate-go:active{ transform:translateY(1px); }
-  #pwGate .gate-remember{ display:flex; align-items:center; justify-content:center; gap:8px; margin-top:15px; font-size:13.5px; color:#5a6b78; cursor:pointer; user-select:none; }
-  #pwGate .gate-remember input{ width:16px; height:16px; accent-color:#13354e; cursor:pointer; flex:0 0 auto; }
-  #pwGate .gate-msg{ min-height:18px; margin-top:12px; font-size:13px; color:#cc5a33; font-weight:600; }
+#pwGate .gate-msg{ min-height:18px; margin-top:12px; font-size:13px; color:#cc5a33; font-weight:600; }
   #pwGate.bad .gate-card{ animation:gateShake .4s; }
   @keyframes gateShake{ 0%,100%{transform:translateX(0);} 20%{transform:translateX(-9px);} 40%{transform:translateX(8px);} 60%{transform:translateX(-6px);} 80%{transform:translateX(4px);} }
   #pwGate .gate-hint{ margin-top:18px; font-size:11.5px; color:#90a2b0; line-height:1.5; }
@@ -5864,6 +5862,12 @@ body.dark .a11y-card h3{color:#cfe2f4}
 .a11y-card .a11y-ic svg{width:20px;height:20px;display:block}
 .feedback-btn{display:inline-block;margin-top:6px;padding:9px 18px;background:var(--primary);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem}
 .feedback-btn:hover{background:var(--navy)}
+/* Pink mode: a soft, girly theme toggled from the Access panel */
+body.pink{--bg:#fff0f6;--card:#ffffff;--ink:#46213a;--muted:#9a6b85;--line:#ffd9e8;--line2:#fff5fa;--navy:#a61e6b;--navy2:#c43a86;--primary:#e64980;--primary-lt:#faa2c1;--accent:#c43a86;--gold:#ff8fab;--good:#2f9e44}
+body.pink .home-hero{background:linear-gradient(135deg,#a8266e 0%,#e64980 55%,#ff8fab 100%)}
+body.pink .home-hero::after{color:rgba(255,255,255,.08)}
+body.pink .hh-eyebrow{color:#ffe3ef}
+body.pink .hh-50{background:#fff0f6;color:#a8266e}
 .a11y-card ul{margin:0;padding-left:18px}
 .a11y-card li{margin:0 0 8px;line-height:1.5;color:var(--ink)}
 .a11y-card li:last-child{margin-bottom:0}
@@ -12467,7 +12471,6 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
         <input id="pwGateInput" type="password" inputmode="text" placeholder="Password" aria-label="Password" autofocus />
         <button type="button" class="gate-toggle" id="pwGateToggle" aria-label="Show password">Show</button>
       </div>
-      <label class="gate-remember"><input type="checkbox" id="pwGateRemember" /> <span>Remember me on this device</span></label>
       <button type="submit" class="gate-go">Continue</button>
       <div class="gate-msg" id="pwGateMsg" aria-live="polite"></div>
     </form>
@@ -12483,7 +12486,6 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   var input = document.getElementById('pwGateInput');
   var msg = document.getElementById('pwGateMsg');
   var toggle = document.getElementById('pwGateToggle');
-  var remember = document.getElementById('pwGateRemember');
   if(!gate || !form) return;
   function dropGate(){
     document.documentElement.classList.remove('locked');
@@ -12491,8 +12493,8 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     try{ window.scrollTo(0,0); }catch(e){}
   }
   function unlock(){
-    /* Remember me checked: stay unlocked on this device. Otherwise the gate returns next load. */
-    try{ if(remember && remember.checked) localStorage.setItem('idea618_unlocked','1'); else localStorage.removeItem('idea618_unlocked'); }catch(e){}
+    /* Always prompt on the next load/refresh: no unlock is stored. */
+    try{ localStorage.removeItem('idea618_unlocked'); }catch(e){}
     dropGate();
   }
   /* Already unlocked this session: the early script didn't lock. Just drop the gate. */
@@ -12608,6 +12610,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     <div class="a11ysw" id="swMotion" role="switch" tabindex="0" aria-checked="false"><span class="t">Reduce motion</span><span class="knob"></span></div>
     <div class="a11ysw" id="swUL" role="switch" tabindex="0" aria-checked="false"><span class="t">Underline links</span><span class="knob"></span></div>
     <div class="a11ysw" id="swCVD" role="switch" tabindex="0" aria-checked="false"><span class="t">Colorblind-safe palette</span><span class="knob"></span></div>
+    <div class="a11ysw" id="swPink" role="switch" tabindex="0" aria-checked="false"><span class="t">Pink mode</span><span class="knob"></span></div>
   </div>
   <div class="grp"><span class="glab">Reading</span>
     <div class="a11ysw" id="swPlain" role="switch" tabindex="0" aria-checked="false"><span class="t">Plain language</span><span class="knob"></span></div>
@@ -14957,6 +14960,7 @@ function toggleContrast(on){document.body.classList.toggle('hc',on);setSwitch('s
 function toggleMotion(on){reduceMotion=on;document.body.classList.toggle('reduce',on);setSwitch('swMotion',on);lsSet('idea618rm',on?'1':'0');reRenderTheme();}
 function toggleUL(on){document.body.classList.toggle('ul',on);setSwitch('swUL',on);lsSet('idea618ul',on?'1':'0');}
 function toggleCVD(on){applyPalette(on);setSwitch('swCVD',on);lsSet('idea618cvd',on?'1':'0');try{reRenderTheme();}catch(e){}try{renderCompare2();}catch(e){}}
+function togglePink(on){document.body.classList.toggle('pink',on);setSwitch('swPink',on);lsSet('idea618pink',on?'1':'0');}
 function toggleAnim(on){document.body.classList.toggle('no-anim',!on);setSwitch('swAnim',on);lsSet('idea618anim',on?'1':'0');reRenderTheme();}
 function renderAll(){
  kpis();renderNationalSnapshot();setupTrendUnitToggle();renderTrend();renderTrendShare();renderTrendChange();renderComp();renderCategoryShift();renderEnv();renderIncl();renderSparks();renderHomeBubbles();
@@ -15217,7 +15221,7 @@ document.addEventListener('click',function(e){
 });
 function swWire(id,fn){const el=document.getElementById(id);const t=()=>fn(!el.classList.contains('on'));
    el.onclick=t;el.onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();t();}};}
- swWire('swContrast',toggleContrast);swWire('swDark',applyTheme);swWire('swMotion',toggleMotion);swWire('swUL',toggleUL);swWire('swCVD',toggleCVD);swWire('swPlain',togglePlain);swWire('swAnim',toggleAnim);swWire('swDesc',toggleDescriptions);
+ swWire('swContrast',toggleContrast);swWire('swDark',applyTheme);swWire('swMotion',toggleMotion);swWire('swUL',toggleUL);swWire('swCVD',toggleCVD);swWire('swPink',togglePink);swWire('swPlain',togglePlain);swWire('swAnim',toggleAnim);swWire('swDesc',toggleDescriptions);
  // NAEP view toggle
  document.querySelectorAll('#naepToggle button').forEach(b=>b.onclick=()=>{naepMode=b.dataset.m;document.querySelectorAll('#naepToggle button').forEach(x=>x.classList.toggle('on',x===b));renderNAEP();});
  // restore saved preferences
@@ -15226,6 +15230,7 @@ function swWire(id,fn){const el=document.getElementById(id);const t=()=>fn(!el.c
  try{updateScopeFlag();}catch(e){}
  if(lsGet('idea618ul')==='1'){document.body.classList.add('ul');setSwitch('swUL',true);}
  if(lsGet('idea618cvd')==='1'){setSwitch('swCVD',true);}
+ if(lsGet('idea618pink')==='1'){document.body.classList.add('pink');setSwitch('swPink',true);}
  const rm=lsGet('idea618rm');
  if(rm==='1'||(rm===null&&reduceMotion)){reduceMotion=true;document.body.classList.add('reduce');setSwitch('swMotion',true);}else if(rm==='0'){reduceMotion=false;}
  const fs=lsGet('idea618fs');setTextSize(fs!==null?+fs:0);
