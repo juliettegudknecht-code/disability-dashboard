@@ -17665,5 +17665,19 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
 /* App is set up and the active view is rendered: lift the loading screen. */
 try{ setTimeout(function(){ document.documentElement.classList.add('app-ready'); }, 60); }catch(e){ document.documentElement.classList.add('app-ready'); }
 </script>
+<style id="pinkModeOverrides">
+/* Loaded last so it wins on source order: force charts + key controls fully pink */
+body.pink canvas,
+body.pink .usmap-wrap svg, body.pink .lea-usmap-wrap svg,
+body.pink .home-bubblewrap svg, body.pink .home-bubbles-hero svg,
+body.pink .shareband-box svg, body.pink #trendShareBands svg,
+body.pink .exp-bubblewrap svg, body.pink [id$="Bubbles"] svg{
+  filter:grayscale(1) sepia(1) hue-rotate(288deg) saturate(3.6) brightness(1.04)!important;
+}
+body.pink #exportBtn{background:#a8266e!important;color:#fff!important;border-color:#a8266e!important}
+body.pink .trend-chip.on{background:#a8266e!important;border-color:#a8266e!important;color:#fff!important}
+body.pink .tbl-toggle button.on,body.pink .tbl-viz-seg.on{background:#a8266e!important;color:#fff!important}
+body.pink .guidebtn{background:#ff8fc8!important;border-color:#ff6fb0!important;color:#7a0d3d!important}
+</style>
 </body>
 </html>
