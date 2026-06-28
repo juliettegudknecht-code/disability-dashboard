@@ -7,7 +7,7 @@
 <script>
 /* Soft password gate: lock the page before anything renders, unlock for the session once entered.
    This is a light access gate, not real security (the page is fully client-side). */
-(function(){ try{ if(sessionStorage.getItem('idea618_unlocked')!=='1'){ document.documentElement.className+=' locked'; } }catch(e){} })();
+(function(){ try{ if(localStorage.getItem('idea618_unlocked')!=='1' && sessionStorage.getItem('idea618_unlocked')!=='1'){ document.documentElement.className+=' locked'; } }catch(e){} })();
 </script>
 <style id="pwGateStyle">
   html.locked, html.locked body{ overflow:hidden !important; }
@@ -5807,6 +5807,19 @@ body.dark .asmt-legend .nm{color:#ededeb}
    ===================================================================== */
 .qlink .qgo{transition:transform .16s ease}
 #stateTable tbody tr{transition:background .12s}
+/* Row-header cell (state name) should read like a normal data cell, not a heading */
+#stateTable tbody th{font-weight:600;text-align:left;background:none;color:inherit}
+/* Sortable column headers: pointer + direction indicator */
+#stateTable thead th[role="button"]{cursor:pointer;position:relative}
+#stateTable thead th[aria-sort="ascending"]::after{content:" ▲";font-size:.7em;opacity:.85}
+#stateTable thead th[aria-sort="descending"]::after{content:" ▼";font-size:.7em;opacity:.85}
+/* Suppressed / not-available data cells: dotted underline + help cursor so the explanation is discoverable */
+.supcell{border-bottom:1px dotted var(--muted);cursor:help;outline-offset:2px}
+.supcell:focus-visible{outline:2px solid var(--primary)}
+/* Auto-insight takeaway line inside the State rank banner */
+.rk-insight{display:flex;gap:8px;align-items:flex-start;margin-top:10px;padding:10px 12px;background:var(--line2);border-left:3px solid var(--primary);border-radius:6px;font-size:.92rem;line-height:1.45;color:var(--ink)}
+.rk-insight-ic{flex:0 0 auto;font-size:1rem;line-height:1.3}
+body.dark .rk-insight{background:rgba(255,255,255,.05)}
 .cmp2-col,.kpi,.picto,.cat,.sparkcard{transition:transform .17s ease,box-shadow .22s ease,border-color .2s}
 .iconbtn,.tab,.expdl,.plainbtn,.themebtn,.a11ybtn,.qlink{transition:transform .12s ease,background .14s,color .14s,border-color .14s,box-shadow .2s}
 .iconbtn:active,.expdl:active,.tab:active,.plainbtn:active{transform:translateY(1px)}
@@ -12347,6 +12360,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
         <input id="pwGateInput" type="password" inputmode="text" placeholder="Password" aria-label="Password" autofocus />
         <button type="button" class="gate-toggle" id="pwGateToggle" aria-label="Show password">Show</button>
       </div>
+      <label class="gate-remember"><input type="checkbox" id="pwGateRemember" /> <span>Remember me on this device</span></label>
       <button type="submit" class="gate-go">Continue</button>
       <div class="gate-msg" id="pwGateMsg" aria-live="polite"></div>
     </form>
@@ -13109,7 +13123,7 @@ const CATALOG=[
 const DEMO={"cur":{"All Disabilities":{"total":8194424,"sa_total":7590772,"ec_total":603652,"female":2895304,"male":5295440,"el_yes":960363,"el_no":7230476,"race":{"AIAN":94401,"Asian":243717,"Black":1377394,"Hispanic":2481393,"NHPI":28132,"Multi":449007,"White":3520522},"ages":{"3":206675,"4":322159,"5":423917,"6":503187,"7":560214,"8":615298,"9":648426,"10":660322,"11":627983,"12":595976,"13":571789,"14":550577,"15":549332,"16":538389,"17":490968,"18":211328,"19":60035,"20":35823,"21":22026},"env":{"Inside regular class 80% or more of the day":5170041,"Inside regular class 40% through 79% of the day":1123200,"Inside regular class less than 40% of the day":947698,"Separate School, School Age":174715,"Residential Facility, School Age":10781,"Parentally Placed in Private Schools":130682,"Homebound/Hospital":25323,"Correctional Facilities":8332}},"Autism":{"total":1218821,"sa_total":1111435,"ec_total":107386,"female":226785,"male":884002,"el_yes":136580,"el_no":974207,"race":{"AIAN":8906,"Asian":82457,"Black":208816,"Hispanic":377329,"NHPI":4475,"Multi":71158,"White":465025},"ages":{"3":37355,"4":57205,"5":92293,"6":103850,"7":104315,"8":100007,"9":93522,"10":87797,"11":79819,"12":76278,"13":71488,"14":67366,"15":64550,"16":61534,"17":56037,"18":29709,"19":15430,"20":12120,"21":8146},"env":{"Inside regular class 80% or more of the day":452819,"Inside regular class 40% through 79% of the day":188253,"Inside regular class less than 40% of the day":392648,"Separate School, School Age":59711,"Residential Facility, School Age":2034,"Parentally Placed in Private Schools":12750,"Homebound/Hospital":3126,"Correctional Facilities":94}},"Deaf-blindness":{"total":1820,"sa_total":1679,"ec_total":141,"female":822,"male":855,"el_yes":154,"el_no":1523,"race":{"AIAN":24,"Asian":103,"Black":207,"Hispanic":444,"NHPI":12,"Multi":94,"White":934},"ages":{"3":58,"4":60,"5":103,"6":96,"7":93,"8":130,"9":116,"10":104,"11":96,"12":122,"13":119,"14":107,"15":134,"16":141,"17":115,"18":93,"19":56,"20":43,"21":34},"env":{"Inside regular class 80% or more of the day":521,"Inside regular class 40% through 79% of the day":237,"Inside regular class less than 40% of the day":444,"Separate School, School Age":330,"Residential Facility, School Age":56,"Parentally Placed in Private Schools":24,"Homebound/Hospital":66,"Correctional Facilities":1}},"Developmental delay":{"total":606429,"sa_total":328961,"ec_total":277468,"female":98655,"male":230268,"el_yes":47278,"el_no":281645,"race":{"AIAN":10891,"Asian":21260,"Black":115424,"Hispanic":150646,"NHPI":2447,"Multi":38765,"White":266980},"ages":{"3":103526,"4":143740,"5":116989,"6":94658,"7":76604,"8":50870,"9":19849,"10":128,"11":26,"12":18,"13":7,"14":4,"15":5,"16":2,"17":2,"18":0,"19":1,"20":0,"21":0},"env":{"Inside regular class 80% or more of the day":227847,"Inside regular class 40% through 79% of the day":44901,"Inside regular class less than 40% of the day":50754,"Separate School, School Age":2794,"Residential Facility, School Age":35,"Parentally Placed in Private Schools":2149,"Homebound/Hospital":476,"Correctional Facilities":5}},"Emotional disturbance":{"total":311147,"sa_total":310855,"ec_total":292,"female":101831,"male":208116,"el_yes":15284,"el_no":294663,"race":{"AIAN":3744,"Asian":3538,"Black":62215,"Hispanic":66094,"NHPI":596,"Multi":23140,"White":150912},"ages":{"3":22,"4":159,"5":1507,"6":5069,"7":9422,"8":13724,"9":17134,"10":20051,"11":23130,"12":26245,"13":30199,"14":34027,"15":37717,"16":39131,"17":35470,"18":13318,"19":2969,"20":1251,"21":602},"env":{"Inside regular class 80% or more of the day":180952,"Inside regular class 40% through 79% of the day":50234,"Inside regular class less than 40% of the day":38396,"Separate School, School Age":31750,"Residential Facility, School Age":2583,"Parentally Placed in Private Schools":1355,"Homebound/Hospital":2906,"Correctional Facilities":2679}},"Hearing impairment":{"total":67364,"sa_total":62472,"ec_total":4892,"female":29462,"male":32986,"el_yes":9505,"el_no":52943,"race":{"AIAN":687,"Asian":4116,"Black":8107,"Hispanic":22926,"NHPI":449,"Multi":3267,"White":27788},"ages":{"3":1910,"4":2402,"5":3056,"6":3729,"7":4272,"8":4844,"9":4852,"10":4995,"11":5050,"12":5034,"13":4977,"14":4819,"15":4832,"16":4936,"17":4684,"18":2076,"19":516,"20":248,"21":132},"env":{"Inside regular class 80% or more of the day":41281,"Inside regular class 40% through 79% of the day":7904,"Inside regular class less than 40% of the day":5822,"Separate School, School Age":5150,"Residential Facility, School Age":1011,"Parentally Placed in Private Schools":1187,"Homebound/Hospital":98,"Correctional Facilities":19}},"Intellectual disability":{"total":418505,"sa_total":416534,"ec_total":1971,"female":173688,"male":242815,"el_yes":58381,"el_no":358122,"race":{"AIAN":4888,"Asian":11099,"Black":107569,"Hispanic":129812,"NHPI":1674,"Multi":17793,"White":145638},"ages":{"3":631,"4":1118,"5":3186,"6":7260,"7":12161,"8":18634,"9":26605,"10":33078,"11":35617,"12":36435,"13":36184,"14":36378,"15":37422,"16":37382,"17":36539,"18":26383,"19":15028,"20":11019,"21":7445},"env":{"Inside regular class 80% or more of the day":87399,"Inside regular class 40% through 79% of the day":118805,"Inside regular class less than 40% of the day":185134,"Separate School, School Age":20032,"Residential Facility, School Age":833,"Parentally Placed in Private Schools":1605,"Homebound/Hospital":2287,"Correctional Facilities":439}},"Multiple disabilities":{"total":161584,"sa_total":157588,"ec_total":3996,"female":59254,"male":98304,"el_yes":16329,"el_no":141229,"race":{"AIAN":3974,"Asian":5843,"Black":23295,"Hispanic":46086,"NHPI":822,"Multi":8047,"White":73487},"ages":{"3":1501,"4":1940,"5":3806,"6":5536,"7":7376,"8":9473,"9":11473,"10":12646,"11":12689,"12":12441,"13":12732,"14":12392,"15":12773,"16":12527,"17":12067,"18":7980,"19":5235,"20":4459,"21":2538},"env":{"Inside regular class 80% or more of the day":38776,"Inside regular class 40% through 79% of the day":29523,"Inside regular class less than 40% of the day":60348,"Separate School, School Age":21534,"Residential Facility, School Age":1114,"Parentally Placed in Private Schools":1075,"Homebound/Hospital":5090,"Correctional Facilities":128}},"Orthopedic impairment":{"total":27846,"sa_total":25638,"ec_total":2208,"female":10969,"male":14664,"el_yes":3196,"el_no":22437,"race":{"AIAN":232,"Asian":1492,"Black":3416,"Hispanic":8122,"NHPI":146,"Multi":1382,"White":13051},"ages":{"3":872,"4":1086,"5":1450,"6":1763,"7":2018,"8":1969,"9":1988,"10":1938,"11":1935,"12":1942,"13":1710,"14":1800,"15":1830,"16":1853,"17":1817,"18":948,"19":398,"20":297,"21":232},"env":{"Inside regular class 80% or more of the day":15532,"Inside regular class 40% through 79% of the day":3851,"Inside regular class less than 40% of the day":4548,"Separate School, School Age":648,"Residential Facility, School Age":19,"Parentally Placed in Private Schools":388,"Homebound/Hospital":648,"Correctional Facilities":4}},"Other health impairment":{"total":1248876,"sa_total":1234765,"ec_total":14111,"female":382638,"male":851171,"el_yes":85440,"el_no":1148369,"race":{"AIAN":11419,"Asian":19795,"Black":206239,"Hispanic":308145,"NHPI":2774,"Multi":76541,"White":623006},"ages":{"3":4541,"4":7031,"5":17686,"6":34594,"7":56213,"8":79684,"9":96754,"10":107671,"11":111161,"12":112920,"13":114852,"14":115507,"15":117886,"16":116312,"17":106419,"18":38678,"19":6941,"20":2718,"21":1308},"env":{"Inside regular class 80% or more of the day":894998,"Inside regular class 40% through 79% of the day":202751,"Inside regular class less than 40% of the day":86729,"Separate School, School Age":20122,"Residential Facility, School Age":1546,"Parentally Placed in Private Schools":19594,"Homebound/Hospital":6610,"Correctional Facilities":2415}},"Specific learning disability":{"total":2517135,"sa_total":2516690,"ec_total":445,"female":1115372,"male":1400576,"el_yes":373029,"el_no":2142919,"race":{"AIAN":33138,"Asian":37344,"Black":443147,"Hispanic":890826,"NHPI":10716,"Multi":120382,"White":980831},"ages":{"3":55,"4":180,"5":2186,"6":11290,"7":54861,"8":135582,"9":215552,"10":267412,"11":272724,"12":262771,"13":252868,"14":243477,"15":243227,"16":239091,"17":216410,"18":84015,"19":11518,"20":2759,"21":1157},"env":{"Inside regular class 80% or more of the day":1983527,"Inside regular class 40% through 79% of the day":415485,"Inside regular class less than 40% of the day":71197,"Separate School, School Age":7432,"Residential Facility, School Age":696,"Parentally Placed in Private Schools":33694,"Homebound/Hospital":2419,"Correctional Facilities":2240}},"Speech or language impairment":{"total":1493912,"sa_total":1309525,"ec_total":184387,"female":460421,"male":848924,"el_yes":170039,"el_no":1139306,"race":{"AIAN":15545,"Asian":53763,"Black":183913,"Hispanic":458029,"NHPI":3354,"Multi":80890,"White":698251},"ages":{"3":53873,"4":103847,"5":176603,"6":229040,"7":225433,"8":191876,"9":151211,"10":114634,"11":75976,"12":52471,"13":37658,"14":25776,"15":19975,"16":16710,"17":13184,"18":4521,"19":748,"20":256,"21":120},"env":{"Inside regular class 80% or more of the day":1165608,"Inside regular class 40% through 79% of the day":44392,"Inside regular class less than 40% of the day":40803,"Separate School, School Age":2510,"Residential Facility, School Age":88,"Parentally Placed in Private Schools":54942,"Homebound/Hospital":1061,"Correctional Facilities":121}},"Traumatic brain injury":{"total":24266,"sa_total":23570,"ec_total":696,"female":9133,"male":14423,"el_yes":2890,"el_no":20666,"race":{"AIAN":279,"Asian":705,"Black":4018,"Hispanic":6035,"NHPI":67,"Multi":1240,"White":11908},"ages":{"3":241,"4":373,"5":420,"6":615,"7":855,"8":1088,"9":1436,"10":1805,"11":1929,"12":2044,"13":2071,"14":2160,"15":2283,"16":2433,"17":2389,"18":1194,"19":463,"20":278,"21":189},"env":{"Inside regular class 80% or more of the day":12071,"Inside regular class 40% through 79% of the day":5025,"Inside regular class less than 40% of the day":4517,"Separate School, School Age":1200,"Residential Facility, School Age":88,"Parentally Placed in Private Schools":276,"Homebound/Hospital":363,"Correctional Facilities":30}},"Visual impairment":{"total":24096,"sa_total":22870,"ec_total":1226,"female":10532,"male":12327,"el_yes":2331,"el_no":20528,"race":{"AIAN":312,"Asian":1119,"Black":3403,"Hispanic":5989,"NHPI":195,"Multi":1270,"White":11797},"ages":{"3":489,"4":575,"5":862,"6":1115,"7":1333,"8":1651,"9":1754,"10":1877,"11":1907,"12":1782,"13":1868,"14":1822,"15":1938,"16":1957,"17":1854,"18":813,"19":278,"20":130,"21":91},"env":{"Inside regular class 80% or more of the day":16288,"Inside regular class 40% through 79% of the day":2563,"Inside regular class less than 40% of the day":1760,"Separate School, School Age":1191,"Residential Facility, School Age":476,"Parentally Placed in Private Schools":414,"Homebound/Hospital":173,"Correctional Facilities":5}}},"prevTotals":{"All Disabilities":7892433,"Autism":1100401,"Deaf-blindness":1975,"Developmental delay":559951,"Emotional disturbance":317967,"Hearing impairment":68276,"Intellectual disability":426007,"Multiple disabilities":127713,"Orthopedic impairment":29273,"Other health impairment":1210640,"Specific learning disability":2445847,"Speech or language impairment":1483077,"Traumatic brain injury":24332,"Visual impairment":24430}};
 const COLL={"discipline":{"year":"2023-24","byType":{"oss_le10":566310,"oss_gt10":63750,"iss_le10":470536,"iss_gt10":21830,"iaes":12025,"hearing":550,"total_removals":2244380},"sup":{"x":0,"star":2,"na":0},"children":{"d1":230322,"d2to10":553308,"dgt10":127858,"total":911488}},"exiting":{"year":"2023-24","reasons":{"Graduated with regular high school diploma":367002,"Graduated with an alternate diploma":2473,"Received a certificate":41015,"Reached maximum age":4846,"Dropped out":60258,"Transferred to regular education":73780,"Died":1630,"Moved, known to be continuing":145394},"sup":{"x":0,"star":4,"na":0}},"personnel":{"year":"2023-24","teachers_cert":449896,"teachers_notcert":45278,"teachers_total":495174,"paras_qual":546157,"paras_notqual":40926,"paras_total":587082,"sup":{"x":0,"star":1,"na":0}},"partc_count":{"year":"2024-25","total":458920,"settings":{"Home":406921,"Community-Based Setting":35999,"Other Setting":16000},"race":{"Hispanic":133141,"AIAN":3117,"Asian":17771,"Black":57532,"NHPI":1307,"White":200844,"Multi":22896},"sex":{"Male":277907,"Female":180987},"sup":{"x":0,"star":0,"na":0}},"partc_exit":{"year":"2023-24","reasons":{"Completion of IFSP prior to max age":45694,"Part B eligible, exiting Part C":153444,"Part B eligible, Continuing in Part C":25456,"Not eligible Part B - exit with no referrals":18273,"Not eligible Part B - exit to other program":20782,"Part B eligibility not determined":70622,"Moved out of state":14248,"Withdrawal by parent":66924,"Attempts to contact unsuccessful":31890,"Deceased":806},"sup":{"x":0,"star":1,"na":0}},"assessment":{"year":"2023-24","math_prof":645810,"math_part":3763441,"read_prof":713641,"read_part":3752424,"math_rate":17.2,"read_rate":19.0,"sup":{"x":12,"star":0,"na":0}}};
 /* ============ HELPERS ============ */
-const fmt=n=>n==null?', ':n.toLocaleString();
+const fmt=n=>n==null?'–':n.toLocaleString();
 const fmtK=n=>n==null?', ':(n*1000).toLocaleString();
 const pct=(a,b)=>b?(a/b*100):0;
 function shade(hex,a){const c=hex.replace('#','');const r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);return`rgba(${r},${g},${b},${a})`;}
@@ -13678,11 +13692,12 @@ function renderStateDetail(){
 /* ============ STATE TABLE ============ */
 let sortCol=4,sortDir=-1;
 function renderTable(){
+ const _asort=c=>{ if((c==='g'?'g':+c)!==sortCol)return 'none'; return sortDir<0?'descending':'ascending'; };
  const head=`<tr>
-  <th data-c="0">State</th>
-  <th data-c="1">2000–01</th><th data-c="3">2022–23</th>
-  <th data-c="4">2024–25</th><th data-c="g">Growth ’00→’24</th>
-  <th data-c="5">Percent of enrollment</th></tr>`;
+  <th scope="col" data-c="0" aria-sort="${_asort('0')}">State</th>
+  <th scope="col" data-c="1" aria-sort="${_asort('1')}">2000–01</th><th scope="col" data-c="3" aria-sort="${_asort('3')}">2022–23</th>
+  <th scope="col" data-c="4" aria-sort="${_asort('4')}">2024–25</th><th scope="col" data-c="g" aria-sort="${_asort('g')}">Growth ’00→’24</th>
+  <th scope="col" data-c="5" aria-sort="${_asort('5')}">Percent of enrollment</th></tr>`;
  document.querySelector('#stateTable thead').innerHTML=head;
  const max=Math.max(...STATES.map(s=>s[4]));
  const rows=[...STATES].sort((a,b)=>{
@@ -13692,13 +13707,19 @@ function renderTable(){
  document.querySelector('#stateTable tbody').innerHTML=rows.map(s=>{
   const g=((s[4]-s[1])/s[1]*100), w=(s[4]/max*70).toFixed(0);
   return `<tr data-s="${s[0]}" class="${s[0]===focusState?'sel':''}">
-   <td>${s[0]}</td><td>${fmt(s[1])}</td><td>${fmt(s[3])}</td>
+   <th scope="row">${s[0]}</th><td>${fmt(s[1])}</td><td>${fmt(s[3])}</td>
    <td><span class="bar-mini" style="width:${w}px;background:${s[0]===focusState?'#cc5a33':'#005ea2'}"></span>&nbsp;${fmt(s[4])}</td>
    <td style="color:${g>=0?'#1a9850':'#c0392b'};font-weight:600">${g>=0?'+':''}${g.toFixed(0)}%</td>
    <td>${s[5]}%</td></tr>`;}).join('');
- document.querySelectorAll('#stateTable thead th').forEach(th=>th.onclick=()=>{
-   const c=th.dataset.c;const cc=(c==='g')?'g':+c;
-   if(sortCol===cc)sortDir*=-1;else{sortCol=cc;sortDir=-1;}renderTable();});
+ document.querySelectorAll('#stateTable thead th').forEach(th=>{
+   const sort=()=>{const c=th.dataset.c;const cc=(c==='g')?'g':+c;
+     if(sortCol===cc)sortDir*=-1;else{sortCol=cc;sortDir=-1;}renderTable();
+     const nh=document.querySelector('#stateTable thead th[data-c="'+c+'"]');if(nh)nh.focus();};
+   th.onclick=sort;
+   th.setAttribute('role','button');th.tabIndex=0;
+   th.setAttribute('aria-label',th.textContent+', sortable column');
+   th.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sort();}};
+ });
  document.querySelectorAll('#stateTable tbody tr').forEach(tr=>tr.onclick=()=>{
    focusState=tr.dataset.s;document.getElementById('stateSel').value=focusState;afterStateChange();});
 }
@@ -14453,7 +14474,23 @@ function renderStateRankBanner(){
  var metricText=m==='v2024'?'Children and Students with Disabilities served under IDEA, Part B, ages 3 through 21, School Year 2024–25':(m==='growth'?'growth in Children and Students with Disabilities served under IDEA, Part B, ages 3 through 21, School Years 2000–01 to 2024–25':'Children and Students with Disabilities served under IDEA, Part B, ages 3 through 21, as a percent of public-school enrollment, School Year 2022–23');
  var valueText=m==='growth'?'change from School Year 2000–01 to School Year 2024–25':(m==='v2024'?'reported child count for School Year 2024–25':'percent of public-school enrollment for School Year 2022–23');
  var expl='<b>'+meta.f(val)+'</b> is the selected value for '+focusState+' and represents the '+valueText+'. The median State value is <b>'+meta.f(med)+'</b>, the middle value when the 50 States and the District of Columbia are sorted for this measure. Rank #1 is the highest value. Additional IDEA reporting entities are displayed separately and are not included in this ranking.';
- el.innerHTML='<div class="rk-txt"><b>'+focusState+'</b> ranks <span class="rk-num">#'+rank+'</span> of '+rows.length+' for '+metricText+'.</div><div class="rk-sub"><b>'+meta.f(val)+'</b> selected value · Median State: <b>'+meta.f(med)+'</b></div><details class="rank-more"><summary>How to read this rank</summary><div>'+expl+'</div></details>';
+ el.innerHTML='<div class="rk-txt"><b>'+focusState+'</b> ranks <span class="rk-num">#'+rank+'</span> of '+rows.length+' for '+metricText+'.</div><div class="rk-sub"><b>'+meta.f(val)+'</b> selected value · Median State: <b>'+meta.f(med)+'</b></div>'+stateAutoInsight(s)+'<details class="rank-more"><summary>How to read this rank</summary><div>'+expl+'</div></details>';
+}
+/* Plain-language synthesized takeaway for the selected State: trend + identification rate vs. the average across States. */
+function stateAutoInsight(s){
+ try{
+  if(!s)return '';
+  var cnt=s[4], grw=((s[4]-s[1])/s[1]*100), rate=s[5];
+  var avgRate=STATES.reduce(function(t,x){return t+x[5];},0)/STATES.length;
+  var diff=rate-avgRate;
+  var trend = grw>=0.5 ? ('up <b>'+grw.toFixed(0)+'%</b> since 2000–01')
+            : grw<=-0.5 ? ('down <b>'+Math.abs(grw).toFixed(0)+'%</b> since 2000–01')
+            : 'about level with 2000–01';
+  var cmp = Math.abs(diff)<0.4 ? 'about the same as'
+          : (diff>0?'higher than':'lower than');
+  var cmpWord = Math.abs(diff)<0.4 ? '' : (diff>0?'<b>'+diff.toFixed(1)+' points higher</b> than ':'<b>'+Math.abs(diff).toFixed(1)+' points lower</b> than ');
+  return '<div class="rk-insight"><span class="rk-insight-ic" aria-hidden="true">💡</span><span>In 2024–25, <b>'+focusState+'</b> served <b>'+fmt(cnt)+'</b> students under IDEA Part&nbsp;B, '+trend+'. At <b>'+rate+'%</b> of public-school enrollment, its identification rate is '+(cmpWord||(cmp+' '))+'the <b>'+avgRate.toFixed(1)+'%</b> average across States.</span></div>';
+ }catch(e){return '';}
 }
 
 
@@ -17079,6 +17116,56 @@ try{setupStateSubtabs();}catch(e){}
 try{var _iv=document.body.getAttribute('data-view'); if(VIEW_SUBTABS[_iv])applyViewSubtabs(_iv,VIEW_SUBTABS[_iv]);}catch(e){}
 try{buildAdditionalCollections();}catch(e){}
 try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},120);}catch(e){}
+
+/* ============ SUPPRESSED / NOT-AVAILABLE DATA EXPLAINER ============
+   IDEA 618 data is full of blanks and suppressed cells. People misread a blank
+   as a zero. This decorates marker cells in any data table with a hover/focus
+   tooltip explaining what the marker means, without touching the render code. */
+(function(){
+  var EXPLAIN={
+    '–':'Not available — this value was not reported or not collected for this year.',
+    '—':'Not available — this value was not reported or not collected for this year.',
+    '-':'Not available — this value was not reported or not collected for this year.',
+    'x':'Suppressed — the count was too small to report without risking identifying a student.',
+    'X':'Suppressed — the count was too small to report without risking identifying a student.',
+    '*':'Suppressed for data-quality reasons — the reported value did not meet quality standards.',
+    '★':'Suppressed for data-quality reasons — the reported value did not meet quality standards.',
+    '‡':'Suppressed for data-quality reasons — the reported value did not meet quality standards.'
+  };
+  function decorate(root){
+    if(!root||!root.querySelectorAll)return;
+    var cells=root.querySelectorAll('table td, table th');
+    for(var i=0;i<cells.length;i++){
+      var c=cells[i];
+      if(c.getAttribute('data-sup')==='1')continue;
+      if(c.querySelector('*'))continue; /* only plain-text cells, never wrap markup */
+      var t=(c.textContent||'').trim();
+      var msg=EXPLAIN[t];
+      if(!msg)continue;
+      c.setAttribute('data-sup','1');
+      var s=document.createElement('span');
+      s.className='supcell';s.textContent=t;s.tabIndex=0;
+      s.setAttribute('title',msg);
+      s.setAttribute('aria-label',t+': '+msg);
+      c.textContent='';c.appendChild(s);
+    }
+  }
+  function decorateAll(){ try{ decorate(document.body); }catch(e){} }
+  decorateAll();
+  /* Re-decorate when views re-render (tables are rebuilt on state/category change) */
+  try{
+    var mo=new MutationObserver(function(muts){
+      for(var i=0;i<muts.length;i++){
+        var m=muts[i];
+        for(var j=0;j<m.addedNodes.length;j++){
+          var n=m.addedNodes[j];
+          if(n.nodeType===1){ if(n.tagName==='TABLE'||n.querySelector&&n.querySelector('table')||n.closest&&n.closest('table')) decorate(n.closest? (n.closest('table')||n):n); }
+        }
+      }
+    });
+    mo.observe(document.body,{childList:true,subtree:true});
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
