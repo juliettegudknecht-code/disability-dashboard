@@ -5868,6 +5868,24 @@ body.pink .home-hero{background:linear-gradient(135deg,#a8266e 0%,#e64980 55%,#f
 body.pink .home-hero::after{color:rgba(255,255,255,.08)}
 body.pink .hh-eyebrow{color:#ffe3ef}
 body.pink .hh-50{background:#fff0f6;color:#a8266e}
+/* EVEN MORE PINK: push the theme across the chrome */
+body.pink{--bg:#ffe3ef;--card:#fff6fb;--muted:#a3617f;--line:#ffc4dd;--line2:#fff0f7;--navy:#a8266e;--primary:#e6398a;--gold:#ff7eb3;--shadow:0 1px 2px rgba(168,38,110,.08),0 6px 20px rgba(168,38,110,.12);--shadow-h:0 12px 30px rgba(168,38,110,.20)}
+body.pink .govbar{background:#ffd0e4!important;color:#a8266e!important}
+body.pink .govbar a{color:#c2185b!important}
+body.pink .section-title{color:#c2185b}
+body.pink .card,body.pink .kpi,body.pink .a11y-card{border-color:#ffc4dd}
+body.pink .home-hero{background:linear-gradient(135deg,#a8266e 0%,#e6398a 50%,#ff8fc8 100%)}
+body.pink .tab.active,body.pink .vst-btn.vst-active{background:#e6398a}
+body.pink::-webkit-scrollbar{width:12px}
+body.pink::-webkit-scrollbar-thumb{background:#f06aa8;border-radius:8px}
+body.pink::-webkit-scrollbar-track{background:#ffe3ef}
+/* Pink fairy cursor */
+body.pink,body.pink *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M14 1l2.6 8.4L25 12l-8.4 2.6L14 23l-2.6-8.4L3 12l8.4-2.6z' fill='%23ff3d9a'/%3E%3Ccircle cx='14' cy='12' r='2.2' fill='%23fff'/%3E%3C/svg%3E") 14 12, auto}
+body.pink a,body.pink button,body.pink summary,body.pink [role=button],body.pink .tab,body.pink select,body.pink input{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M14 1l2.6 8.4L25 12l-8.4 2.6L14 23l-2.6-8.4L3 12l8.4-2.6z' fill='%23ff1f8a'/%3E%3Ccircle cx='14' cy='12' r='2.4' fill='%23fff'/%3E%3C/svg%3E") 14 12, pointer}
+/* Pink glitter dust particles */
+.pink-glitter{position:fixed;z-index:2147483000;pointer-events:none;border-radius:50%;background:radial-gradient(circle,#fff 0%,#ff8fc8 45%,#ff2f93 100%);box-shadow:0 0 6px 1px rgba(255,47,147,.7);animation:glitterFall .95s ease-out forwards}
+@keyframes glitterFall{0%{opacity:1;transform:translate(0,0) scale(1) rotate(0)}100%{opacity:0;transform:translate(var(--gx,0),var(--gy,42px)) scale(.25) rotate(200deg)}}
+@media (prefers-reduced-motion: reduce){.pink-glitter{display:none}}
 .a11y-card ul{margin:0;padding-left:18px}
 .a11y-card li{margin:0 0 8px;line-height:1.5;color:var(--ink)}
 .a11y-card li:last-child{margin-bottom:0}
@@ -12463,7 +12481,6 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <div id="pwGate" role="dialog" aria-modal="true" aria-labelledby="pwGateTitle">
   <div class="gate-card">
-    <div class="gate-eyebrow">Individuals with Disabilities Education Act &middot; Section&nbsp;618</div>
     <h2 id="pwGateTitle">IDEA Section 618 Data Tool</h2>
     <p>Enter the password to continue.</p>
     <form id="pwGateForm" autocomplete="off">
@@ -12625,8 +12642,8 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     <div class="welcome-head">
       <button type="button" class="welcome-x" id="welcomeClose" aria-label="Close guide">×</button>
       <div class="welcome-ey">Start here</div>
-      <h2 id="welcomeTitle">Four ways into the data</h2>
-      <p>Each year the U.S. Department of Education publishes data, under IDEA Section&nbsp;618, on the children and students with disabilities that schools serve. This tool puts it all in one place. You don't need to be a data person to use it. Most people start with one of these:</p>
+      <h2 id="welcomeTitle">About this data tool</h2>
+      <p>Under IDEA Section&nbsp;618, the States and outlying areas report annual data on children and students with disabilities served under IDEA, Part&nbsp;B, to the U.S. Department of Education. This tool presents those data by State, year, disability category, and educational environment. The following views are available:</p>
     </div>
     <div class="welcome-grid">
       <button type="button" class="wtask" data-go="states">
@@ -13130,73 +13147,73 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <div class="view" data-view="accessibility" role="tabpanel" aria-label="Accessibility features">
 <h2 class="section-title" id="accessibility">Accessibility features</h2>
-<p class="viewlead">Good accessibility is not a special version of the tool, it is the tool working the way you do, whether that means a keyboard instead of a mouse, a screen reader, a screen magnifier, or a calmer page with less motion and plainer words. The features below are grouped by who they help most, because designing for one specific need almost always makes the data clearer for everyone. Every setting lives in the <b>Access</b> menu at the top of the page, you can turn any of them on or off at any time, and the choices you make are remembered the next time you open the tool.</p>
+<p class="viewlead">Accessibility is treated as part of the accuracy of this data tool rather than a separate version of it. The features below support a range of access needs, including use with a keyboard, a screen reader, or a screen magnifier, and use of a calmer page with reduced motion and plainer wording. Features are grouped by the access need they address most directly. Designing for one specific need generally makes the data clearer for all users. Every setting is located in the <b>Access</b> menu at the top of the page. Each setting can be turned on or off at any time, and the selections made are retained the next time the tool is opened.</p>
 <div class="a11y-page">
   <details class="a11y-card">
     <summary><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="a11y-sum-t">Seeing the data clearly</span></summary>
     <div class="a11y-body">
-      <p class="a11y-blurb">For low vision, light sensitivity, and anyone who magnifies the page.</p>
+      <p class="a11y-blurb">For users with low vision or light sensitivity, and users who magnify the page.</p>
       <ul>
-        <li><b>Dark mode</b> switches the whole tool to a darker color theme, which is easier on the eyes in low light and for anyone who finds bright white backgrounds tiring.</li>
-        <li><b>High contrast</b> strengthens the difference between text and its background, so labels, numbers, and chart lines stay legible when ordinary contrast is not enough.</li>
-        <li><b>Larger text</b> offers three sizes, A, A+, and A++, and each one scales the entire page rather than just one heading, so charts, tables, and menus all grow together.</li>
-        <li><b>Colorblind-safe palette</b> recolors the charts with a set of hues chosen to stay distinct for the common forms of color vision difference.</li>
-        <li><b>Underline links</b> adds an underline to every link, so that color is never the only way to tell a link apart from the text around it.</li>
-        <li><b>Responsive layout</b> means the page reflows to fit phones, tablets, and desktops, and stays usable when you zoom your browser all the way up to 400 percent.</li>
+        <li><b>Dark mode</b> changes the tool to a darker color theme, which reduces strain in low light and for users who find bright backgrounds tiring.</li>
+        <li><b>High contrast</b> increases the difference between text and its background so that labels, numbers, and chart lines remain legible when standard contrast is insufficient.</li>
+        <li><b>Larger text</b> provides three sizes, A, A+, and A++, each of which scales the entire page rather than a single heading, so that charts, tables, and menus enlarge together.</li>
+        <li><b>Colorblind-safe palette</b> recolors the charts using hues selected to remain distinct for the common forms of color vision difference.</li>
+        <li><b>Underline links</b> adds an underline to every link so that color is not the only means of distinguishing a link from surrounding text.</li>
+        <li><b>Responsive layout</b> reflows the page to fit phones, tablets, and desktops, and remains usable at browser zoom up to 400 percent.</li>
       </ul>
     </div>
   </details>
   <details class="a11y-card">
     <summary><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="a11y-sum-t">Reading, focus, and avoiding overwhelm</span></summary>
     <div class="a11y-body">
-      <p class="a11y-blurb">For neurodivergent readers, anyone newer to the policy vocabulary, and anyone who finds a busy, moving page hard to settle into.</p>
+      <p class="a11y-blurb">For neurodivergent readers, users less familiar with policy vocabulary, and users who find a busy or moving page difficult.</p>
       <ul>
-        <li><b>Plain language</b> swaps the technical and legal wording used across the tool for everyday words, so you can follow the data without already knowing the policy vocabulary behind it.</li>
-        <li><b>Chart descriptions</b> let every chart show a written summary of what it shows, for anyone who simply takes in words more easily than graphics.</li>
-        <li><b>Data takeaways</b> add a short one-line summary of the main finding to the key views, so the central point is stated in plain words rather than left for you to work out from the chart alone.</li>
-        <li><b>Reduce motion</b> turns off the chart and tile animations for a calmer, steadier page, and it also respects the reduce-motion setting you may already have turned on in your device or browser.</li>
-        <li><b>Animations</b> is a separate switch that lets you turn the animations on or off directly, whenever you prefer things to appear without movement.</li>
+        <li><b>Plain language</b> replaces the technical and legal wording used across the tool with everyday terms, so that the data can be followed without prior knowledge of the underlying policy vocabulary.</li>
+        <li><b>Chart descriptions</b> provide a written summary of what each chart shows, for users who take in text more readily than graphics.</li>
+        <li><b>Data takeaways</b> add a one-line summary of the main finding to the key views, stating the central point in plain words rather than requiring it to be derived from the chart alone.</li>
+        <li><b>Reduce motion</b> turns off chart and tile animations for a steadier page, and respects the reduce-motion setting that may already be enabled in the device or browser.</li>
+        <li><b>Animations</b> is a separate control that turns the animations on or off directly, for users who prefer content to appear without movement.</li>
       </ul>
     </div>
   </details>
   <details class="a11y-card">
     <summary><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg></span><span class="a11y-sum-t">Moving through the tool</span></summary>
     <div class="a11y-body">
-      <p class="a11y-blurb">For keyboard-only users, screen reader users, and anyone who does not navigate with a mouse.</p>
+      <p class="a11y-blurb">For keyboard-only users, screen reader users, and users who do not navigate with a mouse.</p>
       <ul>
-        <li><b>Skip link</b>: pressing <kbd>Tab</kbd> as soon as the page loads brings up a link that jumps you straight past the menus and into the data.</li>
-        <li><b>Keyboard navigation</b>: every control, tab, menu, and switch can be reached and operated with the keyboard alone, and a visible focus outline always shows you where you are.</li>
-        <li><b>Sortable tables</b>: the column headers are buttons you can move to with the keyboard and activate with <kbd>Enter</kbd> or <kbd>Space</kbd>, and the new sort order is announced.</li>
-        <li><b>Table structure</b>: every table is built with real column and row headers, so a screen reader announces each value together with the row and column it belongs to.</li>
-        <li><b>Labeled charts and live regions</b>: charts carry descriptive labels, and when you change a selection that change is announced, so you can tell what the chart is now showing without seeing it.</li>
+        <li><b>Skip link</b>: pressing <kbd>Tab</kbd> when the page loads reveals a link that moves focus past the menus directly to the data.</li>
+        <li><b>Keyboard navigation</b>: every control, tab, menu, and switch can be reached and operated with the keyboard alone, and a visible focus outline indicates the current location.</li>
+        <li><b>Sortable tables</b>: column headers are buttons that can be reached with the keyboard and activated with <kbd>Enter</kbd> or <kbd>Space</kbd>, and the resulting sort order is announced.</li>
+        <li><b>Table structure</b>: every table uses real column and row headers, so that a screen reader announces each value together with the row and column to which it belongs.</li>
+        <li><b>Labeled charts and live regions</b>: charts carry descriptive labels, and when a selection changes the change is announced, so that the current content of the chart can be determined without sight.</li>
       </ul>
     </div>
   </details>
   <details class="a11y-card">
     <summary><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><span class="a11y-sum-t">Understanding what the numbers mean</span></summary>
     <div class="a11y-body">
-      <p class="a11y-blurb">For everyone, because a blank or marked cell should never be mistaken for a real value.</p>
+      <p class="a11y-blurb">For all users, so that a blank or marked cell is not mistaken for a reported value.</p>
       <ul>
-        <li><b>Suppressed-data explainers</b>: when a table shows a “–”, an “x”, or an “*” in place of a number, you can hover over it or move keyboard focus to it to read why that value is missing or has been withheld.</li>
-        <li><b>Suppression key</b>: the full legend is always in the sources note at the bottom of the page, where <b>x</b> means suppressed because the cell size was small, <b>*</b> means suppressed for data-quality reasons, and <b>–</b> means the value was not available in the first place.</li>
+        <li><b>Suppressed-data explainers</b>: when a table displays a dash, an x, or an asterisk in place of a number, hovering over the marker or moving keyboard focus to it shows why the value is missing or has been withheld.</li>
+        <li><b>Suppression key</b>: the full legend appears in the sources note at the bottom of the page, where x indicates a value suppressed because of a small cell size, an asterisk indicates a value suppressed for data-quality reasons, and a dash indicates a value that was not available.</li>
       </ul>
     </div>
   </details>
   <details class="a11y-card">
     <summary><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20M7 4v16M17 4v16"/></svg></span><span class="a11y-sum-t">A note on audio and video</span></summary>
     <div class="a11y-body">
-      <p class="a11y-blurb">What this tool does not need, and why.</p>
+      <p class="a11y-blurb">The tool contains no audio or video, and the reason is noted below.</p>
       <ul>
-        <li>This is a text-and-chart data tool with no audio or video, so it does not need captions, audio descriptions, or transcripts.</li>
-        <li>Everything here is built to be read instead: the words, the tables, and the charts are written so a screen reader can speak them, and the descriptions and takeaways above carry the meaning a chart would otherwise show only by sight.</li>
+        <li>This is a text-and-chart data tool with no audio or video, and therefore it does not require captions, audio descriptions, or transcripts.</li>
+        <li>All content is presented to be read: the text, tables, and charts are written so that a screen reader can convey them, and the chart descriptions and data takeaways above carry the meaning that a chart would otherwise present visually.</li>
       </ul>
     </div>
   </details>
   <details class="a11y-card a11y-card-note">
     <summary><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span><span class="a11y-sum-t">Standards and feedback</span></summary>
     <div class="a11y-body">
-      <p>This tool is built to meet WCAG 2.1 Level AA, the widely used international standard for accessible websites, and the display, motion, and reading choices you make are saved in your own browser so the tool opens the way you left it next time.</p>
-      <p>None of that is a substitute for hearing from the people who actually use it. If anything here is hard to use with a screen reader, a keyboard, a magnifier, or any other assistive technology, please tell me. I treat accessibility as part of getting the data right, not as an extra.</p>
+      <p>This tool is built to meet WCAG 2.1 Level AA, the widely used international standard for accessible websites. The display, motion, and reading selections made by the user are saved in the user's own browser, so that the tool opens in the same state on the next visit.</p>
+      <p>Conformance with a standard does not replace feedback from the people who use the tool. If any feature is difficult to use with a screen reader, a keyboard, a magnifier, or other assistive technology, an accessibility-feedback note may be submitted using the link below. Reports are used to improve the accuracy and usability of the data tool.</p>
       <p><a class="feedback-btn" id="a11yFeedbackBtn" href="#">Send feedback</a></p>
     </div>
   </details>
@@ -16197,10 +16214,7 @@ function updateVintageBadge(v){
   var txt=VIEW_VINTAGE[v];
   /* Remove any existing badges first (the subtab layout can move them), then insert exactly one. */
   view.querySelectorAll('.vintage-badge').forEach(function(b){b.remove();});
-  if(!txt)return;
-  var badge=document.createElement('div');badge.className='vintage-badge';
-  badge.textContent='Years shown: '+txt;
-  h.parentNode.insertBefore(badge,h.nextSibling);
+  return; /* badge removed: the year range is stated in each card's source note */
 }
 
 /* ---- animated count-ups (respects reduce motion) ---- */
@@ -16927,8 +16941,8 @@ function buildTrendsOverview(){
   <div class="home-hero">
     <div class="home-hero-inner">
       <div class="hh-eyebrow"><span class="hh-50">50</span> Years of IDEA &nbsp;&middot;&nbsp; 1975&ndash;2025</div>
-      <h2 class="hh-title">Fifty years of special education data.</h2>
-      <p class="hh-sub">Counts of children and students with disabilities served under IDEA, as reported by the States each year, from School Year 1976&ndash;77 to today.</p>
+      <h2 class="hh-title">Fifty years of IDEA child count and educational environments data.</h2>
+      <p class="hh-sub">Counts of children and students ages 3 through 21 served under IDEA, Part&nbsp;B, as reported by the States and outlying areas for each school year from 1976&ndash;77 through the most recent year available.</p>
     </div>
   </div>
   <details class="lead-fold"><summary>About this page</summary>
@@ -17520,6 +17534,29 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
     }
   });
   try{ new MutationObserver(function(){wireTitles();}).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+})();
+
+/* ============ PINK FAIRY GLITTER (only while Pink mode is on) ============ */
+(function(){
+  var last=0, reduce=false;
+  try{ reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+  function spawn(x,y){
+    for(var i=0;i<3;i++){
+      var s=document.createElement('span'); s.className='pink-glitter';
+      var sz=4+Math.random()*7;
+      s.style.left=(x+(Math.random()*22-11))+'px'; s.style.top=(y+(Math.random()*10-5))+'px';
+      s.style.width=s.style.height=sz+'px';
+      s.style.setProperty('--gx',(Math.random()*36-18)+'px');
+      s.style.setProperty('--gy',(28+Math.random()*46)+'px');
+      document.body.appendChild(s);
+      (function(el){setTimeout(function(){el.remove();},950);})(s);
+    }
+  }
+  document.addEventListener('mousemove',function(e){
+    if(reduce||!document.body.classList.contains('pink'))return;
+    var now=Date.now(); if(now-last<28)return; last=now;
+    spawn(e.clientX,e.clientY);
+  },{passive:true});
 })();
 
 /* ============ SAVED / PINNED VIEWS ============
