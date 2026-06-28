@@ -5650,7 +5650,18 @@ body.hc .dd-card,body.hc .dd-kpi{border-width:2px}
   color:#fff;
   box-shadow:var(--shadow);
   border-bottom:3px solid var(--gold);
+  position:relative;
+  overflow:hidden;
 }
+/* Faint silhouette of the selected state behind the rank text */
+.rankbanner>*{position:relative;z-index:1}
+.rankbanner .rk-shape{
+  position:absolute;z-index:0;top:50%;right:1.5%;transform:translateY(-50%);
+  width:42%;max-width:330px;height:128%;
+  background-repeat:no-repeat;background-position:right center;background-size:contain;
+  opacity:.13;pointer-events:none;
+}
+@media(max-width:640px){.rankbanner .rk-shape{opacity:.09;width:55%}}
 .rankbanner .rk-emoji{
   font-size:1.35rem;
   color:var(--gold);
@@ -14710,7 +14721,31 @@ function loadMap(){
     .on('mouseleave',()=>document.getElementById('maptip').style.opacity=0)
     .on('click',function(){const n=this.getAttribute('data-name');if(n&&STATES.find(s=>s[0]===n)){focusState=n;document.getElementById('stateSel').value=n;afterStateChange();}});
   mapReady=true;colorMap();
+  try{_buildStateShapeCache();if(typeof focusState!=='undefined'&&focusState&&STATES.find(function(x){return x[0]===focusState;}))renderStateRankBanner();}catch(e){}
  }catch(e){box.innerHTML='<div class="mapfallback">The ranked bar chart and table below show the same state data.</div>';}
+}
+/* Faint state-silhouette watermark for the rank banner: pull each state's projected
+   path out of the rendered map and cache it as a self-contained SVG data URI. */
+var STATE_SHAPE_URI={};
+function _buildStateShapeCache(){
+ try{
+  if(Object.keys(STATE_SHAPE_URI).length)return;
+  if(typeof d3==='undefined'||typeof topojson==='undefined'||typeof US_ATLAS==='undefined'||typeof FIPS==='undefined')return;
+  /* compute the projected paths + bounds straight from the atlas (no DOM, so it works
+     even while the map section is hidden) */
+  var W=960,H=600,fc=topojson.feature(US_ATLAS,US_ATLAS.objects.states);
+  var proj=d3.geoAlbersUsa().fitSize([W,H],fc),path=d3.geoPath(proj);
+  fc.features.forEach(function(ft){
+   var name=FIPS[String(ft.id).padStart(2,'0')]||''; if(!name||STATE_SHAPE_URI[name])return;
+   var d=path(ft); if(!d)return;
+   var b=path.bounds(ft); var x0=b[0][0],y0=b[0][1],w=b[1][0]-x0,h=b[1][1]-y0;
+   if(!(w>0)||!(h>0))return;
+   var p=Math.max(w,h)*0.04;
+   var vb=(x0-p).toFixed(1)+' '+(y0-p).toFixed(1)+' '+(w+p*2).toFixed(1)+' '+(h+p*2).toFixed(1);
+   var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+vb+'"><path d="'+d+'" fill="#ffffff"/></svg>';
+   STATE_SHAPE_URI[name]='data:image/svg+xml,'+encodeURIComponent(svg);
+  });
+ }catch(e){}
 }
 function mapTip(e,name){const t=document.getElementById('maptip');const s=STATES.find(x=>x[0]===name);
  if(!s){t.style.opacity=0;return;}const m=document.getElementById('metricSel').value;
@@ -14895,7 +14930,10 @@ function renderStateRankBanner(){
  var metricText=m==='v2024'?'Children and Students with Disabilities served under IDEA, Part B, ages 3 through 21, School Year 2024–25':(m==='growth'?'growth in Children and Students with Disabilities served under IDEA, Part B, ages 3 through 21, School Years 2000–01 to 2024–25':'Children and Students with Disabilities served under IDEA, Part B, ages 3 through 21, as a percent of public-school enrollment, School Year 2022–23');
  var valueText=m==='growth'?'change from School Year 2000–01 to School Year 2024–25':(m==='v2024'?'reported child count for School Year 2024–25':'percent of public-school enrollment for School Year 2022–23');
  var expl='<b>'+meta.f(val)+'</b> is the selected value for '+focusState+' and represents the '+valueText+'. The median State value is <b>'+meta.f(med)+'</b>, the middle value when the 50 States and the District of Columbia are sorted for this measure. Rank #1 is the highest value.';
- el.innerHTML='<div class="rk-txt"><b>'+focusState+'</b> ranks <span class="rk-num">#'+rank+'</span> of '+rows.length+' for '+metricText+'.</div><div class="rk-sub"><b>'+meta.f(val)+'</b> selected value · Median State: <b>'+meta.f(med)+'</b></div>'+stateAutoInsight(s)+'<details class="rank-more"><summary>How to read this rank</summary><div>'+expl+'</div></details>';
+ try{_buildStateShapeCache();}catch(e){}
+ var _shape=(typeof STATE_SHAPE_URI!=='undefined'&&STATE_SHAPE_URI[focusState])?'<div class="rk-shape" aria-hidden="true"></div>':'';
+ el.innerHTML=_shape+'<div class="rk-txt"><b>'+focusState+'</b> ranks <span class="rk-num">#'+rank+'</span> of '+rows.length+' for '+metricText+'.</div><div class="rk-sub"><b>'+meta.f(val)+'</b> selected value · Median State: <b>'+meta.f(med)+'</b></div>'+stateAutoInsight(s)+'<details class="rank-more"><summary>How to read this rank</summary><div>'+expl+'</div></details>';
+ try{var _sh=el.querySelector('.rk-shape');if(_sh&&STATE_SHAPE_URI[focusState])_sh.style.backgroundImage="url('"+STATE_SHAPE_URI[focusState]+"')";}catch(e){}
 }
 /* Plain-language synthesized takeaway for the selected State: trend + identification rate vs. the average across States. */
 function stateAutoInsight(s){
@@ -18198,6 +18236,42 @@ body.pink #pinkFairy{display:block;animation:fairyDance 34s ease-in-out infinite
 #zoomCtl #zoomPct{font-size:.74rem;font-weight:700;color:var(--muted);min-width:40px;text-align:center}
 body.pink #zoomCtl button{color:#a8266e}
 @media print{#zoomCtl{display:none}}
+
+/* ============ CHART BUILDER: floating button + modal ============ */
+#chartBuilderFab{position:fixed;right:16px;bottom:16px;z-index:2147482700;display:inline-flex;align-items:center;gap:9px;
+  padding:11px 17px 11px 14px;border:none;border-radius:999px;cursor:pointer;
+  background:linear-gradient(160deg,#1c4f74,#13354e);color:#fff;font-family:inherit;font-weight:800;font-size:.92rem;
+  box-shadow:0 8px 22px rgba(17,46,81,.34),0 2px 6px rgba(17,46,81,.3);transition:transform .15s,box-shadow .15s}
+#chartBuilderFab:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(17,46,81,.4)}
+#chartBuilderFab:active{transform:translateY(0)}
+#chartBuilderFab:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+#chartBuilderFab .cbf-ic{display:inline-flex;color:#ffd966}
+#chartBuilderFab .cbf-ic svg{width:20px;height:20px;display:block}
+body.pink #chartBuilderFab{background:linear-gradient(160deg,#c43a86,#a8266e);bottom:90px}
+body.pink #chartBuilderFab .cbf-ic{color:#ffe3ef}
+@media(max-width:560px){#chartBuilderFab .cbf-tx{display:none}#chartBuilderFab{padding:13px}}
+@media print{#chartBuilderFab,#chartBuilderModal{display:none!important}}
+
+.cb-modal{position:fixed;inset:0;z-index:2147483200;display:flex;align-items:center;justify-content:center;padding:20px}
+.cb-modal[hidden]{display:none}
+.cb-modal-backdrop{position:absolute;inset:0;background:rgba(16,28,43,.55);backdrop-filter:blur(2px)}
+.cb-dialog{position:relative;z-index:1;width:min(760px,96vw);max-height:92vh;overflow:auto;background:var(--card);border-radius:16px;
+  box-shadow:0 24px 64px rgba(0,0,0,.32);padding:20px 22px;animation:cbIn .22s cubic-bezier(.2,.8,.2,1) both}
+@keyframes cbIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.cb-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+.cb-dialog-title{margin:0;font-size:1.3rem;color:var(--navy)}
+.cb-dialog-sub{margin:3px 0 0;font-size:.85rem;color:var(--muted);line-height:1.4;max-width:60ch}
+.cb-close{flex:none;width:34px;height:34px;border:1px solid var(--line);background:var(--line2);border-radius:9px;cursor:pointer;font-size:1.3rem;line-height:1;color:var(--muted)}
+.cb-close:hover{background:var(--line);color:var(--ink)}
+.cb-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px 14px;margin-bottom:14px}
+.cb-field{display:flex;flex-direction:column;gap:4px;font-size:.74rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.cb-field select{font:inherit;text-transform:none;letter-spacing:0;font-weight:600;font-size:.92rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+.cb-card{margin:0}
+.cb-canvasbox{height:340px;position:relative}
+.cb-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+body.dark .cb-dialog{background:#12202e}
+body.pink .cb-dialog-title{color:#a8266e}
+body.pink .cb-close:hover{color:#a8266e}
 </style>
 <div id="pinkFairy" aria-hidden="true"><div class="pf-inner"><svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -18246,5 +18320,97 @@ body.pink #zoomCtl button{color:#a8266e}
   <span class="fj-speaker" aria-hidden="true"></span>
   <div id="fjYT" aria-hidden="true"></div>
 </div>
+<button id="chartBuilderFab" type="button" aria-haspopup="dialog" aria-controls="chartBuilderModal" title="Build a custom chart from the IDEA Section 618 data">
+  <span class="cbf-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="12" width="4" height="8" rx="1" fill="currentColor"/><rect x="10" y="7" width="4" height="13" rx="1" fill="currentColor"/><rect x="17" y="3" width="4" height="17" rx="1" fill="currentColor"/></svg></span>
+  <span class="cbf-tx">Build a chart</span>
+</button>
+<div id="chartBuilderModal" class="cb-modal" hidden role="dialog" aria-modal="true" aria-label="Chart builder">
+  <div class="cb-modal-backdrop" data-cb-close></div>
+  <div class="cb-dialog" role="document">
+    <div class="cb-dialog-head">
+      <div><h2 class="cb-dialog-title">Chart builder</h2><p class="cb-dialog-sub" id="cbSub">Pick a collection, breakdown, and state, then choose a chart type.</p></div>
+      <button type="button" class="cb-close" data-cb-close aria-label="Close chart builder">×</button>
+    </div>
+    <div class="cb-controls">
+      <label class="cb-field"><span>Collection</span><select id="cbColl"></select></label>
+      <label class="cb-field"><span>Breakdown</span><select id="cbBreak"></select></label>
+      <label class="cb-field"><span>State or entity</span><select id="cbState"></select></label>
+      <label class="cb-field"><span>Chart type</span><select id="cbType"><option value="bar">Bar</option><option value="doughnut">Donut</option><option value="pie">Pie</option><option value="bubble">Bubble</option></select></label>
+    </div>
+    <div class="card tbl-card cb-card" data-viz-card="cbChart" id="cbCardHost">
+      <div class="tbl-viz-canvasbox cb-canvasbox"><canvas id="cbChart_cv" class="tbl-viz-canvas" aria-label="Custom chart"></canvas></div>
+      <div class="tbl-viz-note" id="cbChart_note"></div>
+      <div class="cb-actions"><button type="button" class="tbl-viz-dlbtn" id="cbPng">⤓ PNG</button><button type="button" class="tbl-viz-dlbtn" id="cbCsv">⤓ CSV</button></div>
+    </div>
+  </div>
+</div>
+<script>
+/* ============ CHART BUILDER (floating "Build a chart" tool) ============
+   Reuses the SEA Tables spec + viz pipeline: register a synthetic spec under the
+   id "cbChart" and call _renderVizChart, so any collection/breakdown/state can be
+   charted from anywhere via the floating button. */
+(function(){
+  var CB='cbChart';
+  function $(id){return document.getElementById(id);}
+  function ready(fn){ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fn); else fn(); }
+  ready(function(){
+    var fab=$('chartBuilderFab'), modal=$('chartBuilderModal');
+    var cbColl=$('cbColl'),cbBreak=$('cbBreak'),cbState=$('cbState'),cbType=$('cbType'),cbSub=$('cbSub');
+    if(!fab||!modal||!cbColl)return;
+    var built=false;
+    function breakLabel(sp){
+      var t=(typeof _stripHtml==='function'?_stripHtml(sp.title||''):(sp.title||''));
+      var m=t.match(/\bby ([^.]*?) and (?:state|publication|year)/i);
+      var by=(m?m[1]:(sp.rowHeader||'breakdown')).replace(/\s+/g,' ').trim();
+      var am=t.match(/ages?\s+\d+[^,.]*?(?:through|to)\s*\d+/i);
+      var age=am?am[0].replace(/\b(students?|children?)\b/ig,'').replace(/\s+/g,' ').trim():'';
+      var lab=by.charAt(0).toUpperCase()+by.slice(1);
+      return age?(lab+' · '+age):lab;
+    }
+    function specsFor(coll){ try{return (typeof TBL_SPECS!=='undefined'&&TBL_SPECS[coll])?TBL_SPECS[coll]():[];}catch(e){return [];} }
+    function fillColl(){
+      if(typeof TBL_SPECS==='undefined'||typeof COLL_META==='undefined')return;
+      cbColl.innerHTML=Object.keys(TBL_SPECS).filter(function(k){return COLL_META[k];}).map(function(k){
+        return '<option value="'+k+'">'+(COLL_META[k].part?('Part '+COLL_META[k].part+' · '):'')+COLL_META[k].name+'</option>';
+      }).join('');
+    }
+    function fillBreak(){
+      var specs=specsFor(cbColl.value),seen={};
+      cbBreak.innerHTML=specs.map(function(sp,i){var l=breakLabel(sp);if(seen[l]){seen[l]++;l+=' ('+seen[l]+')';}else seen[l]=1;return '<option value="'+i+'">'+l+'</option>';}).join('');
+    }
+    function fillState(){
+      var opts=['<option value="__US__">U.S. national total</option>'];
+      var names=(typeof STATES!=='undefined')?STATES.map(function(s){return s[0];}).slice().sort():[];
+      names.forEach(function(n){opts.push('<option value="'+n+'">'+n+'</option>');});
+      cbState.innerHTML=opts.join('');
+    }
+    function render(){
+      if(typeof TBL_SPECS==='undefined'||typeof _renderVizChart!=='function')return;
+      var specs=specsFor(cbColl.value),sp=specs[+cbBreak.value||0]; if(!sp)return;
+      sp._coll=cbColl.value; sp._sid=CB;
+      var usKey=sp.usKey||'__US__';
+      var chosen=(cbState.value==='__US__')?usKey:cbState.value;
+      sp.states=[chosen];
+      window._tblSpecs=window._tblSpecs||{}; window._tblSpecs[CB]=sp;
+      var st=(typeof _vizState==='function')?_vizState(CB):null;
+      if(st){st.on=true;st.type=cbType.value;st.showUS=(chosen===usKey);st.usSet=true;st.rowIdx=null;st.metricIdx=null;st.compareOn=false;}
+      try{_renderVizChart(CB);}catch(e){}
+      if(cbSub)cbSub.textContent=(typeof _stripHtml==='function'?_stripHtml(sp.title||''):(sp.title||''));
+    }
+    function ensureBuilt(){ if(built)return; built=true; fillColl(); fillBreak(); fillState(); }
+    function open(){ ensureBuilt(); modal.hidden=false; document.body.classList.add('cb-open'); setTimeout(render,30); }
+    function close(){ modal.hidden=true; document.body.classList.remove('cb-open'); }
+    fab.addEventListener('click',open);
+    modal.addEventListener('click',function(e){ if(e.target.closest('[data-cb-close]'))close(); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!modal.hidden)close(); });
+    cbColl.addEventListener('change',function(){ fillBreak(); render(); });
+    cbBreak.addEventListener('change',render);
+    cbState.addEventListener('change',render);
+    cbType.addEventListener('change',render);
+    var pg=$('cbPng'); if(pg)pg.addEventListener('click',function(){ try{_vizPNG(CB);}catch(e){} });
+    var cs=$('cbCsv'); if(cs)cs.addEventListener('click',function(){ try{_vizCSV(CB);}catch(e){} });
+  });
+})();
+</script>
 </body>
 </html>
