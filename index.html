@@ -70,10 +70,6 @@ window.addEventListener('load', function(){ try{ document.documentElement.classL
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     transition:opacity .35s ease; }
   html.app-ready #appLoading{ opacity:0; visibility:hidden; pointer-events:none; }
-  #appLoading .al-seal{ width:64px; height:64px; border-radius:15px; background:#1c4a6e;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; line-height:1; }
-  #appLoading .al-seal b{ font-size:23px; letter-spacing:.5px; }
-  #appLoading .al-seal span{ font-size:10px; letter-spacing:1.5px; color:#edcf36; margin-top:3px; }
   #appLoading .al-spin{ width:34px; height:34px; border-radius:50%; border:3px solid rgba(255,255,255,.18);
     border-top-color:#edcf36; animation:alSpin .8s linear infinite; }
   #appLoading .al-txt{ font-size:13px; color:#cdd9e4; letter-spacing:.02em; }
@@ -5862,11 +5858,8 @@ body.dark .a11y-card h3{color:#cfe2f4}
 .a11y-page code{font-size:.86em;background:var(--line2);border-radius:4px;padding:1px 5px}
 .a11y-panel-link{display:block;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:.86rem;color:var(--primary);text-decoration:none;font-weight:600}
 .a11y-panel-link:hover{text-decoration:underline}
-/* Data vintage badge under view titles */
-.vintage-badge{display:inline-flex;align-items:center;gap:7px;margin:2px 0 14px;padding:4px 11px;font-size:.78rem;font-weight:600;color:var(--muted);background:var(--line2);border:1px solid var(--line);border-radius:999px}
-.vintage-badge .vintage-lbl{color:var(--ink);font-weight:700}
-.vintage-badge .vintage-dot{width:7px;height:7px;border-radius:50%;background:var(--good);flex:0 0 auto}
-body.dark .vintage-badge{background:rgba(255,255,255,.05)}
+/* Data vintage: a quiet caption under the view title (not a prominent pill) */
+.vintage-badge{display:block;margin:-4px 0 14px;font-size:.78rem;color:var(--muted);letter-spacing:.01em}
 /* Saved / pinned views menu */
 .pin-menu{min-width:248px;max-width:300px}
 .pin-sep{height:1px;background:var(--line);margin:6px 0}
@@ -12333,15 +12326,8 @@ body.printing .guidebtn{display:none}
   transform:translateY(14px) scale(.985);transition:transform .26s cubic-bezier(.2,.8,.2,1);
 }
 .welcome-overlay.open .welcome-modal{transform:none}
-.welcome-accent{height:6px;background:linear-gradient(90deg,var(--navy) 0%,var(--primary) 45%,var(--gold) 100%)}
-.welcome-head{padding:26px 30px 4px;position:relative;overflow:hidden}
-/* Decorative four-way crossroads watermark (matches "Four ways into the data") */
-.welcome-cross{position:absolute;top:-34px;right:-30px;width:200px;height:200px;pointer-events:none;z-index:0}
-.welcome-cross svg{width:100%;height:100%;transform:rotate(12deg)}
-.welcome-cross .wc-road{fill:var(--navy);fill-opacity:.05}
-.welcome-cross .wc-lane{stroke:var(--gold);stroke-opacity:.55;stroke-width:4;stroke-dasharray:11 9;stroke-linecap:round}
-body.dark .welcome-cross .wc-road{fill:#ffffff;fill-opacity:.05}
-.welcome-head>*:not(.welcome-cross){position:relative;z-index:1}
+.welcome-accent{height:5px;background:var(--navy)}
+.welcome-head{padding:26px 30px 4px;position:relative}
 .welcome-x{
   position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:8px;
   border:1px solid var(--line);background:var(--card);color:var(--muted);
@@ -12416,7 +12402,6 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </head>
 <body>
 <div id="appLoading" role="status" aria-live="polite" aria-label="Loading the data tool">
-  <div class="al-seal" aria-hidden="true"><b>618</b><span>DATA</span></div>
   <div class="al-spin" aria-hidden="true"></div>
   <div class="al-txt">Loading the data tool…</div>
 </div>
@@ -12585,7 +12570,6 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <div class="welcome-modal">
     <div class="welcome-accent" aria-hidden="true"></div>
     <div class="welcome-head">
-      <span class="welcome-cross" aria-hidden="true"><svg viewBox="0 0 200 200" fill="none"><rect x="84" y="0" width="32" height="200" class="wc-road"/><rect x="0" y="84" width="200" height="32" class="wc-road"/><g class="wc-lane"><line x1="100" y1="2" x2="100" y2="80"/><line x1="100" y1="120" x2="100" y2="198"/><line x1="2" y1="100" x2="80" y2="100"/><line x1="120" y1="100" x2="198" y2="100"/></g></svg></span>
       <button type="button" class="welcome-x" id="welcomeClose" aria-label="Close guide">×</button>
       <div class="welcome-ey">Start here</div>
       <h2 id="welcomeTitle">Four ways into the data</h2>
@@ -16105,15 +16089,13 @@ function showView(v,scrollId){
 }
 /* Which school year(s) each view's data covers, shown as a small badge under the title. */
 const VIEW_VINTAGE={
-  trends:'School Years 1976–77 through 2024–25',
-  home:'School Years 1976–77 through 2024–25',
-  composition:'School Year 2024–25',
-  explorer:'School Year 2024–25',
-  states:'Child count 2024–25 · enrollment share 2022–23',
-  lea:'LEA child count 2024–25 · MOE/CEIS 2021–22',
-  tables:'Latest available year per collection',
-  collections:'Latest available year per collection',
-  gpra:'Targets and actuals through 2025'
+  trends:'1976–77 to 2024–25',
+  home:'1976–77 to 2024–25',
+  composition:'2024–25',
+  explorer:'2024–25',
+  states:'child count 2024–25, enrollment 2022–23',
+  lea:'2024–25',
+  gpra:'through fiscal year 2025'
 };
 function updateVintageBadge(v){
   var view=document.querySelector('.view[data-view="'+v+'"]');
@@ -16125,7 +16107,7 @@ function updateVintageBadge(v){
   view.querySelectorAll('.vintage-badge').forEach(function(b){b.remove();});
   if(!txt)return;
   var badge=document.createElement('div');badge.className='vintage-badge';
-  badge.innerHTML='<span class="vintage-dot" aria-hidden="true"></span><span class="vintage-lbl">Data covers</span> '+txt;
+  badge.textContent='Years shown: '+txt;
   h.parentNode.insertBefore(badge,h.nextSibling);
 }
 
@@ -16882,7 +16864,7 @@ function applyViewSubtabs(viewName,cfg){
     var container=cfg.container?view.querySelector(cfg.container):view; if(!container) return;
     // (re)tag direct children every call (renderExplorer etc. can wipe tags); exclude the injected nav so indices stay stable
     [].slice.call(container.children).forEach(function(c){ if(c.hasAttribute('data-vtab')) c.removeAttribute('data-vtab'); });
-    var kids=[].slice.call(container.children).filter(function(c){ return !c.classList.contains('view-subtab-nav'); });
+    var kids=[].slice.call(container.children).filter(function(c){ return !c.classList.contains('view-subtab-nav') && !c.classList.contains('vintage-badge'); });
     cfg.groups.forEach(function(g){ g.idx.forEach(function(i){ if(kids[i]) kids[i].setAttribute('data-vtab',g.key); }); });
     if(!container.querySelector('.view-subtab-nav')){
       var nav=document.createElement('div'); nav.className='view-subtab-nav';
