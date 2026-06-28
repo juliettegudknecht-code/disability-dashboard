@@ -783,7 +783,7 @@ footer a{
 .lead a,.fn a,.note a,.scopenote a,footer a,.ds a,.exp-src a{text-decoration:underline}
 /* ===== Global site footer (shown at the bottom of every view) ===== */
 .site-footer{margin:40px 0 0;border:none;border-top:3px solid var(--navy);border-radius:0;background:var(--line2);color:var(--ink);padding:28px clamp(16px,4vw,40px) 96px;font-size:.85rem;line-height:1.5}
-.site-footer .sf-top{display:flex;flex-wrap:wrap;gap:24px 56px;justify-content:space-between;max-width:1180px;margin:0 auto}
+.site-footer .sf-top{display:flex;flex-wrap:wrap;gap:24px 56px;justify-content:space-between;max-width:1320px;margin:0 auto}
 .site-footer .sf-brand{display:flex;gap:13px;max-width:440px}
 .site-footer .sf-mark{flex:0 0 auto;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--navy);color:#fff}
 .site-footer .sf-mark svg{width:20px;height:20px}
@@ -794,7 +794,7 @@ footer a{
 .site-footer .sf-h{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px}
 .site-footer .sf-col a,.site-footer .sf-col button{font:inherit;font-size:.88rem;font-weight:600;color:var(--primary);background:none;border:none;padding:0;text-align:left;cursor:pointer;text-decoration:none}
 .site-footer .sf-col a:hover,.site-footer .sf-col button:hover{text-decoration:underline}
-.site-footer .sf-base{max-width:1180px;margin:24px auto 0;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px 20px;justify-content:space-between;font-size:.8rem;color:var(--muted)}
+.site-footer .sf-base{max-width:1320px;margin:24px auto 0;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px 20px;justify-content:space-between;font-size:.8rem;color:var(--muted)}
 .site-footer .sf-updated{font-weight:600}
 body.dark .site-footer{background:#0e1a26;border-top-color:var(--primary)}
 body.dark .site-footer .sf-name{color:#dbe8f6}
@@ -12668,7 +12668,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </svg>
 </template>
 <a class="skip" href="#trends">Skip to data tool content</a>
-<div class="govbar"><div class="govbar-in"><span class="gov-org"><span class="gov-seal" aria-hidden="true"></span><b>U.S. Department of Education</b><span class="gov-sep">·</span>Office of Special Education Programs</span><a class="gov-link" href="https://data.ed.gov" target="_blank" rel="noopener">Public data · data.ed.gov<span class="gov-ext" aria-hidden="true">↗</span></a></div></div>
+<div class="govbar"><div class="govbar-in"><span class="gov-org"><b>U.S. Department of Education</b><span class="gov-sep">·</span>Office of Special Education Programs</span><a class="gov-link" href="https://data.ed.gov" target="_blank" rel="noopener">Public data · data.ed.gov<span class="gov-ext" aria-hidden="true">↗</span></a></div></div>
 <header class="top">
   <div class="hinner">
     <div class="hrow">
@@ -12684,7 +12684,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <div class="osepband" aria-hidden="true"></div>
 <nav class="sitenav appbar" aria-label="Data tool sections">
   <div class="ninner">
-    <span class="brand"><span class="brand-seal" aria-hidden="true"><b>618</b></span><span class="brand-text"><span class="brand-title">IDEA Section&nbsp;618 Data Tool</span><span class="brand-kicker">U.S. Department of Education · OSEP</span></span></span>
+    <span class="brand"><span class="brand-text"><span class="brand-title">IDEA Section&nbsp;618 Data Tool</span><span class="brand-kicker">U.S. Department of Education · OSEP</span></span></span>
 <div class="tabs" id="viewTabs" aria-label="Data tool views">
       <button class="tab active" data-view="trends">Home</button>
       <div class="navgroup">
@@ -13376,6 +13376,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <b>Accessibility.</b> <a href="#accessibility" class="a11y-foot-link">Learn about this dashboard's accessibility features</a>, including dark mode, high contrast, larger text, reduced motion, plain language, keyboard navigation, and screen-reader support.
 </footer>
 </details>
+</div><!-- /.wrap -->
 <footer class="site-footer" role="contentinfo">
   <div class="sf-top">
     <div class="sf-brand">
@@ -13419,7 +13420,6 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   on('sfSources',function(){var s=document.querySelector('.sources-fold');if(s){s.open=true;try{s.scrollIntoView({behavior:document.body.classList.contains('reduce')?'auto':'smooth',block:'start'});}catch(e){s.scrollIntoView();}}});
   on('sfStart',function(){var g=document.getElementById('guideBtn');if(g)g.click();});
 })();</script>
-</div>
 
 <script>
 /* Pre-paint view sync: the main script below is large and the browser paints the
@@ -18427,7 +18427,6 @@ body.pink .cb-close:hover{color:#a8266e}
 .govbar .govbar-in{max-width:1320px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px 16px;padding:6px 22px;flex-wrap:wrap}
 .govbar .gov-org{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;font-weight:600;letter-spacing:.01em}
 .govbar .gov-org b{font-weight:800}
-.govbar .gov-seal{width:13px;height:13px;border-radius:50%;flex:0 0 auto;background:radial-gradient(circle at 36% 32%,#f3cf6b 0 42%,#1a4f7a 44%);box-shadow:0 0 0 1.5px rgba(255,255,255,.45)}
 .govbar .gov-sep{opacity:.5;margin:0 2px}
 .govbar .gov-link{font-size:.78rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .govbar .gov-link:hover{text-decoration:underline}
@@ -18435,13 +18434,9 @@ body.pink .cb-close:hover{color:#a8266e}
 @media(max-width:600px){.govbar .gov-org,.govbar .gov-link{font-size:.71rem}.govbar .govbar-in{padding:6px 14px}}
 /* branded lockup in the app bar */
 .sitenav .brand{display:flex!important;align-items:center;gap:10px}
-.brand-seal{flex:0 0 auto;width:34px;height:34px;border-radius:9px;background:linear-gradient(150deg,#1c4f74,#13354e);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(17,46,81,.28)}
-.brand-seal b{font-size:.84rem;font-weight:900;letter-spacing:.5px;color:#f0c14b;line-height:1}
 .brand-text{display:flex;flex-direction:column;line-height:1.12}
 .brand-kicker{font-size:.6rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 body.dark .brand-kicker{color:#9fb2c4}
-body.pink:not(.dark) .brand-seal{background:linear-gradient(150deg,#c43a86,#a8266e)}
-body.pink:not(.dark) .brand-seal b{color:#ffe3ef}
 @media(max-width:720px){.brand-kicker{display:none}}
 /* tiny donut on the "regular class 80%+" KPI card */
 .kpi-haspie .v{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
