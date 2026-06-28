@@ -11818,7 +11818,7 @@ body:not(.no-anim):not(.reduce) .state-insight .mini:hover{
 .view[data-view="trends"] #kpis .kpi:nth-child(1){border-top-color:#005ea2!important}
 .view[data-view="trends"] #kpis .kpi:nth-child(2){border-top-color:var(--gold)!important}
 .view[data-view="trends"] #kpis .kpi:nth-child(3){border-top-color:var(--good)!important}
-.view[data-view="trends"] #kpis .kpi:nth-child(4){border-top-color:var(--autism)!important}
+.view[data-view="trends"] #kpis .kpi:nth-child(4){border-top-color:#005ea2!important}
 .view[data-view="trends"] #kpis .kpi .l{font-size:.66rem!important;letter-spacing:.05em;line-height:1.32}
 .view[data-view="trends"] #kpis .kpi .v{font-size:1.8rem!important;line-height:1.05!important;margin-top:7px}
 .view[data-view="trends"] #kpis .kpi .c{font-size:.72rem!important;line-height:1.42!important;margin-top:6px!important}
@@ -12406,7 +12406,7 @@ body.printing .view[data-view="gpra"] .gpra-goalfold-body{display:block!importan
 .view[data-view="trends"] #kpis .kpi:nth-child(1) .kpi-ic{color:#005ea2;background:rgba(0,94,162,.10)}
 .view[data-view="trends"] #kpis .kpi:nth-child(2) .kpi-ic{color:#9a7d12;background:rgba(230,216,74,.24)}
 .view[data-view="trends"] #kpis .kpi:nth-child(3) .kpi-ic{color:#2e8540;background:rgba(46,133,64,.12)}
-.view[data-view="trends"] #kpis .kpi:nth-child(4) .kpi-ic{color:#1f6fa8;background:rgba(31,111,168,.12)}
+.view[data-view="trends"] #kpis .kpi:nth-child(4) .kpi-ic{color:#005ea2;background:rgba(0,94,162,.10)}
 body.dark #kpis .kpi-ic{background:rgba(255,255,255,.06)}
 body.hc #kpis .kpi-ic{background:transparent;border:1.5px solid currentColor}
 
@@ -18423,6 +18423,24 @@ body.pink .cb-swatches button.on{border-color:#a8266e;box-shadow:0 0 0 2px rgba(
 .cb-drill-actions{display:inline-flex;gap:5px}
 .cb-drill-actions button{font:inherit;font-size:.74rem;font-weight:700;color:var(--primary);background:none;border:1px solid var(--line);border-radius:7px;padding:3px 9px;cursor:pointer}
 .cb-drill-actions button:hover{background:var(--line2);border-color:var(--primary-lt)}
+/* collapsible category "Include" section */
+.cb-catsfold{margin:0 0 14px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.cb-catsfold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 13px;border:1.5px solid var(--line);border-radius:10px;background:var(--line2)}
+.cb-catsfold>summary::-webkit-details-marker{display:none}
+.cb-catsfold>summary::after{content:'▾';margin-left:auto;color:var(--muted);font-size:.85em;transition:transform .18s ease}
+.cb-catsfold[open]>summary::after{transform:rotate(180deg)}
+.cb-catsfold>summary:hover{border-color:var(--primary-lt)}
+.cb-catsfold>summary .cb-drill-title{margin:0;text-transform:none;font-size:.82rem;font-weight:800;color:var(--navy);letter-spacing:0}
+.cb-catsfold .cb-drill-body{margin-top:12px}
+.cb-catsfold .cb-drill-actions{margin-bottom:9px}
+body.dark .cb-catsfold>summary{background:#16242f;border-color:#2c3a47}
+body.dark .cb-catsfold>summary .cb-drill-title{color:#dbe8f6}
+body.pink:not(.dark) .cb-catsfold>summary .cb-drill-title{color:#a8266e}
+/* visible chart title above the built chart */
+.cb-chart-title{font-weight:800;font-size:1rem;line-height:1.32;color:var(--navy);margin:2px 2px 12px;letter-spacing:-.01em}
+.cb-chart-title:empty{display:none}
+body.dark .cb-chart-title{color:#dbe8f6}
+body.pink:not(.dark) .cb-chart-title{color:#a8266e}
 .cb-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:108px;overflow:auto}
 .cb-chip{font:inherit;font-size:.78rem;font-weight:600;color:var(--muted);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:4px 11px;cursor:pointer;transition:all .12s}
 .cb-chip:hover{border-color:var(--primary-lt);color:var(--ink)}
@@ -18578,11 +18596,15 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
       </div>
     </div>
     </details>
-    <div class="cb-drill" id="cbDrillWrap">
-      <div class="cb-drill-head"><span class="cb-drill-title" id="cbDrillTitle">Include</span><span class="cb-drill-actions"><button type="button" id="cbAll">All</button><button type="button" id="cbTop">Top 8</button><button type="button" id="cbNone">None</button></span></div>
-      <div class="cb-chips" id="cbCats"></div>
-    </div>
+    <details class="cb-drill cb-catsfold" id="cbDrillWrap">
+      <summary class="cb-drill-head"><span class="cb-drill-title" id="cbDrillTitle">Include</span></summary>
+      <div class="cb-drill-body">
+        <div class="cb-drill-actions"><button type="button" id="cbAll">All</button><button type="button" id="cbTop">Top 8</button><button type="button" id="cbNone">None</button></div>
+        <div class="cb-chips" id="cbCats"></div>
+      </div>
+    </details>
     <div class="card tbl-card cb-card" data-viz-card="cbChart" id="cbCardHost">
+      <div class="cb-chart-title" id="cbChartTitle"></div>
       <div class="tbl-viz-canvasbox cb-canvasbox"><canvas id="cbChart_cv" class="tbl-viz-canvas" aria-label="Custom chart"></canvas></div>
       <div class="tbl-viz-note" id="cbChart_note"></div>
     </div>
@@ -18702,6 +18724,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
           dataRows.sort(function(a,b){var va=_vizNum(sp,p,a.key,mi),vb=_vizNum(sp,p,b.key,mi);va=(va==null?-1e15:va);vb=(vb==null?-1e15:vb);return S.sort==='asc'?(va-vb):(vb-va);}); }
         sp.rows=dataRows.concat(totals);
         if(cbTitle){ cbTitle.placeholder=suggestedTitle(sp); sp._customTitle=(cbTitle.value.trim()||cbTitle.placeholder); }
+        try{ var _ct=document.getElementById('cbChartTitle'); if(_ct) _ct.textContent=sp._customTitle||''; }catch(_){}
         window._tblSpecs=window._tblSpecs||{}; window._tblSpecs[CB]=sp;
         var st=(typeof _vizState==='function')?_vizState(CB):null;
         if(st){st.on=true;st.type=S.type;st.showUS=(list.indexOf(usKey)>=0);st.usSet=true;st.rowIdx=null;st.metricIdx=null;st.compareOn=false;st.showLabels=(cbLabels?cbLabels.checked:true);st.orient=(S.type==='bar'?S.orient:'auto');}
