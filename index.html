@@ -13659,7 +13659,7 @@ function _ffBarEligible(chart){
  var n=(ds[0].data||[]).length;return n>0&&n<=16;
 }
 var ffValueLabels={id:'ffValueLabels',
- beforeLayout:function(chart){try{if(!_ffBarEligible(chart))return;var horizontal=(chart.options.indexAxis==='y');chart.options.layout=chart.options.layout||{};var pad=chart.options.layout.padding;if(pad==null||typeof pad==='number')pad=chart.options.layout.padding={top:typeof pad==='number'?pad:0,right:typeof pad==='number'?pad:0,bottom:typeof pad==='number'?pad:0,left:typeof pad==='number'?pad:0};if(horizontal)pad.right=Math.max(pad.right||0,52);else pad.top=Math.max(pad.top||0,18);}catch(e){}},
+ beforeLayout:function(chart){try{if(!_ffBarEligible(chart))return;var horizontal=(chart.options.indexAxis==='y');chart.options.layout=chart.options.layout||{};var pad=chart.options.layout.padding;if(pad==null||typeof pad==='number')pad=chart.options.layout.padding={top:typeof pad==='number'?pad:0,right:typeof pad==='number'?pad:0,bottom:typeof pad==='number'?pad:0,left:typeof pad==='number'?pad:0};if(horizontal){/* reserve room for the widest value label so numbers never run off the edge */var maxw=52;try{var c2=chart.ctx,ds0=chart.data.datasets[0];c2.save();c2.font='800 10px '+(Chart.defaults.font.family||'sans-serif');(ds0&&ds0.data||[]).forEach(function(v){if(v&&typeof v==='object')v=v.x;if(v==null||isNaN(v))return;maxw=Math.max(maxw,c2.measureText(_ffFmtVal(chart,'x',v)).width);});c2.restore();}catch(_){}pad.right=Math.max(pad.right||0,Math.ceil(maxw)+14);}else pad.top=Math.max(pad.top||0,18);}catch(e){}},
  afterDatasetsDraw:function(chart){try{
   if(!_ffBarEligible(chart))return;
   var meta=chart.getDatasetMeta(0);if(!meta||meta.hidden||!meta.data||!meta.data.length)return;
@@ -17302,7 +17302,7 @@ function buildTrendsOverview(){
   <div class="home-hero">
     <div class="home-hero-inner">
       <div class="hh-eyebrow"><span class="hh-50">50</span> Years of IDEA &nbsp;&middot;&nbsp; 1975&ndash;2025</div>
-      <h2 class="hh-title">Fifty years of IDEA child count and educational environments data.</h2>
+      <h2 class="hh-title">Celebrating the last fifty years of IDEA child count and educational environments data.</h2>
       <p class="hh-sub">Counts of children and students ages 3 through 21 served under IDEA, Part&nbsp;B, as reported by the States and outlying areas for each school year from 1976&ndash;77 through the most recent year available.</p>
     </div>
   </div>
@@ -18338,18 +18338,19 @@ body.pink #zoomCtl button{color:#a8266e}
 @media print{#zoomCtl{display:none}}
 
 /* ============ CHART BUILDER: floating button + modal ============ */
-#chartBuilderFab{position:fixed;right:20px;bottom:20px;z-index:2147482700;display:inline-flex;align-items:center;gap:9px;
-  padding:7px 18px 7px 8px;border:1px solid rgba(255,255,255,.75);border-radius:999px;cursor:pointer;
+#chartBuilderFab{position:fixed;right:20px;bottom:20px;z-index:2147482700;display:inline-flex;align-items:center;gap:0;
+  padding:7px;border:1px solid rgba(255,255,255,.75);border-radius:999px;cursor:pointer;
   background:rgba(255,255,255,.86);-webkit-backdrop-filter:blur(12px) saturate(1.3);backdrop-filter:blur(12px) saturate(1.3);
   color:var(--navy);font-family:inherit;font-weight:800;font-size:.92rem;letter-spacing:.01em;
   box-shadow:0 12px 30px rgba(17,46,81,.20),0 4px 10px rgba(17,46,81,.14),inset 0 1px 0 rgba(255,255,255,.8);
-  transition:box-shadow .22s ease,border-color .22s ease;animation:cbFloat 4.6s ease-in-out infinite;will-change:transform}
-#chartBuilderFab:hover{box-shadow:0 20px 44px rgba(17,46,81,.28),0 6px 14px rgba(17,46,81,.18),inset 0 1px 0 rgba(255,255,255,.8);border-color:#fff}
+  transition:box-shadow .22s ease,border-color .22s ease,gap .24s ease,padding .24s ease;animation:cbFloat 4.6s ease-in-out infinite;will-change:transform}
+#chartBuilderFab:hover,#chartBuilderFab:focus-visible,#chartBuilderFab:focus-within{box-shadow:0 20px 44px rgba(17,46,81,.28),0 6px 14px rgba(17,46,81,.18),inset 0 1px 0 rgba(255,255,255,.8);border-color:#fff;gap:9px;padding:7px 18px 7px 8px}
 #chartBuilderFab:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 #chartBuilderFab .cbf-ic{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;
   background:linear-gradient(140deg,#2c7ab5,#13354e);color:#ffd34d;box-shadow:0 2px 6px rgba(17,46,81,.3)}
 #chartBuilderFab .cbf-ic svg{width:17px;height:17px;display:block}
-#chartBuilderFab .cbf-tx{padding-right:2px}
+#chartBuilderFab .cbf-tx{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;padding-right:0;transition:max-width .26s ease,opacity .2s ease,padding .26s ease}
+#chartBuilderFab:hover .cbf-tx,#chartBuilderFab:focus-visible .cbf-tx,#chartBuilderFab:focus-within .cbf-tx{max-width:170px;opacity:1;padding-right:2px}
 @keyframes cbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes cbfWiggle{0%,100%{transform:rotate(0)}30%{transform:rotate(-9deg)}70%{transform:rotate(9deg)}}
 #chartBuilderFab:hover .cbf-ic{animation:cbfWiggle .55s ease}
@@ -18381,6 +18382,18 @@ body.pink #chartBuilderFab .cbf-ic{background:linear-gradient(140deg,#e6398a,#a8
 body.dark .cb-say .cb-pick{background:#16242f;color:#dbe8f6;border-color:#2c3a47}
 /* option rows + segmented controls */
 .cb-opts{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin:0 0 14px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+/* collapsible "Chart style & options" */
+.cb-style{margin:0 0 14px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.cb-style>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 13px;border:1.5px solid var(--line);border-radius:10px;background:var(--line2);font-size:.82rem;font-weight:800;color:var(--navy)}
+.cb-style>summary::-webkit-details-marker{display:none}
+.cb-style>summary::after{content:'▾';margin-left:auto;color:var(--muted);font-size:.85em;transition:transform .18s ease}
+.cb-style[open]>summary::after{transform:rotate(180deg)}
+.cb-style>summary:hover{border-color:var(--primary-lt)}
+.cb-style-hint{font-size:.72rem;font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0}
+.cb-style[open]>summary{margin-bottom:14px}
+.cb-style .cb-opts{margin:0;padding-bottom:0;border-bottom:none}
+body.dark .cb-style>summary{background:#16242f;color:#dbe8f6;border-color:#2c3a47}
+body.pink:not(.dark) .cb-style>summary{color:#a8266e}
 .cb-optgrp{display:flex;align-items:center;gap:8px}
 .cb-optlab{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 .cb-seg{display:inline-flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:var(--line2)}
@@ -18529,6 +18542,8 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
       <span class="cb-word cb-vsword">compared with</span>
       <select id="cbCompare" class="cb-pick" aria-label="A second state to compare"></select>
     </div>
+    <details class="cb-style">
+      <summary class="cb-style-sum"><span class="cb-style-lab">Chart style &amp; options</span><span class="cb-style-hint">type · values · sort · colors</span></summary>
     <div class="cb-opts">
       <div class="cb-optgrp"><span class="cb-optlab">Chart</span>
         <div class="cb-seg" id="cbTypeSeg" role="group" aria-label="Chart type">
@@ -18563,6 +18578,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
         </div>
       </div>
     </div>
+    </details>
     <div class="cb-drill" id="cbDrillWrap">
       <div class="cb-drill-head"><span class="cb-drill-title" id="cbDrillTitle">Include</span><span class="cb-drill-actions"><button type="button" id="cbAll">All</button><button type="button" id="cbTop">Top 8</button><button type="button" id="cbNone">None</button></span></div>
       <div class="cb-chips" id="cbCats"></div>
@@ -18653,7 +18669,19 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
     function suggestedTitle(sp){
       var who=(cbState.value==='__US__')?'the U.S.':cbState.value;
       var cmp=(cbCompare&&cbCompare.value&&cbCompare.value!=='__none__')?(' vs. '+(cbCompare.value==='__US__'?'the U.S.':cbCompare.value)):'';
-      return breakLabel(sp)+' — '+who+cmp+(S.vals==='percent'?' (% share)':'');
+      /* Build a descriptive, human-readable title: "<collection>, by <breakdown>, <ages> — <who> (<year>)" */
+      var bl=breakLabel(sp), parts=bl.split('·').map(function(s){return s.trim();});
+      var dim=(parts[0]||'').replace(/^./,function(c){return c.toLowerCase();});
+      var age=parts.slice(1).join(' · ');
+      var cm=(typeof COLL_META!=='undefined'&&COLL_META[cbColl.value])?COLL_META[cbColl.value]:null;
+      var subj=cm?('IDEA Part '+(cm.part||'B')+' '+cm.name):'IDEA Section 618 data';
+      var yr=(sp&&sp.year)?String(sp.year).replace(/^\s*School Year\s*/i,'').trim():'';
+      var t=subj+', by '+dim;
+      if(age) t+=', '+age;
+      t+=' — '+who+cmp;
+      if(S.vals==='percent') t+=' (% share)';
+      if(yr) t+=', '+yr;
+      return t;
     }
     function render(){
       if(typeof TBL_SPECS==='undefined'||typeof _renderVizChart!=='function')return;
