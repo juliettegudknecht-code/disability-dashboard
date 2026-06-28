@@ -5879,6 +5879,19 @@ body.pink .tab.active,body.pink .vst-btn.vst-active{background:#e6398a}
 body.pink::-webkit-scrollbar{width:12px}
 body.pink::-webkit-scrollbar-thumb{background:#f06aa8;border-radius:8px}
 body.pink::-webkit-scrollbar-track{background:#ffe3ef}
+/* Pink monochrome: force all charts + map + bubbles to black/white/pink only */
+body.pink canvas,
+body.pink .usmap-wrap svg, body.pink .lea-usmap-wrap svg,
+body.pink .home-bubblewrap svg, body.pink .home-bubbles-hero svg,
+body.pink .shareband-box svg, body.pink #trendShareBands svg,
+body.pink .exp-bubblewrap svg, body.pink [id$="Bubbles"] svg, body.pink .lea-flow svg{
+  filter:grayscale(1) sepia(1) hue-rotate(285deg) saturate(3.4) brightness(1.03);
+}
+/* kill remaining non-pink chrome: the gold "Start here" button and any gold pills */
+body.pink .guidebtn{background:#ff8fc8!important;color:#7a0d3d!important;border-color:#ff6fb0!important}
+body.pink .guidebtn .gic{color:#a8266e!important}
+body.pink{--good:#c2185b}
+body.pink .osepband{background:#ff8fc8!important}
 /* Pink fairy cursor */
 body.pink,body.pink *{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M14 1l2.6 8.4L25 12l-8.4 2.6L14 23l-2.6-8.4L3 12l8.4-2.6z' fill='%23ff3d9a'/%3E%3Ccircle cx='14' cy='12' r='2.2' fill='%23fff'/%3E%3C/svg%3E") 14 12, auto}
 body.pink a,body.pink button,body.pink summary,body.pink [role=button],body.pink .tab,body.pink select,body.pink input{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M14 1l2.6 8.4L25 12l-8.4 2.6L14 23l-2.6-8.4L3 12l8.4-2.6z' fill='%23ff1f8a'/%3E%3Ccircle cx='14' cy='12' r='2.4' fill='%23fff'/%3E%3C/svg%3E") 14 12, pointer}
