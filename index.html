@@ -5,6 +5,59 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IDEA Section 618 Data Tool | Individuals with Disabilities Education Act</title>
 <script>
+/* Soft password gate: lock the page before anything renders, unlock for the session once entered.
+   This is a light access gate, not real security (the page is fully client-side). */
+(function(){ try{ if(sessionStorage.getItem('idea618_unlocked')!=='1'){ document.documentElement.className+=' locked'; } }catch(e){} })();
+</script>
+<style id="pwGateStyle">
+  html.locked, html.locked body{ overflow:hidden !important; }
+  html.locked body > *:not(#pwGate){ visibility:hidden !important; }
+  #pwGate{ display:none; }
+  html.locked #pwGate{
+    display:flex; visibility:visible !important; position:fixed; inset:0; z-index:2147483647;
+    align-items:center; justify-content:center; padding:24px;
+    background:radial-gradient(1200px 700px at 50% -10%, #1c4a6e 0%, #13354e 55%, #0d2438 100%);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  #pwGate .gate-card{
+    width:min(420px,100%); background:#fff; border-radius:16px; padding:32px 28px 26px;
+    box-shadow:0 24px 60px rgba(0,0,0,.45); text-align:center;
+    animation:gateIn .45s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes gateIn{ from{ opacity:0; transform:translateY(14px) scale(.98); } to{ opacity:1; transform:none; } }
+  #pwGate .gate-seal{
+    width:62px; height:62px; margin:0 auto 14px; border-radius:14px; background:#13354e;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; line-height:1;
+  }
+  #pwGate .gate-seal b{ font-size:22px; letter-spacing:.5px; }
+  #pwGate .gate-seal span{ font-size:10px; letter-spacing:1px; color:#edcf36; margin-top:2px; }
+  #pwGate h2{ margin:0 0 4px; font-size:20px; color:#13354e; }
+  #pwGate p{ margin:0 0 20px; font-size:13.5px; color:#5a6b78; line-height:1.45; }
+  #pwGate .gate-field{ position:relative; display:flex; align-items:center; }
+  #pwGate input{
+    width:100%; box-sizing:border-box; padding:13px 46px 13px 14px; font-size:16px;
+    border:2px solid #cfd9e1; border-radius:10px; outline:none; transition:border-color .15s, box-shadow .15s;
+    color:#13354e;
+  }
+  #pwGate input:focus{ border-color:#73b3e7; box-shadow:0 0 0 3px rgba(115,179,231,.35); }
+  #pwGate.bad input{ border-color:#cc5a33; box-shadow:0 0 0 3px rgba(204,90,51,.25); }
+  #pwGate .gate-toggle{
+    position:absolute; right:8px; border:none; background:transparent; cursor:pointer;
+    font-size:12px; font-weight:600; color:#73b3e7; padding:6px 8px; border-radius:6px;
+  }
+  #pwGate .gate-toggle:hover{ background:#eef5fb; }
+  #pwGate button.gate-go{
+    margin-top:14px; width:100%; padding:13px; font-size:15px; font-weight:600; cursor:pointer;
+    border:none; border-radius:10px; background:#13354e; color:#fff; transition:background .15s, transform .05s;
+  }
+  #pwGate button.gate-go:hover{ background:#1c4a6e; }
+  #pwGate button.gate-go:active{ transform:translateY(1px); }
+  #pwGate .gate-msg{ min-height:18px; margin-top:12px; font-size:13px; color:#cc5a33; font-weight:600; }
+  #pwGate.bad .gate-card{ animation:gateShake .4s; }
+  @keyframes gateShake{ 0%,100%{transform:translateX(0);} 20%{transform:translateX(-9px);} 40%{transform:translateX(8px);} 60%{transform:translateX(-6px);} 80%{transform:translateX(4px);} }
+  #pwGate .gate-hint{ margin-top:16px; font-size:11.5px; color:#90a2b0; }
+</style>
+<script>
 /*!
  * Chart.js v4.5.1
  * https://www.chartjs.org
@@ -12285,6 +12338,56 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </style>
 </head>
 <body>
+<div id="pwGate" role="dialog" aria-modal="true" aria-labelledby="pwGateTitle">
+  <div class="gate-card">
+    <h2 id="pwGateTitle">IDEA Section 618 Data Tool</h2>
+    <p>Enter the password to continue.</p>
+    <form id="pwGateForm" autocomplete="off">
+      <div class="gate-field">
+        <input id="pwGateInput" type="password" inputmode="text" placeholder="Password" aria-label="Password" autofocus />
+        <button type="button" class="gate-toggle" id="pwGateToggle" aria-label="Show password">Show</button>
+      </div>
+      <button type="submit" class="gate-go">Continue</button>
+      <div class="gate-msg" id="pwGateMsg" aria-live="polite"></div>
+    </form>
+  </div>
+</div>
+<script>
+(function(){
+  var PASSWORD = 'eddata';
+  var gate = document.getElementById('pwGate');
+  var form = document.getElementById('pwGateForm');
+  var input = document.getElementById('pwGateInput');
+  var msg = document.getElementById('pwGateMsg');
+  var toggle = document.getElementById('pwGateToggle');
+  if(!gate || !form) return;
+  function unlock(){
+    try{ sessionStorage.setItem('idea618_unlocked','1'); }catch(e){}
+    document.documentElement.classList.remove('locked');
+    gate.parentNode && gate.parentNode.removeChild(gate);
+    try{ window.scrollTo(0,0); }catch(e){}
+  }
+  if(!document.documentElement.classList.contains('locked')){ unlock(); return; }
+  try{ input.focus(); }catch(e){}
+  toggle.addEventListener('click', function(){
+    var showing = input.type === 'text';
+    input.type = showing ? 'password' : 'text';
+    toggle.textContent = showing ? 'Show' : 'Hide';
+    input.focus();
+  });
+  input.addEventListener('input', function(){ gate.classList.remove('bad'); msg.textContent=''; });
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(input.value.trim().toLowerCase() === PASSWORD){
+      unlock();
+    } else {
+      gate.classList.remove('bad'); void gate.offsetWidth; gate.classList.add('bad');
+      msg.textContent = 'Incorrect password.';
+      input.select();
+    }
+  });
+})();
+</script>
 <template id="__bundler_thumbnail">
 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
   <rect width="100" height="100" rx="16" fill="#13354e"/>
