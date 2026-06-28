@@ -5867,6 +5867,16 @@ body.dark .a11y-card h3{color:#cfe2f4}
 .vintage-badge .vintage-lbl{color:var(--ink);font-weight:700}
 .vintage-badge .vintage-dot{width:7px;height:7px;border-radius:50%;background:var(--good);flex:0 0 auto}
 body.dark .vintage-badge{background:rgba(255,255,255,.05)}
+/* Saved / pinned views menu */
+.pin-menu{min-width:248px;max-width:300px}
+.pin-sep{height:1px;background:var(--line);margin:6px 0}
+.pin-list:empty::after{content:"No saved views yet. Open a view and choose “Save current view”.";display:block;padding:8px 12px;font-size:.8rem;color:var(--muted);line-height:1.4}
+.pin-item{display:flex;align-items:center;gap:6px;padding:0}
+.pin-item .pin-go{flex:1;text-align:left;background:none;border:none;cursor:pointer;padding:8px 10px;font:inherit;color:var(--ink);border-radius:6px;line-height:1.3}
+.pin-item .pin-go:hover{background:var(--line2)}
+.pin-item .pin-go small{display:block;font-size:.72rem;color:var(--muted);margin-top:1px}
+.pin-item .pin-del{flex:0 0 auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.05rem;line-height:1;padding:6px 9px;border-radius:6px}
+.pin-item .pin-del:hover{color:var(--autism);background:var(--line2)}
 .cmp2-col,.kpi,.picto,.cat,.sparkcard{transition:transform .17s ease,box-shadow .22s ease,border-color .2s}
 .iconbtn,.tab,.expdl,.plainbtn,.themebtn,.a11ybtn,.qlink{transition:transform .12s ease,background .14s,color .14s,border-color .14s,box-shadow .2s}
 .iconbtn:active,.expdl:active,.tab:active,.plainbtn:active{transform:translateY(1px)}
@@ -12535,6 +12545,14 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
             <button type="button" role="menuitem" data-act="csv">Data CSV</button>
           </div>
         </div>
+        <div class="menuwrap">
+          <button class="iconbtn" id="pinBtn" aria-haspopup="true" aria-expanded="false">Saved</button>
+          <div class="menu pin-menu" id="pinMenu" role="menu" aria-label="Saved views">
+            <button type="button" role="menuitem" id="pinAddBtn">Save current view</button>
+            <div class="pin-sep" role="separator"></div>
+            <div class="pin-list" id="pinList"></div>
+          </div>
+        </div>
         <button class="themebtn" id="themeBtn" aria-pressed="false">Dark</button>
         <button class="a11ybtn" id="a11yBtn" aria-haspopup="dialog" aria-expanded="false">Access</button>
       </div>
@@ -17386,6 +17404,80 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
     });
     mo.observe(document.body,{childList:true,subtree:true});
   }catch(e){}
+})();
+
+/* ============ SAVED / PINNED VIEWS ============
+   Captures the current view plus its key state (selected State + metric, or trend
+   categories + count/percent unit) so users can jump back to an exact configuration. */
+(function(){
+  var KEY='idea618_pins';
+  var VIEW_NAMES={home:'Home',trends:'National Trends',explorer:'Disability Explorer',states:'State Snapshot',lea:'LEA Explorer',tables:'SEA Tables',collections:'Collections',gpra:'Performance Measures',sources:'Sources',accessibility:'Accessibility',composition:'Composition'};
+  var btn=document.getElementById('pinBtn'), menu=document.getElementById('pinMenu'),
+      addBtn=document.getElementById('pinAddBtn'), list=document.getElementById('pinList');
+  if(!btn||!menu||!list)return;
+  function load(){ try{return JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){return [];} }
+  function save(a){ try{localStorage.setItem(KEY,JSON.stringify(a));}catch(e){} }
+  function curView(){ return document.body.getAttribute('data-view')||'home'; }
+  function capture(){
+    var v=curView(), p={view:v,id:Date.now()};
+    if(v==='states'){ p.state=(typeof focusState!=='undefined'?focusState:'')||''; var ms=document.getElementById('metricSel'); p.metric=ms?ms.value:''; }
+    if(v==='trends'||v==='home'){ p.trendSel=(typeof trendSelected!=='undefined'&&trendSelected)?trendSelected.slice():null; p.trendUnit=(typeof trendUnit!=='undefined'?trendUnit:'count'); }
+    p.label=label(p); p.sub=subLabel(p);
+    return p;
+  }
+  function label(p){
+    var base=VIEW_NAMES[p.view]||p.view;
+    if(p.view==='states'&&p.state) return p.state;
+    return base;
+  }
+  function subLabel(p){
+    if(p.view==='states') return 'State Snapshot';
+    if((p.view==='trends'||p.view==='home')){
+      var bits=[]; if(p.trendUnit==='rate')bits.push('% of enrollment'); else bits.push('Number of students');
+      if(p.trendSel&&p.trendSel.length)bits.push(p.trendSel.length+(p.trendSel.length===1?' category':' categories'));
+      return bits.join(' · ');
+    }
+    return VIEW_NAMES[p.view]||'';
+  }
+  function apply(p){
+    try{ showView(p.view); }catch(e){}
+    if(p.view==='states'&&p.state){
+      try{ focusState=p.state; var ss=document.getElementById('stateSel'); if(ss)ss.value=p.state; var ms=document.getElementById('metricSel'); if(ms&&p.metric)ms.value=p.metric; afterStateChange(); }catch(e){}
+    }
+    if((p.view==='trends'||p.view==='home')&&p.trendSel){
+      try{
+        trendSelected=p.trendSel.slice();
+        if(typeof trendUnit!=='undefined')trendUnit=p.trendUnit||'count';
+        document.querySelectorAll('#trendUnitToggle button[data-unit]').forEach(function(x){var on=x.dataset.unit===trendUnit;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on?'true':'false');});
+        buildPills(); renderTrend(); if(typeof renderTrendShare==='function')renderTrendShare();
+      }catch(e){}
+    }
+  }
+  function render(){
+    var pins=load();
+    list.innerHTML='';
+    pins.forEach(function(p){
+      var item=document.createElement('div'); item.className='pin-item';
+      var go=document.createElement('button'); go.type='button'; go.className='pin-go'; go.setAttribute('role','menuitem');
+      go.innerHTML=esc(p.label)+(p.sub?'<small>'+esc(p.sub)+'</small>':'');
+      go.addEventListener('click',function(){ apply(p); close(); });
+      var del=document.createElement('button'); del.type='button'; del.className='pin-del'; del.setAttribute('aria-label','Remove saved view: '+p.label); del.textContent='×';
+      del.addEventListener('click',function(e){ e.stopPropagation(); save(load().filter(function(x){return x.id!==p.id;})); render(); });
+      item.appendChild(go); item.appendChild(del); list.appendChild(item);
+    });
+  }
+  function esc(s){ return (''+s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function open(){ render(); menu.classList.add('open'); btn.setAttribute('aria-expanded','true'); }
+  function close(){ menu.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
+  btn.addEventListener('click',function(e){ e.stopPropagation(); if(menu.classList.contains('open'))close(); else open(); });
+  addBtn.addEventListener('click',function(){
+    var pins=load(), p=capture();
+    /* avoid exact duplicates of the most recent */
+    pins=pins.filter(function(x){ return !(x.view===p.view&&x.state===p.state&&x.metric===p.metric&&x.trendUnit===p.trendUnit&&JSON.stringify(x.trendSel)===JSON.stringify(p.trendSel)); });
+    pins.unshift(p); if(pins.length>12)pins=pins.slice(0,12);
+    save(pins); render();
+  });
+  document.addEventListener('click',function(e){ if(menu.classList.contains('open')&&!e.target.closest('.menuwrap'))close(); });
 })();
 /* App is set up and the active view is rendered: lift the loading screen. */
 try{ setTimeout(function(){ document.documentElement.classList.add('app-ready'); }, 60); }catch(e){ document.documentElement.classList.add('app-ready'); }
