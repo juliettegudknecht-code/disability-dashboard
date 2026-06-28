@@ -12555,7 +12555,12 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   input.addEventListener('input', function(){ gate.classList.remove('bad'); msg.textContent=''; });
   form.addEventListener('submit', function(e){
     e.preventDefault();
-    if(input.value.trim().toLowerCase() === PASSWORD){
+    var val = input.value.trim().toLowerCase();
+    if(val === PASSWORD || val === 'edfairy'){
+      if(val === 'edfairy'){
+        /* secret: unlock straight into Fairy mode */
+        try{ if(typeof togglePink === 'function'){ togglePink(true); } else { localStorage.setItem('idea618pink','1'); document.body.classList.add('pink'); } }catch(err){}
+      }
       unlock();
     } else {
       gate.classList.remove('bad'); void gate.offsetWidth; gate.classList.add('bad');
@@ -13433,10 +13438,10 @@ function _toFairy(c){
   var p=_fairyParse(c); if(!p)return c;
   var hsl=_rgb2hsl(p[0],p[1],p[2]),H=hsl[0],S=hsl[1],L=hsl[2];
   /* already a fairy-band colour? leave it (keeps the transform idempotent) */
-  if(S>0.06 && H>=288 && H<=350) return c;
-  var nh=294+(H/360)*54;                                   /* 294..348: rose -> magenta -> orchid */
-  var ns=Math.min(0.90,Math.max(0.40,S*0.55+0.46));        /* lively but never neon */
-  var nl=Math.min(0.92,Math.max(0.34,L*0.82+0.10));        /* keep light/dark order, avoid mud */
+  if(S>0.06 && H>=274 && H<=352) return c;
+  var nh=278+(H/360)*68;                                   /* 278..346: violet -> orchid -> magenta -> rose (pink + pastel purple) */
+  var ns=Math.min(0.88,Math.max(0.38,S*0.52+0.44));        /* lively but never neon */
+  var nl=Math.min(0.93,Math.max(0.36,L*0.80+0.13));        /* keep light/dark order, a touch more pastel */
   var rgb=_hsl2rgb(nh,ns,nl);
   return (p[3]!=null&&p[3]<1)?('rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+','+p[3]+')'):('rgb('+rgb[0]+','+rgb[1]+','+rgb[2]+')');
 }
@@ -17656,16 +17661,45 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
     spawn(e.clientX,e.clientY);
   },{passive:true});
   setInterval(function(){ if(reduce||!document.body.classList.contains('pink'))return; var f=document.getElementById('pinkFairy'); if(!f)return; var r=f.getBoundingClientRect(); if(r.width)spawn(r.left+r.width/2,r.top+r.height/2); },300);
+
+  /* Ambient glitter: gentle sparkles that drift and twinkle across the page on
+     their own (no cursor needed), so Fairy mode always shimmers a little. */
+  function ambient(){
+    if(reduce||!document.body.classList.contains('pink'))return;
+    var n=2+Math.floor(Math.random()*3);
+    for(var i=0;i<n;i++){
+      var s=document.createElement('span'); s.className='fairy-amb';
+      if(Math.random()<0.5)s.className+=' purple';
+      var sz=5+Math.random()*9;
+      s.style.left=(Math.random()*100)+'vw';
+      s.style.top=(8+Math.random()*86)+'vh';
+      s.style.width=s.style.height=sz+'px';
+      s.style.setProperty('--dur',(2.6+Math.random()*2.8)+'s');
+      s.style.setProperty('--rise',-(30+Math.random()*70)+'px');
+      s.style.setProperty('--drift',(Math.random()*40-20)+'px');
+      document.body.appendChild(s);
+      (function(el){setTimeout(function(){el.remove();},5600);})(s);
+    }
+  }
+  setInterval(ambient,520);
 })();
 
-/* ============ FAIRY MUSIC: a gentle, looping Web Audio twinkle (no files needed) ============
-   Off by default. Starts only on a real user gesture (browser autoplay rules); the
-   Access-panel "Fairy music" switch and toggling Fairy mode both count as gestures. */
+/* ============ FAIRY MUSIC ============
+   Primary source: the YouTube video the user picked, played through the official
+   YouTube IFrame embed (YouTube streams it and handles licensing; nothing is copied
+   or downloaded). If YouTube can't load (offline / embedding disabled), it falls back
+   to a gentle Web Audio twinkle so Fairy mode still has a little music. Audio only
+   starts on a real user gesture (the jukebox button, the switch, or toggling Fairy mode). */
 var fairyMusic=(function(){
-  var ctx=null,master=null,lp=null,delay=null,fb=null,padGain=null,timer=null,padOsc=[];
-  var SCALE=[523.25,587.33,659.25,783.99,880.00,1046.50,1318.51]; /* C major pentatonic, two octaves */
+  var YT_ID='Gj5L9SYhoSE';
   var enabled=false; try{enabled=localStorage.getItem('idea618fairymusic')==='1';}catch(e){}
-  function build(){
+  var playing=false, title='Fairy radio', uiFn=null;
+  function notify(){ try{ if(uiFn)uiFn({playing:playing,title:title,enabled:enabled}); }catch(e){} }
+
+  /* ---- Web Audio twinkle (offline fallback) ---- */
+  var ctx=null,master=null,lp=null,delay=null,fb=null,padGain=null,timer=null,padOsc=[];
+  var SCALE=[523.25,587.33,659.25,783.99,880.00,1046.50,1318.51];
+  function buildSynth(){
     if(ctx)return; var AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
     try{ctx=new AC();}catch(e){ctx=null;return;}
     master=ctx.createGain(); master.gain.value=0.0001; master.connect(ctx.destination);
@@ -17675,33 +17709,79 @@ var fairyMusic=(function(){
     padGain=ctx.createGain(); padGain.gain.value=0.045; padGain.connect(lp);
     [130.81,196.00,261.63].forEach(function(f){var o=ctx.createOscillator();o.type='sine';o.frequency.value=f;var g=ctx.createGain();g.gain.value=0.5;o.connect(g);g.connect(padGain);try{o.start();}catch(e){}padOsc.push(o);});
   }
-  function note(time,freq,dur,vel){
+  function snote(time,freq,dur,vel){
     var o=ctx.createOscillator(); o.type=Math.random()<0.5?'sine':'triangle';
     o.frequency.value=freq; o.detune.value=(Math.random()*8-4);
     var g=ctx.createGain(); g.gain.value=0; o.connect(g); g.connect(lp); g.connect(delay);
-    g.gain.setValueAtTime(0,time);
-    g.gain.linearRampToValueAtTime(vel,time+0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001,time+dur);
+    g.gain.setValueAtTime(0,time); g.gain.linearRampToValueAtTime(vel,time+0.02); g.gain.exponentialRampToValueAtTime(0.0001,time+dur);
     try{o.start(time);o.stop(time+dur+0.05);}catch(e){}
   }
-  function schedule(){
-    if(!ctx)return; var t=ctx.currentTime+0.05; var n=1+(Math.random()<0.4?1:0);
-    for(var i=0;i<n;i++){ var f=SCALE[Math.floor(Math.random()*SCALE.length)]; if(Math.random()<0.25)f*=2;
-      note(t+i*0.10, f, 1.1+Math.random()*0.9, 0.085+Math.random()*0.05); }
+  function sched(){ if(!ctx)return; var t=ctx.currentTime+0.05; var n=1+(Math.random()<0.4?1:0);
+    for(var i=0;i<n;i++){ var f=SCALE[Math.floor(Math.random()*SCALE.length)]; if(Math.random()<0.25)f*=2; snote(t+i*0.10,f,1.1+Math.random()*0.9,0.085+Math.random()*0.05);} }
+  function synthStart(){ buildSynth(); if(!ctx)return; if(ctx.state==='suspended'){try{ctx.resume();}catch(e){}}
+    if(!timer){timer=setInterval(sched,440);sched();}
+    master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(0.13,ctx.currentTime,0.7); title='Fairy twinkle'; }
+  function synthStop(){ if(!ctx)return; master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(0.0001,ctx.currentTime,0.4); if(timer){clearInterval(timer);timer=null;} }
+
+  /* ---- YouTube embed (primary) ---- */
+  var yt=null, ytReady=false, ytLoading=false, ytFailed=false, wantPlay=false;
+  function loadYT(){
+    if(ytReady||ytLoading||ytFailed)return;
+    if(!document.getElementById('fjYT')){ ytFailed=true; return; }
+    ytLoading=true;
+    var to=setTimeout(function(){ if(!ytReady){ ytFailed=true; ytLoading=false; if(playing){synthStart();notify();} } }, 7000);
+    function make(){ try{
+      yt=new YT.Player('fjYT',{height:'1',width:'1',videoId:YT_ID,
+        playerVars:{autoplay:0,controls:0,disablekb:1,fs:0,modestbranding:1,playsinline:1,rel:0,loop:1,playlist:YT_ID},
+        events:{
+          onReady:function(){ clearTimeout(to); ytReady=true; ytLoading=false; try{yt.setVolume(55);}catch(e){}
+            if(wantPlay||playing){ try{yt.playVideo();}catch(e){} } notify(); },
+          onStateChange:function(ev){ try{ if(ev.data===YT.PlayerState.PLAYING){ playing=true; var d=yt.getVideoData&&yt.getVideoData(); if(d&&d.title)title=d.title; notify(); } }catch(e){} },
+          onError:function(){ ytFailed=true; clearTimeout(to); if(playing){synthStart();} notify(); }
+        }});
+    }catch(e){ ytFailed=true; clearTimeout(to); if(playing){synthStart();notify();} } }
+    if(window.YT&&window.YT.Player){ make(); return; }
+    var prev=window.onYouTubeIframeAPIReady; window.onYouTubeIframeAPIReady=function(){ try{prev&&prev();}catch(e){} make(); };
+    var tag=document.createElement('script'); tag.src='https://www.youtube.com/iframe_api';
+    tag.onerror=function(){ ytFailed=true; ytLoading=false; clearTimeout(to); if(playing){synthStart();notify();} };
+    document.head.appendChild(tag);
   }
-  function start(){ build(); if(!ctx)return; if(ctx.state==='suspended'){try{ctx.resume();}catch(e){}}
-    if(!timer){ timer=setInterval(schedule,440); schedule(); }
-    master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(0.13,ctx.currentTime,0.7); }
-  function stop(){ if(!ctx)return; master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(0.0001,ctx.currentTime,0.4);
-    if(timer){clearInterval(timer);timer=null;} }
-  function sync(){ if(enabled&&document.body.classList.contains('pink')){start();}else{stop();} }
-  function toggle(on){ enabled=!!on; try{localStorage.setItem('idea618fairymusic',enabled?'1':'0');}catch(e){}
-    if(typeof setSwitch==='function')setSwitch('swFairyMusic',enabled); sync(); }
-  /* reflect saved state; arm a one-time gesture to (re)start if it was left on */
+
+  /* ---- public controls ---- */
+  function _persist(){ try{localStorage.setItem('idea618fairymusic',enabled?'1':'0');}catch(e){} if(typeof setSwitch==='function')setSwitch('swFairyMusic',enabled); }
+  function play(){ enabled=true; playing=true; _persist();
+    if(ytFailed){ synthStart(); }
+    else if(ytReady){ try{yt.playVideo();}catch(e){synthStart();} }
+    else { wantPlay=true; title='Loading…'; loadYT(); }
+    notify(); }
+  function pause(){ enabled=false; playing=false; wantPlay=false; _persist();
+    synthStop(); if(ytReady){try{yt.pauseVideo();}catch(e){}} notify(); }
+  function toggle(on){ if(on===undefined)on=!playing; on?play():pause(); }
+  function sync(){ if(enabled&&document.body.classList.contains('pink')){ if(!playing||(!ytReady&&!ytFailed&&!ytLoading))play(); else if(ytReady){try{yt.playVideo();}catch(e){}} else if(ytFailed)synthStart(); }
+    else { playing=false; synthStop(); if(ytReady){try{yt.pauseVideo();}catch(e){}} notify(); } }
+  function setUI(fn){ uiFn=fn; notify(); }
+
   try{ if(typeof setSwitch==='function')setSwitch('swFairyMusic',enabled); }catch(e){}
-  if(enabled){ var _g=function(){ sync(); window.removeEventListener('pointerdown',_g,true); window.removeEventListener('keydown',_g,true); };
+  if(enabled){ var _g=function(){ if(document.body.classList.contains('pink'))play(); window.removeEventListener('pointerdown',_g,true); window.removeEventListener('keydown',_g,true); };
     window.addEventListener('pointerdown',_g,true); window.addEventListener('keydown',_g,true); }
-  return {toggle:toggle,sync:sync,isEnabled:function(){return enabled;}};
+  return {toggle:toggle,play:play,pause:pause,sync:sync,setUI:setUI,isPlaying:function(){return playing;},isEnabled:function(){return enabled;},getTitle:function(){return title;}};
+})();
+
+/* ============ FAIRY JUKEBOX (the little bottom-of-page music box) ============ */
+(function(){
+  var box=document.getElementById('fairyJukebox'), btn=document.getElementById('fjToggle'),
+      titleEl=document.getElementById('fjTitle');
+  if(!box||!btn)return;
+  var PLAY='M8 5v14l11-7z', PAUSE='M7 5h3.5v14H7zM13.5 5H17v14h-3.5z';
+  function render(st){
+    var playing=st&&st.playing;
+    box.classList.toggle('playing',!!playing);
+    var path=btn.querySelector('path'); if(path)path.setAttribute('d',playing?PAUSE:PLAY);
+    btn.setAttribute('aria-label',playing?'Pause fairy music':'Play fairy music');
+    if(titleEl)titleEl.textContent=(st&&st.title)?st.title:'Tap play ♪';
+  }
+  try{ fairyMusic.setUI(render); }catch(e){}
+  btn.addEventListener('click',function(){ try{ fairyMusic.toggle(); }catch(e){} });
 })();
 
 /* ============ SAVED / PINNED VIEWS ============
@@ -17847,6 +17927,101 @@ body.pink .card.fig{box-shadow:0 1px 2px rgba(168,38,110,.08),0 8px 26px rgba(23
 /* purple-dust accents sprinkled into a few surfaces */
 body.pink .home-hero,body.pink .explorer-head{box-shadow:0 10px 34px rgba(155,77,255,.18),0 2px 10px rgba(214,0,110,.14)!important}
 body.pink .section-title{text-shadow:0 0 14px rgba(199,121,208,.28)}
+
+/* ============================================================
+   FAIRY MODE v2: cute fonts, light-pink + pastel-purple skin,
+   purple top bar, glitter, jukebox. Uses body.pink:not(.dark)
+   so these beat the late body:not(.dark) !important chrome rules.
+   ============================================================ */
+body.pink{--fairy-font:ui-rounded,"Arial Rounded MT Bold","Chalkboard SE","Comic Sans MS","Marker Felt",system-ui,"Segoe UI",sans-serif;
+  --lav:#c9b6f7;--lav-soft:#efe6ff;--lav-deep:#a44bd0}
+
+/* --- light pink + pastel purple page background (was white) --- */
+body.pink:not(.dark){background:linear-gradient(165deg,#fff2f9 0%,#ffe6f3 42%,#f3e7ff 100%)!important;background-attachment:fixed!important}
+body.pink:not(.dark) .wrap{background:transparent!important}
+
+/* --- bubblegum-cute fonts on the playful display text (data text stays readable) --- */
+body.pink .section-title,body.pink .home-hero,body.pink .home-hero *,
+body.pink .sitenav .brand,body.pink .brand-title,body.pink nav.appbar .brand,
+body.pink .tab,body.pink .vst-btn,body.pink #viewTabs .tab,
+body.pink .kpi .l,body.pink .snap-stat .l,body.pink .lc-title,
+body.pink .home-launchpad-head h3,body.pink .card.fig>h3,body.pink .card>h3,
+body.pink .guidebtn,body.pink #fairyJukebox,body.pink .a11ybtn,
+body.pink .home-hero .hh-50,body.pink .sparkcard .nm{font-family:var(--fairy-font)!important;letter-spacing:.01em}
+body.pink .home-hero h1,body.pink .home-hero h2,body.pink .section-title{font-weight:800!important}
+
+/* --- top bar / gov strip / brand: pastel purple instead of blue/navy --- */
+body.pink:not(.dark) .govbar{background:linear-gradient(90deg,#efe6ff,#ffe7f6)!important;border-bottom:1px solid #e6d6ff!important;color:#8a5fae!important}
+body.pink:not(.dark) .govbar b{color:#7a3ea8!important}
+body.pink:not(.dark) .govbar a{color:#b14fd8!important}
+body.pink:not(.dark) .sitenav.appbar,body.pink:not(.dark) nav.appbar{background:linear-gradient(90deg,#f4e8ff 0%,#ffe9f6 100%)!important;border-bottom-color:#ecd9ff!important}
+body.pink:not(.dark) .sitenav .brand,body.pink:not(.dark) nav.appbar .brand,body.pink:not(.dark) .brand-title{color:#7a3ea8!important}
+body.pink:not(.dark) .brand-tick{background:linear-gradient(180deg,#c879f0,#a44bd0)!important}
+body.pink .seal{background:rgba(168,38,110,.12)!important}
+
+/* --- "Explore the data in depth" launchcards: purple icons, plum titles --- */
+body.pink:not(.dark) .home-launchpad-head h3{color:#a8266e!important}
+body.pink:not(.dark) .launchcard .lc-ic{color:#a44bd0!important;background:rgba(164,75,208,.12)!important;border-color:rgba(164,75,208,.25)!important}
+body.pink:not(.dark) .launchcard:nth-child(2n) .lc-ic{color:#e6398a!important;background:rgba(230,57,138,.12)!important}
+body.pink:not(.dark) .launchcard .lc-title{color:#a8266e!important}
+body.pink:not(.dark) .launchcard .lc-arrow{color:#b14fd8!important}
+body.pink:not(.dark) .launchcard:hover{border-color:#e9c4f5!important}
+
+/* --- a few pastel-purple accents woven through the chrome --- */
+body.pink:not(.dark) .view .card.fig:nth-child(3n){border-top-color:#b14fd8!important}
+body.pink:not(.dark) .view #kpis .kpi:nth-child(3){border-top-color:#b14fd8!important}
+body.pink:not(.dark) .a11ybtn,body.pink:not(.dark) .plainbtn{border-color:#e3cffb!important}
+body.pink:not(.dark) .scopebar{background:#ece1ff!important;color:#7a3ea8!important}
+
+/* --- zoom control: tucked away until you reach for it --- */
+#zoomCtl{opacity:.32;transition:opacity .25s ease}
+#zoomCtl:hover,#zoomCtl:focus-within{opacity:1}
+
+/* --- ambient floating glitter (drifts on its own, not just the cursor) --- */
+.fairy-amb{position:fixed;z-index:2147482400;pointer-events:none;border-radius:50%;
+  background:radial-gradient(circle,#fff 0%,#ff9ed4 45%,#ff2f93 100%);
+  box-shadow:0 0 7px 1px rgba(255,47,147,.55);opacity:0;
+  animation:fairyAmb var(--dur,4s) ease-in-out forwards}
+.fairy-amb.purple{background:radial-gradient(circle,#fff 0%,#d8a8ff 45%,#9b4dff 100%);box-shadow:0 0 7px 1px rgba(155,77,255,.5)}
+@keyframes fairyAmb{0%{opacity:0;transform:translate(0,0) scale(.4)}
+  18%{opacity:.95;transform:translate(calc(var(--drift)*.4),calc(var(--rise)*.25)) scale(1)}
+  60%{opacity:.85}
+  100%{opacity:0;transform:translate(var(--drift),var(--rise)) scale(.5)}}
+@media (prefers-reduced-motion: reduce){.fairy-amb{display:none}}
+
+/* --- the little pink + purple jukebox at the bottom --- */
+#fairyJukebox{display:none}
+body.pink #fairyJukebox{display:flex;align-items:center;gap:9px;position:fixed;right:16px;bottom:16px;z-index:2147482600;
+  padding:9px 13px;border-radius:15px 15px 13px 13px;border:2px solid #fff;
+  background:linear-gradient(160deg,#ff9ed4 0%,#d98cf0 52%,#a44bd0 100%);
+  box-shadow:0 9px 24px rgba(155,77,255,.36),0 2px 7px rgba(214,0,110,.32);
+  color:#fff;font-family:var(--fairy-font);max-width:230px}
+body.pink #fairyJukebox::before{content:"";position:absolute;left:16px;right:16px;top:-6px;height:9px;border-radius:10px 10px 0 0;
+  background:linear-gradient(90deg,#ffd9f0,#e9caff);box-shadow:0 -1px 3px rgba(155,77,255,.3)}
+#fairyJukebox .fj-speaker{width:11px;height:11px;border-radius:50%;flex:0 0 auto;
+  background:radial-gradient(circle at 35% 30%,#fff8,#fff2 40%,#7a1f8f 100%);border:1.5px solid #ffffffaa}
+#fairyJukebox #fjToggle{flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:2px solid #fff;cursor:pointer;
+  background:linear-gradient(160deg,#fff,#ffe3f4);color:#a8266e;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 6px rgba(122,15,90,.3);transition:transform .15s}
+#fairyJukebox #fjToggle:hover{transform:scale(1.08)}
+#fairyJukebox #fjToggle:active{transform:scale(.94)}
+#fairyJukebox #fjToggle svg{width:18px;height:18px;fill:#c2185b}
+#fairyJukebox .fj-mid{display:flex;flex-direction:column;min-width:0;gap:1px;line-height:1.1}
+#fairyJukebox .fj-cap{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;opacity:.92}
+#fairyJukebox .fj-title{font-size:.72rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+#fairyJukebox .fj-eq{display:none;align-items:flex-end;gap:2px;height:11px;margin:1px 0}
+#fairyJukebox.playing .fj-eq{display:flex}
+#fairyJukebox.playing .fj-title{display:none}
+#fairyJukebox .fj-eq i{width:3px;height:100%;border-radius:2px;background:#fff;transform-origin:bottom;animation:fjEq .9s ease-in-out infinite}
+#fairyJukebox .fj-eq i:nth-child(2){animation-delay:.15s}
+#fairyJukebox .fj-eq i:nth-child(3){animation-delay:.3s}
+#fairyJukebox .fj-eq i:nth-child(4){animation-delay:.45s}
+#fairyJukebox .fj-eq i:nth-child(5){animation-delay:.6s}
+@keyframes fjEq{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+#fairyJukebox #fjYT{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-10px;bottom:0;overflow:hidden}
+@media (prefers-reduced-motion: reduce){#fairyJukebox .fj-eq i{animation:none;transform:scaleY(.6)}}
+@media print{#fairyJukebox{display:none!important}}
+@media (max-width:640px){body.pink #fairyJukebox{right:10px;bottom:10px;padding:7px 10px;gap:7px}}
 .pink-glitter.purple{background:radial-gradient(circle,#fff 0%,#d8a8ff 45%,#9b4dff 100%)!important;box-shadow:0 0 6px 1px rgba(155,77,255,.6)!important}
 #pinkFairy{display:none;position:fixed;top:0;left:0;width:66px;height:66px;z-index:2147482500;pointer-events:none;filter:drop-shadow(0 5px 9px rgba(190,24,110,.38))}
 body.pink #pinkFairy{display:block;animation:fairyDance 34s ease-in-out infinite}
@@ -17906,5 +18081,16 @@ body.pink #zoomCtl button{color:#a8266e}
   <path d="M11 40 l.7 1.9 1.9 .7 -1.9 .7 -.7 1.9 -.7 -1.9 -1.9 -.7 1.9 -.7 z" fill="#ffd9f0"/>
 </svg></div></div>
 <div id="zoomCtl" role="group" aria-label="Zoom the data"><button id="zoomOut" type="button" aria-label="Zoom out" title="Zoom out">−</button><span id="zoomPct">90%</span><button id="zoomIn" type="button" aria-label="Zoom in" title="Zoom in">+</button></div>
+<div id="fairyJukebox" aria-hidden="true">
+  <span class="fj-speaker" aria-hidden="true"></span>
+  <button id="fjToggle" class="fj-play" type="button" aria-label="Play fairy music" title="Play / pause fairy music"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="fj-icon-play" d="M8 5v14l11-7z"/></svg></button>
+  <span class="fj-mid">
+    <span class="fj-cap">Fairy radio</span>
+    <span class="fj-eq" id="fjEq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    <span class="fj-title" id="fjTitle">Tap play ♪</span>
+  </span>
+  <span class="fj-speaker" aria-hidden="true"></span>
+  <div id="fjYT" aria-hidden="true"></div>
+</div>
 </body>
 </html>
