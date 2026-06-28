@@ -14794,7 +14794,7 @@ function stateAutoInsight(s){
   var cmp = Math.abs(diff)<0.4 ? 'about the same as'
           : (diff>0?'higher than':'lower than');
   var cmpWord = Math.abs(diff)<0.4 ? '' : (diff>0?'<b>'+diff.toFixed(1)+' points higher</b> than ':'<b>'+Math.abs(diff).toFixed(1)+' points lower</b> than ');
-  return '<div class="rk-insight"><span class="rk-insight-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 2a6 6 0 0 0-3.5 10.9c.5.4.8.9.9 1.5l.1.6h5l.1-.6c.1-.6.4-1.1.9-1.5A6 6 0 0 0 12 2z"/></svg></span><span>In 2024–25, <b>'+focusState+'</b> served <b>'+fmt(cnt)+'</b> students under IDEA Part&nbsp;B, '+trend+'. At <b>'+rate+'%</b> of public-school enrollment, its identification rate is '+(cmpWord||(cmp+' '))+'the <b>'+avgRate.toFixed(1)+'%</b> average across States.</span></div>';
+  return '<div class="rk-insight"><span class="rk-insight-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 2a6 6 0 0 0-3.5 10.9c.5.4.8.9.9 1.5l.1.6h5l.1-.6c.1-.6.4-1.1.9-1.5A6 6 0 0 0 12 2z"/></svg></span><span>At <b>'+rate+'%</b> of public-school enrollment, <b>'+focusState+'</b>&rsquo;s identification rate is '+(cmpWord||(cmp+' '))+'the <b>'+avgRate.toFixed(1)+'%</b> average across States.</span></div>';
  }catch(e){return '';}
 }
 
@@ -17573,6 +17573,7 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
   function spawn(x,y){
     for(var i=0;i<3;i++){
       var s=document.createElement('span'); s.className='pink-glitter';
+      if(Math.random()<0.32)s.className+=' purple';
       var sz=4+Math.random()*7;
       s.style.left=(x+(Math.random()*22-11))+'px'; s.style.top=(y+(Math.random()*10-5))+'px';
       s.style.width=s.style.height=sz+'px';
@@ -17587,6 +17588,7 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
     var now=Date.now(); if(now-last<28)return; last=now;
     spawn(e.clientX,e.clientY);
   },{passive:true});
+  setInterval(function(){ if(reduce||!document.body.classList.contains('pink'))return; var f=document.getElementById('pinkFairy'); if(!f)return; var r=f.getBoundingClientRect(); if(r.width)spawn(r.left+r.width/2,r.top+r.height/2); },300);
 })();
 
 /* ============ SAVED / PINNED VIEWS ============
@@ -17683,6 +17685,16 @@ body.pink{--ff-gold:#e6398a}
 body.pink .section-title:before{background:#e6398a!important}
 body.pink .view[data-view="trends"] .trend-chip.on{background:#a8266e!important;border-color:#a8266e!important;color:#fff!important}
 body.pink .view[data-view="states"] .trend-chip.on{background:#a8266e!important;border-color:#a8266e!important;color:#fff!important}
+.pink-glitter.purple{background:radial-gradient(circle,#fff 0%,#d8a8ff 45%,#9b4dff 100%)!important;box-shadow:0 0 6px 1px rgba(155,77,255,.6)!important}
+#pinkFairy{display:none;position:fixed;top:0;left:0;width:52px;height:52px;z-index:2147482500;pointer-events:none;filter:drop-shadow(0 3px 6px rgba(214,0,110,.45))}
+body.pink #pinkFairy{display:block;animation:fairyDance 28s ease-in-out infinite}
+#pinkFairy svg{width:100%;height:100%;animation:fairyBob 2.4s ease-in-out infinite}
+#pinkFairy .pf-wing{transform-origin:30px 30px;animation:fairyFlutter .3s ease-in-out infinite alternate}
+@keyframes fairyDance{0%{transform:translate(6vw,68vh)}14%{transform:translate(28vw,18vh)}28%{transform:translate(62vw,46vh)}42%{transform:translate(82vw,14vh)}56%{transform:translate(48vw,74vh)}70%{transform:translate(18vw,40vh)}84%{transform:translate(74vw,78vh)}100%{transform:translate(6vw,68vh)}}
+@keyframes fairyBob{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(-9px) rotate(7deg)}}
+@keyframes fairyFlutter{from{transform:scaleX(1)}to{transform:scaleX(.55)}}
+@media (prefers-reduced-motion: reduce){body.pink #pinkFairy{display:none}}
 </style>
+<div id="pinkFairy" aria-hidden="true"><svg viewBox="0 0 60 60" fill="none"><g class="pf-wing"><ellipse cx="22" cy="30" rx="11" ry="16" fill="#ffb3d9" opacity=".7"/><ellipse cx="38" cy="30" rx="11" ry="16" fill="#ffb3d9" opacity=".7"/></g><path d="M30 26 L40 50 L20 50 Z" fill="#e6398a"/><circle cx="30" cy="20" r="7" fill="#ffd9e8"/><circle cx="30" cy="13" r="3.5" fill="#ff8fc8"/><path d="M45 14 l1.6 4.2 4.2 1.6 -4.2 1.6 -1.6 4.2 -1.6 -4.2 -4.2 -1.6 4.2 -1.6 z" fill="#fff"/></svg></div>
 </body>
 </html>
