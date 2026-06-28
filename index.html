@@ -18676,7 +18676,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
       names.forEach(function(n){opts.push('<option value="'+n+'">'+n+'</option>');});
       cbCompare.innerHTML=opts.join('');
     }
-    function drillLabel(total){ var bd=(cbBreak&&cbBreak.selectedOptions&&cbBreak.selectedOptions[0])?cbBreak.selectedOptions[0].textContent.trim():'Categories'; return bd+' — showing '+(selKeys?selKeys.size:0)+' of '+total; }
+    function drillLabel(total){ var sp=specNow(); var rh=(sp&&sp.rowHeader)?String(sp.rowHeader).replace(/\s+/g,' ').trim():'Categories'; rh=rh.charAt(0).toUpperCase()+rh.slice(1); return rh+' — showing '+(selKeys?selKeys.size:0)+' of '+total; }
     function syncChips(total){ if(!cbCats)return; [].slice.call(cbCats.querySelectorAll('.cb-chip')).forEach(function(c){var on=selKeys&&selKeys.has(c.getAttribute('data-k'));c.classList.toggle('on',!!on);c.setAttribute('aria-pressed',on?'true':'false');}); if(cbDrillTitle)cbDrillTitle.textContent=drillLabel(total!=null?total:cbCats.querySelectorAll('.cb-chip').length); }
     function topN(sp,rows,n){ var mi=chartMetricIdx(sp),usK=sp.usKey; return rows.slice().sort(function(a,b){return (_vizNum(sp,usK,b.key,mi)||0)-(_vizNum(sp,usK,a.key,mi)||0);}).slice(0,n); }
     function fillCats(resetSel){
