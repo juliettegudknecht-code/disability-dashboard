@@ -5835,6 +5835,27 @@ body.dark .asmt-legend .nm{color:#ededeb}
 #stateTable thead th[role="button"]{cursor:pointer;position:relative}
 #stateTable thead th[aria-sort="ascending"]::after{content:" ▲";font-size:.7em;opacity:.85}
 #stateTable thead th[aria-sort="descending"]::after{content:" ▼";font-size:.7em;opacity:.85}
+/* ===== Organization polish: sticky headers/first column, scroll hints, consistent accents ===== */
+/* All-States table: a self-contained scroll area so the header row and the State-name
+   column stay put while scanning many years across 51 rows. */
+#st-table .tablewrap{max-height:62vh;overflow:auto;position:relative}
+#st-table #stateTable thead th{position:sticky;top:0;z-index:2;background:var(--card)}
+#st-table #stateTable thead th:first-child{left:0;z-index:3}
+#st-table #stateTable tbody td:first-child,#st-table #stateTable tbody th:first-child{position:sticky;left:0;z-index:1;background:var(--card)}
+body.dark #st-table #stateTable thead th,body.dark #st-table #stateTable tbody td:first-child,body.dark #st-table #stateTable tbody th:first-child{background:#101c2b}
+/* Horizontal scroll hint: a soft shadow at the right edge that fades away once you reach it */
+#st-table .tablewrap,.view[data-view="tables"] .tbl-scroll{
+  background:
+    linear-gradient(90deg,rgba(255,255,255,0),var(--card) 78%) 100% 0/34px 100% no-repeat local,
+    radial-gradient(farthest-side at 100% 50%,rgba(17,46,81,.16),rgba(17,46,81,0)) 100% 0/13px 100% no-repeat scroll;
+}
+body.dark #st-table .tablewrap,body.dark .view[data-view="tables"] .tbl-scroll{
+  background:
+    linear-gradient(90deg,rgba(16,28,43,0),#101c2b 78%) 100% 0/34px 100% no-repeat local,
+    radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.4),rgba(0,0,0,0)) 100% 0/13px 100% no-repeat scroll;
+}
+/* Consistent State-page card accents (was a mix of blue and gray) */
+.view[data-view="states"] #officialDisplay .dd-card{border-left-color:#1f6fa8!important}
 /* Suppressed / not-available data cells: dotted underline + help cursor so the explanation is discoverable */
 .supcell{border-bottom:1px dotted var(--muted);cursor:help;outline-offset:2px}
 .supcell:focus-visible{outline:2px solid var(--primary)}
@@ -12869,7 +12890,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <details class="srcfold"><summary>About this page</summary><div class="srcbody">The snapshot reports, for the selected State, its number of Students with Disabilities served under IDEA, Part&nbsp;B, ages 3 through 21, how that count ranks nationally, and the U.S. Department of Education's most recent annual determination.</div></details>
 
-<nav class="state-page-nav" aria-label="State Snapshot sections"><span>Sections</span><a href="#stateRankBanner">Snapshot</a><a href="#stateMapSection">Map</a><a href="#stateProfile">Section 618</a><a href="#stateDeterminations">SPP/APR</a></nav>
+<nav class="state-page-nav" aria-label="State Snapshot sections"><span>Sections</span><a href="#stateRankBanner">Snapshot</a><a href="#stateMapSection">Compare States</a><a href="#stateProfile">618 Measures</a><a href="#stateDeterminations">SPP/APR</a></nav>
 <div class="rankbanner state-rank-banner" id="stateRankBanner" data-drill-group="states" data-drill-panel="profile" aria-live="polite"></div>
 <div class="snapshot-determinations" id="snapshotDeterminations" data-drill-group="states" data-drill-panel="profile" aria-live="polite"></div>
 <div class="grid" data-drill-group="states" data-drill-panel="profile">
@@ -12881,7 +12902,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   </div>
 </div>
 <details class="srcfold state-scope"><summary>Scope</summary><div class="srcbody">The U.S. map and the State rankings cover the 50 States and the District of Columbia. Additional IDEA reporting entities, Puerto Rico, the Bureau of Indian Education, the outlying areas, and the freely associated states, appear in the selector when data are available, but they are shown separately and are not included in the 50 States and DC rankings.</div></details>
-<div class="state-section-head" id="stateMapSection"><h3>Map and Rankings</h3><p>Choose one measure to color the map and rank the States for Children and Students with Disabilities served under IDEA, Part B.</p></div>
+<div class="state-section-head" id="stateMapSection"><h3>Compared with Other States</h3><p>See how this State compares with the rest of the country: color the U.S. map by a measure and rank the States, compare this State with the nation by disability category, and open the full all-States table.</p></div>
 <div class="grid g2" data-drill-group="states" data-drill-panel="map">
   <div class="card" id="st-map">
     <h3>U.S. Map, <span id="mapMetricLbl"></span></h3>
@@ -12905,6 +12926,18 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   </div>
 </div>
 
+<!-- Cross-state comparison (grouped under "Compared with other States", next to the map + rankings) -->
+<div class="state-subsection-head" id="stateVsNationHead"><h3>This State Compared with the Nation</h3></div>
+<div id="officialDisplay" class="adv-only" data-drill-group="states" data-drill-panel="advanced"></div>
+<div class="grid adv-only" data-drill-group="states" data-drill-panel="advanced">
+  <details class="card state-morefold" id="st-table">
+    <summary>All States and DC: sortable table</summary>
+    <h3>All States and DC, IDEA Part&nbsp;B Child Count, Ages 3–21, School Years 2000–01 Through 2024–25</h3>
+    <div class="note">Sort any column, or choose a row to load that State. IDEA Part&nbsp;B Child Count and Educational Environments Collection, ages 3–21.</div>
+    <div class="tablewrap"><table id="stateTable"><thead></thead><tbody></tbody></table></div>
+  </details>
+</div>
+
 <div class="card state-profile" id="stateProfile" data-drill-group="states" data-drill-panel="profile">
   <div class="state-profile-head">
     <div>
@@ -12920,24 +12953,6 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
       <details class="srcfold compact"><summary>How ranks are calculated</summary><div class="srcbody">Ranks are out of the reporting units included for each measure. Most Part B child count and educational environment ranks use the 50 States and the District of Columbia. Graduation, dropout, and certification exclude New Mexico when data are suppressed for quality. Assessment proficiency is shown only in the assessment section and is not ranked here because state assessment systems are not directly comparable across states.</div></details>
     </div>
   </div>
-</div>
-<div class="state-section-head adv-only" id="stateAdvancedSection"><h3>Trends, comparison &amp; all States</h3><details class="srcfold compact"><summary>About this section</summary><div class="srcbody">How this State's published Part&nbsp;B measures compare with the nation, its child-count trend over time, and a sortable table of all States.</div></details></div>
-<div id="officialDisplay" class="adv-only" data-drill-group="states" data-drill-panel="advanced"></div>
-<div class="grid adv-only" data-drill-group="states" data-drill-panel="advanced">
-  <div class="card">
-    <h3 id="statePanelTitle">Child Count Trend</h3>
-    <div class="note">IDEA Part B Child Count and Educational Environments Collection, ages 3–21.</div>
-    <div class="statline" id="statePanelStats"></div>
-    <div class="canvas-box sm"><canvas id="stateTrend"></canvas></div>
-  </div>
-</div>
-<div class="grid adv-only" data-drill-group="states" data-drill-panel="advanced">
-  <details class="card state-morefold" id="st-table">
-    <summary>All States and DC: sortable table</summary>
-    <h3>All States and DC, IDEA Part&nbsp;B Child Count, Ages 3–21, School Years 2000–01 Through 2024–25</h3>
-    <div class="note">Sort any column, or choose a row to load that State. IDEA Part&nbsp;B Child Count and Educational Environments Collection, ages 3–21.</div>
-    <div class="tablewrap"><table id="stateTable"><thead></thead><tbody></tbody></table></div>
-  </details>
 </div>
 <div class="state-determinations" id="stateDeterminations" aria-live="polite"></div>
 
@@ -14034,13 +14049,13 @@ function renderStateDetail(){
  const s=STATES.find(x=>x[0]===focusState);
  if(!s)return;
  const titleHtml='<span class="statehl">'+focusState+'</span> Child Count Trend';
- document.getElementById('statePanelTitle').innerHTML=titleHtml;
+ const _spt=document.getElementById('statePanelTitle');if(_spt)_spt.innerHTML=titleHtml;
  const series=[s[1],s[2],s[3],s[4]];
  const grw=((s[4]-s[1])/s[1]*100);
  const avgSeries=stateAvgSeries();
  const statsHtml=
   `<div>Change in students served since School Year 2000–01<br><b>${grw>=0?'+':''}${grw.toFixed(0)}%</b></div>`;
- document.getElementById('statePanelStats').innerHTML=statsHtml;
+ const _sps=document.getElementById('statePanelStats');if(_sps)_sps.innerHTML=statsHtml;
  const _mkDsets=()=>[
    {label:focusState,data:series.slice(),borderColor:'#005ea2',backgroundColor:shade('#005ea2',.12),borderWidth:2.5,fill:true,tension:.3,pointRadius:3,order:1},
    {label:'Average State',data:avgSeries.slice(),borderColor:'#cc5a33',backgroundColor:'transparent',borderWidth:2,borderDash:[5,4],fill:false,tension:.3,pointRadius:2,order:2}
@@ -14048,8 +14063,9 @@ function renderStateDetail(){
  const _opts=()=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:14}},
    tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.y)+' students'}}},
    scales:{x:{grid:{display:false}},y:{beginAtZero:false,ticks:{callback:v=>v.toLocaleString()}}}});
- const cfg={type:'line',data:{labels:STATE_YEARS,datasets:_mkDsets()},options:_opts()};
- if(stateTrend)stateTrend.destroy();stateTrend=new Chart(document.getElementById('stateTrend'),cfg);
+ const _stCanvas=document.getElementById('stateTrend');
+ if(_stCanvas){const cfg={type:'line',data:{labels:STATE_YEARS,datasets:_mkDsets()},options:_opts()};
+  if(stateTrend)stateTrend.destroy();stateTrend=new Chart(_stCanvas,cfg);}
  /* mirror the Child Count Trend onto the Snapshot sub-tab */
  const snapTitle=document.getElementById('statePanelTitleSnap');if(snapTitle)snapTitle.innerHTML=titleHtml;
  const snapStats=document.getElementById('statePanelStatsSnap');if(snapStats)snapStats.innerHTML=statsHtml;
