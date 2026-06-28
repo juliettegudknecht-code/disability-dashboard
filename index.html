@@ -7,7 +7,10 @@
 <script>
 /* Soft password gate: lock the page before anything renders, unlock for the session once entered.
    This is a light access gate, not real security (the page is fully client-side). */
-(function(){ try{ if(localStorage.getItem('idea618_unlocked')!=='1' && sessionStorage.getItem('idea618_unlocked')!=='1'){ document.documentElement.className+=' locked'; } }catch(e){} })();
+(function(){ try{ if(localStorage.getItem('idea618_unlocked')!=='1'){ document.documentElement.className+=' locked'; } }catch(e){} })();
+/* Safety net: never let the loading screen get stuck, even if the main script errors. */
+setTimeout(function(){ try{ document.documentElement.classList.add('app-ready'); }catch(e){} }, 5000);
+window.addEventListener('load', function(){ try{ document.documentElement.classList.add('app-ready'); }catch(e){} });
 </script>
 <style id="pwGateStyle">
   html.locked, html.locked body{ overflow:hidden !important; }
@@ -57,7 +60,25 @@
   #pwGate .gate-msg{ min-height:18px; margin-top:12px; font-size:13px; color:#cc5a33; font-weight:600; }
   #pwGate.bad .gate-card{ animation:gateShake .4s; }
   @keyframes gateShake{ 0%,100%{transform:translateX(0);} 20%{transform:translateX(-9px);} 40%{transform:translateX(8px);} 60%{transform:translateX(-6px);} 80%{transform:translateX(4px);} }
-  #pwGate .gate-hint{ margin-top:16px; font-size:11.5px; color:#90a2b0; }
+  #pwGate .gate-hint{ margin-top:18px; font-size:11.5px; color:#90a2b0; line-height:1.5; }
+  #pwGate .gate-hint b{ color:#5a6b78; white-space:nowrap; }
+  #pwGate .gate-updated{ margin-top:10px; padding-top:10px; border-top:1px solid #eef2f5; font-size:11px; color:#aab6c0; }
+  /* Loading screen: shown until the app has finished setting up, so a refresh never
+     flashes raw/partly-built content. Hidden once <html> gets the app-ready class. */
+  #appLoading{ position:fixed; inset:0; z-index:2147483646; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:18px; background:#13354e;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    transition:opacity .35s ease; }
+  html.app-ready #appLoading{ opacity:0; visibility:hidden; pointer-events:none; }
+  #appLoading .al-seal{ width:64px; height:64px; border-radius:15px; background:#1c4a6e;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; line-height:1; }
+  #appLoading .al-seal b{ font-size:23px; letter-spacing:.5px; }
+  #appLoading .al-seal span{ font-size:10px; letter-spacing:1.5px; color:#edcf36; margin-top:3px; }
+  #appLoading .al-spin{ width:34px; height:34px; border-radius:50%; border:3px solid rgba(255,255,255,.18);
+    border-top-color:#edcf36; animation:alSpin .8s linear infinite; }
+  #appLoading .al-txt{ font-size:13px; color:#cdd9e4; letter-spacing:.02em; }
+  @keyframes alSpin{ to{ transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){ #appLoading .al-spin{ animation-duration:2.2s; } }
 </style>
 <script>
 /*!
@@ -5820,14 +5841,18 @@ body.dark .asmt-legend .nm{color:#ededeb}
 .supcell:focus-visible{outline:2px solid var(--primary)}
 /* Auto-insight takeaway line inside the State rank banner */
 .rk-insight{display:flex;gap:8px;align-items:flex-start;margin-top:10px;padding:10px 12px;background:var(--line2);border-left:3px solid var(--primary);border-radius:6px;font-size:.92rem;line-height:1.45;color:var(--ink)}
-.rk-insight-ic{flex:0 0 auto;font-size:1rem;line-height:1.3}
+.rk-insight-ic{flex:0 0 auto;display:inline-flex;color:var(--primary)}
+.rk-insight-ic svg{width:18px;height:18px;display:block}
 body.dark .rk-insight{background:rgba(255,255,255,.05)}
 /* Accessibility features page */
 .a11y-page{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:18px}
 .a11y-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;box-shadow:var(--shadow)}
 .a11y-card h3{margin:0 0 10px;font-size:1.05rem;color:var(--navy);display:flex;align-items:center;gap:8px}
 body.dark .a11y-card h3{color:#cfe2f4}
-.a11y-card .a11y-ic{font-size:1.15rem}
+.a11y-card .a11y-ic{display:inline-flex;align-items:center;color:var(--primary)}
+.a11y-card .a11y-ic svg{width:20px;height:20px;display:block}
+.feedback-btn{display:inline-block;margin-top:6px;padding:9px 18px;background:var(--primary);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem}
+.feedback-btn:hover{background:var(--navy)}
 .a11y-card ul{margin:0;padding-left:18px}
 .a11y-card li{margin:0 0 8px;line-height:1.5;color:var(--ink)}
 .a11y-card li:last-child{margin-bottom:0}
@@ -12299,7 +12324,14 @@ body.printing .guidebtn{display:none}
 }
 .welcome-overlay.open .welcome-modal{transform:none}
 .welcome-accent{height:6px;background:linear-gradient(90deg,var(--navy) 0%,var(--primary) 45%,var(--gold) 100%)}
-.welcome-head{padding:26px 30px 4px;position:relative}
+.welcome-head{padding:26px 30px 4px;position:relative;overflow:hidden}
+/* Decorative four-way crossroads watermark (matches "Four ways into the data") */
+.welcome-cross{position:absolute;top:-34px;right:-30px;width:200px;height:200px;pointer-events:none;z-index:0}
+.welcome-cross svg{width:100%;height:100%;transform:rotate(12deg)}
+.welcome-cross .wc-road{fill:var(--navy);fill-opacity:.05}
+.welcome-cross .wc-lane{stroke:var(--gold);stroke-opacity:.55;stroke-width:4;stroke-dasharray:11 9;stroke-linecap:round}
+body.dark .welcome-cross .wc-road{fill:#ffffff;fill-opacity:.05}
+.welcome-head>*:not(.welcome-cross){position:relative;z-index:1}
 .welcome-x{
   position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:8px;
   border:1px solid var(--line);background:var(--card);color:var(--muted);
@@ -12373,6 +12405,11 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </style>
 </head>
 <body>
+<div id="appLoading" role="status" aria-live="polite" aria-label="Loading the data tool">
+  <div class="al-seal" aria-hidden="true"><b>618</b><span>DATA</span></div>
+  <div class="al-spin" aria-hidden="true"></div>
+  <div class="al-txt">Loading the data tool…</div>
+</div>
 <div id="pwGate" role="dialog" aria-modal="true" aria-labelledby="pwGateTitle">
   <div class="gate-card">
     <h2 id="pwGateTitle">IDEA Section 618 Data Tool</h2>
@@ -12386,6 +12423,8 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
       <button type="submit" class="gate-go">Continue</button>
       <div class="gate-msg" id="pwGateMsg" aria-live="polite"></div>
     </form>
+    <div class="gate-hint">Seeing an older version? Press <b>Ctrl&#8209;R</b> (<b>&#8984;R</b> on Mac) to hard-refresh and load the latest updates.</div>
+    <div class="gate-updated" id="pwGateUpdated"></div>
   </div>
 </div>
 <script>
@@ -12398,18 +12437,27 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   var toggle = document.getElementById('pwGateToggle');
   if(!gate || !form) return;
   var remember = document.getElementById('pwGateRemember');
-  function unlock(){
-    try{
-      var keep = remember && remember.checked;
-      sessionStorage.setItem('idea618_unlocked','1');
-      if(keep) localStorage.setItem('idea618_unlocked','1');
-      else localStorage.removeItem('idea618_unlocked');
-    }catch(e){}
+  function dropGate(){
     document.documentElement.classList.remove('locked');
     gate.parentNode && gate.parentNode.removeChild(gate);
     try{ window.scrollTo(0,0); }catch(e){}
   }
-  if(!document.documentElement.classList.contains('locked')){ unlock(); return; }
+  function unlock(){
+    /* Persist only when "Remember me" is checked. Otherwise a refresh re-locks. */
+    try{
+      if(remember && remember.checked) localStorage.setItem('idea618_unlocked','1');
+      else localStorage.removeItem('idea618_unlocked');
+    }catch(e){}
+    dropGate();
+  }
+  /* Remembered from a previous visit: the early script didn't lock. Just drop the gate,
+     leaving the stored flag untouched. */
+  if(!document.documentElement.classList.contains('locked')){ dropGate(); return; }
+  /* Show when this file was last updated (auto-reflects the actual file save time). */
+  try{
+    var lm=document.lastModified, d=lm?new Date(lm):null, up=document.getElementById('pwGateUpdated');
+    if(up&&d&&!isNaN(d)){ up.textContent='Last updated '+d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}); }
+  }catch(e){}
   try{ input.focus(); }catch(e){}
   toggle.addEventListener('click', function(){
     var showing = input.type === 'text';
@@ -12519,6 +12567,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <div class="welcome-modal">
     <div class="welcome-accent" aria-hidden="true"></div>
     <div class="welcome-head">
+      <span class="welcome-cross" aria-hidden="true"><svg viewBox="0 0 200 200" fill="none"><rect x="84" y="0" width="32" height="200" class="wc-road"/><rect x="0" y="84" width="200" height="32" class="wc-road"/><g class="wc-lane"><line x1="100" y1="2" x2="100" y2="80"/><line x1="100" y1="120" x2="100" y2="198"/><line x1="2" y1="100" x2="80" y2="100"/><line x1="120" y1="100" x2="198" y2="100"/></g></svg></span>
       <button type="button" class="welcome-x" id="welcomeClose" aria-label="Close guide">×</button>
       <div class="welcome-ey">Start here</div>
       <h2 id="welcomeTitle">Four ways into the data</h2>
@@ -13027,53 +13076,54 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <div class="view" data-view="accessibility" role="tabpanel" aria-label="Accessibility features">
 <h2 class="section-title" id="accessibility">Accessibility features</h2>
-<p class="viewlead">This dashboard is built to work for as many people as possible, including those who use a keyboard, a screen reader, screen magnification, or who prefer reduced motion or plain language. Everything below is already available. Most display settings live in the <b>Access</b> menu at the top of the page (the button labeled “Access”).</p>
+<p class="viewlead">This tool is built to work with keyboards, screen readers, screen magnifiers, and reduced-motion or plain-language preferences. The settings below live in the <b>Access</b> menu at the top of the page.</p>
 <div class="a11y-page">
   <section class="a11y-card">
-    <h3><span class="a11y-ic" aria-hidden="true">👁</span> Display &amp; readability</h3>
+    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span> Display and readability</h3>
     <ul>
-      <li><b>Dark mode</b>: a low-light color theme that's easier on the eyes. Toggle it in the <b>Access</b> menu.</li>
-      <li><b>High contrast</b>: stronger text-to-background contrast for low-vision users.</li>
-      <li><b>Larger text</b>: three text sizes (A / A+ / A++) that scale the whole page.</li>
-      <li><b>Underline links</b>: underlines every link so color isn't the only cue.</li>
+      <li><b>Dark mode</b>: a darker color theme for low-light settings.</li>
+      <li><b>High contrast</b>: stronger contrast between text and background.</li>
+      <li><b>Larger text</b>: three text sizes (A, A+, A++) that scale the whole page.</li>
+      <li><b>Underline links</b>: underlines links so color is not the only cue.</li>
       <li><b>Responsive layout</b>: the page reflows for phones, tablets, and zoom up to 400%.</li>
     </ul>
   </section>
   <section class="a11y-card">
-    <h3><span class="a11y-ic" aria-hidden="true">🌀</span> Motion</h3>
+    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span> Motion</h3>
     <ul>
-      <li><b>Reduce motion</b>: turns off chart and tile animations. It also follows your device's “reduce motion” system setting automatically.</li>
-      <li><b>Animations toggle</b>: a separate switch to disable all animation independently.</li>
+      <li><b>Reduce motion</b>: turns off chart and tile animations. It also follows your device's own reduce-motion setting.</li>
+      <li><b>Animations</b>: a separate switch to turn animation on or off.</li>
     </ul>
   </section>
   <section class="a11y-card">
-    <h3><span class="a11y-ic" aria-hidden="true">📖</span> Reading &amp; comprehension</h3>
+    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span> Reading and comprehension</h3>
     <ul>
-      <li><b>Plain language mode</b>: swaps technical and legal terms for everyday words across the whole tool.</li>
-      <li><b>Chart text descriptions</b>: every chart can show a written summary of what it shows, for screen-reader users and anyone who prefers words to graphics.</li>
-      <li><b>Plain-language data takeaways</b>: key views include a one-sentence summary of the main finding.</li>
+      <li><b>Plain language</b>: swaps technical and legal terms for everyday words across the tool.</li>
+      <li><b>Chart descriptions</b>: every chart can show a written summary, for screen readers or anyone who prefers words to graphics.</li>
+      <li><b>Data takeaways</b>: key views include a one-line summary of the main finding.</li>
     </ul>
   </section>
   <section class="a11y-card">
-    <h3><span class="a11y-ic" aria-hidden="true">⌨️</span> Keyboard &amp; screen readers</h3>
+    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg></span> Keyboard and screen readers</h3>
     <ul>
-      <li><b>Skip link</b>: press <kbd>Tab</kbd> on load to jump straight to the data content.</li>
-      <li><b>Full keyboard navigation</b>: every control, tab, menu, and switch is reachable and operable with the keyboard. A visible focus outline shows where you are.</li>
-      <li><b>Sortable tables by keyboard</b>: column headers are buttons you can focus and activate with <kbd>Enter</kbd> or <kbd>Space</kbd>; the current sort is announced with <code>aria-sort</code>.</li>
-      <li><b>Proper table structure</b>: data tables use real column and row headers (<code>scope</code>) so screen readers announce each value in context.</li>
-      <li><b>Labeled charts &amp; live regions</b>: charts carry descriptive labels, and selections update polite live regions so changes are announced.</li>
+      <li><b>Skip link</b>: press <kbd>Tab</kbd> on load to jump straight to the data.</li>
+      <li><b>Keyboard navigation</b>: every control, tab, menu, and switch works with the keyboard, with a visible focus outline.</li>
+      <li><b>Sortable tables</b>: column headers are buttons you can focus and activate with <kbd>Enter</kbd> or <kbd>Space</kbd>; the sort order is announced.</li>
+      <li><b>Table structure</b>: tables use real column and row headers, so screen readers announce each value in context.</li>
+      <li><b>Labeled charts</b>: charts carry descriptive labels, and changing a selection is announced.</li>
     </ul>
   </section>
   <section class="a11y-card">
-    <h3><span class="a11y-ic" aria-hidden="true">🔎</span> Understanding the data</h3>
+    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span> Understanding the data</h3>
     <ul>
-      <li><b>Suppressed-data explainers</b>: hover or focus any “–”, “x”, or “*” in a table to read why a value is missing or suppressed, so a blank is never mistaken for a zero.</li>
-      <li><b>Suppression key</b>: a full legend appears in the sources note at the bottom of the page: <span class="supleg"><span><b>x</b> suppressed, small cell size</span><span><b>*</b> suppressed, data quality</span><span><b>–</b> not available</span></span></li>
+      <li><b>Suppressed-data explainers</b>: hover or focus any “–”, “x”, or “*” in a table to see why a value is missing or suppressed, so a blank is never read as a zero.</li>
+      <li><b>Suppression key</b>: the full legend is in the sources note at the bottom of the page: <span class="supleg"><span><b>x</b> suppressed, small cell size</span><span><b>*</b> suppressed, data quality</span><span><b>–</b> not available</span></span></li>
     </ul>
   </section>
   <section class="a11y-card a11y-card-note">
-    <h3><span class="a11y-ic" aria-hidden="true">🧭</span> Standards &amp; feedback</h3>
-    <p>The tool aims to meet <b>WCAG 2.1 Level AA</b>. Your display, motion, and reading choices are saved on your device and stay set on your next visit. If something is hard to use with assistive technology, that's a bug worth reporting, accessibility is treated as part of the data being correct, not an extra.</p>
+    <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span> Standards and feedback</h3>
+    <p>The tool aims for <b>WCAG 2.1 Level AA</b>. Your display, motion, and reading choices are saved in your browser for next time. If something is hard to use with assistive technology, please say so. I treat accessibility as part of getting the data right.</p>
+    <p><a class="feedback-btn" id="a11yFeedbackBtn" href="#">Send feedback</a></p>
   </section>
 </div>
 <div class="fn">Settings are stored locally in your browser and are never sent anywhere.</div>
@@ -14608,7 +14658,7 @@ function stateAutoInsight(s){
   var cmp = Math.abs(diff)<0.4 ? 'about the same as'
           : (diff>0?'higher than':'lower than');
   var cmpWord = Math.abs(diff)<0.4 ? '' : (diff>0?'<b>'+diff.toFixed(1)+' points higher</b> than ':'<b>'+Math.abs(diff).toFixed(1)+' points lower</b> than ');
-  return '<div class="rk-insight"><span class="rk-insight-ic" aria-hidden="true">💡</span><span>In 2024–25, <b>'+focusState+'</b> served <b>'+fmt(cnt)+'</b> students under IDEA Part&nbsp;B, '+trend+'. At <b>'+rate+'%</b> of public-school enrollment, its identification rate is '+(cmpWord||(cmp+' '))+'the <b>'+avgRate.toFixed(1)+'%</b> average across States.</span></div>';
+  return '<div class="rk-insight"><span class="rk-insight-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 2a6 6 0 0 0-3.5 10.9c.5.4.8.9.9 1.5l.1.6h5l.1-.6c.1-.6.4-1.1.9-1.5A6 6 0 0 0 12 2z"/></svg></span><span>In 2024–25, <b>'+focusState+'</b> served <b>'+fmt(cnt)+'</b> students under IDEA Part&nbsp;B, '+trend+'. At <b>'+rate+'%</b> of public-school enrollment, its identification rate is '+(cmpWord||(cmp+' '))+'the <b>'+avgRate.toFixed(1)+'%</b> average across States.</span></div>';
  }catch(e){return '';}
 }
 
@@ -16063,13 +16113,15 @@ function updateVintageBadge(v){
 
 /* ---- animated count-ups (respects reduce motion) ---- */
 function _animEl(el,dur){
-  return; /* count-up disabled: stat cards show their exact value, never flash intermediate numbers */
+  return; /* superseded by countUpRoot(), the comprehensive count-up driver below */
   const orig=el.getAttribute('data-cuv')||el.textContent;
   const m=orig.match(/-?\d[\d,]*\.?\d*/g);
   if(!m||m.length!==1)return;
+  if(el.getAttribute('data-cuanim')===orig)return;
   const token=m[0], num=parseFloat(token.replace(/,/g,''));
-  if(!isFinite(num))return;
+  if(!isFinite(num)){el.setAttribute('data-cuanim',orig);return;}
   el.setAttribute('data-cuv',orig);
+  el.setAttribute('data-cuanim',orig);
   const decimals=(token.split('.')[1]||'').length, group=token.indexOf(',')>=0;
   const f=x=>x.toLocaleString(undefined,{minimumFractionDigits:decimals,maximumFractionDigits:decimals,useGrouping:group});
   if(document.body.classList.contains('reduce')||document.body.classList.contains('no-anim')){el.textContent=orig;return;}
@@ -16649,7 +16701,6 @@ function buildAdditionalCollections(){
 }
 function countUpRoot(root){
   try{
-    return; /* count-up disabled: stat cards show their exact value, never flash intermediate numbers */
     if(!root) return;
     if(document.body.classList.contains('no-anim')||document.body.classList.contains('reduce')) return;
     if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -16659,6 +16710,10 @@ function countUpRoot(root){
       var m=txt.match(/^([+\-$]*)((?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?)(%?)$/);
       if(!m) return;
       if(el.__cuActive) return;
+      /* Animate each value once. Re-animate only when the value itself changes (e.g. a new
+         State is selected), so simply revisiting a view never re-flashes the numbers. */
+      if(el.getAttribute('data-cuanim')===txt) return;
+      el.setAttribute('data-cuanim',txt);
       var prefix=m[1], numStr=m[2], suffix=m[3];
       var decimals=(numStr.split('.')[1]||'').length, hasComma=numStr.indexOf(',')>=0;
       var target=parseFloat(numStr.replace(/,/g,'')); if(!isFinite(target)) return;
@@ -17297,6 +17352,15 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
   }
   function decorateAll(){ try{ decorate(document.body); }catch(e){} }
   decorateAll();
+  /* Wire the feedback button to a mailto (works from a static file; no server needed) */
+  try{
+    var fb=document.getElementById('a11yFeedbackBtn');
+    if(fb){
+      var subj=encodeURIComponent('IDEA Section 618 Data Tool — feedback');
+      var body=encodeURIComponent('What I was looking at:\n\nWhat happened / what I expected:\n\nDevice and browser:\n');
+      fb.setAttribute('href','mailto:juliette@autismandndadvocacy.com?subject='+subj+'&body='+body);
+    }
+  }catch(e){}
   /* Route the in-app links that point at the accessibility page */
   try{
     document.addEventListener('click',function(e){
@@ -17323,6 +17387,8 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
     mo.observe(document.body,{childList:true,subtree:true});
   }catch(e){}
 })();
+/* App is set up and the active view is rendered: lift the loading screen. */
+try{ setTimeout(function(){ document.documentElement.classList.add('app-ready'); }, 60); }catch(e){ document.documentElement.classList.add('app-ready'); }
 </script>
 </body>
 </html>
