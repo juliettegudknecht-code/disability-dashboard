@@ -12571,7 +12571,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     <p>Enter the password to continue.</p>
     <form id="pwGateForm" autocomplete="off">
       <div class="gate-field">
-        <input id="pwGateInput" type="password" inputmode="text" placeholder="Password" aria-label="Password" autofocus />
+        <input id="pwGateInput" type="password" inputmode="text" placeholder="Password" aria-label="Password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" autofocus />
         <button type="button" class="gate-toggle" id="pwGateToggle" aria-label="Show password">Show</button>
       </div>
       <button type="submit" class="gate-go">Continue</button>
@@ -12775,13 +12775,13 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <div class="card fig trend-focus-card" id="trend-main" data-drill-group="trends" data-drill-panel="national">
     <h3>Children and Students with Disabilities Served Under IDEA, Part&nbsp;B, Ages 3 Through 21, 1976–2025</h3>
     <div class="note">This chart illustrates the consistent and significant growth in the number of Children and Students with Disabilities served under IDEA, Part&nbsp;B, ages 3 through 21, from School Year 1976–77 to today. Select one or more primary disability categories below to compare each category with the overall total.</div>
+    <div class="canvas-box tall"><canvas id="trendChart"></canvas></div>
     <div class="tbl-toggle trend-unit-toggle" id="trendUnitToggle" role="group" aria-label="Show the trend as counts or as a percent of enrollment">
       <button type="button" data-unit="count" class="on" aria-pressed="true">Number of students</button>
       <button type="button" data-unit="rate" aria-pressed="false">% of enrollment</button>
     </div>
     <div class="trend-series-control" id="trendPills"></div>
     <div class="trend-focus-summary" id="trendFocusSummary" aria-live="polite"></div>
-    <div class="canvas-box tall"><canvas id="trendChart"></canvas></div>
     <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, National Center for Education Statistics, Digest of Education Statistics 2023, Table&nbsp;204.30; and Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” School Years 1976–77 through 2024–25.</div></details>
   </div>
 </div>
@@ -13002,7 +13002,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <h2 class="section-title" id="tables">SEA Tables</h2>
 <!-- "About this page" and "What this shows" merged into one disclosure -->
 <details class="lead-fold"><summary>About this page</summary>
-  <p class="viewlead" data-folded="1">Exact figures from the official IDEA Section 618 collections. Pick one or more collections, choose whether to compare States or disability categories, then add what you want to see side by side. Any table can switch between counts and percentages, turn into a chart with <strong>Visualize</strong>, or download as a CSV.</p>
+  <p class="viewlead" data-folded="1">Exact figures from the official IDEA Section 618 collections. Pick one or more collections, choose whether to compare States or disability categories, then add what you want to see side by side. Any table can switch between counts and percentages, flip to a chart view, or download as a CSV. For a custom chart, use the <strong>Build a chart</strong> button at the bottom of the screen.</p>
   <p class="note" data-nf="skip" style="margin-top:8px">Every figure in these tables is an exact count reported to the U.S. Department of Education under IDEA Section&nbsp;618, not an estimate. Switch any table between <b>counts</b> (the number of children and students) and <b>percentages</b> (a share of the total). A dash (<b>–</b>) marks a cell the Department suppressed to protect student privacy when very few students are involved.</p>
 </details>
 <div class="tables-setup">
@@ -16195,7 +16195,7 @@ function renderTablesView(){
  if(!tablesCollections.length){
   if(_tbToolbar)_tbToolbar.style.display='none'; if(_tbKey)_tbKey.style.display='none';
   try{if(typeof Chart!=='undefined')box.querySelectorAll('.tbl-viz-canvas').forEach(function(cv){var c=Chart.getChart(cv.id);if(c)c.destroy();});}catch(e){}
-  box.innerHTML='<div class="tables-empty"><div class="tables-empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg></div><h3>Pick a Collection to Begin</h3><p>Choose one or more data collections from the buttons above to see the IDEA Section&nbsp;618 tables. You can combine Part&nbsp;B and Part&nbsp;C, switch between counts and percentages, turn any table into a chart with <strong>Visualize</strong>, and download the data as a CSV.</p></div>';
+  box.innerHTML='<div class="tables-empty"><div class="tables-empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg></div><h3>Pick a Collection to Begin</h3><p>Choose one or more data collections from the buttons above to see the IDEA Section&nbsp;618 tables. You can combine Part&nbsp;B and Part&nbsp;C, switch between counts and percentages, flip any table to a chart view, and download the data as a CSV. For a custom chart, use the <strong>Build a chart</strong> button at the bottom of the screen.</p></div>';
   return;
  }
  if(_tbToolbar)_tbToolbar.style.display=''; if(_tbKey)_tbKey.style.display='';
@@ -18266,6 +18266,10 @@ body.pink #chartBuilderFab .cbf-ic{color:#ffe3ef}
 .cb-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px 14px;margin-bottom:14px}
 .cb-field{display:flex;flex-direction:column;gap:4px;font-size:.74rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
 .cb-field select{font:inherit;text-transform:none;letter-spacing:0;font-weight:600;font-size:.92rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+.cb-toolbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 12px}
+.cb-check{display:inline-flex;align-items:center;gap:7px;font-size:.85rem;font-weight:600;color:var(--ink);cursor:pointer}
+.cb-check input{width:16px;height:16px;cursor:pointer}
+.cb-hint{font-size:.78rem;color:var(--muted);font-style:italic}
 .cb-card{margin:0}
 .cb-canvasbox{height:340px;position:relative}
 .cb-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
@@ -18335,8 +18339,11 @@ body.pink .cb-close:hover{color:#a8266e}
       <label class="cb-field"><span>Collection</span><select id="cbColl"></select></label>
       <label class="cb-field"><span>Breakdown</span><select id="cbBreak"></select></label>
       <label class="cb-field"><span>State or entity</span><select id="cbState"></select></label>
+      <label class="cb-field"><span>Compare with</span><select id="cbCompare"></select></label>
       <label class="cb-field"><span>Chart type</span><select id="cbType"><option value="bar">Bar</option><option value="doughnut">Donut</option><option value="pie">Pie</option><option value="bubble">Bubble</option></select></label>
+      <label class="cb-field"><span>Values</span><select id="cbVals"><option value="count">Count</option><option value="percent">Percent</option></select></label>
     </div>
+    <div class="cb-toolbar"><label class="cb-check"><input type="checkbox" id="cbLabels" checked> Show values on chart</label><span class="cb-hint" id="cbHint"></span></div>
     <div class="card tbl-card cb-card" data-viz-card="cbChart" id="cbCardHost">
       <div class="tbl-viz-canvasbox cb-canvasbox"><canvas id="cbChart_cv" class="tbl-viz-canvas" aria-label="Custom chart"></canvas></div>
       <div class="tbl-viz-note" id="cbChart_note"></div>
@@ -18355,7 +18362,7 @@ body.pink .cb-close:hover{color:#a8266e}
   function ready(fn){ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fn); else fn(); }
   ready(function(){
     var fab=$('chartBuilderFab'), modal=$('chartBuilderModal');
-    var cbColl=$('cbColl'),cbBreak=$('cbBreak'),cbState=$('cbState'),cbType=$('cbType'),cbSub=$('cbSub');
+    var cbColl=$('cbColl'),cbBreak=$('cbBreak'),cbState=$('cbState'),cbCompare=$('cbCompare'),cbType=$('cbType'),cbVals=$('cbVals'),cbLabels=$('cbLabels'),cbSub=$('cbSub'),cbHint=$('cbHint');
     if(!fab||!modal||!cbColl)return;
     var built=false;
     var BREAK_KW=[['educational environment','Educational environment'],['environment','Educational environment'],['race','Race / ethnicity'],['ethnicity','Race / ethnicity'],['english learner','English learner status'],['el status','English learner status'],['by sex','Sex'],[', sex','Sex'],['age group','Age group'],['grade','Grade level'],['qualification','Teacher qualification'],['early intervention setting','Early intervention setting'],['setting','Setting'],['type of removal','Type of removal'],['exit','Exit reason']];
@@ -18379,35 +18386,51 @@ body.pink .cb-close:hover{color:#a8266e}
       var specs=specsFor(cbColl.value),seen={};
       cbBreak.innerHTML=specs.map(function(sp,i){var l=breakLabel(sp);if(seen[l]){seen[l]++;l+=' ('+seen[l]+')';}else seen[l]=1;return '<option value="'+i+'">'+l+'</option>';}).join('');
     }
-    function fillState(){
-      var opts=['<option value="__US__">U.S. national total</option>'];
+    function stateOpts(extra){
       var names=(typeof STATES!=='undefined')?STATES.map(function(s){return s[0];}).slice().sort():[];
+      var opts=[extra||'<option value="__US__">U.S. national total</option>'];
       names.forEach(function(n){opts.push('<option value="'+n+'">'+n+'</option>');});
-      cbState.innerHTML=opts.join('');
+      return opts.join('');
+    }
+    function fillState(){ if(cbState)cbState.innerHTML=stateOpts(); }
+    function fillCompare(){
+      if(!cbCompare)return;
+      var names=(typeof STATES!=='undefined')?STATES.map(function(s){return s[0];}).slice().sort():[];
+      var opts=['<option value="__none__">None</option>','<option value="__US__">U.S. national total</option>'];
+      names.forEach(function(n){opts.push('<option value="'+n+'">'+n+'</option>');});
+      cbCompare.innerHTML=opts.join('');
     }
     function render(){
       if(typeof TBL_SPECS==='undefined'||typeof _renderVizChart!=='function')return;
-      var specs=specsFor(cbColl.value),sp=specs[+cbBreak.value||0]; if(!sp)return;
-      sp._coll=cbColl.value; sp._sid=CB;
-      var usKey=sp.usKey||'__US__';
-      var chosen=(cbState.value==='__US__')?usKey:cbState.value;
-      sp.states=[chosen];
-      window._tblSpecs=window._tblSpecs||{}; window._tblSpecs[CB]=sp;
-      var st=(typeof _vizState==='function')?_vizState(CB):null;
-      if(st){st.on=true;st.type=cbType.value;st.showUS=(chosen===usKey);st.usSet=true;st.rowIdx=null;st.metricIdx=null;st.compareOn=false;}
-      try{_renderVizChart(CB);}catch(e){}
-      if(cbSub)cbSub.textContent=(typeof _stripHtml==='function'?_stripHtml(sp.title||''):(sp.title||''));
+      var coll=cbColl.value;
+      var prevMode=(typeof tablesMode!=='undefined')?tablesMode:'count';
+      var want=(cbVals&&cbVals.value)||'count';
+      try{
+        try{ if(typeof tablesMode!=='undefined')tablesMode=want; }catch(_){}
+        var specs=specsFor(coll),sp=specs[+cbBreak.value||0]; if(!sp)return;
+        sp._coll=coll; sp._sid=CB;
+        var usKey=sp.usKey||'__US__';
+        var colFor=function(v){return (v==='__US__')?usKey:v;};
+        var list=[colFor(cbState.value)];
+        if(cbCompare&&cbCompare.value&&cbCompare.value!=='__none__'){var c2=colFor(cbCompare.value); if(c2!==list[0])list.push(c2);}
+        sp.states=list;
+        window._tblSpecs=window._tblSpecs||{}; window._tblSpecs[CB]=sp;
+        var st=(typeof _vizState==='function')?_vizState(CB):null;
+        if(st){st.on=true;st.type=cbType.value;st.showUS=(list.indexOf(usKey)>=0);st.usSet=true;st.rowIdx=null;st.metricIdx=null;st.compareOn=false;st.showLabels=(cbLabels?cbLabels.checked:true);}
+        try{_renderVizChart(CB);}catch(e){}
+        if(cbSub)cbSub.textContent=(typeof _stripHtml==='function'?_stripHtml(sp.title||''):(sp.title||''));
+        if(cbHint){var pie=(cbType.value==='pie'||cbType.value==='doughnut');cbHint.textContent=(pie&&list.length>1)?'Pie and donut charts show the first state only; use Bar to compare two.':'';}
+      }finally{ try{ if(typeof tablesMode!=='undefined')tablesMode=prevMode; }catch(_){} }
     }
-    function ensureBuilt(){ if(built)return; built=true; fillColl(); fillBreak(); fillState(); }
+    function ensureBuilt(){ if(built)return; built=true; fillColl(); fillBreak(); fillState(); fillCompare(); }
     function open(){ ensureBuilt(); modal.hidden=false; document.body.classList.add('cb-open'); setTimeout(render,30); }
     function close(){ modal.hidden=true; document.body.classList.remove('cb-open'); }
     fab.addEventListener('click',open);
     modal.addEventListener('click',function(e){ if(e.target.closest('[data-cb-close]'))close(); });
     document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!modal.hidden)close(); });
     cbColl.addEventListener('change',function(){ fillBreak(); render(); });
-    cbBreak.addEventListener('change',render);
-    cbState.addEventListener('change',render);
-    cbType.addEventListener('change',render);
+    [cbBreak,cbState,cbCompare,cbType,cbVals].forEach(function(el){ if(el)el.addEventListener('change',render); });
+    if(cbLabels)cbLabels.addEventListener('change',render);
     var pg=$('cbPng'); if(pg)pg.addEventListener('click',function(){ try{_vizPNG(CB);}catch(e){} });
     var cs=$('cbCsv'); if(cs)cs.addEventListener('click',function(){ try{_vizCSV(CB);}catch(e){} });
   });
