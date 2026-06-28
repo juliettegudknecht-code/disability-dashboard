@@ -7,7 +7,7 @@
 <script>
 /* Soft password gate: lock the page before anything renders, unlock for the session once entered.
    This is a light access gate, not real security (the page is fully client-side). */
-(function(){ try{ if(sessionStorage.getItem('idea618_unlocked')!=='1'){ document.documentElement.className+=' locked'; } }catch(e){} })();
+(function(){ try{ document.documentElement.className+=' locked'; }catch(e){} })();
 /* Safety net: never let the loading screen get stuck, even if the main script errors. */
 setTimeout(function(){ try{ document.documentElement.classList.add('app-ready'); }catch(e){} }, 5000);
 window.addEventListener('load', function(){ try{ document.documentElement.classList.add('app-ready'); }catch(e){} });
@@ -12469,8 +12469,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     try{ window.scrollTo(0,0); }catch(e){}
   }
   function unlock(){
-    /* Stay unlocked for this browser session: refreshes keep you in, closing the browser re-locks. */
-    try{ sessionStorage.setItem('idea618_unlocked','1'); }catch(e){}
+    /* No persistence: the password is required again on every page load and refresh. */
     dropGate();
   }
   /* Already unlocked this session: the early script didn't lock. Just drop the gate. */
@@ -17405,7 +17404,7 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
     if(fb){
       var subj=encodeURIComponent('IDEA Section 618 Data Tool — feedback');
       var body=encodeURIComponent('What I was looking at:\n\nWhat happened / what I expected:\n\nDevice and browser:\n');
-      fb.setAttribute('href','mailto:juliette@autismandndadvocacy.com?subject='+subj+'&body='+body);
+      fb.setAttribute('href','mailto:OSEPIDEAData@ed.gov?subject='+subj+'&body='+body);
     }
   }catch(e){}
   /* Route the in-app links that point at the accessibility page */
