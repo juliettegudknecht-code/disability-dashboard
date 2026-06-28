@@ -7,7 +7,7 @@
 <script>
 /* Soft password gate: lock the page before anything renders, unlock for the session once entered.
    This is a light access gate, not real security (the page is fully client-side). */
-(function(){ try{ if(localStorage.getItem('idea618_unlocked')!=='1'){ document.documentElement.className+=' locked'; } }catch(e){} })();
+(function(){ try{ if(sessionStorage.getItem('idea618_unlocked')!=='1'){ document.documentElement.className+=' locked'; } }catch(e){} })();
 /* Safety net: never let the loading screen get stuck, even if the main script errors. */
 setTimeout(function(){ try{ document.documentElement.classList.add('app-ready'); }catch(e){} }, 5000);
 window.addEventListener('load', function(){ try{ document.documentElement.classList.add('app-ready'); }catch(e){} });
@@ -55,8 +55,6 @@ window.addEventListener('load', function(){ try{ document.documentElement.classL
   }
   #pwGate button.gate-go:hover{ background:#1c4a6e; }
   #pwGate button.gate-go:active{ transform:translateY(1px); }
-  #pwGate .gate-remember{ display:flex; align-items:center; gap:8px; margin-top:16px; font-size:13.5px; color:#5a6b78; cursor:pointer; user-select:none; }
-  #pwGate .gate-remember input{ width:16px; height:16px; accent-color:#13354e; cursor:pointer; flex:0 0 auto; }
   #pwGate .gate-msg{ min-height:18px; margin-top:12px; font-size:13px; color:#cc5a33; font-weight:600; }
   #pwGate.bad .gate-card{ animation:gateShake .4s; }
   @keyframes gateShake{ 0%,100%{transform:translateX(0);} 20%{transform:translateX(-9px);} 40%{transform:translateX(8px);} 60%{transform:translateX(-6px);} 80%{transform:translateX(4px);} }
@@ -5861,15 +5859,22 @@ body.dark .a11y-card h3{color:#cfe2f4}
 /* Data vintage: a quiet caption under the view title (not a prominent pill) */
 .vintage-badge{display:block;margin:-4px 0 14px;font-size:.78rem;color:var(--muted);letter-spacing:.01em}
 /* Saved / pinned views menu */
-.pin-menu{min-width:248px;max-width:300px}
-.pin-sep{height:1px;background:var(--line);margin:6px 0}
-.pin-list:empty::after{content:"No saved views yet. Open a view and choose “Save current view”.";display:block;padding:8px 12px;font-size:.8rem;color:var(--muted);line-height:1.4}
-.pin-item{display:flex;align-items:center;gap:6px;padding:0}
-.pin-item .pin-go{flex:1;text-align:left;background:none;border:none;cursor:pointer;padding:8px 10px;font:inherit;color:var(--ink);border-radius:6px;line-height:1.3}
-.pin-item .pin-go:hover{background:var(--line2)}
-.pin-item .pin-go small{display:block;font-size:.72rem;color:var(--muted);margin-top:1px}
-.pin-item .pin-del{flex:0 0 auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.05rem;line-height:1;padding:6px 9px;border-radius:6px}
-.pin-item .pin-del:hover{color:var(--autism);background:var(--line2)}
+.pin-menu{width:320px;max-width:88vw;padding:8px}
+.pin-head{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:3px 8px 8px}
+.pin-menu .pin-add{display:flex;align-items:center;gap:9px;width:100%;justify-content:flex-start;padding:10px 12px;border:1px dashed var(--line);border-radius:9px;background:var(--line2);color:var(--primary);font-weight:700;font-size:.84rem;cursor:pointer;margin-bottom:8px}
+.pin-menu .pin-add:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pin-menu .pin-add .pin-add-ic{display:inline-flex;font-size:1.15rem;line-height:1;font-weight:400}
+.pin-list{display:flex;flex-direction:column;gap:2px}
+.pin-list:empty::after{content:"No saved views yet. Set up a view how you like it, then choose Save current view.";display:block;padding:8px;font-size:.78rem;font-weight:400;color:var(--muted);line-height:1.45}
+.pin-item{display:flex;align-items:stretch;gap:2px;border-radius:8px}
+.pin-item:hover{background:var(--line2)}
+.pin-menu .pin-go{flex:1 1 auto;min-width:0;display:block;text-align:left;background:none;border:none;cursor:pointer;padding:9px 10px;font:inherit;color:var(--ink);border-radius:8px;line-height:1.3}
+.pin-menu .pin-go:hover{background:transparent;color:var(--ink)}
+.pin-go .pin-label{display:block;font-weight:700;font-size:.87rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pin-go .pin-sub{display:block;font-size:.74rem;font-weight:500;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pin-menu .pin-del{flex:0 0 auto;width:34px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:var(--muted);border-radius:8px;padding:0}
+.pin-menu .pin-del:hover{color:var(--autism)}
+.pin-menu .pin-del svg{width:15px;height:15px}
 .cmp2-col,.kpi,.picto,.cat,.sparkcard{transition:transform .17s ease,box-shadow .22s ease,border-color .2s}
 .iconbtn,.tab,.expdl,.plainbtn,.themebtn,.a11ybtn,.qlink{transition:transform .12s ease,background .14s,color .14s,border-color .14s,box-shadow .2s}
 .iconbtn:active,.expdl:active,.tab:active,.plainbtn:active{transform:translateY(1px)}
@@ -12414,7 +12419,6 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
         <input id="pwGateInput" type="password" inputmode="text" placeholder="Password" aria-label="Password" autofocus />
         <button type="button" class="gate-toggle" id="pwGateToggle" aria-label="Show password">Show</button>
       </div>
-      <label class="gate-remember"><input type="checkbox" id="pwGateRemember" /> <span>Remember me on this device</span></label>
       <button type="submit" class="gate-go">Continue</button>
       <div class="gate-msg" id="pwGateMsg" aria-live="polite"></div>
     </form>
@@ -12431,22 +12435,17 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   var msg = document.getElementById('pwGateMsg');
   var toggle = document.getElementById('pwGateToggle');
   if(!gate || !form) return;
-  var remember = document.getElementById('pwGateRemember');
   function dropGate(){
     document.documentElement.classList.remove('locked');
     gate.parentNode && gate.parentNode.removeChild(gate);
     try{ window.scrollTo(0,0); }catch(e){}
   }
   function unlock(){
-    /* Persist only when "Remember me" is checked. Otherwise a refresh re-locks. */
-    try{
-      if(remember && remember.checked) localStorage.setItem('idea618_unlocked','1');
-      else localStorage.removeItem('idea618_unlocked');
-    }catch(e){}
+    /* Stay unlocked for this browser session: refreshes keep you in, closing the browser re-locks. */
+    try{ sessionStorage.setItem('idea618_unlocked','1'); }catch(e){}
     dropGate();
   }
-  /* Remembered from a previous visit: the early script didn't lock. Just drop the gate,
-     leaving the stored flag untouched. */
+  /* Already unlocked this session: the early script didn't lock. Just drop the gate. */
   if(!document.documentElement.classList.contains('locked')){ dropGate(); return; }
   /* Show when this file was last updated (auto-reflects the actual file save time). */
   try{
@@ -12483,7 +12482,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </svg>
 </template>
 <a class="skip" href="#trends">Skip to data tool content</a>
-<div class="govbar"><span class="anniv50"><span class="anniv50-mark">50</span><span class="anniv50-txt">Years of IDEA<small>1975–2025</small></span></span><span class="govbar-text">Public IDEA Section 618 data from the <b>U.S. Department of Education</b> <a href="https://data.ed.gov" target="_blank" rel="noopener">Open Data Platform</a> and Office of Special Education Programs</span></div>
+<div class="govbar">Public data from the <b>U.S. Department of Education</b> <a href="https://data.ed.gov" target="_blank" rel="noopener">Open Data Platform</a> and Office of Special Education Programs</div>
 <header class="top">
   <div class="hinner">
     <div class="hrow">
@@ -12533,8 +12532,8 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
         <div class="menuwrap">
           <button class="iconbtn" id="pinBtn" aria-haspopup="true" aria-expanded="false">Saved</button>
           <div class="menu pin-menu" id="pinMenu" role="menu" aria-label="Saved views">
-            <button type="button" role="menuitem" id="pinAddBtn">Save current view</button>
-            <div class="pin-sep" role="separator"></div>
+            <div class="pin-head">Saved views</div>
+            <button type="button" class="pin-add" id="pinAddBtn"><span class="pin-add-ic" aria-hidden="true">+</span> Save current view</button>
             <div class="pin-list" id="pinList"></div>
           </div>
         </div>
@@ -13078,53 +13077,54 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <div class="view" data-view="accessibility" role="tabpanel" aria-label="Accessibility features">
 <h2 class="section-title" id="accessibility">Accessibility features</h2>
-<p class="viewlead">This tool is built to work with keyboards, screen readers, screen magnifiers, and reduced-motion or plain-language preferences. The settings below live in the <b>Access</b> menu at the top of the page.</p>
+<p class="viewlead">This tool is built to work the way you do, whether that means a keyboard instead of a mouse, a screen reader, a screen magnifier, or a calmer page with less motion and plainer words. The settings described below all live in the <b>Access</b> menu at the top of the page, and the choices you make are remembered the next time you open the tool. Each setting changes something real about how the data looks and behaves, and you can turn any of them on or off at any time.</p>
 <div class="a11y-page">
   <section class="a11y-card">
     <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></span> Display and readability</h3>
     <ul>
-      <li><b>Dark mode</b>: a darker color theme for low-light settings.</li>
-      <li><b>High contrast</b>: stronger contrast between text and background.</li>
-      <li><b>Larger text</b>: three text sizes (A, A+, A++) that scale the whole page.</li>
-      <li><b>Underline links</b>: underlines links so color is not the only cue.</li>
-      <li><b>Responsive layout</b>: the page reflows for phones, tablets, and zoom up to 400%.</li>
+      <li><b>Dark mode</b> switches the whole tool to a darker color theme, which is easier on the eyes in low light and for anyone who finds bright white backgrounds tiring.</li>
+      <li><b>High contrast</b> strengthens the difference between text and its background, so labels, numbers, and chart lines stay legible when ordinary contrast is not enough.</li>
+      <li><b>Larger text</b> offers three sizes, A, A+, and A++, and each one scales the entire page rather than just one heading, so charts, tables, and menus all grow together.</li>
+      <li><b>Underline links</b> adds an underline to every link, so that color is never the only way to tell a link apart from the text around it.</li>
+      <li><b>Responsive layout</b> means the page reflows to fit phones, tablets, and desktops, and stays usable when you zoom your browser all the way up to 400 percent.</li>
     </ul>
   </section>
   <section class="a11y-card">
     <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span> Motion</h3>
     <ul>
-      <li><b>Reduce motion</b>: turns off chart and tile animations. It also follows your device's own reduce-motion setting.</li>
-      <li><b>Animations</b>: a separate switch to turn animation on or off.</li>
+      <li><b>Reduce motion</b> turns off the chart and tile animations for a calmer, steadier page, and it also respects the reduce-motion setting you may already have turned on in your device or browser, so you do not have to ask twice.</li>
+      <li><b>Animations</b> is a separate switch that lets you turn the tool's animations on or off directly, whenever you want a quieter view or simply prefer things to appear without movement.</li>
     </ul>
   </section>
   <section class="a11y-card">
     <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span> Reading and comprehension</h3>
     <ul>
-      <li><b>Plain language</b>: swaps technical and legal terms for everyday words across the tool.</li>
-      <li><b>Chart descriptions</b>: every chart can show a written summary, for screen readers or anyone who prefers words to graphics.</li>
-      <li><b>Data takeaways</b>: key views include a one-line summary of the main finding.</li>
+      <li><b>Plain language</b> swaps the technical and legal wording used across the tool for everyday words, so you can follow the data without already knowing the policy vocabulary behind it.</li>
+      <li><b>Chart descriptions</b> let every chart show a written summary of what it shows, which screen readers can read aloud and which is there for anyone who simply takes in words more easily than graphics.</li>
+      <li><b>Data takeaways</b> add a short one-line summary of the main finding to the key views, so the central point is stated in plain words rather than left for you to work out from the chart alone.</li>
     </ul>
   </section>
   <section class="a11y-card">
     <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg></span> Keyboard and screen readers</h3>
     <ul>
-      <li><b>Skip link</b>: press <kbd>Tab</kbd> on load to jump straight to the data.</li>
-      <li><b>Keyboard navigation</b>: every control, tab, menu, and switch works with the keyboard, with a visible focus outline.</li>
-      <li><b>Sortable tables</b>: column headers are buttons you can focus and activate with <kbd>Enter</kbd> or <kbd>Space</kbd>; the sort order is announced.</li>
-      <li><b>Table structure</b>: tables use real column and row headers, so screen readers announce each value in context.</li>
-      <li><b>Labeled charts</b>: charts carry descriptive labels, and changing a selection is announced.</li>
+      <li><b>Skip link</b>: pressing <kbd>Tab</kbd> as soon as the page loads brings up a link that jumps you straight past the menus and into the data, so you do not have to tab through the whole header first.</li>
+      <li><b>Keyboard navigation</b>: every control, tab, menu, and switch can be reached and operated with the keyboard alone, and a visible focus outline always shows you where you are on the page.</li>
+      <li><b>Sortable tables</b>: the column headers are buttons you can move to with the keyboard and activate with <kbd>Enter</kbd> or <kbd>Space</kbd>, and the new sort order is announced so you know how the table was just reordered.</li>
+      <li><b>Table structure</b>: every table is built with real column and row headers, so a screen reader announces each value together with the row and column it belongs to rather than reading a bare number out of context.</li>
+      <li><b>Labeled charts</b>: charts carry descriptive labels, and when you change a selection that change is announced, so you can tell what the chart is now showing without seeing it.</li>
     </ul>
   </section>
   <section class="a11y-card">
     <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span> Understanding the data</h3>
     <ul>
-      <li><b>Suppressed-data explainers</b>: hover or focus any “–”, “x”, or “*” in a table to see why a value is missing or suppressed, so a blank is never read as a zero.</li>
-      <li><b>Suppression key</b>: the full legend is in the sources note at the bottom of the page: <span class="supleg"><span><b>x</b> suppressed, small cell size</span><span><b>*</b> suppressed, data quality</span><span><b>–</b> not available</span></span></li>
+      <li><b>Suppressed-data explainers</b>: when a table shows a “–”, an “x”, or an “*” in place of a number, you can hover over it or move keyboard focus to it to read why that value is missing or has been withheld, so an empty cell is never mistaken for a zero.</li>
+      <li><b>Suppression key</b>: the full legend is always available in the sources note at the bottom of the page, where <b>x</b> means a value suppressed because the cell size was small, <b>*</b> means a value suppressed for data-quality reasons, and <b>–</b> means the value was not available in the first place.</li>
     </ul>
   </section>
   <section class="a11y-card a11y-card-note">
     <h3><span class="a11y-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></span> Standards and feedback</h3>
-    <p>The tool aims for <b>WCAG 2.1 Level AA</b>. Your display, motion, and reading choices are saved in your browser for next time. If something is hard to use with assistive technology, please say so. I treat accessibility as part of getting the data right.</p>
+    <p>This tool is built to meet WCAG 2.1 Level AA, the widely used international standard for accessible websites, and the display, motion, and reading choices you make are saved in your own browser so the tool opens the way you left it next time. None of that is a substitute for hearing from the people who actually use it, so if anything here is hard to use with a screen reader, a keyboard, a magnifier, or any other assistive technology, please tell me. I treat accessibility as part of getting the data right, not as an extra, and real feedback is what keeps it that way.</p>
+    <p>Use the Send feedback button below to tell me what is working and what is not, and what would make the data easier for you to reach.</p>
     <p><a class="feedback-btn" id="a11yFeedbackBtn" href="#">Send feedback</a></p>
   </section>
 </div>
@@ -17380,7 +17380,11 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
         var m=muts[i];
         for(var j=0;j<m.addedNodes.length;j++){
           var n=m.addedNodes[j];
-          if(n.nodeType===1){ if(n.tagName==='TABLE'||n.querySelector&&n.querySelector('table')||n.closest&&n.closest('table')) decorate(n.closest? (n.closest('table')||n):n); }
+          if(n.nodeType!==1)continue;
+          /* Ignore our own decoration spans so decorating a cell doesn't re-scan the whole table */
+          if(n.classList&&n.classList.contains('supcell'))continue;
+          if(n.closest&&n.closest('[data-sup="1"]'))continue;
+          if(n.tagName==='TABLE'||n.querySelector&&n.querySelector('table')||n.closest&&n.closest('table')) decorate(n.closest? (n.closest('table')||n):n);
         }
       }
     });
@@ -17441,9 +17445,10 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
     pins.forEach(function(p){
       var item=document.createElement('div'); item.className='pin-item';
       var go=document.createElement('button'); go.type='button'; go.className='pin-go'; go.setAttribute('role','menuitem');
-      go.innerHTML=esc(p.label)+(p.sub?'<small>'+esc(p.sub)+'</small>':'');
+      go.innerHTML='<span class="pin-label">'+esc(p.label)+'</span>'+(p.sub?'<span class="pin-sub">'+esc(p.sub)+'</span>':'');
       go.addEventListener('click',function(){ apply(p); close(); });
-      var del=document.createElement('button'); del.type='button'; del.className='pin-del'; del.setAttribute('aria-label','Remove saved view: '+p.label); del.textContent='×';
+      var del=document.createElement('button'); del.type='button'; del.className='pin-del'; del.setAttribute('aria-label','Remove saved view: '+p.label);
+      del.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
       del.addEventListener('click',function(e){ e.stopPropagation(); save(load().filter(function(x){return x.id!==p.id;})); render(); });
       item.appendChild(go); item.appendChild(del); list.appendChild(item);
     });
