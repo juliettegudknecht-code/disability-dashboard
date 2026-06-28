@@ -5990,9 +5990,9 @@ h1,h2,.section-title,.welcome-head h2,h3{text-wrap:balance}
 .card.fig.card-collapsed>*:not(h3){display:none!important}
 .card.fig>h3:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:4px}
 /* Home landing hero: modern, on-brand navy with gold accents */
-.home-hero{position:relative;overflow:hidden;border-radius:16px;margin:4px 0 22px;padding:30px 36px;color:#fff;background:linear-gradient(135deg,#0c2236 0%,#13354e 52%,#1d4d72 100%);box-shadow:0 18px 50px rgba(13,36,62,.32)}
-.home-hero::before{content:"";position:absolute;right:-90px;top:-130px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(237,207,54,.20),transparent 70%);pointer-events:none}
-.home-hero::after{content:"50";position:absolute;right:30px;bottom:-58px;font-family:'Charter618',Charter,Georgia,serif;font-size:14rem;font-weight:700;line-height:1;color:rgba(255,255,255,.05);pointer-events:none;user-select:none}
+.home-hero{position:relative;overflow:hidden;border-radius:10px;margin:4px 0 22px;padding:26px 32px;color:#fff;background:var(--navy);border-bottom:3px solid var(--gold);box-shadow:0 1px 2px rgba(13,36,62,.16)}
+.home-hero::before{content:none}
+.home-hero::after{content:none}
 .home-hero-inner{position:relative;z-index:1;max-width:780px}
 .hh-eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#edcf36;margin-bottom:15px}
 .hh-50{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#edcf36;color:#13354e;font-size:.92rem;font-weight:900;letter-spacing:0}
@@ -12977,6 +12977,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 
 <nav class="state-page-nav" aria-label="State Snapshot sections"><span>Sections</span><a href="#stateRankBanner">Snapshot</a><a href="#stateMapSection">Compare States</a><a href="#stateProfile">Measures</a><a href="#stateDeterminations">Accountability</a></nav>
 <div class="rankbanner state-rank-banner" id="stateRankBanner" data-drill-group="states" data-drill-panel="profile" aria-live="polite"></div>
+<div class="state-drill" id="stateToLeaWrap" hidden><button type="button" class="state-drill-btn" id="stateToLea"><span class="sdl-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01M15 10h.01"/></svg></span><span class="sdl-tx">Explore <b id="stateToLeaName">this State</b>&rsquo;s school districts in the LEA Explorer</span><span class="sdl-arrow" aria-hidden="true">&rarr;</span></button></div>
 <div class="grid" id="snapTrendCard" data-drill-group="states" data-drill-panel="profile">
   <div class="card">
     <h3 id="statePanelTitleSnap">Child Count Trend</h3>
@@ -13127,6 +13128,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <div class="usmap-wrap lea-usmap-wrap"><div id="leaMap"></div></div>
   <div class="maplegend" id="leaMapLegend"></div>
 </div>
+<div class="lea-state-context" id="leaStateContext" hidden></div>
 <div id="leaStatus" class="lea-status" aria-live="polite"></div>
 <div id="leaBody"></div>
 <div class="fn"><b>Source:</b> U.S. Department of Education, Office of Special Education Programs. EDPass: “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” 2024–25 (LEA file, specifications 002 and 089); and the IDEA Part&nbsp;B LEA Maintenance of Effort (MOE) Reduction and Coordinated Early Intervening Services (CEIS) collection, SY&nbsp;2021–22. Suppressed cells are shown as “–”.</div>
@@ -18449,6 +18451,28 @@ body.dark .view[data-view="states"] .state-page-nav{background:#121b27;border-co
 body.dark .view[data-view="states"] .state-page-nav a{background:#18212e;color:#d9d9d5!important;border-color:#2b3645!important}
 /* rank banner: value/median sits on its own line, not floated off the right edge */
 .view[data-view="states"] .state-rank-banner .rk-sub{margin-left:0!important;max-width:none!important;flex-basis:100%;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.18);font-weight:650}
+/* State Snapshot -> LEA Explorer drill-down button */
+.view[data-view="states"] .state-drill{margin:0 0 14px}
+.view[data-view="states"] .state-drill[hidden]{display:none}
+.state-drill-btn{display:flex;align-items:center;gap:11px;width:100%;font:inherit;font-weight:700;font-size:.92rem;color:var(--navy);background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:10px;padding:12px 16px;cursor:pointer;text-align:left}
+.state-drill-btn:hover{background:var(--line2)}
+.state-drill-btn .sdl-ic{flex:0 0 auto;display:inline-flex;color:var(--primary)}
+.state-drill-btn .sdl-ic svg{width:20px;height:20px}
+.state-drill-btn .sdl-tx{flex:1 1 auto}
+.state-drill-btn .sdl-arrow{flex:0 0 auto;color:var(--primary);font-weight:800}
+body.dark .state-drill-btn{background:#16242f;color:#dbe8f6;border-color:#2c3a47}
+/* LEA Explorer -> State Snapshot context strip */
+.lea-state-context{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;margin:0 0 14px;padding:12px 16px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--primary);border-radius:10px}
+.lea-state-context[hidden]{display:none}
+.lea-state-context .lsc-main{display:flex;flex-wrap:wrap;align-items:baseline;gap:5px 16px;min-width:0}
+.lea-state-context .lsc-lbl{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.lea-state-context .lsc-name{font-size:1.02rem;color:var(--navy);font-weight:800}
+.lea-state-context .lsc-stat{font-size:.84rem;color:var(--ink);font-variant-numeric:tabular-nums}
+.lea-state-context .lsc-stat b{color:var(--navy)}
+.lea-state-context .lsc-link{flex:0 0 auto;font:inherit;font-weight:700;font-size:.85rem;color:#fff;background:var(--navy);border:none;border-radius:8px;padding:8px 14px;cursor:pointer}
+.lea-state-context .lsc-link:hover{filter:brightness(1.08)}
+body.dark .lea-state-context{background:#16242f;border-color:#2c3a47}
+body.dark .lea-state-context .lsc-name,body.dark .lea-state-context .lsc-stat b{color:#dbe8f6}
 .cb-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:108px;overflow:auto}
 .cb-chip{font:inherit;font-size:.78rem;font-weight:600;color:var(--muted);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:4px 11px;cursor:pointer;transition:all .12s}
 .cb-chip:hover{border-color:var(--primary-lt);color:var(--ink)}
@@ -18790,6 +18814,55 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
     var pg=$('cbPng'); if(pg)pg.addEventListener('click',function(){ exportTitle(); try{_vizPNG(CB);}catch(e){} });
     var cs=$('cbCsv'); if(cs)cs.addEventListener('click',function(){ exportTitle(); try{_vizCSV(CB);}catch(e){} });
   });
+})();
+</script>
+<script>
+/* Cross-links between the State Snapshot (SEA level) and the LEA Explorer (district level):
+   a natural Nation -> State -> District drill-down, without merging the two pages. */
+(function(){
+  function isStateName(v){ try{ return (typeof STATES!=='undefined') && STATES.some(function(x){return x[0]===v;}); }catch(e){ return false; } }
+  function fmtN(n){ try{ return (typeof fmt==='function')?fmt(n):(n==null?'N/A':Number(n).toLocaleString()); }catch(e){ return String(n); } }
+
+  /* State Snapshot -> "Explore [State]'s school districts" -> LEA Explorer */
+  (function(){
+    var sel=document.getElementById('stateSel'), wrap=document.getElementById('stateToLeaWrap'),
+        btn=document.getElementById('stateToLea'), nm=document.getElementById('stateToLeaName');
+    if(!sel||!wrap||!btn) return;
+    function upd(){ var v=sel.value; if(v && isStateName(v)){ wrap.hidden=false; if(nm)nm.textContent=v; } else { wrap.hidden=true; } }
+    sel.addEventListener('change', function(){ setTimeout(upd,40); });
+    btn.addEventListener('click', function(){ var v=sel.value; if(v && typeof openLEAState==='function') openLEAState(v); });
+    setTimeout(upd,250);
+  })();
+
+  /* LEA Explorer -> compact "State context" strip + link back to the full State Snapshot */
+  function openStateSnapshot(name){
+    try{
+      if(typeof showView==='function') showView('states');
+      var sel=document.getElementById('stateSel');
+      if(sel){ sel.value=name; sel.dispatchEvent(new Event('change',{bubbles:true})); }
+      window.scrollTo(0,0);
+    }catch(e){}
+  }
+  function updLeaContext(){
+    var wrap=document.getElementById('leaStateContext'); if(!wrap) return;
+    var sel=document.getElementById('leaStateSel'); var name=sel?sel.value:'';
+    var s=null; try{ s=(typeof STATES!=='undefined')?STATES.filter(function(x){return x[0]===name;})[0]:null; }catch(e){}
+    if(!name || !s){ wrap.hidden=true; wrap.innerHTML=''; return; }
+    var cnt=s[4], pe=s[5], det=null;
+    try{ det=(typeof det2026Status==='function')?det2026Status('partB',name):null; }catch(e){}
+    var stats='<span class="lsc-stat"><b>'+fmtN(cnt)+'</b> served · Part B, ages 3–21</span>';
+    if(pe!=null) stats+='<span class="lsc-stat"><b>'+pe+'%</b> of enrollment</span>';
+    if(det) stats+='<span class="lsc-stat">2026 determination: <b>'+det+'</b></span>';
+    wrap.hidden=false;
+    wrap.innerHTML='<div class="lsc-main"><span class="lsc-lbl">State context</span><b class="lsc-name">'+name+'</b>'+stats+'</div>'
+      +'<button type="button" class="lsc-link" id="leaToState">See the full State Snapshot for '+name+' →</button>';
+    var lk=document.getElementById('leaToState'); if(lk) lk.addEventListener('click', function(){ openStateSnapshot(name); });
+  }
+  (function(){
+    var sel=document.getElementById('leaStateSel'); if(!sel) return;
+    sel.addEventListener('change', function(){ setTimeout(updLeaContext,50); });
+    setTimeout(updLeaContext,250);
+  })();
 })();
 </script>
 </body>
