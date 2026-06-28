@@ -17767,21 +17767,26 @@ var fairyMusic=(function(){
   return {toggle:toggle,play:play,pause:pause,sync:sync,setUI:setUI,isPlaying:function(){return playing;},isEnabled:function(){return enabled;},getTitle:function(){return title;}};
 })();
 
-/* ============ FAIRY JUKEBOX (the little bottom-of-page music box) ============ */
+/* ============ FAIRY JUKEBOX (the little bottom-of-page music box) ============
+   The jukebox markup sits at the end of <body>, after this script, so wait for the
+   DOM before wiring it up. */
 (function(){
-  var box=document.getElementById('fairyJukebox'), btn=document.getElementById('fjToggle'),
-      titleEl=document.getElementById('fjTitle');
-  if(!box||!btn)return;
-  var PLAY='M8 5v14l11-7z', PAUSE='M7 5h3.5v14H7zM13.5 5H17v14h-3.5z';
-  function render(st){
-    var playing=st&&st.playing;
-    box.classList.toggle('playing',!!playing);
-    var path=btn.querySelector('path'); if(path)path.setAttribute('d',playing?PAUSE:PLAY);
-    btn.setAttribute('aria-label',playing?'Pause fairy music':'Play fairy music');
-    if(titleEl)titleEl.textContent=(st&&st.title)?st.title:'Tap play ♪';
+  function init(){
+    var box=document.getElementById('fairyJukebox'), btn=document.getElementById('fjToggle'),
+        titleEl=document.getElementById('fjTitle');
+    if(!box||!btn)return;
+    var PLAY='M8 5v14l11-7z', PAUSE='M7 5h3.5v14H7zM13.5 5H17v14h-3.5z';
+    function render(st){
+      var playing=st&&st.playing;
+      box.classList.toggle('playing',!!playing);
+      var path=btn.querySelector('path'); if(path)path.setAttribute('d',playing?PAUSE:PLAY);
+      btn.setAttribute('aria-label',playing?'Pause fairy music':'Play fairy music');
+      if(titleEl)titleEl.textContent=(st&&st.title)?st.title:'Tap play ♪';
+    }
+    try{ fairyMusic.setUI(render); }catch(e){}
+    btn.addEventListener('click',function(){ try{ fairyMusic.toggle(); }catch(e){} });
   }
-  try{ fairyMusic.setUI(render); }catch(e){}
-  btn.addEventListener('click',function(){ try{ fairyMusic.toggle(); }catch(e){} });
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init); else init();
 })();
 
 /* ============ SAVED / PINNED VIEWS ============
