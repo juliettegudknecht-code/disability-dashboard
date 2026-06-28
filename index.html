@@ -12755,6 +12755,10 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
         <span class="wt-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg></span>
         <span class="wt-body"><span class="wt-title">The full tables</span><span class="wt-desc">Exact figures from every collection, with states side by side.</span></span>
       </button>
+      <button type="button" class="wtask" data-go="chartbuilder">
+        <span class="wt-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="12" width="4" height="8" rx="1" fill="currentColor"/><rect x="10" y="7" width="4" height="13" rx="1" fill="currentColor"/><rect x="17" y="3" width="4" height="17" rx="1" fill="currentColor"/></svg></span>
+        <span class="wt-body"><span class="wt-title">Build a chart</span><span class="wt-desc">Make your own chart from any collection, breakdown, and state.</span></span>
+      </button>
     </div>
     <div class="welcome-foot">
       <button type="button" class="welcome-plain" id="welcomePlain" role="switch" aria-checked="false">
@@ -15741,8 +15745,16 @@ function _vizCSV(sid){
  var rows=[['IDEA Section 618 Data Tool'],['Chart',m.title]];
  if(m.note)rows.push(['Description',m.note]);
  rows.push(['Source',m.source],['Exported',_d],[]);
- rows.push(['Category'].concat(ds.map(function(d,i){return d.label||('Series '+(i+1));})));
- c.data.labels.forEach(function(l,i){rows.push([l].concat(ds.map(function(d){return chartDataValue(d.data[i]);})));});
+ var labels=c.data.labels;
+ if(labels&&labels.length){
+  rows.push(['Category'].concat(ds.map(function(d,i){return d.label||('Series '+(i+1));})));
+  labels.forEach(function(l,i){rows.push([l].concat(ds.map(function(d){return chartDataValue(d.data[i]);})));});
+ }else{
+  /* bubble / point-object charts have no labels array */
+  rows.push(['Category','Value']);
+  var pts=(ds[0]&&ds[0].data)||[];
+  pts.forEach(function(p){rows.push([(p&&p._l!=null)?p._l:'',(p&&p._v!=null)?p._v:chartDataValue(p)]);});
+ }
  var csv=rows.map(function(r){return r.map(function(x){return _csvCell(x);}).join(',');}).join('\n');
  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));a.download=m.fname+'.csv';a.click();
 }
@@ -15827,7 +15839,7 @@ function _renderVizChart(sid){
    plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:10,padding:7,font:{size:10,weight:'600'}}},
     tooltip:{callbacks:{label:function(o){var sum=o.dataset.data.reduce(function(a,b){return a+(b||0);},0);var share=sum?(o.parsed/sum*100):0;return o.label+': '+unitFmt(o.parsed)+(pct?'':' ('+share.toFixed(1)+'%)');}}}}}};
  }else{
-  var horizontal=labels.length>6;
+  var horizontal=(st.orient==='horizontal')?true:(st.orient==='vertical'?false:(labels.length>6));
   var single=datasets.length===1;
   // single series -> give each bar its own colour (cleaner, more readable, more "Fast Facts")
   if(single&&datasets[0]){var _pal=TBL_PIE_COLORS;datasets[0].backgroundColor=labels.map(function(_,i){return shade(_pal[i%_pal.length],.9);});datasets[0].borderColor=labels.map(function(_,i){return _pal[i%_pal.length];});datasets[0].borderWidth=1;datasets[0].borderRadius=4;datasets[0].maxBarThickness=46;}
@@ -16989,7 +17001,9 @@ function setupWelcome(){
   }
   // task cards -> navigate to a view, then close
   ov.querySelectorAll('.wtask').forEach(b=>b.addEventListener('click',()=>{
-    const v=b.dataset.go;try{showView(v);}catch(e){}close();
+    const v=b.dataset.go;
+    if(v==='chartbuilder'){close();try{var _f=document.getElementById('chartBuilderFab');if(_f)_f.click();}catch(e){}return;}
+    try{showView(v);}catch(e){}close();
   }));
   // plain-language switch
   const sw=document.getElementById('welcomePlain');
@@ -18238,24 +18252,32 @@ body.pink #zoomCtl button{color:#a8266e}
 @media print{#zoomCtl{display:none}}
 
 /* ============ CHART BUILDER: floating button + modal ============ */
-#chartBuilderFab{position:fixed;right:16px;bottom:16px;z-index:2147482700;display:inline-flex;align-items:center;gap:9px;
-  padding:11px 17px 11px 14px;border:none;border-radius:999px;cursor:pointer;
-  background:linear-gradient(160deg,#1c4f74,#13354e);color:#fff;font-family:inherit;font-weight:800;font-size:.92rem;
-  box-shadow:0 8px 22px rgba(17,46,81,.34),0 2px 6px rgba(17,46,81,.3);transition:transform .15s,box-shadow .15s}
-#chartBuilderFab:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(17,46,81,.4)}
-#chartBuilderFab:active{transform:translateY(0)}
+#chartBuilderFab{position:fixed;right:18px;bottom:18px;z-index:2147482700;display:inline-flex;align-items:center;gap:8px;
+  padding:8px 18px 8px 9px;border:2px solid rgba(255,255,255,.55);border-radius:999px;cursor:pointer;
+  background:linear-gradient(135deg,#3a82c4 0%,#1c4f74 60%,#163a5a 100%);color:#fff;font-family:inherit;font-weight:800;font-size:.92rem;letter-spacing:.01em;
+  box-shadow:0 10px 24px rgba(17,46,81,.34),0 2px 6px rgba(17,46,81,.3);transition:transform .18s cubic-bezier(.2,.8,.3,1.4),box-shadow .18s}
+#chartBuilderFab:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 16px 32px rgba(17,46,81,.42)}
+#chartBuilderFab:active{transform:translateY(-1px) scale(.99)}
 #chartBuilderFab:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
-#chartBuilderFab .cbf-ic{display:inline-flex;color:#ffd966}
-#chartBuilderFab .cbf-ic svg{width:20px;height:20px;display:block}
-body.pink #chartBuilderFab{background:linear-gradient(160deg,#c43a86,#a8266e);bottom:90px}
-body.pink #chartBuilderFab .cbf-ic{color:#ffe3ef}
-@media(max-width:560px){#chartBuilderFab .cbf-tx{display:none}#chartBuilderFab{padding:13px}}
+#chartBuilderFab .cbf-ic{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,.2);color:#ffd34d;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+#chartBuilderFab .cbf-ic svg{width:17px;height:17px;display:block}
+#chartBuilderFab .cbf-tx{padding-right:2px}
+@keyframes cbfBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+@keyframes cbfWiggle{0%,100%{transform:rotate(0)}30%{transform:rotate(-10deg)}70%{transform:rotate(10deg)}}
+#chartBuilderFab .cbf-ic{animation:cbfBob 3s ease-in-out infinite}
+#chartBuilderFab:hover .cbf-ic{animation:cbfWiggle .55s ease}
+body.pink #chartBuilderFab{background:linear-gradient(135deg,#ff8fc8 0%,#e6398a 55%,#a8266e 100%);border-color:#fff;bottom:92px}
+body.pink #chartBuilderFab .cbf-ic{color:#fff;background:rgba(255,255,255,.26)}
+body.dark #chartBuilderFab{border-color:rgba(255,255,255,.3)}
+@media(prefers-reduced-motion:reduce){#chartBuilderFab .cbf-ic{animation:none}#chartBuilderFab{transition:box-shadow .15s}#chartBuilderFab:hover{transform:none}}
+@media(max-width:560px){#chartBuilderFab .cbf-tx{display:none}#chartBuilderFab{padding:8px}}
 @media print{#chartBuilderFab,#chartBuilderModal{display:none!important}}
 
 .cb-modal{position:fixed;inset:0;z-index:2147483200;display:flex;align-items:center;justify-content:center;padding:20px}
 .cb-modal[hidden]{display:none}
 .cb-modal-backdrop{position:absolute;inset:0;background:rgba(16,28,43,.55);backdrop-filter:blur(2px)}
-.cb-dialog{position:relative;z-index:1;width:min(760px,96vw);max-height:92vh;overflow:auto;background:var(--card);border-radius:16px;
+.cb-dialog{position:relative;z-index:1;width:min(760px,96vw);max-height:92vh;overflow:auto;overscroll-behavior:contain;background:var(--card);border-radius:16px;
   box-shadow:0 24px 64px rgba(0,0,0,.32);padding:20px 22px;animation:cbIn .22s cubic-bezier(.2,.8,.2,1) both}
 @keyframes cbIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
 .cb-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
@@ -18271,7 +18293,7 @@ body.pink #chartBuilderFab .cbf-ic{color:#ffe3ef}
 .cb-check input{width:16px;height:16px;cursor:pointer}
 .cb-hint{font-size:.78rem;color:var(--muted);font-style:italic}
 .cb-card{margin:0}
-.cb-canvasbox{height:340px;position:relative}
+.cb-canvasbox{height:clamp(220px,40vh,360px);position:relative;min-height:0}
 .cb-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
 body.dark .cb-dialog{background:#12202e}
 body.pink .cb-dialog-title{color:#a8266e}
@@ -18342,6 +18364,7 @@ body.pink .cb-close:hover{color:#a8266e}
       <label class="cb-field"><span>Compare with</span><select id="cbCompare"></select></label>
       <label class="cb-field"><span>Chart type</span><select id="cbType"><option value="bar">Bar</option><option value="doughnut">Donut</option><option value="pie">Pie</option><option value="bubble">Bubble</option></select></label>
       <label class="cb-field"><span>Values</span><select id="cbVals"><option value="count">Count</option><option value="percent">Percent</option></select></label>
+      <label class="cb-field" id="cbOrientField"><span>Bar direction</span><select id="cbOrient"><option value="auto">Auto</option><option value="vertical">Vertical</option><option value="horizontal">Horizontal</option></select></label>
     </div>
     <div class="cb-toolbar"><label class="cb-check"><input type="checkbox" id="cbLabels" checked> Show values on chart</label><span class="cb-hint" id="cbHint"></span></div>
     <div class="card tbl-card cb-card" data-viz-card="cbChart" id="cbCardHost">
@@ -18362,7 +18385,7 @@ body.pink .cb-close:hover{color:#a8266e}
   function ready(fn){ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fn); else fn(); }
   ready(function(){
     var fab=$('chartBuilderFab'), modal=$('chartBuilderModal');
-    var cbColl=$('cbColl'),cbBreak=$('cbBreak'),cbState=$('cbState'),cbCompare=$('cbCompare'),cbType=$('cbType'),cbVals=$('cbVals'),cbLabels=$('cbLabels'),cbSub=$('cbSub'),cbHint=$('cbHint');
+    var cbColl=$('cbColl'),cbBreak=$('cbBreak'),cbState=$('cbState'),cbCompare=$('cbCompare'),cbType=$('cbType'),cbVals=$('cbVals'),cbOrient=$('cbOrient'),cbOrientField=$('cbOrientField'),cbLabels=$('cbLabels'),cbSub=$('cbSub'),cbHint=$('cbHint');
     if(!fab||!modal||!cbColl)return;
     var built=false;
     var BREAK_KW=[['educational environment','Educational environment'],['environment','Educational environment'],['race','Race / ethnicity'],['ethnicity','Race / ethnicity'],['english learner','English learner status'],['el status','English learner status'],['by sex','Sex'],[', sex','Sex'],['age group','Age group'],['grade','Grade level'],['qualification','Teacher qualification'],['early intervention setting','Early intervention setting'],['setting','Setting'],['type of removal','Type of removal'],['exit','Exit reason']];
@@ -18416,7 +18439,8 @@ body.pink .cb-close:hover{color:#a8266e}
         sp.states=list;
         window._tblSpecs=window._tblSpecs||{}; window._tblSpecs[CB]=sp;
         var st=(typeof _vizState==='function')?_vizState(CB):null;
-        if(st){st.on=true;st.type=cbType.value;st.showUS=(list.indexOf(usKey)>=0);st.usSet=true;st.rowIdx=null;st.metricIdx=null;st.compareOn=false;st.showLabels=(cbLabels?cbLabels.checked:true);}
+        if(st){st.on=true;st.type=cbType.value;st.showUS=(list.indexOf(usKey)>=0);st.usSet=true;st.rowIdx=null;st.metricIdx=null;st.compareOn=false;st.showLabels=(cbLabels?cbLabels.checked:true);st.orient=(cbOrient?cbOrient.value:'auto');}
+        if(cbOrientField)cbOrientField.style.display=(cbType.value==='bar')?'':'none';
         try{_renderVizChart(CB);}catch(e){}
         if(cbSub)cbSub.textContent=(typeof _stripHtml==='function'?_stripHtml(sp.title||''):(sp.title||''));
         if(cbHint){var pie=(cbType.value==='pie'||cbType.value==='doughnut');cbHint.textContent=(pie&&list.length>1)?'Pie and donut charts show the first state only; use Bar to compare two.':'';}
@@ -18429,7 +18453,7 @@ body.pink .cb-close:hover{color:#a8266e}
     modal.addEventListener('click',function(e){ if(e.target.closest('[data-cb-close]'))close(); });
     document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&!modal.hidden)close(); });
     cbColl.addEventListener('change',function(){ fillBreak(); render(); });
-    [cbBreak,cbState,cbCompare,cbType,cbVals].forEach(function(el){ if(el)el.addEventListener('change',render); });
+    [cbBreak,cbState,cbCompare,cbType,cbVals,cbOrient].forEach(function(el){ if(el)el.addEventListener('change',render); });
     if(cbLabels)cbLabels.addEventListener('change',render);
     var pg=$('cbPng'); if(pg)pg.addEventListener('click',function(){ try{_vizPNG(CB);}catch(e){} });
     var cs=$('cbCsv'); if(cs)cs.addEventListener('click',function(){ try{_vizCSV(CB);}catch(e){} });
