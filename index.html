@@ -18338,26 +18338,19 @@ body.pink #zoomCtl button{color:#a8266e}
 
 /* ============ CHART BUILDER: floating button + modal ============ */
 #chartBuilderFab{position:fixed;right:20px;bottom:20px;z-index:2147482700;display:inline-flex;align-items:center;gap:0;
-  padding:7px;border:1px solid rgba(255,255,255,.75);border-radius:999px;cursor:pointer;
-  background:rgba(255,255,255,.86);-webkit-backdrop-filter:blur(12px) saturate(1.3);backdrop-filter:blur(12px) saturate(1.3);
-  color:var(--navy);font-family:inherit;font-weight:800;font-size:.92rem;letter-spacing:.01em;
-  box-shadow:0 12px 30px rgba(17,46,81,.20),0 4px 10px rgba(17,46,81,.14),inset 0 1px 0 rgba(255,255,255,.8);
-  transition:box-shadow .22s ease,border-color .22s ease,gap .24s ease,padding .24s ease;animation:cbFloat 4.6s ease-in-out infinite;will-change:transform}
-#chartBuilderFab:hover,#chartBuilderFab:focus-visible,#chartBuilderFab:focus-within{box-shadow:0 20px 44px rgba(17,46,81,.28),0 6px 14px rgba(17,46,81,.18),inset 0 1px 0 rgba(255,255,255,.8);border-color:#fff;gap:9px;padding:7px 18px 7px 8px}
+  padding:8px;border:1px solid var(--navy);border-radius:999px;cursor:pointer;
+  background:var(--navy);color:#fff;font-family:inherit;font-weight:800;font-size:.92rem;letter-spacing:.01em;
+  box-shadow:0 3px 10px rgba(17,46,81,.22);
+  transition:box-shadow .2s ease,gap .24s ease,padding .24s ease}
+#chartBuilderFab:hover,#chartBuilderFab:focus-visible,#chartBuilderFab:focus-within{box-shadow:0 6px 16px rgba(17,46,81,.30);gap:9px;padding:8px 18px 8px 9px}
 #chartBuilderFab:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
-#chartBuilderFab .cbf-ic{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;
-  background:linear-gradient(140deg,#2c7ab5,#13354e);color:#ffd34d;box-shadow:0 2px 6px rgba(17,46,81,.3)}
+#chartBuilderFab .cbf-ic{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,.16);color:#fff}
 #chartBuilderFab .cbf-ic svg{width:17px;height:17px;display:block}
 #chartBuilderFab .cbf-tx{min-width:0;max-width:0;opacity:0;overflow:hidden;white-space:nowrap;padding-right:0;transition:max-width .26s ease,opacity .2s ease,padding .26s ease}
 #chartBuilderFab:hover .cbf-tx,#chartBuilderFab:focus-visible .cbf-tx,#chartBuilderFab:focus-within .cbf-tx{max-width:170px;opacity:1;padding-right:2px}
-@keyframes cbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-@keyframes cbfWiggle{0%,100%{transform:rotate(0)}30%{transform:rotate(-9deg)}70%{transform:rotate(9deg)}}
-#chartBuilderFab:hover .cbf-ic{animation:cbfWiggle .55s ease}
-body.dark #chartBuilderFab{background:rgba(22,34,46,.82);color:#eaf2fb;border-color:rgba(255,255,255,.18)}
-body.dark #chartBuilderFab .cbf-ic{background:linear-gradient(140deg,#2c7ab5,#0d2333)}
-body.pink #chartBuilderFab{bottom:96px;background:rgba(255,255,255,.9);color:#a8266e;border-color:#ffd1ea}
-body.pink #chartBuilderFab .cbf-ic{background:linear-gradient(140deg,#e6398a,#a8266e);color:#fff}
-@media(prefers-reduced-motion:reduce){#chartBuilderFab{animation:none}#chartBuilderFab:hover .cbf-ic{animation:none}}
+body.dark #chartBuilderFab{background:#1d3a57;border-color:#1d3a57;color:#fff}
+body.pink #chartBuilderFab{bottom:96px;background:#a8266e;border-color:#a8266e;color:#fff}
 @media(max-width:560px){#chartBuilderFab .cbf-tx{display:none}#chartBuilderFab{padding:8px}}
 @media print{#chartBuilderFab,#chartBuilderModal{display:none!important}}
 
@@ -18652,6 +18645,15 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
     function specsFor(coll){ try{return (typeof TBL_SPECS!=='undefined'&&TBL_SPECS[coll])?TBL_SPECS[coll]():[];}catch(e){return [];} }
     function specNow(){ return specsFor(cbColl.value)[+cbBreak.value||0]||null; }
     function chartMetricIdx(sp){ try{var m=_vizChartMetrics(sp);return (m&&m[0])?m[0].i:0;}catch(e){return 0;} }
+    /* For demographic breakdowns (Sex, Race, Educational environment, English learner) the dimension
+       being charted is the metric, not the row. In that case the "Include" chips filter the metric
+       values (e.g. Female / Male) instead of the disability-category rows. */
+    function drillMode(sp){ try{ return (sp && !sp.metricChart && _vizChartMetrics(sp).length>1) ? 'metric' : 'row'; }catch(e){ return 'row'; } }
+    function drillItems(sp){
+      if(!sp) return [];
+      if(drillMode(sp)==='metric'){ return _vizChartMetrics(sp).map(function(x){var l=_stripHtml(x.m.label);return {key:l,label:l};}); }
+      return sp.rows.filter(function(r){return !r.isTotal;}).map(function(r){return {key:String(r.key),label:_stripHtml(r.label)};});
+    }
     function fillColl(){
       if(typeof TBL_SPECS==='undefined'||typeof COLL_META==='undefined')return;
       cbColl.innerHTML=Object.keys(TBL_SPECS).filter(function(k){return COLL_META[k];}).map(function(k){
@@ -18676,17 +18678,24 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
       names.forEach(function(n){opts.push('<option value="'+n+'">'+n+'</option>');});
       cbCompare.innerHTML=opts.join('');
     }
-    function drillLabel(total){ var sp=specNow(); var rh=(sp&&sp.rowHeader)?String(sp.rowHeader).replace(/\s+/g,' ').trim():'Categories'; rh=rh.charAt(0).toUpperCase()+rh.slice(1); return rh+' — showing '+(selKeys?selKeys.size:0)+' of '+total; }
+    function drillLabel(total){ var sp=specNow(); var name; if(sp&&drillMode(sp)==='metric'){ name=breakLabel(sp).split('·')[0].trim(); } else { name=(sp&&sp.rowHeader)?String(sp.rowHeader).replace(/\s+/g,' ').trim():'Categories'; } name=name.charAt(0).toUpperCase()+name.slice(1); return name+' — showing '+(selKeys?selKeys.size:0)+' of '+total; }
     function syncChips(total){ if(!cbCats)return; [].slice.call(cbCats.querySelectorAll('.cb-chip')).forEach(function(c){var on=selKeys&&selKeys.has(c.getAttribute('data-k'));c.classList.toggle('on',!!on);c.setAttribute('aria-pressed',on?'true':'false');}); if(cbDrillTitle)cbDrillTitle.textContent=drillLabel(total!=null?total:cbCats.querySelectorAll('.cb-chip').length); }
     function topN(sp,rows,n){ var mi=chartMetricIdx(sp),usK=sp.usKey; return rows.slice().sort(function(a,b){return (_vizNum(sp,usK,b.key,mi)||0)-(_vizNum(sp,usK,a.key,mi)||0);}).slice(0,n); }
     function fillCats(resetSel){
       var sp=specNow(); if(!sp||!cbCats){ if(cbCats)cbCats.innerHTML=''; return; }
-      var rows=sp.rows.filter(function(r){return !r.isTotal;});
-      if(resetSel||!selKeys){ selKeys=new Set(); var pick=(rows.length>10)?topN(sp,rows,8):rows; pick.forEach(function(r){selKeys.add(String(r.key));}); }
-      cbCats.innerHTML=rows.map(function(r){var k=String(r.key),on=selKeys.has(k);return '<button type="button" class="cb-chip'+(on?' on':'')+'" data-k="'+k.replace(/"/g,'&quot;')+'" aria-pressed="'+(on?'true':'false')+'">'+_stripHtml(r.label)+'</button>';}).join('');
-      if(cbDrillTitle)cbDrillTitle.textContent=drillLabel(rows.length);
+      var mode=drillMode(sp), items=drillItems(sp);
+      if(resetSel||!selKeys){
+        selKeys=new Set();
+        if(mode==='metric'){ items.forEach(function(it){selKeys.add(it.key);}); }
+        else { var pick=(items.length>10)?topN(sp,items,8):items; pick.forEach(function(it){selKeys.add(it.key);}); }
+      }
+      cbCats.innerHTML=items.map(function(it){var on=selKeys.has(it.key);return '<button type="button" class="cb-chip'+(on?' on':'')+'" data-k="'+it.key.replace(/"/g,'&quot;')+'" aria-pressed="'+(on?'true':'false')+'">'+it.label+'</button>';}).join('');
+      if(cbDrillTitle)cbDrillTitle.textContent=drillLabel(items.length);
     }
-    function selectTop(n){ var sp=specNow(); if(!sp)return; var rows=sp.rows.filter(function(r){return !r.isTotal;}); selKeys=new Set(); topN(sp,rows,n).forEach(function(r){selKeys.add(String(r.key));}); syncChips(rows.length); render(); }
+    function selectTop(n){ var sp=specNow(); if(!sp)return; selKeys=new Set();
+      if(drillMode(sp)==='metric'){ drillItems(sp).forEach(function(it){selKeys.add(it.key);}); }
+      else { var rows=sp.rows.filter(function(r){return !r.isTotal;}); topN(sp,rows,n).forEach(function(r){selKeys.add(String(r.key));}); }
+      syncChips(); render(); }
     function suggestedTitle(sp){
       var who=(cbState.value==='__US__')?'the U.S.':cbState.value;
       var cmp=(cbCompare&&cbCompare.value&&cbCompare.value!=='__none__')?(' vs. '+(cbCompare.value==='__US__'?'the U.S.':cbCompare.value)):'';
@@ -18717,12 +18726,22 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
         var list=[colFor(cbState.value)];
         if(cbCompare&&cbCompare.value&&cbCompare.value!=='__none__'){var c2=colFor(cbCompare.value); if(c2!==list[0])list.push(c2);}
         sp.states=list;
-        /* drill-down: keep only the categories the user chose, then sort */
+        /* drill-down: filter the dimension the user chose. For demographic breakdowns the chips
+           filter the charted metrics (Female / Male, races, environments); otherwise they filter rows. */
         var dataRows=sp.rows.filter(function(r){return !r.isTotal;}), totals=sp.rows.filter(function(r){return r.isTotal;});
-        if(selKeys){ dataRows=dataRows.filter(function(r){return selKeys.has(String(r.key));}); }
-        if(S.sort!=='none'){ var mi=chartMetricIdx(sp),p=list[0];
-          dataRows.sort(function(a,b){var va=_vizNum(sp,p,a.key,mi),vb=_vizNum(sp,p,b.key,mi);va=(va==null?-1e15:va);vb=(vb==null?-1e15:vb);return S.sort==='asc'?(va-vb):(vb-va);}); }
-        sp.rows=dataRows.concat(totals);
+        if(drillMode(sp)==='metric'){
+          if(selKeys && selKeys.size){
+            var chartable=_vizChartMetrics(sp).map(function(x){return _stripHtml(x.m.label);});
+            var anySel=chartable.some(function(l){return selKeys.has(l);});
+            if(anySel){ sp.metrics=sp.metrics.map(function(m){ if(m.noChart) return m; return selKeys.has(_stripHtml(m.label))?m:Object.assign({},m,{noChart:true}); }); }
+          }
+          sp.rows=dataRows.concat(totals);
+        } else {
+          if(selKeys){ dataRows=dataRows.filter(function(r){return selKeys.has(String(r.key));}); }
+          if(S.sort!=='none'){ var mi=chartMetricIdx(sp),p=list[0];
+            dataRows.sort(function(a,b){var va=_vizNum(sp,p,a.key,mi),vb=_vizNum(sp,p,b.key,mi);va=(va==null?-1e15:va);vb=(vb==null?-1e15:vb);return S.sort==='asc'?(va-vb):(vb-va);}); }
+          sp.rows=dataRows.concat(totals);
+        }
         if(cbTitle){ cbTitle.placeholder=suggestedTitle(sp); sp._customTitle=(cbTitle.value.trim()||cbTitle.placeholder); }
         try{ var _ct=document.getElementById('cbChartTitle'); if(_ct) _ct.textContent=sp._customTitle||''; }catch(_){}
         window._tblSpecs=window._tblSpecs||{}; window._tblSpecs[CB]=sp;
@@ -18749,7 +18768,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
     wireSeg('cbSortSeg',function(b){S.sort=b.getAttribute('data-s');});
     wireSeg('cbColorSeg',function(b){S.color=b.getAttribute('data-pal');});
     if(cbCats)cbCats.addEventListener('click',function(e){var b=e.target.closest('.cb-chip');if(!b)return;var k=b.getAttribute('data-k');if(!selKeys)selKeys=new Set();if(selKeys.has(k))selKeys.delete(k);else selKeys.add(k);syncChips();render();});
-    var aAll=$('cbAll'); if(aAll)aAll.addEventListener('click',function(){ var sp=specNow();if(!sp)return; selKeys=new Set(); sp.rows.filter(function(r){return !r.isTotal;}).forEach(function(r){selKeys.add(String(r.key));}); syncChips(); render(); });
+    var aAll=$('cbAll'); if(aAll)aAll.addEventListener('click',function(){ var sp=specNow();if(!sp)return; selKeys=new Set(); drillItems(sp).forEach(function(it){selKeys.add(it.key);}); syncChips(); render(); });
     var aNone=$('cbNone'); if(aNone)aNone.addEventListener('click',function(){ selKeys=new Set(); syncChips(); render(); });
     var aTop=$('cbTop'); if(aTop)aTop.addEventListener('click',function(){ selectTop(8); });
     function exportTitle(){ try{ if(window._tblSpecs&&window._tblSpecs[CB])window._tblSpecs[CB]._customTitle=(cbTitle.value.trim()||cbTitle.placeholder); }catch(e){} }
