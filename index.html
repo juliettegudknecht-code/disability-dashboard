@@ -13683,8 +13683,8 @@ function kpis(){
  const incAll=pct(5170041,7590772);
  const sld=2517135, sldShare=pct(2517,8194);
  const cards=[
-  {l:'IDEA, Part B, Ages 3 Through 21',v:'8,194,424',c:'Children and Students with Disabilities served, School Year 2024–25; the 50 States, the District of Columbia, and the additional IDEA reporting entities (Puerto Rico, the Bureau of Indian Education, the outlying areas, and the freely associated states)',cls:''},
-  {l:'50-Year Growth, Ages 3 Through 21',v:'+122%',c:'Children and Students with Disabilities served under IDEA, Part B more than doubled, from about 3.7 million in School Year 1976–77 to 8.2 million in 2024–25',cls:'up'},
+  {l:'IDEA, Part B, Ages 3 Through 21',v:'8,194,424',c:'Children and Students with Disabilities served, School Year 2024–25 (all 50 States, DC, and the additional IDEA reporting entities).',cls:''},
+  {l:'50-Year Growth, Ages 3 Through 21',v:'+122%',c:'More than doubled since 1976–77, from about 3.7 million to 8.2 million served.',cls:'up'},
   {l:'IDEA, Part B, Ages 5 Through 21',v:incAll.toFixed(1)+'%',c:'Served in the regular class 80% or more of the school day, School Year 2024–25',cls:'good',pie:incAll},
   {l:'IDEA, Part C, Birth Through Age 2',v:'458,920',c:'Infants and toddlers with disabilities served, School Year 2024–25',cls:'good'}
  ];
@@ -13756,7 +13756,7 @@ function renderTrend(){
    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10,weight:'800'}}},
     tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtVal(c.parsed.y);}}}},
    scales:{x:{grid:{display:false},ticks:{maxRotation:0,minRotation:0,autoSkip:true,maxTicksLimit:10,font:{size:10}}},
-    y:{beginAtZero:true,title:{display:true,text:rate?'Percent of public-school enrollment':'Students served, thousands'},ticks:{callback:function(v){return rate?v+'%':v.toLocaleString();}}}}}};
+    y:{beginAtZero:true,title:{display:true,text:rate?'% of enrollment':'Students (thousands)',font:{size:10},padding:0},ticks:{callback:function(v){return rate?v+'%':v.toLocaleString();}}}}}};
  if(trendChart)trendChart.destroy();trendChart=new Chart(document.getElementById('trendChart'),cfg);
  renderTrendFocusSummary();
 }
@@ -17302,8 +17302,7 @@ function buildTrendsOverview(){
   <div class="home-hero">
     <div class="home-hero-inner">
       <div class="hh-eyebrow"><span class="hh-50">50</span> Years of IDEA &nbsp;&middot;&nbsp; 1975&ndash;2025</div>
-      <h2 class="hh-title">Celebrating the last fifty years of IDEA child count and educational environments data.</h2>
-      <p class="hh-sub">Counts of children and students ages 3 through 21 served under IDEA, Part&nbsp;B, as reported by the States and outlying areas for each school year from 1976&ndash;77 through the most recent year available.</p>
+      <h2 class="hh-title">Celebrating the last fifty years of IDEA Section&nbsp;618 data collections</h2>
     </div>
   </div>
   <details class="lead-fold"><summary>About this page</summary>
