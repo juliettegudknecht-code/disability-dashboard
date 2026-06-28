@@ -36,7 +36,7 @@ window.addEventListener('load', function(){ try{ document.documentElement.classL
   #pwGate .gate-seal b{ font-size:22px; letter-spacing:.5px; }
   #pwGate .gate-seal span{ font-size:10px; letter-spacing:1px; color:#edcf36; margin-top:2px; }
   #pwGate .gate-eyebrow{ font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:#1c4f74; margin-bottom:11px; }
-  #pwGate h2{ margin:0 0 6px; font-family:'Charter618',Charter,Georgia,serif; font-size:25px; line-height:1.15; letter-spacing:-.01em; color:#13354e; }
+  #pwGate h2{ margin:0 0 6px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,'Carlito','Source Sans 3',Roboto,Helvetica,Arial,sans-serif; font-weight:800; font-size:24px; line-height:1.18; letter-spacing:-.01em; color:#13354e; }
   #pwGate p{ margin:0 0 20px; font-size:13.5px; color:#5a6b78; line-height:1.45; }
   #pwGate .gate-field{ position:relative; display:flex; align-items:center; }
   #pwGate input{
@@ -134,7 +134,7 @@ window.addEventListener('load', function(){ try{ document.documentElement.classL
   --autism:#cc5a33;
   --good:#4e9d2d;
   --gold:#edcf36;
-  --radius:8px;
+  --radius:4px;
   --gap:14px;
   --shadow:0 1px 2px rgba(17,46,81,.10),0 4px 18px rgba(17,46,81,.07);
   --shadow-h:0 10px 28px rgba(17,46,81,.16);
@@ -270,8 +270,8 @@ body.no-anim *,body.no-anim *::before,body.no-anim *::after{
   transition:none!important;
 }
 h1,h2,h3{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,'Carlito','Source Sans 3',Roboto,Helvetica,Arial,sans-serif}
-/* Big titles use Charter (an editorial serif) for a distinctive, human look; body and smaller headings stay in the Calibri/Carlito stack. */
-h1,.section-title,.welcome-head h2{font-family:'Charter618',Charter,Georgia,'Times New Roman',serif;letter-spacing:-0.01em}
+/* One clean sans family throughout, matching official federal data products. */
+h1,.section-title,.welcome-head h2{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,'Carlito','Source Sans 3',Roboto,Helvetica,Arial,sans-serif;letter-spacing:-0.01em}
 .wrap{
   max-width:1320px;
   margin:0 auto;
@@ -2595,7 +2595,7 @@ body.dark .section-select-row select{
   background:var(--primary);
   color:#fff;
   font-size:.95rem;
-  box-shadow:0 8px 20px rgba(0,94,162,.18);
+  box-shadow:none;
 }
 .view[data-view="trends"] .section-title:before{content:"↗"}
 .view[data-view="explorer"] .section-title:before{content:"▤"}
@@ -2671,13 +2671,11 @@ body.dark .canvas-box:after{background:transparent}
 body.dark .section-title:before{box-shadow:none}
 @keyframes softRise{from{opacity:0;transform:translateY(10px) scale(.995)}to{opacity:1;transform:none}}
 @keyframes chartSettle{from{opacity:.15;filter:saturate(.75);transform:translateY(5px)}to{opacity:1;filter:none;transform:none}}
-@keyframes iconPulse{0%,100%{transform:scale(1);box-shadow:0 8px 20px rgba(0,94,162,.18)}50%{transform:scale(1.035);box-shadow:0 10px 26px rgba(0,94,162,.24)}}
 @keyframes dashIn{to{stroke-dashoffset:0}}
 body:not(.no-anim):not(.reduce) .view.active .card,body:not(.no-anim):not(.reduce) .view.active .kpi,body:not(.no-anim):not(.reduce) .view.active .page-tools,body:not(.no-anim):not(.reduce) .view.active .section-jump{animation:softRise .36s ease both}
 body:not(.no-anim):not(.reduce) .view.active .grid .card:nth-child(2){animation-delay:.045s}
 body:not(.no-anim):not(.reduce) .view.active .grid .card:nth-child(3){animation-delay:.08s}
 body:not(.no-anim):not(.reduce) .view.active .canvas-box canvas{animation:chartSettle .45s ease both}
-body:not(.no-anim):not(.reduce) .view.active .section-title:before{animation:iconPulse 3.8s ease-in-out infinite}
 body:not(.no-anim):not(.reduce) .sparkcard svg path{
   stroke-dasharray:260;
   stroke-dashoffset:260;
@@ -2805,7 +2803,6 @@ body.dark .idea50-card{
 }
 body.hc .idea50-card,.idea50-stats div{border-width:2px}
 @media(max-width:900px){.idea50-card{grid-template-columns:1fr}.idea50-mark{width:76px;height:76px}.idea50-stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}}
-body:not(.no-anim):not(.reduce) .idea50-mark{animation:iconPulse 4.5s ease-in-out infinite}
 body:not(.no-anim):not(.reduce) .idea50-card{animation:softRise .38s ease both}
 /* Slightly darker, more modern default theme and line icons. */
 :root{
@@ -4512,9 +4509,7 @@ body:not(.no-anim):not(.reduce) .view.active{animation:viewIn .34s ease-out both
   box-shadow:0 0 0 3px rgba(255,255,255,.18);
 }
 @media(max-width:760px){.home-growth{grid-template-columns:1fr}.hg-endpoints{grid-template-columns:1fr}.hg-arrow{text-align:center;transform:rotate(90deg)}}
-body:not(.no-anim):not(.reduce) .hg-arrow{animation:slidePulse 1.8s ease-in-out infinite}
 body:not(.no-anim):not(.reduce) .hg-rail span{animation:meterGrow .9s ease-out both}
-@keyframes slidePulse{0%,100%{transform:translateX(0)}50%{transform:translateX(8px)}}
 body:not(.no-anim):not(.reduce) .home-showcase{animation:fadeUp .42s ease-out both}
 body:not(.no-anim):not(.reduce) .home-meter span{
   animation:meterGrow .8s ease-out both;
@@ -5990,13 +5985,13 @@ h1,h2,.section-title,.welcome-head h2,h3{text-wrap:balance}
 .card.fig.card-collapsed>*:not(h3){display:none!important}
 .card.fig>h3:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:4px}
 /* Home landing hero: modern, on-brand navy with gold accents */
-.home-hero{position:relative;overflow:hidden;border-radius:10px;margin:4px 0 22px;padding:26px 32px;color:#fff;background:var(--navy);border-bottom:3px solid var(--gold);box-shadow:0 1px 2px rgba(13,36,62,.16)}
+.home-hero{position:relative;overflow:hidden;border-radius:5px;margin:4px 0 22px;padding:24px 30px;color:#fff;background:var(--navy);border-bottom:3px solid var(--gold);box-shadow:none}
 .home-hero::before{content:none}
 .home-hero::after{content:none}
 .home-hero-inner{position:relative;z-index:1;max-width:780px}
 .hh-eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#edcf36;margin-bottom:15px}
 .hh-50{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#edcf36;color:#13354e;font-size:.92rem;font-weight:900;letter-spacing:0}
-.hh-title{font-family:'Charter618',Charter,Georgia,serif;font-size:1.85rem;line-height:1.14;margin:0 0 13px;color:#fff;letter-spacing:-.01em}
+.hh-title{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,'Carlito','Source Sans 3',Roboto,Helvetica,Arial,sans-serif;font-size:1.7rem;font-weight:800;line-height:1.18;margin:0 0 13px;color:#fff;letter-spacing:-.01em}
 .hh-sub{font-size:1.02rem;line-height:1.55;color:#d3deea;margin:0;max-width:64ch}
 .hh-stats{display:flex;flex-wrap:wrap;gap:18px 40px}
 .hh-num{font-size:1.72rem;font-weight:800;line-height:1;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
@@ -8008,7 +8003,7 @@ body.dark .section-select-row select{
   background:var(--primary);
   color:#fff;
   font-size:.95rem;
-  box-shadow:0 8px 20px rgba(0,94,162,.18);
+  box-shadow:none;
 }
 .view[data-view="trends"] .section-title:before{content:"↗"}
 .view[data-view="explorer"] .section-title:before{content:"▤"}
@@ -8084,13 +8079,11 @@ body.dark .canvas-box:after{background:transparent}
 body.dark .section-title:before{box-shadow:none}
 @keyframes softRise{from{opacity:0;transform:translateY(10px) scale(.995)}to{opacity:1;transform:none}}
 @keyframes chartSettle{from{opacity:.15;filter:saturate(.75);transform:translateY(5px)}to{opacity:1;filter:none;transform:none}}
-@keyframes iconPulse{0%,100%{transform:scale(1);box-shadow:0 8px 20px rgba(0,94,162,.18)}50%{transform:scale(1.035);box-shadow:0 10px 26px rgba(0,94,162,.24)}}
 @keyframes dashIn{to{stroke-dashoffset:0}}
 body:not(.no-anim):not(.reduce) .view.active .card,body:not(.no-anim):not(.reduce) .view.active .kpi,body:not(.no-anim):not(.reduce) .view.active .page-tools,body:not(.no-anim):not(.reduce) .view.active .section-jump{animation:softRise .36s ease both}
 body:not(.no-anim):not(.reduce) .view.active .grid .card:nth-child(2){animation-delay:.045s}
 body:not(.no-anim):not(.reduce) .view.active .grid .card:nth-child(3){animation-delay:.08s}
 body:not(.no-anim):not(.reduce) .view.active .canvas-box canvas{animation:chartSettle .45s ease both}
-body:not(.no-anim):not(.reduce) .view.active .section-title:before{animation:iconPulse 3.8s ease-in-out infinite}
 body:not(.no-anim):not(.reduce) .sparkcard svg path{
   stroke-dasharray:260;
   stroke-dashoffset:260;
@@ -8218,7 +8211,6 @@ body.dark .idea50-card{
 }
 body.hc .idea50-card,.idea50-stats div{border-width:2px}
 @media(max-width:900px){.idea50-card{grid-template-columns:1fr}.idea50-mark{width:76px;height:76px}.idea50-stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}}
-body:not(.no-anim):not(.reduce) .idea50-mark{animation:iconPulse 4.5s ease-in-out infinite}
 body:not(.no-anim):not(.reduce) .idea50-card{animation:softRise .38s ease both}
 /* Slightly darker, more modern default theme and line icons. */
 :root{
@@ -10296,7 +10288,7 @@ body.entity-focus #snapTrendCard,
 body.entity-focus #st-table,
 body.entity-focus #stateVsNationHead,
 body.entity-focus .view[data-view="states"] .canvas-box{display:none!important}
-.entity-banner{background:linear-gradient(135deg,#13354e 0%,#1c4f74 100%);color:#fff;border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
+.entity-banner{background:#13354e;color:#fff;border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
 .entity-banner .eb-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .entity-banner .eb-name{font-size:1.5rem;font-weight:800;letter-spacing:-.01em}
 .entity-banner .eb-badge{font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);padding:4px 11px;border-radius:999px;line-height:1.35}
@@ -10304,7 +10296,7 @@ body.entity-focus .view[data-view="states"] .canvas-box{display:none!important}
 .entity-banner .eb-num{font-size:2rem;font-weight:800;line-height:1;display:block}
 .entity-banner .eb-lbl{display:block;margin-top:5px;font-size:.85rem;color:#dce8f4}
 .entity-banner .eb-desc{margin:4px 0 0;font-size:.92rem;line-height:1.55;color:#eaf2fb;max-width:74ch}
-body.dark .entity-banner{background:linear-gradient(135deg,#0f2435 0%,#163b5a 100%)}
+body.dark .entity-banner{background:#0f2435}
 body.pink .entity-banner{background:linear-gradient(135deg,#a8266e 0%,#e6398a 100%)!important}
 .view[data-view="states"] #stateSel optgroup{
   font-weight:900;
@@ -12225,9 +12217,9 @@ body.dark .view[data-view="lea"] .lea-mini-toggle button.on{background:#1f6fa8;c
 .launchcard:hover{border-color:#cdd9e6;box-shadow:0 10px 26px rgba(16,42,67,.15);transform:translateY(-2px)}
 .launchcard:hover:before{background:var(--ff-gold)}
 .launchcard:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
-.launchcard .lc-ic{flex:none;width:42px;height:42px;border-radius:11px;background:linear-gradient(155deg,#1c4f74,#13354e);color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(19,53,78,.26)}
+.launchcard .lc-ic{flex:none;width:42px;height:42px;border-radius:11px;background:#13354e;color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(19,53,78,.26)}
 .launchcard .lc-ic svg{width:22px;height:22px}
-.launchcard:hover .lc-ic{background:linear-gradient(155deg,#235d87,#16406b)}
+.launchcard:hover .lc-ic{background:#1c4f74}
 .launchcard .lc-body{min-width:0}
 .launchcard .lc-title{display:flex;align-items:center;gap:7px;font-weight:800;font-size:1.01rem;color:var(--navy)}
 .launchcard .lc-arrow{color:var(--primary);transition:transform .16s,color .16s;font-weight:800}
@@ -12411,8 +12403,8 @@ body.dark #kpis .kpi-ic{background:rgba(255,255,255,.06)}
 body.hc #kpis .kpi-ic{background:transparent;border:1.5px solid currentColor}
 
 /* --- Shared "pick X to begin" empty state (State Snapshot + others) --- */
-.pick-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin:18px 0 4px;padding:46px 28px;border:1.5px dashed var(--line);border-radius:16px;background:linear-gradient(180deg,#fbfcfe 0%,#f4f8fc 100%)}
-.pick-empty-ic{width:60px;height:60px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:linear-gradient(155deg,#1c4f74,#13354e);color:#fff;box-shadow:0 4px 12px rgba(19,53,78,.25);margin-bottom:6px}
+.pick-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin:18px 0 4px;padding:46px 28px;border:1.5px dashed var(--line);border-radius:16px;background:#f7f9fc}
+.pick-empty-ic{width:60px;height:60px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:#13354e;color:#fff;box-shadow:0 1px 2px rgba(17,46,81,.12);margin-bottom:6px}
 .pick-empty-ic svg{width:30px;height:30px}
 .pick-empty h3{margin:0;font-size:1.3rem;color:var(--navy)}
 .pick-empty p{margin:0;max-width:56ch;font-size:.92rem;line-height:1.55;color:var(--muted)}
@@ -12431,9 +12423,9 @@ body.state-unpicked .view[data-view="states"] .state-actions{display:none!import
 
 /* --- SEA Tables empty state ("Pick a collection to begin") --- */
 .view[data-view="tables"] .tables-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;
-  margin:18px 0 4px;padding:46px 28px;border:1.5px dashed var(--line);border-radius:16px;background:linear-gradient(180deg,#fbfcfe 0%,#f4f8fc 100%)}
+  margin:18px 0 4px;padding:46px 28px;border:1.5px dashed var(--line);border-radius:16px;background:#f7f9fc}
 .view[data-view="tables"] .tables-empty-ic{width:60px;height:60px;border-radius:15px;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(155deg,#1c4f74,#13354e);color:#fff;box-shadow:0 4px 12px rgba(19,53,78,.25);margin-bottom:6px}
+  background:#13354e;color:#fff;box-shadow:0 1px 2px rgba(17,46,81,.12);margin-bottom:6px}
 .view[data-view="tables"] .tables-empty-ic svg{width:30px;height:30px}
 .view[data-view="tables"] .tables-empty h3{margin:0;font-size:1.3rem;color:var(--navy)}
 .view[data-view="tables"] .tables-empty p{margin:0;max-width:54ch;font-size:.92rem;line-height:1.55;color:var(--muted)}
@@ -12477,7 +12469,7 @@ body.printing .lea-deepdive>.lea-deepdive-body{display:block!important}
 /* ===== Friendly "Start here" guide button + welcome overlay (general-public onboarding) ===== */
 .guidebtn{
   display:inline-flex;align-items:center;gap:6px;
-  background:linear-gradient(180deg,#f2c84b,#edcf36);
+  background:#edcf36;
   border:1.5px solid #e0b92a;
   color:#10233f;
   font-weight:800;font-size:0.75rem;font-family:inherit;
@@ -12485,7 +12477,7 @@ body.printing .lea-deepdive>.lea-deepdive-body{display:block!important}
   margin:5px 0 5px 8px;
 }
 .guidebtn .gic{width:15px;height:15px;flex:0 0 auto}
-.guidebtn:hover{filter:brightness(1.04);box-shadow:0 6px 16px rgba(0,0,0,.16)}
+.guidebtn:hover{background:#e0b92a;box-shadow:0 6px 16px rgba(0,0,0,.16)}
 .guidebtn:focus-visible{outline:3px solid #73b3e7;outline-offset:2px}
 body.printing .guidebtn{display:none}
 @media(max-width:820px){.appbar-tools .guidebtn{font-size:.73rem;padding:7px 9px}}
@@ -12726,9 +12718,9 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
         <div class="search-results" id="searchResults" role="listbox" aria-label="Search results"></div>
       </div>
       <div class="appbar-actions">
-        <button class="guidebtn" id="guideBtn" aria-haspopup="dialog" aria-expanded="false" title="New here? Start with a quick guide">
+        <button class="guidebtn" id="guideBtn" aria-haspopup="dialog" aria-expanded="false" title="About this tool and its views">
           <svg class="gic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M9.2 9.3a2.8 2.8 0 1 1 4.2 2.4c-.8.5-1.4 1-1.4 2"/><path d="M12 16.6h.01"/></svg>
-          Start here
+          About this tool
         </button>
         <div class="menuwrap">
           <button class="iconbtn" id="exportBtn" aria-haspopup="true" aria-expanded="false">Export</button>
@@ -12767,7 +12759,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     <div class="a11ysw" id="swMotion" role="switch" tabindex="0" aria-checked="false"><span class="t">Reduce motion</span><span class="knob"></span></div>
     <div class="a11ysw" id="swUL" role="switch" tabindex="0" aria-checked="false"><span class="t">Underline links</span><span class="knob"></span></div>
     <div class="a11ysw" id="swCVD" role="switch" tabindex="0" aria-checked="false"><span class="t">Colorblind-safe palette</span><span class="knob"></span></div>
-    <button type="button" id="fairyReset" class="fairy-reset">Turn off Fairy mode ✨</button>
+    <button type="button" id="fairyReset" class="fairy-reset">Turn off Fairy mode</button>
   </div>
   <div class="grp"><span class="glab">Reading</span>
     <div class="a11ysw" id="swPlain" role="switch" tabindex="0" aria-checked="false"><span class="t">Plain language</span><span class="knob"></span></div>
@@ -12781,39 +12773,39 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     <div class="welcome-accent" aria-hidden="true"></div>
     <div class="welcome-head">
       <button type="button" class="welcome-x" id="welcomeClose" aria-label="Close guide">×</button>
-      <div class="welcome-ey">Start here</div>
+      <div class="welcome-ey">Overview</div>
       <h2 id="welcomeTitle">About this data tool</h2>
       <p>Under IDEA Section&nbsp;618, the States and outlying areas report annual data on infants, toddlers, children, and students with disabilities served under IDEA, Parts&nbsp;B and C, to the U.S. Department of Education. This tool presents those data by State, year, disability category, and educational environment, together with each State's progress against its annual federal targets and the determinations made under IDEA Section&nbsp;616. The following views are available:</p>
     </div>
     <div class="welcome-grid">
       <button type="button" class="wtask" data-go="states">
         <span class="wt-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.7-7-11a7 7 0 0 1 14 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
-        <span class="wt-body"><span class="wt-title">A state</span><span class="wt-desc">How one state is doing, and where it ranks across the country.</span></span>
+        <span class="wt-body"><span class="wt-title">A state</span><span class="wt-desc">A State's reported Section 618 data and its rank among the 50 States and the District of Columbia.</span></span>
       </button>
       <button type="button" class="wtask" data-go="lea">
         <span class="wt-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01M15 10h.01"/></svg></span>
-        <span class="wt-body"><span class="wt-title">A school district</span><span class="wt-desc">Look up any district and the IDEA funding it receives.</span></span>
+        <span class="wt-body"><span class="wt-title">A school district</span><span class="wt-desc">Local Educational Agency (LEA) data and the IDEA, Part B funds the district receives.</span></span>
       </button>
       <button type="button" class="wtask" data-go="trends">
         <span class="wt-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M7 15l4-5 3 3 5-7"/></svg></span>
-        <span class="wt-body"><span class="wt-title">The national picture</span><span class="wt-desc">How the numbers have changed over the last 50 years.</span></span>
+        <span class="wt-body"><span class="wt-title">The national picture</span><span class="wt-desc">National child-count trends under IDEA, Part B, School Years 1976-77 through 2024-25.</span></span>
       </button>
       <button type="button" class="wtask" data-go="tables">
         <span class="wt-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg></span>
-        <span class="wt-body"><span class="wt-title">The full tables</span><span class="wt-desc">Exact figures from every collection, with states side by side.</span></span>
+        <span class="wt-body"><span class="wt-title">The full tables</span><span class="wt-desc">Exact reported figures from every Section 618 collection, by State.</span></span>
       </button>
       <button type="button" class="wtask" data-go="chartbuilder">
         <span class="wt-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="12" width="4" height="8" rx="1" fill="currentColor"/><rect x="10" y="7" width="4" height="13" rx="1" fill="currentColor"/><rect x="17" y="3" width="4" height="17" rx="1" fill="currentColor"/></svg></span>
-        <span class="wt-body"><span class="wt-title">Build a chart</span><span class="wt-desc">Make your own chart from any collection, breakdown, and state.</span></span>
+        <span class="wt-body"><span class="wt-title">Custom chart</span><span class="wt-desc">A chart built from any collection, breakdown, and State.</span></span>
       </button>
     </div>
     <div class="welcome-foot">
       <button type="button" class="welcome-plain" id="welcomePlain" role="switch" aria-checked="false">
         <span class="wp-knob" aria-hidden="true"></span>
-        <span class="wp-txt">Prefer <b>everyday words</b>? Swap the technical terms.</span>
+        <span class="wp-txt"><b>Plain language.</b> Show technical terms in everyday words.</span>
       </button>
       <span class="wf-spacer"></span>
-      <button type="button" class="welcome-skip" id="welcomeSkip">Skip for now</button>
+      <button type="button" class="welcome-skip" id="welcomeSkip">Close</button>
       <label class="welcome-dontshow"><input type="checkbox" id="welcomeDontShow"> Don't show this again</label>
     </div>
   </div>
@@ -12838,7 +12830,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <div class="grid">
   <div class="card" id="trend-sparks" data-drill-group="trends" data-drill-panel="categories">
-    <h3 data-pl="Each disability type, mini-trend">Each Primary Disability Category at a Glance</h3>
+    <h3 data-pl="Each disability type, mini-trend">Number of Children and Students with Disabilities Served Under IDEA, Part B, Ages 3 Through 21, by Primary Disability Category, Most Recent and Change Since First Reported</h3>
     <div class="note">A quick view of every primary disability category, showing the most recent count of children and students served and how much it has changed since the category was first reported under IDEA, Part&nbsp;B.</div>
     <div class="sparkgrid" id="sparks"></div>
     <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” School Years 1976–77 through 2024–25.</div></details>
@@ -12848,7 +12840,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <div class="card fig" id="trend-change-card" data-drill-group="trends" data-drill-panel="categories">
     <div class="ey">Change</div>
     <h3>Largest Changes in Count by Category</h3>
-    <div class="note">The primary disability categories with the largest increases and decreases in the number of children and students served, shown in thousands, through School Year 2024–25.</div>
+    <div class="note">Among IDEA Part B primary disability categories, specific learning disability grew the most, up about 1,721 thousand children and students served from School Year 1976–77 to 2024–25, while intellectual disability fell the most, down about 542 thousand over the same span.</div>
     <div class="canvas-box"><canvas id="trendChangeChart"></canvas></div>
     <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” School Years 2000–01 and 2024–25.</div></details>
   </div>
@@ -12858,25 +12850,25 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 
 <section class="home-launchpad" aria-label="Explore the rest of the data tool">
   <div class="home-launchpad-head">
-    <h3>Explore the data in depth</h3>
+    <h3>Additional Views</h3>
     <span class="lp-sub">Each view focuses on a different part of the public IDEA Section&nbsp;618 data that States and the additional reporting entities report to the Office of Special Education Programs (OSEP) each year. Select one to explore it in detail.</span>
   </div>
   <div class="launchgrid">
     <button type="button" class="launchcard" onclick="showView('states')" aria-label="Open State Snapshot">
       <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.7-7-11a7 7 0 0 1 14 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
-      <span class="lc-body"><span class="lc-title">State Snapshot <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">See any State's IDEA data, how it ranks nationally, and its federal determination.</span></span>
+      <span class="lc-body"><span class="lc-title">State Snapshot <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">A State's IDEA Section&nbsp;618 data, its national rank, and its federal determination.</span></span>
     </button>
     <button type="button" class="launchcard" onclick="showView('tables')" aria-label="Open SEA Tables">
       <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg></span>
-      <span class="lc-body"><span class="lc-title">SEA Tables <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">Pull exact figures from every Section&nbsp;618 collection and compare States side by side.</span></span>
+      <span class="lc-body"><span class="lc-title">SEA Tables <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">Exact reported figures from every Section&nbsp;618 collection, with States compared side by side.</span></span>
     </button>
     <button type="button" class="launchcard" onclick="showView('lea')" aria-label="Open Part B LEA Explorer">
       <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01M15 10h.01"/></svg></span>
-      <span class="lc-body"><span class="lc-title">LEA Explorer <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">Explore individual school districts and the IDEA Part&nbsp;B funds they receive.</span></span>
+      <span class="lc-body"><span class="lc-title">LEA Explorer <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">Individual school districts and the IDEA, Part&nbsp;B funds they receive.</span></span>
     </button>
     <button type="button" class="launchcard" onclick="showView('gpra')" aria-label="Open Part B GPRA Performance Analysis">
       <span class="lc-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.4"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></span>
-      <span class="lc-body"><span class="lc-title">GPRA Analysis <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">Track Part&nbsp;B program performance against its annual federal targets.</span></span>
+      <span class="lc-body"><span class="lc-title">GPRA Analysis <span class="lc-arrow" aria-hidden="true">→</span></span><span class="lc-desc">IDEA, Part&nbsp;B program performance against its annual federal targets.</span></span>
     </button>
   </div>
 </section>
@@ -12925,6 +12917,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
       <h3>Educational Environments, Served Under IDEA, Part&nbsp;B, Ages 5 Through 21, School Year 2024–25</h3>
       <div class="note">Where school-aged Children and Students with Disabilities in this category spend most of the school day, ages 5 through 21, in School Year 2024–25. Higher shares inside the regular class reflect more inclusive educational environments.</div>
       <div class="canvas-box tall"><canvas id="expEnv"></canvas></div>
+      <div class="take" id="expEnvTake"></div>
     </div>
   </div>
 
@@ -12987,11 +12980,11 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   </div>
 </div>
 <details class="srcfold state-scope"><summary>Scope</summary><div class="srcbody">The U.S. map and the State rankings cover the 50 States and the District of Columbia. Additional IDEA reporting entities, Puerto Rico, the Bureau of Indian Education, the outlying areas, and the freely associated states, appear in the selector when data are available, but they are shown separately and are not included in the 50 States and DC rankings.</div></details>
-<div class="state-section-head" id="stateMapSection"><h3>Compared with Other States</h3><p>See how this State compares with the rest of the country: color the U.S. map by a measure and rank the States, compare this State with the nation by disability category, and open the full all-States table.</p></div>
+<div class="state-section-head" id="stateMapSection"><h3>Compared with Other States</h3><p>This State compared with the 50 States and the District of Columbia: the U.S. map and State rankings by a selected measure, a comparison with the national figure by disability category, and the full all-States table.</p></div>
 <div class="grid g2" data-drill-group="states" data-drill-panel="map">
   <div class="card" id="st-map">
-    <h3>U.S. Map, <span id="mapMetricLbl"></span></h3>
-    <div class="note">Hover over any State to see its value. Click a State to load it into this page.</div>
+    <h3><span id="mapMetricLbl"></span></h3>
+    <div class="note">Each State is shaded by its value for the selected measure. Selecting a State loads it into this page.</div>
     <div class="ctrl" style="margin:8px 0 10px">
       <label for="metricSel">Color &amp; Rank States by:</label>
       <select id="metricSel">
@@ -13005,7 +12998,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     <div class="maplegend" id="mapLegend"></div>
   </div>
   <div class="card">
-    <h3 id="stateBarTitle">State Rankings</h3>
+    <h3 id="stateBarTitle">State Rankings, Children and Students with Disabilities, Ages 3 Through 21, Under IDEA, Part B, 50 States and DC</h3>
     <div class="note" id="stateBarNote">Source: U.S. Department of Education, Office of Special Education Programs, IDEA Section 618 collections.</div>
     <div class="canvas-box statebar-box"><canvas id="stateBar"></canvas></div>
   </div>
@@ -13026,7 +13019,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <div class="card state-profile" id="stateProfile" data-drill-group="states" data-drill-panel="profile">
   <div class="state-profile-head">
     <div>
-      <h3 id="stateRptTitle">Section 618 Measures</h3>
+      <h3 id="stateRptTitle">Selected IDEA Section 618 Measures, with the National Value and the State's Rank</h3>
       <details class="srcfold compact"><summary>About these measures</summary><div class="srcbody" id="stateProfileNote">Each measure is drawn from the IDEA Section 618 data collections and is labeled with its IDEA part, age group, and school year. Each tile shows this State's value, the national value, and the State's rank.</div></details>
     </div>
   </div>
@@ -13046,7 +13039,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <h2 class="section-title" id="tables">SEA Tables</h2>
 <!-- "About this page" and "What this shows" merged into one disclosure -->
 <details class="lead-fold"><summary>About this page</summary>
-  <p class="viewlead" data-folded="1">Exact figures from the official IDEA Section 618 collections. Pick one or more collections, choose whether to compare States or disability categories, then add what you want to see side by side. Any table can switch between counts and percentages, flip to a chart view, or download as a CSV. For a custom chart, use the <strong>Build a chart</strong> button at the bottom of the screen.</p>
+  <p class="viewlead" data-folded="1">Exact reported figures from the official IDEA Section&nbsp;618 collections. Select one or more collections and choose whether to compare States or disability categories. Tables may be displayed as counts or percentages, shown as a chart, or downloaded as a CSV file. A custom chart may be created using the <strong>Custom chart</strong> tool.</p>
   <p class="note" data-nf="skip" style="margin-top:8px">Every figure in these tables is an exact count reported to the U.S. Department of Education under IDEA Section&nbsp;618, not an estimate. Switch any table between <b>counts</b> (the number of children and students) and <b>percentages</b> (a share of the total). A dash (<b>–</b>) marks a cell the Department suppressed to protect student privacy when very few students are involved.</p>
 </details>
 <div class="tables-setup">
@@ -13100,14 +13093,14 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <div class="view" data-view="lea" role="tabpanel" aria-label="Part B LEA Explorer">
 <h2 class="section-title" id="lea">Part B LEA Explorer</h2>
-<p class="viewlead">Explore individual school districts, the Local Educational Agencies (LEAs) that serve Children and Students with Disabilities under IDEA, Part&nbsp;B. Choose a State to see all of its districts, then open any district for its full profile of Children and Students with Disabilities served and IDEA funds received. Child counts are School Year&nbsp;2024–25; funding figures are School Year&nbsp;2021–22.</p>
+<p class="viewlead">Individual school districts, the Local Educational Agencies (LEAs) that serve Children and Students with Disabilities under IDEA, Part&nbsp;B. Selecting a State lists its districts; each district profile reports the Children and Students with Disabilities served and the IDEA funds received. Child counts are School Year&nbsp;2024–25; funding figures are School Year&nbsp;2021–22.</p>
 <div class="card lea-controls">
   <div class="lea-begin" id="leaBegin">
     <span class="lea-begin-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.7-7-11a7 7 0 0 1 14 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
-    <div class="lea-begin-tx"><h3>Choose a state to begin</h3><p>Pick a state to see all of its school districts, then open any district for its full profile. You can also click a state on the map below, or search a district by name up top.</p></div>
+    <div class="lea-begin-tx"><h3>Select a State</h3><p>Selecting a State lists its school districts; each district opens to a full profile. A State may also be selected from the map below, or a district located using the search field above.</p></div>
   </div>
   <div class="lea-picks">
-    <div class="ctrl lea-statepick"><label for="leaStateSel">State</label><select id="leaStateSel" aria-label="Choose a State"></select></div>
+    <div class="ctrl lea-statepick"><label for="leaStateSel">State</label><select id="leaStateSel" aria-label="Select a State"></select></div>
     <div class="ctrl lea-pickwrap"><label for="leaPick">District (LEA)</label><select id="leaPick" aria-label="Choose a district"></select></div>
     <button type="button" id="leaBack" class="expdl lea-back" hidden>← All districts</button>
   </div>
@@ -13142,8 +13135,8 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <div id="gpraEmpty" class="gpra-empty" hidden>
   <span class="gpra-empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.6"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></span>
-  <h3>Pick a topic to begin</h3>
-  <p>Choose a topic above to see how IDEA Part&nbsp;B is doing against its national targets, or choose <b>All measures</b> to see every measure at once.</p>
+  <h3>Select a topic</h3>
+  <p>Select a topic above to display IDEA, Part&nbsp;B performance against its national targets, or select <b>All measures</b> to display every measure.</p>
 </div>
 <div id="gpraBody"></div>
 <div class="exp-src">Source: U.S. Department of Education, <em>Fiscal Year 2025 Budget Request, Special Education</em>, State Grants: Grants to States, Program Performance Information (printed pp.&nbsp;28–32). NAEP "students with disabilities" includes any student a school classifies as having a disability, including those served under a Section&nbsp;504 plan. A dash (–) means data were not yet available when the budget was published; State-assessment results for 2020 were waived due to the COVID-19 pandemic.</div>
@@ -13153,7 +13146,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <div class="home-about">
   <p class="home-about-text">The Office of Special Education Programs (OSEP), within the Office of Special Education and Rehabilitative Services (OSERS), is dedicated to improving results for infants, toddlers, children, and youth with disabilities, ages birth through 21, by providing leadership and financial support to assist States/entities, local districts, and programs. Section&nbsp;618 of IDEA requires that each State/entity submit data about the infants and toddlers, birth through age 2, who receive early intervention services under Part&nbsp;C of IDEA, and Students with Disabilities, ages 3 through 21, who receive special education and related services under Part&nbsp;B of IDEA.</p>
 </div>
-<p class="viewlead">The full set of public IDEA Section&nbsp;618 data collections, organized by reporting level, IDEA part, collection, and school year. Choose a collection to view its tables, charts, and original source files.</p>
+<p class="viewlead">The full set of public IDEA Section&nbsp;618 data collections, organized by reporting level, IDEA part, collection, and school year. Each collection provides its tables, charts, and original source files.</p>
 <section class="collection-tree" id="bycollection" aria-label="IDEA Section 618 collection selector">
   <div class="tree-head compact-tree-head">
     <div>
@@ -13207,8 +13200,8 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   </div>
   <div class="card fig coll-display" data-coll-panel="pb_exiting">
     <div class="ey">Part B · Exiting · School Year 2023–24</div>
-    <h3>Exiting Special Education, Part&nbsp;B Exiting Collection, Ages 14 Through 21, School Year 2023–24</h3>
-    <div class="note">How Students with Disabilities, ages 14 through 21, left special education in School Year 2023–24, shown as a percent of all students reported in the Exiting collection. Graduating with a regular high school diploma is the most common reason students exit.</div>
+    <h3>How Students with Disabilities, Ages 14 Through 21, Exited Special Education Under IDEA, Part&nbsp;B, in the United States, Outlying Areas, and Freely Associated States, School Year 2023–24</h3>
+    <div class="note">How Students with Disabilities, ages 14 through 21, left special education in School Year 2023–24, shown as a percent of all students reported in the Exiting collection. Graduating with a regular high school diploma was the most common reason students exited, accounting for 52.7% of all exiters (367,002 students) in School Year 2023–24.</div>
     <div class="ey" style="margin-top:6px">From all who exited to a regular diploma</div>
     <div class="funnel-box" id="exitFunnel" role="img" aria-label="Funnel of how Students with Disabilities, ages 14 through 21, exited special education: of all who exited, how many left school, and how many graduated with a regular high school diploma."></div>
     <div class="canvas-box tall" style="margin-top:14px"><canvas id="exitChart"></canvas></div>
@@ -13221,7 +13214,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <div class="grid g2 coll-grid">
   <div class="card fig coll-display" data-coll-panel="pb_personnel">
     <div class="ey">Part B · Personnel · School Year 2023–24</div>
-    <h3>Special Education Personnel, Part&nbsp;B Personnel Collection, School Year 2023–24</h3>
+    <h3>Special Education Teachers and Paraprofessionals by Certification or Qualification Status, Under IDEA, Part&nbsp;B, Personnel Collection, School Year 2023–24</h3>
     <div class="note">Full-time-equivalent personnel by role and qualification status.</div>
     <div class="canvas-box"><canvas id="persChart"></canvas></div>
     <div class="collection-mini-grid">
@@ -13231,8 +13224,8 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   </div>
   <div class="card fig coll-display" data-coll-panel="pb_assessment">
     <div class="ey">Part B · Assessment · School Year 2023–24</div>
-    <h3>Assessment Proficiency, Part&nbsp;B Assessment Collection, School Year 2023–24</h3>
-    <div class="note">National aggregate proficiency for participating students with IEPs. Do not use these bars for state-to-state comparisons.</div>
+    <h3>Percent Proficient or Above on Statewide Assessments, Students with Disabilities Who Participated, Under IDEA, Part&nbsp;B, National Aggregate, School Year 2023–24</h3>
+    <div class="note">National aggregate proficiency for participating students with IEPs. These figures are not comparable across States because State assessment systems differ.</div>
     <div class="canvas-box"><canvas id="asmtChart"></canvas></div>
     <div class="collection-mini-grid">
       <div class="collection-mini"><h4>Participants and Proficiency</h4><div class="mini-note">Participant counts and the subset proficient or above.</div><div class="canvas-box short"><canvas id="asmtOutcomeChart"></canvas></div></div>
@@ -13409,7 +13402,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
         <button type="button" data-goto="trends">National trends</button>
         <button type="button" data-goto="states">State snapshot</button>
         <button type="button" data-goto="tables">SEA tables</button>
-        <button type="button" id="sfBuild">Build a chart</button>
+        <button type="button" id="sfBuild">Custom chart</button>
       </div>
       <div class="sf-col">
         <span class="sf-h">Official sources</span>
@@ -13420,7 +13413,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
       <div class="sf-col">
         <span class="sf-h">This tool</span>
         <button type="button" data-goto="accessibility">Accessibility</button>
-        <button type="button" id="sfStart">Start-here guide</button>
+        <button type="button" id="sfStart">About this tool</button>
       </div>
     </nav>
   </div>
@@ -14129,9 +14122,9 @@ function renderIncl(){
 }
 
 /* ============ STATE BAR ============ */
-const MET={v2024:{i:4,lbl:'Children and students with disabilities, ages 3–21, served under IDEA Part B, School Year 2024–25',f:fmt,short:'Part B ages 3–21 count'},
- pe2022:{i:5,lbl:'Children and students with disabilities, ages 3–21, served under IDEA Part B as a percent of public-school enrollment, School Year 2022–23',f:v=>v+'%',short:'Part B ages 3–21 percent of enrollment'},
- growth:{i:'g',lbl:'Percent change in children and students with disabilities, ages 3–21, served under IDEA Part B, School Years 2000–01 to 2024–25',f:v=>(v>=0?'+':'')+v.toFixed(0)+'%',short:'Part B ages 3–21 percent change'}};
+const MET={v2024:{i:4,lbl:'Children and Students with Disabilities, Ages 3 Through 21, Served Under IDEA, Part B, the 50 States and the District of Columbia, School Year 2024–25',f:fmt,short:'Part B ages 3–21 count'},
+ pe2022:{i:5,lbl:'Children and Students with Disabilities, Ages 3 Through 21, Served Under IDEA, Part B, as a Percent of Public-School Enrollment, the 50 States and the District of Columbia, School Year 2022–23',f:v=>v+'%',short:'Part B ages 3–21 percent of enrollment'},
+ growth:{i:'g',lbl:'Percent Change in Children and Students with Disabilities, Ages 3 Through 21, Served Under IDEA, Part B, the 50 States and the District of Columbia, School Years 2000–01 to 2024–25',f:v=>(v>=0?'+':'')+v.toFixed(0)+'%',short:'Part B ages 3–21 percent change'}};
 let stateBar;
 function stateVal(s,m){if(m==='growth')return (s[4]-s[1])/s[1]*100;if(m==='pe2022')return s[5];return s[4];}
 function renderStateBar(){
@@ -14319,6 +14312,12 @@ function renderExplorer(){
    tooltip:{callbacks:{label:function(o){return fmt(o.dataset._raw[o.dataIndex])+' students, '+o.dataset._share[o.dataIndex].toFixed(1)+'% of school-aged students';}}}},
    scales:{x:{beginAtZero:true,max:expMode==='pct'?100:undefined,title:{display:true,text:expMode==='pct'?'Percent of school-aged students':'Students'},ticks:{callback:function(v){return expMode==='pct'?v+'%':v.toLocaleString();}}},
     y:{grid:{display:false},ticks:{font:{size:10,weight:'700'}}}}}});
+ // ---- Figure 2 takeaway (category-driven, ages 5 through 21) ----
+ var _envTake=document.getElementById('expEnvTake');
+ if(_envTake){
+  var _catLead=isAll?'Of school-aged Children and Students with Disabilities':('Of school-aged Children and Students with Disabilities whose primary category is '+expCat.charAt(0).toLowerCase()+expCat.slice(1));
+  _envTake.textContent=_catLead+', '+incl.toFixed(1)+'% spent 80% or more of the school day inside the regular class, ages 5 through 21, School Year 2024–25.';
+ }
  // ---- Figure 3: reported sex composition ----
  const sexTotal=(c.male||0)+(c.female||0)||1;
  const sexRows=[['Male',c.male||0,'#1f6fa8'],['Female',c.female||0,'#2e8540']].map(function(s){var share=pct(s[1],sexTotal);return {label:s[0],raw:s[1],share:share,color:s[2]};});
@@ -14970,7 +14969,7 @@ function renderStateReport(){
  var box=document.getElementById('stateReport'); if(!box)return;
  var s=STATES.find(function(x){return x[0]===focusState;})||STATES[0];
  var r=STATE_RPT[focusState]||{}; var rpt=function(k){return STATE_RPT[k];};
- var tt=document.getElementById('stateRptTitle'); if(tt)tt.textContent='Section 618 Measures';
+ var tt=document.getElementById('stateRptTitle'); if(tt)tt.textContent='Selected IDEA Section 618 Measures for '+focusState+', with the National Value and the State’s Rank';
  var note=document.getElementById('stateProfileNote'); if(note)note.innerHTML='Each measure is drawn from the IDEA Section 618 data collections and is labeled with its IDEA part, age group, and school year.';
  var cc=s[4],pe=s[5],grw=((s[4]-s[1])/s[1]*100);
  var _ins=document.getElementById('stateInsight');if(_ins){var _incl=(r.incl!=null?r.incl+'%':'N/A'),_partc=(r.partc!=null?fmt(r.partc):'N/A');_ins.innerHTML='<div class="state-insight-grid">'
@@ -15047,7 +15046,7 @@ function _renderStatePickPrompt(){
  var v=document.querySelector('.view[data-view="states"]');if(!v)return;
  var anchor=document.getElementById('stateMapSection')||v.querySelector('.grid');if(!anchor||!anchor.parentNode)return;
  var div=document.createElement('div');div.id='statePickPrompt';div.className='pick-empty';div.setAttribute('data-stab','stateMapSection');
- div.innerHTML='<div class="pick-empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><h3>Pick a State to begin</h3><p>Choose a State or reporting entity from the menu above to see its IDEA Section&nbsp;618 data, how it ranks nationally, and its federal determination.</p>';
+ div.innerHTML='<div class="pick-empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><h3>Select a State</h3><p>Select a State or reporting entity from the menu above to display its IDEA Section&nbsp;618 data, national rank, and federal determination.</p>';
  anchor.parentNode.insertBefore(div,anchor.nextSibling);
 }
 function afterStateChange(){
@@ -15073,7 +15072,7 @@ function renderEntityMode(){
      The entity's actual measures live in the "vs. the Nation" section (officialDisplay). */
   if(el=document.getElementById('stateInsight'))el.innerHTML='';
   if(el=document.getElementById('stateReport'))el.innerHTML='';
-  if(el=document.getElementById('stateRptTitle'))el.textContent='Section 618 Measures';
+  if(el=document.getElementById('stateRptTitle'))el.textContent='Selected IDEA Section 618 Measures for '+focusState+', with the National Value';
   if(el=document.getElementById('cmpPanel'))el.innerHTML='';
   if(el=document.getElementById('stateMeasurePanel'))el.hidden=true;
   if(el=document.getElementById('stateMeasureCards'))el.innerHTML='';
@@ -15094,7 +15093,7 @@ function setStateChromeForMode(isState){
     var head=document.querySelector('#stateMapSection h3'), p=document.querySelector('#stateMapSection p');
     if(isState){
       if(head)head.textContent='Compared with Other States';
-      if(p)p.textContent='See how this State compares with the rest of the country: color the U.S. map by a measure and rank the States, compare this State with the nation by disability category, and open the full all-States table.';
+      if(p)p.textContent='This State compared with the 50 States and the District of Columbia: the U.S. map and State rankings by a selected measure, a comparison with the national figure by disability category, and the full all-States table.';
     } else {
       if(head)head.textContent=focusState+' Compared with the Nation';
       if(p)p.textContent=focusState+' reports IDEA Section 618 data separately from the 50 states and the District of Columbia, so it is not on the national map or in the State rankings. Its published measures are shown against the national value below.';
@@ -15463,7 +15462,7 @@ function init(){
  if(_cp)_cp.onclick=toggleCompPlay;}
  // state selector
  const ss=document.getElementById('stateSel');
- {const ph=document.createElement('option');ph.value='';ph.textContent='Pick a State…';ss.appendChild(ph);}
+ {const ph=document.createElement('option');ph.value='';ph.textContent='Select a State…';ss.appendChild(ph);}
  STATES.map(s=>s[0]).forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;ss.appendChild(o);});(function(){var terr=Object.keys(DD).filter(function(k){return !STATES.some(function(s){return s[0]===k;});}).sort();if(terr.length){var og=document.createElement('optgroup');og.label='Additional IDEA reporting entities';terr.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;og.appendChild(o);});ss.appendChild(og);}})();
  ss.value=focusState;ss.onchange=()=>{focusState=ss.value;afterStateChange();};
  document.getElementById('metricSel').onchange=()=>{renderStateBar();renderStateRankBanner();colorMap();};
@@ -15554,7 +15553,7 @@ function injectExplainButtons(root){
     if(nx&&nx.classList&&nx.classList.contains('explain-wrap'))return;
     var bid='explainbody_'+cv.id;
     var wrap=document.createElement('div'); wrap.className='explain-wrap';
-    wrap.innerHTML='<button type="button" class="explain-btn" aria-expanded="false" aria-controls="'+bid+'"><span class="ex-ic" aria-hidden="true">?</span>What does this mean?</button>'
+    wrap.innerHTML='<button type="button" class="explain-btn" aria-expanded="false" aria-controls="'+bid+'"><span class="ex-ic" aria-hidden="true">?</span>Text description</button>'
       +'<div class="explain-body" id="'+bid+'" role="note" hidden></div>';
     box.insertAdjacentElement('afterend',wrap);
   });
@@ -15566,13 +15565,13 @@ document.addEventListener('click',function(e){
   var body=wrap.querySelector('.explain-body');
   if(btn.getAttribute('aria-expanded')==='true'){
     btn.setAttribute('aria-expanded','false'); if(body)body.hidden=true;
-    btn.innerHTML='<span class="ex-ic" aria-hidden="true">?</span>What does this mean?'; return;
+    btn.innerHTML='<span class="ex-ic" aria-hidden="true">?</span>Text description'; return;
   }
   var box=wrap.previousElementSibling, cv=box&&box.querySelector?box.querySelector('canvas[id]'):null;
   var txt=''; if(cv){try{txt=describeChart(cv.id)||'';}catch(_){}}
-  if(body){body.innerHTML='<strong>In plain language:</strong> '+(txt||'A text summary is not available for this chart yet.'); body.hidden=false;}
+  if(body){body.innerHTML='<strong>Description:</strong> '+(txt||'A text description is not available for this chart.'); body.hidden=false;}
   btn.setAttribute('aria-expanded','true');
-  btn.innerHTML='<span class="ex-ic" aria-hidden="true">×</span>Hide explanation';
+  btn.innerHTML='<span class="ex-ic" aria-hidden="true">×</span>Hide description';
 });
 function swWire(id,fn){const el=document.getElementById(id);if(!el)return;const t=()=>fn(!el.classList.contains('on'));
    el.onclick=t;el.onkeydown=e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();t();}};}
@@ -16295,7 +16294,7 @@ function renderTablesView(){
  if(!tablesCollections.length){
   if(_tbToolbar)_tbToolbar.style.display='none'; if(_tbKey)_tbKey.style.display='none';
   try{if(typeof Chart!=='undefined')box.querySelectorAll('.tbl-viz-canvas').forEach(function(cv){var c=Chart.getChart(cv.id);if(c)c.destroy();});}catch(e){}
-  box.innerHTML='<div class="tables-empty"><div class="tables-empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg></div><h3>Pick a Collection to Begin</h3><p>Choose one or more data collections from the buttons above to see the IDEA Section&nbsp;618 tables. You can combine Part&nbsp;B and Part&nbsp;C, switch between counts and percentages, flip any table to a chart view, and download the data as a CSV. For a custom chart, use the <strong>Build a chart</strong> button at the bottom of the screen.</p></div>';
+  box.innerHTML='<div class="tables-empty"><div class="tables-empty-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg></div><h3>Select a Collection</h3><p>Select one or more data collections from the buttons above to display the IDEA Section&nbsp;618 tables. Part&nbsp;B and Part&nbsp;C collections may be combined; tables may be shown as counts or percentages, displayed as a chart, or downloaded as a CSV file. A custom chart may be created using the <strong>Custom chart</strong> tool.</p></div>';
   return;
  }
  if(_tbToolbar)_tbToolbar.style.display=''; if(_tbKey)_tbKey.style.display='';
@@ -16530,7 +16529,8 @@ function _setGpraView(v){
 function renderGPRA(){
  var body=document.getElementById('gpraBody'); if(!body)return;
  try{if(typeof Chart!=='undefined')body.querySelectorAll('canvas').forEach(function(cv){var c=Chart.getChart(cv.id);if(c)c.destroy();});}catch(e){}
- body.innerHTML=GPRA_DATA.groups.map(function(g){
+ var _tk=(GPRA_DATA.takeaways&&GPRA_DATA.takeaways.length)?'<div class="gpra-takeaways"><h3>Key takeaways</h3><ul>'+GPRA_DATA.takeaways.map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul></div>':'';
+ body.innerHTML=_tk+GPRA_DATA.groups.map(function(g){
   return '<section class="gpra-group"><div class="gpra-group-head"><h3>'+g.title+'</h3><p>'+g.blurb+'</p></div>'
    +'<div class="grid'+(g.measures.length>1?' g2':'')+'">'+g.measures.map(function(m){return _gpraCard(g,m);}).join('')+'</div></section>';
  }).join('');
@@ -17126,7 +17126,7 @@ function buildAdditionalCollections(){
   <div class="note">National assessment (NAEP) and U.S. population (Census ACS) context. Select to view the charts.</div>
   <div class="card fig">
     <div class="ey">National Assessment of Educational Progress (NAEP) &middot; external federal source</div>
-    <h3>Students with Disabilities and Their Peers, NAEP</h3>
+    <h3>Reading and Mathematics Achievement, Students with Disabilities and Their Peers, NAEP (Long-Term Trend Ages 9 and 13; Main NAEP Grades 4 and 8), United States</h3>
     <div id="naepToggle" class="addcoll-toggle">
       <button type="button" data-m="scores" class="on">Average scores</button>
       <button type="button" data-m="trend">Long-term trend</button>
@@ -17141,7 +17141,7 @@ function buildAdditionalCollections(){
   <div class="grid g2">
     <div class="card fig">
       <div class="ey">Census ACS 2024 versus IDEA 2024-25</div>
-      <h3>Sex Distribution: IDEA and the U.S. Population</h3>
+      <h3>Sex Distribution of Students with Disabilities Ages 5 Through 17 Served Under IDEA, Part B, Compared With the U.S. Population, United States, School Year 2024–25 and Census ACS 2024</h3>
       <div class="note">The sex distribution of Students with Disabilities served under IDEA, Part B compared with the U.S. population from the Census American Community Survey.</div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:space-around;align-items:flex-start;margin-top:8px">
         <div style="flex:1 1 160px;max-width:230px;text-align:center"><div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px">Served Under IDEA, Part B, 2024-25</div><div style="position:relative;height:190px"><canvas id="acsSexIDEA"></canvas></div></div>
@@ -17150,7 +17150,7 @@ function buildAdditionalCollections(){
     </div>
     <div class="card fig">
       <div class="ey">IDEA 2024-25 vs Census ACS 2024</div>
-      <h3>IDEA Services by Age</h3>
+      <h3>Percent of U.S. Children Ages 5 Through 17 Served Under IDEA, Part B, by Age Band, United States, School Year 2024–25 and Census ACS 2024</h3>
       <div class="note">Part B child count as a percent of the U.S. child population by single year of age.</div>
       <div class="canvas-box"><canvas id="acsAgeChart"></canvas></div>
     </div>
@@ -17202,7 +17202,7 @@ function foldNotes(){
       if((n.textContent||'').trim().length<2){ n.setAttribute('data-nf','skip'); return; }
       n.setAttribute('data-nf','1');
       var d=document.createElement('details'); d.className='note-fold';
-      var sm=document.createElement('summary'); sm.textContent='What this shows';
+      var sm=document.createElement('summary'); sm.textContent='About this chart';
       n.parentNode.insertBefore(d,n); d.appendChild(sm); d.appendChild(n);
     });
   }catch(e){}
@@ -17302,7 +17302,7 @@ function buildTrendsOverview(){
 <section class="trends-overview" id="trendsOverview">
   <div class="home-hero">
     <div class="home-hero-inner">
-      <div class="hh-eyebrow"><span class="hh-50">50</span> Years of IDEA &nbsp;&middot;&nbsp; 1975&ndash;2025</div>
+      <div class="hh-eyebrow">50 Years of IDEA &nbsp;&middot;&nbsp; 1975&ndash;2025</div>
       <h2 class="hh-title">Celebrating the last fifty years of IDEA Section 618 data collections</h2>
     </div>
   </div>
@@ -17312,8 +17312,8 @@ function buildTrendsOverview(){
   <div class="kpis" id="kpis"></div>
   <div class="card fig home-bubbles-hero" id="home-bubbles-card">
     <div class="ey">National Snapshot · School Year 2024–25</div>
-    <h3>Children and Students Served, by Primary Disability Category</h3>
-    <div class="note">Each circle is one primary disability category, sized in proportion to the number of children and students served under IDEA, Part&nbsp;B, ages&nbsp;3 through 21. Hover for the exact count; select one to focus it in the trend below.</div>
+    <h3>Children and Students with Disabilities Served by Primary Disability Category, Ages 3 Through 21, Under IDEA, Part B, in the 50 States and DC, School Year 2024–25</h3>
+    <div class="note">Each circle is one primary disability category, sized in proportion to the number of Children and Students with Disabilities served under IDEA, Part&nbsp;B, ages&nbsp;3 through 21. Selecting a category focuses it in the trend below.</div>
     <div class="home-bubblewrap" id="homeBubbles"></div>
     <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” 2024–25.</div></details>
   </div>
@@ -17396,7 +17396,7 @@ function _leaMoney(v){return v==null?'–':'$'+Math.round(v).toLocaleString();}
 function _leaPopulateStates(){
  var sel=document.getElementById('leaStateSel');if(!sel||!LEA_DATA)return;
  if(sel.options.length<=1){
-  sel.innerHTML='<option value="">Choose a State…</option>'+LEA_DATA.states.map(function(s){return '<option value="'+s.replace(/"/g,'&quot;')+'">'+s+' ('+LEA_DATA.byState[s].length+' districts)</option>';}).join('');
+  sel.innerHTML='<option value="">Select a State…</option>'+LEA_DATA.states.map(function(s){return '<option value="'+s.replace(/"/g,'&quot;')+'">'+s+' ('+LEA_DATA.byState[s].length+' districts)</option>';}).join('');
   sel.onchange=function(){LEA_STATE=sel.value;LEA_SEL=null;_leaRender();};
   var pick=document.getElementById('leaPick');if(pick)pick.onchange=function(){var i=+pick.value;LEA_SEL=(LEA_STATE&&!isNaN(i)&&i>=0)?LEA_DATA.byState[LEA_STATE][i]:null;_leaRender();};
   var back=document.getElementById('leaBack');if(back)back.onclick=function(){LEA_SEL=null;_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});};
@@ -17604,7 +17604,7 @@ function _leaRenderNation(){
  var distParts=[{v:dD['1'],c:'#2e8540'},{v:dD['2'],c:'#b8860b'},{v:dD['3'],c:'#cc5a33'},{v:dD['4'],c:'#8c1d1d'}];
  var studParts=[{v:dS['1'],c:'#2e8540'},{v:dS['2'],c:'#b8860b'},{v:dS['3'],c:'#cc5a33'},{v:dS['4'],c:'#8c1d1d'}];
  if(status)status.innerHTML='';
- body.innerHTML='<div class="lea-supnote">A national snapshot of <b>every reporting district</b> serving Children and Students with Disabilities. Choose a State above to zoom in, or open <b>Explore the national picture</b> below for the full State-by-State comparison.</div>'+
+ body.innerHTML='<div class="lea-supnote">A national view of every reporting district serving Children and Students with Disabilities under IDEA, Part&nbsp;B. Select a State above to view its districts, or open <b>National Comparison</b> below for the full State-by-State comparison.</div>'+
   '<div class="kpis lea-kpis">'+
    '<div class="kpi"><div class="l">Districts (LEAs)</div><div class="v">'+all.length.toLocaleString()+'</div><div class="c">reporting a 2024–25 child count, across '+states.length+' States &amp; territories</div></div>'+
    '<div class="kpi"><div class="l">Children and Students with Disabilities Served</div><div class="v" title="Sum of district (LEA) child counts, ages 3 through 21, School Year 2024–25. This can differ slightly from the official State-reported (SEA) national total on the Home page, because suppressed or unreported district counts are not included here.">'+_leaFmt(totalServed)+'</div><div class="c">Ages 3 through 21, served under IDEA, Part B, 2024–25 · summed from district (LEA) child counts, so it differs slightly from the State-reported national total on the Home page</div></div>'+
@@ -17614,8 +17614,8 @@ function _leaRenderNation(){
    '<div class="card fig"><div class="ey">District Landscape · Nationwide</div><h3>Every District by Size and IDEA Funding</h3><div class="note">One bubble per district (the '+withFund.length.toLocaleString()+' that have both a 2024–25 child count and a 2021–22 MOE record). Left to right is Children and Students with Disabilities served (2024–25), bottom to top is IDEA, Part&nbsp;B funding (2021–22), and the color is the state&rsquo;s MOE rating. Click a bubble to open it. Different years, matched by NCES&nbsp;ID, so they won&rsquo;t line up perfectly everywhere.</div><div class="canvas-box tall"><canvas id="leaLandscape"></canvas></div></div>'+
    '<div class="card"><div class="ey">Ranked · Nationwide</div><h3>Largest Districts</h3><div class="note">By Children and Students with Disabilities served. Click one to open it.</div><div class="lea-ranklist" id="leaRankList"></div></div>'+
   '</div>'+
-  '<details class="lea-deepdive" id="leaDeepDive"><summary><span class="ldd-t">Explore the national picture</span><small>How districts and Students with Disabilities compare, where the dollars go, and a card for every State</small></summary><div class="lea-deepdive-body">'+
-  '<div class="card fig"><h3>The Same Ratings, Counted Two Ways</h3><div class="note">The left grid counts <b>districts</b>; the right counts the <b>Students with Disabilities</b> they enroll. Both cover the '+totD.toLocaleString()+' districts that got a determination, and each square is about 1%.</div><div class="lea-waffles"><div class="lea-waffle-col"><div class="lbl">Share of <b>districts</b> ('+totD.toLocaleString()+')</div>'+_leaWaffleHTML(distParts)+'</div><div class="lea-waffle-col"><div class="lbl">Share of <b>Students with Disabilities</b> ('+_leaFmt(totS)+')</div>'+_leaWaffleHTML(studParts)+'</div></div>'+_leaDetLeg()+'<div class="lea-punch">Most districts (<b>'+pctMeetD+'%</b>) meet IDEA, Part B requirements, but they only enroll <b>'+pctMeetS+'%</b> of Students with Disabilities. Around <b>'+_leaFmt(needIntS)+'</b> Children and Students with Disabilities are in districts their state flagged as needing intervention or substantial intervention.</div></div>'+
+  '<details class="lea-deepdive" id="leaDeepDive"><summary><span class="ldd-t">National Comparison</span><small>District and student distributions, IDEA fund allocation, and a profile for each State</small></summary><div class="lea-deepdive-body">'+
+  '<div class="card fig"><h3>The Same Ratings, Counted Two Ways</h3><div class="note">The left grid counts <b>districts</b>; the right counts the <b>Students with Disabilities</b> they enroll. Both cover the '+totD.toLocaleString()+' districts that received a determination; each square represents approximately 1 percent.</div><div class="lea-waffles"><div class="lea-waffle-col"><div class="lbl">Share of <b>districts</b> ('+totD.toLocaleString()+')</div>'+_leaWaffleHTML(distParts)+'</div><div class="lea-waffle-col"><div class="lbl">Share of <b>Students with Disabilities</b> ('+_leaFmt(totS)+')</div>'+_leaWaffleHTML(studParts)+'</div></div>'+_leaDetLeg()+'<div class="lea-punch"><b>'+pctMeetD+'%</b> of districts meet IDEA, Part B requirements; these districts enroll <b>'+pctMeetS+'%</b> of Students with Disabilities. Approximately <b>'+_leaFmt(needIntS)+'</b> Children and Students with Disabilities are in districts the State identified as needing intervention or substantial intervention.</div></div>'+
   '<div class="card fig"><div class="ey">Funding Flow</div><h3>Where IDEA, Part B Dollars Go</h3><div class="note">The grant splits into Section&nbsp;611 (school-age) and Section&nbsp;619 (preschool). A slice gets set aside for Coordinated Early Intervening Services (CEIS), and the rest pays for special education and related services. School Year&nbsp;2021–22.</div><div class="lea-sc-bar"><label for="leaFlowState">Funding for</label><select id="leaFlowState"><option value="">United States (all States &amp; territories)</option>'+Object.keys(LEA_DATA.flow).filter(function(s){return s!=='__US__';}).sort().map(function(s){return '<option value="'+s.replace(/"/g,'&quot;')+'">'+s+'</option>';}).join('')+'</select></div><div id="leaFlow">'+_leaFlowSVG(flUS)+'</div><div class="lea-flow-note" id="leaFlowNote">'+_leaFlowNoteHTML(flUS)+'</div></div>'+
   '<div class="card fig"><div class="ey">State Report Cards</div><h3>How States Compare</h3><div class="note">Children and Students with Disabilities served under IDEA, Part B (2024–25) next to MOE compliance (2021–22). The color shows how many of a state&rsquo;s districts meet requirements. Click a card to open that state.</div><div class="lea-sc-bar"><label for="leaScSort">Sort by</label><select id="leaScSort"><option value="served">Children and Students with Disabilities served (high → low)</option><option value="meet">% districts meeting requirements</option><option value="met">% met the MOE standard</option><option value="ceis">CEIS-required districts</option><option value="nomoe">Districts without MOE match</option><option value="name">State name (A → Z)</option></select></div><div class="lea-sc-legend"><span><i style="background:#2e8540"></i>75%+ meeting</span><span><i style="background:#b8860b"></i>50–74%</span><span><i style="background:#cc5a33"></i>25–49%</span><span><i style="background:#8c1d1d"></i>under 25%</span></div><div class="lea-scards" id="leaScards"></div></div>'+'</div></details>';
  var rl=document.getElementById('leaRankList');var topN=sorted.slice(0,25),maxT=topN.length?(topN[0].served||1):1;
@@ -18435,10 +18435,13 @@ body.pink:not(.dark) .cb-catsfold>summary .cb-drill-title{color:#a8266e}
 .cb-chart-title:empty{display:none}
 body.dark .cb-chart-title{color:#dbe8f6}
 body.pink:not(.dark) .cb-chart-title{color:#a8266e}
-/* Flatter, more editorial cards: a single hairline shadow, defined mainly by their border. */
-.card,.kpi,.picto,.sparkcard,.cmp2-col,.qlink,.launchcard,.cat,.snap-stat{box-shadow:0 1px 2px rgba(16,42,67,.06)!important}
-body:not(.no-anim):not(.reduce) .card:hover,body:not(.no-anim):not(.reduce) .kpi:hover,body:not(.no-anim):not(.reduce) .qlink:hover,body:not(.no-anim):not(.reduce) .launchcard:hover{box-shadow:0 3px 10px rgba(22,46,81,.10)!important}
-body.dark .card,body.dark .kpi,body.dark .picto,body.dark .sparkcard,body.dark .cmp2-col,body.dark .qlink,body.dark .launchcard,body.dark .cat,body.dark .snap-stat{box-shadow:0 1px 2px rgba(0,0,0,.28)!important}
+/* Flat, text-forward cards: defined by a hairline border, no drop shadow (federal-data look). */
+.card,.kpi,.picto,.sparkcard,.cmp2-col,.qlink,.launchcard,.cat,.snap-stat,.lea-state-context,.state-drill-btn,.rankbanner,.exp-hero{box-shadow:none!important}
+body:not(.no-anim):not(.reduce) .card:hover,body:not(.no-anim):not(.reduce) .kpi:hover,body:not(.no-anim):not(.reduce) .qlink:hover,body:not(.no-anim):not(.reduce) .launchcard:hover{box-shadow:none!important;transform:none!important}
+/* No decorative icon chips on cards/stats (numbers and labels carry the meaning). */
+#kpis .kpi-ic,.snap-stat .snap-ic,.launchcard .lc-ic,.wtask .wt-ic{display:none!important}
+/* Plain page-header eyebrow (no gold badge flourish). */
+.home-hero .hh-eyebrow{color:#cdd9ea;font-weight:700;letter-spacing:.03em;text-transform:none;font-size:.76rem;gap:0;margin-bottom:12px}
 /* ===== State Snapshot redo: clean "Sections" pill bar (matches National Trends) ===== */
 .view[data-view="states"] .state-page-nav{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 16px!important;padding:7px 10px!important;border:1px solid var(--line);border-left:4px solid #c9a93a;border-radius:10px;background:#fff;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 .view[data-view="states"] .state-page-nav span{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#6c7c8d;margin-right:4px}
@@ -18469,6 +18472,7 @@ body.dark .state-drill-btn{background:#16242f;color:#dbe8f6;border-color:#2c3a47
 .lea-state-context .lsc-name{font-size:1.02rem;color:var(--navy);font-weight:800}
 .lea-state-context .lsc-stat{font-size:.84rem;color:var(--ink);font-variant-numeric:tabular-nums}
 .lea-state-context .lsc-stat b{color:var(--navy)}
+.lea-state-context .lsc-note{flex:1 1 240px;min-width:0;font-size:.88rem;line-height:1.4;color:var(--ink)}
 .lea-state-context .lsc-link{flex:0 0 auto;font:inherit;font-weight:700;font-size:.85rem;color:#fff;background:var(--navy);border:none;border-radius:8px;padding:8px 14px;cursor:pointer}
 .lea-state-context .lsc-link:hover{filter:brightness(1.08)}
 body.dark .lea-state-context{background:#16242f;border-color:#2c3a47}
@@ -18570,15 +18574,15 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
   <span class="fj-speaker" aria-hidden="true"></span>
   <div id="fjYT" aria-hidden="true"></div>
 </div>
-<button id="chartBuilderFab" type="button" aria-haspopup="dialog" aria-controls="chartBuilderModal" title="Build a custom chart from the IDEA Section 618 data">
+<button id="chartBuilderFab" type="button" aria-haspopup="dialog" aria-controls="chartBuilderModal" title="Create a custom chart from the IDEA Section 618 data">
   <span class="cbf-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="12" width="4" height="8" rx="1" fill="currentColor"/><rect x="10" y="7" width="4" height="13" rx="1" fill="currentColor"/><rect x="17" y="3" width="4" height="17" rx="1" fill="currentColor"/></svg></span>
-  <span class="cbf-tx">Build a chart</span>
+  <span class="cbf-tx">Custom chart</span>
 </button>
 <div id="chartBuilderModal" class="cb-modal" hidden role="dialog" aria-modal="true" aria-label="Chart builder">
   <div class="cb-modal-backdrop" data-cb-close></div>
   <div class="cb-dialog" role="document">
     <div class="cb-dialog-head">
-      <div><h2 class="cb-dialog-title">Build your own chart</h2><p class="cb-dialog-sub">Start with the sentence below, then fine-tune the chart however you like. Everything updates as you go.</p></div>
+      <div><h2 class="cb-dialog-title">Custom Chart</h2><p class="cb-dialog-sub">Set the measure, collection, and geography below. The chart and its options update with each selection.</p></div>
       <button type="button" class="cb-close" data-cb-close aria-label="Close chart builder">×</button>
     </div>
     <div class="cb-say">
@@ -18616,7 +18620,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
           <button type="button" data-s="none">As listed</button>
         </div>
       </div>
-      <label class="cb-check"><input type="checkbox" id="cbLabels" checked> Show the numbers</label>
+      <label class="cb-check"><input type="checkbox" id="cbLabels" checked> Show data values</label>
       <div class="cb-optgrp"><span class="cb-optlab">Colors</span>
         <div class="cb-swatches" id="cbColorSeg" role="group" aria-label="Color palette">
           <button type="button" data-pal="classic" class="on" title="Classic" aria-label="Classic colors"><i style="background:#1f6fa8"></i><i style="background:#1c7b37"></i><i style="background:#df5e44"></i><i style="background:#c79a1f"></i></button>
@@ -18641,7 +18645,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
       <div class="tbl-viz-note" id="cbChart_note"></div>
     </div>
     <div class="cb-foot">
-      <label class="cb-titlefield"><span>Title for the saved image</span><textarea id="cbTitle" rows="2" placeholder="A title will be filled in for you — type here to change it"></textarea></label>
+      <label class="cb-titlefield"><span>Title for the saved image</span><textarea id="cbTitle" rows="2" placeholder="A default title is generated; edit here to change it."></textarea></label>
       <div class="cb-actions"><button type="button" class="cb-savebtn" id="cbPng">Save image</button><button type="button" class="cb-savebtn cb-savebtn-2" id="cbCsv">Save data (CSV)</button></div>
     </div>
   </div>
@@ -18717,7 +18721,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
       names.forEach(function(n){opts.push('<option value="'+n+'">'+n+'</option>');});
       cbCompare.innerHTML=opts.join('');
     }
-    function drillLabel(total){ var sp=specNow(); var name; if(sp&&drillMode(sp)==='metric'){ name=breakLabel(sp).split('·')[0].trim(); } else { name=(sp&&sp.rowHeader)?String(sp.rowHeader).replace(/\s+/g,' ').trim():'Categories'; } name=name.charAt(0).toUpperCase()+name.slice(1); return name+' — showing '+(selKeys?selKeys.size:0)+' of '+total; }
+    function drillLabel(total){ var sp=specNow(); var name; if(sp&&drillMode(sp)==='metric'){ name=breakLabel(sp).split('·')[0].trim(); } else { name=(sp&&sp.rowHeader)?String(sp.rowHeader).replace(/\s+/g,' ').trim():'Categories'; } name=name.charAt(0).toUpperCase()+name.slice(1); return name+' · showing '+(selKeys?selKeys.size:0)+' of '+total; }
     function syncChips(total){ if(!cbCats)return; [].slice.call(cbCats.querySelectorAll('.cb-chip')).forEach(function(c){var on=selKeys&&selKeys.has(c.getAttribute('data-k'));c.classList.toggle('on',!!on);c.setAttribute('aria-pressed',on?'true':'false');}); if(cbDrillTitle)cbDrillTitle.textContent=drillLabel(total!=null?total:cbCats.querySelectorAll('.cb-chip').length); }
     function topN(sp,rows,n){ var mi=chartMetricIdx(sp),usK=sp.usKey; return rows.slice().sort(function(a,b){return (_vizNum(sp,usK,b.key,mi)||0)-(_vizNum(sp,usK,a.key,mi)||0);}).slice(0,n); }
     function fillCats(resetSel){
@@ -18738,7 +18742,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
     function suggestedTitle(sp){
       var who=(cbState.value==='__US__')?'the U.S.':cbState.value;
       var cmp=(cbCompare&&cbCompare.value&&cbCompare.value!=='__none__')?(' vs. '+(cbCompare.value==='__US__'?'the U.S.':cbCompare.value)):'';
-      /* Build a descriptive, human-readable title: "<collection>, by <breakdown>, <ages> — <who> (<year>)" */
+      /* Build a descriptive, human-readable title: "<collection>, by <breakdown>, <ages>, <who> (<year>)" */
       var bl=breakLabel(sp), parts=bl.split('·').map(function(s){return s.trim();});
       var dim=(parts[0]||'').replace(/^./,function(c){return c.toLowerCase();});
       var age=parts.slice(1).join(' · ');
@@ -18747,7 +18751,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
       var yr=(sp&&sp.year)?String(sp.year).replace(/^\s*School Year\s*/i,'').trim():'';
       var t=subj+', by '+dim;
       if(age) t+=', '+age;
-      t+=' — '+who+cmp;
+      t+=', '+who+cmp;
       if(S.vals==='percent') t+=' (% share)';
       if(yr) t+=', '+yr;
       return t;
@@ -18846,16 +18850,12 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
   function updLeaContext(){
     var wrap=document.getElementById('leaStateContext'); if(!wrap) return;
     var sel=document.getElementById('leaStateSel'); var name=sel?sel.value:'';
-    var s=null; try{ s=(typeof STATES!=='undefined')?STATES.filter(function(x){return x[0]===name;})[0]:null; }catch(e){}
-    if(!name || !s){ wrap.hidden=true; wrap.innerHTML=''; return; }
-    var cnt=s[4], pe=s[5], det=null;
-    try{ det=(typeof det2026Status==='function')?det2026Status('partB',name):null; }catch(e){}
-    var stats='<span class="lsc-stat"><b>'+fmtN(cnt)+'</b> served · Part B, ages 3–21</span>';
-    if(pe!=null) stats+='<span class="lsc-stat"><b>'+pe+'%</b> of enrollment</span>';
-    if(det) stats+='<span class="lsc-stat">2026 determination: <b>'+det+'</b></span>';
+    if(!name || !isStateName(name)){ wrap.hidden=true; wrap.innerHTML=''; return; }
+    /* The LEA page already shows the State's served count, district count, and determination, so this
+       strip only links onward to what the LEA page does NOT show: national ranking, statewide trends, and SPP/APR. */
     wrap.hidden=false;
-    wrap.innerHTML='<div class="lsc-main"><span class="lsc-lbl">State context</span><b class="lsc-name">'+name+'</b>'+stats+'</div>'
-      +'<button type="button" class="lsc-link" id="leaToState">See the full State Snapshot for '+name+' →</button>';
+    wrap.innerHTML='<span class="lsc-note">For '+name+'’s national ranking, statewide trends, and SPP/APR indicators, see the full State Snapshot.</span>'
+      +'<button type="button" class="lsc-link" id="leaToState">State Snapshot: '+name+' →</button>';
     var lk=document.getElementById('leaToState'); if(lk) lk.addEventListener('click', function(){ openStateSnapshot(name); });
   }
   (function(){
