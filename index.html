@@ -781,6 +781,30 @@ footer a{
 }
 /* WCAG 1.4.1: links in text are underlined, not distinguished by color alone */
 .lead a,.fn a,.note a,.scopenote a,footer a,.ds a,.exp-src a{text-decoration:underline}
+/* ===== Global site footer (shown at the bottom of every view) ===== */
+.site-footer{margin:40px 0 0;border:none;border-top:3px solid var(--navy);border-radius:0;background:var(--line2);color:var(--ink);padding:28px clamp(16px,4vw,40px) 96px;font-size:.85rem;line-height:1.5}
+.site-footer .sf-top{display:flex;flex-wrap:wrap;gap:24px 56px;justify-content:space-between;max-width:1180px;margin:0 auto}
+.site-footer .sf-brand{display:flex;gap:13px;max-width:440px}
+.site-footer .sf-mark{flex:0 0 auto;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--navy);color:#fff}
+.site-footer .sf-mark svg{width:20px;height:20px}
+.site-footer .sf-name{font-weight:800;font-size:1.06rem;color:var(--navy);display:block}
+.site-footer .sf-tag{display:block;font-size:.84rem;color:var(--muted);line-height:1.5;margin-top:4px}
+.site-footer .sf-nav{display:flex;gap:30px 50px;flex-wrap:wrap}
+.site-footer .sf-col{display:flex;flex-direction:column;gap:8px}
+.site-footer .sf-h{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px}
+.site-footer .sf-col a,.site-footer .sf-col button{font:inherit;font-size:.88rem;font-weight:600;color:var(--primary);background:none;border:none;padding:0;text-align:left;cursor:pointer;text-decoration:none}
+.site-footer .sf-col a:hover,.site-footer .sf-col button:hover{text-decoration:underline}
+.site-footer .sf-base{max-width:1180px;margin:24px auto 0;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px 20px;justify-content:space-between;font-size:.8rem;color:var(--muted)}
+.site-footer .sf-updated{font-weight:600}
+body.dark .site-footer{background:#0e1a26;border-top-color:var(--primary)}
+body.dark .site-footer .sf-name{color:#dbe8f6}
+body.dark .site-footer .sf-mark{background:var(--primary)}
+body.pink:not(.dark) .site-footer{background:#fff0f7;border-top-color:#e6398a}
+body.pink:not(.dark) .site-footer .sf-name{color:#a8266e}
+body.pink:not(.dark) .site-footer .sf-mark{background:linear-gradient(135deg,#e6398a,#a8266e)}
+body.pink:not(.dark) .site-footer .sf-col a,body.pink:not(.dark) .site-footer .sf-col button{color:#c43a86}
+@media(max-width:680px){.site-footer .sf-top{flex-direction:column;gap:22px}.site-footer .sf-nav{gap:22px 40px}}
+@media print{.site-footer{display:none}}
 .exp-export{
   display:flex;
   align-items:center;
@@ -13352,6 +13376,49 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <b>Accessibility.</b> <a href="#accessibility" class="a11y-foot-link">Learn about this dashboard's accessibility features</a>, including dark mode, high contrast, larger text, reduced motion, plain language, keyboard navigation, and screen-reader support.
 </footer>
 </details>
+<footer class="site-footer" role="contentinfo">
+  <div class="sf-top">
+    <div class="sf-brand">
+      <span class="sf-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="13" width="4" height="7" rx="1" fill="currentColor"/><rect x="10" y="8" width="4" height="12" rx="1" fill="currentColor"/><rect x="17" y="4" width="4" height="16" rx="1" fill="currentColor"/></svg></span>
+      <div class="sf-brandtext">
+        <span class="sf-name">IDEA Section&nbsp;618 Data Tool</span>
+        <span class="sf-tag">Public special-education data that States and the additional reporting entities report each year under the Individuals with Disabilities Education Act, Section&nbsp;618.</span>
+      </div>
+    </div>
+    <nav class="sf-nav" aria-label="Footer">
+      <div class="sf-col">
+        <span class="sf-h">Explore</span>
+        <button type="button" data-goto="trends">National trends</button>
+        <button type="button" data-goto="states">State snapshot</button>
+        <button type="button" data-goto="tables">SEA tables</button>
+        <button type="button" id="sfBuild">Build a chart</button>
+      </div>
+      <div class="sf-col">
+        <span class="sf-h">Official sources</span>
+        <a href="https://data.ed.gov/dataset/idea-section-618-data-products" target="_blank" rel="noopener noreferrer">Section&nbsp;618 data · data.ed.gov</a>
+        <a href="https://sites.ed.gov/idea/" target="_blank" rel="noopener noreferrer">Office of Special Education Programs</a>
+        <button type="button" id="sfSources">Sources &amp; data notes</button>
+      </div>
+      <div class="sf-col">
+        <span class="sf-h">This tool</span>
+        <button type="button" data-goto="accessibility">Accessibility</button>
+        <button type="button" id="sfStart">Start-here guide</button>
+      </div>
+    </nav>
+  </div>
+  <div class="sf-base">
+    <span>Data: U.S. Department of Education, Office of Special Education Programs (OSEP) · IDEA Section&nbsp;618 collections.</span>
+    <span id="sfUpdated" class="sf-updated"></span>
+  </div>
+</footer>
+<script>(function(){
+  try{var u=document.getElementById('sfUpdated');var d=document.lastModified?new Date(document.lastModified):null;if(u&&d&&!isNaN(d))u.textContent='Last updated '+d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});}catch(e){}
+  function on(id,fn){var b=document.getElementById(id);if(b)b.addEventListener('click',fn);}
+  [].slice.call(document.querySelectorAll('.site-footer [data-goto]')).forEach(function(b){b.addEventListener('click',function(){try{showView(b.getAttribute('data-goto'));window.scrollTo(0,0);}catch(e){}});});
+  on('sfBuild',function(){var f=document.getElementById('chartBuilderFab');if(f)f.click();});
+  on('sfSources',function(){var s=document.querySelector('.sources-fold');if(s){s.open=true;try{s.scrollIntoView({behavior:document.body.classList.contains('reduce')?'auto':'smooth',block:'start'});}catch(e){s.scrollIntoView();}}});
+  on('sfStart',function(){var g=document.getElementById('guideBtn');if(g)g.click();});
+})();</script>
 </div>
 
 <script>
