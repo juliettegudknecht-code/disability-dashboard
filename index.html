@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IDEA Section 618 Data Tool | Individuals with Disabilities Education Act</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2313354e'/%3E%3Cpath d='M14 47h36' stroke='%23edcf36' stroke-width='5' stroke-linecap='round'/%3E%3Crect x='16' y='28' width='8' height='14' rx='2' fill='%2373b3e7'/%3E%3Crect x='28' y='18' width='8' height='24' rx='2' fill='%23ffffff'/%3E%3Crect x='40' y='10' width='8' height='32' rx='2' fill='%232e8540'/%3E%3C/svg%3E">
 <script>
 /* Soft password gate: lock the page before anything renders, unlock for the session once entered.
    This is a light access gate, not real security (the page is fully client-side). */
@@ -17200,8 +17201,7 @@ function setupWelcome(){
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ov.classList.contains('open'))close();});
   // header "Start here" button always reopens the guide
   const gb=document.getElementById('guideBtn');if(gb)gb.addEventListener('click',open);
-  // auto-open once for newcomers (unless they asked us not to)
-  if(!getDismissed())setTimeout(open,420);
+  // Keep the data visible on first load; the guide is still available from the header.
 }
 try{setupWelcome();}catch(e){console.warn('welcome',e);}
 
@@ -19003,6 +19003,308 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
     sel.addEventListener('change', function(){ setTimeout(updLeaContext,50); });
     setTimeout(updLeaContext,250);
   })();
+})();
+</script>
+<style id="polish-positioning-layer">
+/* Final positioning polish: keeps the app dense, but gives each control a clearer job. */
+nav.appbar .ninner{
+  display:grid!important;
+  grid-template-columns:minmax(220px,auto) minmax(440px,1fr)!important;
+  grid-template-areas:"brand tools" "tabs tools"!important;
+  align-items:center!important;
+  gap:8px 24px!important;
+  padding:12px 20px 10px!important;
+}
+nav.appbar .brand{grid-area:brand!important;min-width:0}
+nav.appbar .brand-title{font-size:1rem!important;letter-spacing:0!important}
+nav.appbar .tabs,
+nav.appbar #viewTabs{
+  grid-area:tabs!important;
+  justify-content:flex-start!important;
+  gap:6px!important;
+  min-width:0!important;
+}
+nav.appbar .appbar-tools{
+  grid-area:tools!important;
+  display:grid!important;
+  grid-template-columns:minmax(280px,420px) auto!important;
+  align-items:center!important;
+  justify-content:end!important;
+  gap:10px!important;
+  width:100%!important;
+  max-width:none!important;
+}
+nav.appbar .search{width:100%!important;max-width:none!important;min-width:0!important}
+nav.appbar .search input{height:40px!important}
+nav.appbar .appbar-actions{
+  display:flex!important;
+  justify-content:flex-end!important;
+  align-items:center!important;
+  gap:7px!important;
+  min-width:0!important;
+}
+.appbar-tools .guidebtn{
+  background:#fff!important;
+  border-color:#cdd7e1!important;
+  color:#143456!important;
+  box-shadow:none!important;
+}
+.appbar-tools .guidebtn:hover{
+  background:#eef5fb!important;
+  border-color:#9cc3e6!important;
+  color:#0f3a5f!important;
+}
+.appbar-tools .guidebtn .gic{width:16px;height:16px;flex:0 0 auto}
+.appbar-tools #exportBtn{box-shadow:0 2px 6px rgba(15,58,95,.14)!important}
+
+.home-hero{
+  margin:0 0 16px!important;
+  padding:18px 26px!important;
+  border-radius:4px!important;
+}
+.home-hero-inner{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:22px!important;
+  max-width:none!important;
+}
+.home-hero .hh-eyebrow{
+  flex:0 0 auto!important;
+  margin:0!important;
+  white-space:nowrap!important;
+}
+.home-hero .hh-title{
+  margin:0!important;
+  max-width:720px!important;
+  font-size:clamp(1.2rem,2vw,1.52rem)!important;
+  line-height:1.18!important;
+}
+.kpis{gap:12px!important}
+.kpi{padding:18px 16px!important}
+
+.view-subtab-nav{
+  position:sticky!important;
+  top:calc(var(--appbarH,74px) + 8px)!important;
+  z-index:42!important;
+  box-shadow:0 8px 20px rgba(17,46,81,.08)!important;
+}
+.card.fig,.tbl-card{scroll-margin-top:calc(var(--appbarH,74px) + 70px)}
+.cardtools{
+  top:10px!important;
+  right:10px!important;
+  gap:4px!important;
+  padding:2px!important;
+  border-radius:8px!important;
+  background:rgba(255,255,255,.92)!important;
+  border:1px solid var(--line)!important;
+}
+.cardtools button{
+  min-height:28px!important;
+  padding:5px 9px!important;
+  border-radius:6px!important;
+}
+body.dark .cardtools{background:rgba(21,32,46,.94)!important;border-color:#2f3a48!important}
+
+#zoomCtl{
+  opacity:.82!important;
+  box-shadow:0 6px 18px rgba(17,46,81,.13)!important;
+}
+#chartBuilderFab{
+  box-shadow:0 6px 18px rgba(17,46,81,.22)!important;
+}
+body.cb-open #zoomCtl,
+body.cb-open #chartBuilderFab,
+body.cb-open::after{display:none!important}
+#chartBuilderFab .cbf-tx{
+  max-width:130px!important;
+  opacity:1!important;
+  padding-right:2px!important;
+}
+#chartBuilderFab{
+  gap:8px!important;
+  padding:8px 15px 8px 9px!important;
+}
+.cb-dialog{
+  border-radius:12px!important;
+  width:min(820px,96vw)!important;
+}
+.cb-dialog-head{
+  padding-bottom:12px!important;
+  border-bottom:1px solid var(--line)!important;
+}
+
+@media(max-width:980px){
+  nav.appbar .ninner{
+    grid-template-columns:1fr!important;
+    grid-template-areas:"brand" "tabs" "tools"!important;
+    gap:8px!important;
+    padding:8px 14px 10px!important;
+  }
+  nav.appbar .brand{max-width:100%!important}
+  nav.appbar .tabs,
+  nav.appbar #viewTabs{
+    overflow-x:auto!important;
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    padding-bottom:2px!important;
+  }
+  nav.appbar .appbar-tools{
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    justify-content:stretch!important;
+  }
+  nav.appbar .appbar-actions{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:6px!important;
+    width:100%!important;
+  }
+  nav.appbar .appbar-actions>.guidebtn,
+  nav.appbar .appbar-actions>.menuwrap,
+  nav.appbar .appbar-actions>.a11ybtn{
+    width:100%!important;
+    min-width:0!important;
+  }
+  nav.appbar .themebtn{display:none!important}
+  .appbar-tools .iconbtn,
+  .appbar-tools .guidebtn,
+  .appbar-tools .a11ybtn{
+    justify-content:center!important;
+    min-height:40px!important;
+    padding:7px 8px!important;
+    font-size:.74rem!important;
+    line-height:1.05!important;
+  }
+  .appbar-tools .guidebtn .gic{display:none!important}
+}
+
+@media(max-width:700px){
+  body{padding-bottom:70px!important}
+  body::after{
+    content:"";
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    height:68px;
+    z-index:2147482600;
+    pointer-events:none;
+    background:rgba(255,255,255,.96);
+    border-top:1px solid var(--line);
+    box-shadow:0 -8px 24px rgba(17,46,81,.08);
+  }
+  body.dark::after{background:rgba(17,29,43,.96);border-top-color:#2f3a48}
+  .wrap{padding-left:12px!important;padding-right:12px!important}
+  nav.appbar .brand-title{font-size:.95rem!important}
+  nav.appbar .tabs .tab,
+  nav.appbar #viewTabs .tab,
+  nav.appbar #viewTabs .navtrigger{
+    min-height:34px!important;
+    padding:7px 9px!important;
+  }
+  .section-title{font-size:1.28rem!important;margin-top:18px!important}
+  .view-subtab-nav{
+    position:static!important;
+    margin:8px 0 12px!important;
+    padding:8px!important;
+    box-shadow:none!important;
+  }
+  .view-subtab-nav .vst-label{
+    width:100%!important;
+    margin:0 0 2px!important;
+  }
+  .view-subtab-nav .vst-btn{
+    padding:6px 10px!important;
+    font-size:.78rem!important;
+  }
+  .home-hero{
+    margin-bottom:12px!important;
+    padding:16px 18px!important;
+  }
+  .home-hero-inner{
+    display:block!important;
+  }
+  .home-hero .hh-eyebrow{
+    display:block!important;
+    margin-bottom:8px!important;
+    white-space:normal!important;
+  }
+  .home-hero .hh-title{
+    font-size:1.42rem!important;
+  }
+  .kpi{min-height:auto!important}
+  .card.fig>h3,
+  .card h3{
+    font-size:1.05rem!important;
+    line-height:1.26!important;
+  }
+  .cardtools{
+    top:8px!important;
+    right:8px!important;
+  }
+  #zoomCtl,
+  #chartBuilderFab{
+    bottom:max(10px,env(safe-area-inset-bottom))!important;
+    height:46px!important;
+    border-radius:10px!important;
+    z-index:2147482700!important;
+  }
+  #zoomCtl{
+    left:12px!important;
+    padding:5px!important;
+    opacity:.98!important;
+  }
+  #chartBuilderFab{
+    right:12px!important;
+    padding:7px 11px!important;
+    gap:7px!important;
+  }
+  #chartBuilderFab .cbf-ic{width:28px!important;height:28px!important}
+  #chartBuilderFab .cbf-tx{
+    display:inline!important;
+    max-width:54px!important;
+    opacity:1!important;
+    white-space:normal!important;
+    font-size:.68rem!important;
+    line-height:1.05!important;
+    padding-right:0!important;
+  }
+  .cb-modal{align-items:flex-start!important;padding:16px!important}
+  .cb-dialog{
+    width:100%!important;
+    max-height:calc(100vh - 32px)!important;
+    padding:18px!important;
+  }
+  .cb-dialog-head{
+    position:sticky!important;
+    top:-18px!important;
+    z-index:3!important;
+    background:var(--card)!important;
+    margin:-18px -18px 12px!important;
+    padding:18px!important;
+  }
+}
+</style>
+<script>
+(function(){
+  function ready(fn){ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fn); else fn(); }
+  ready(function(){
+    var about=document.getElementById('guideBtn');
+    if(about){
+      var icon=about.querySelector('svg');
+      about.textContent='';
+      if(icon)about.appendChild(icon);
+      about.appendChild(document.createTextNode('About'));
+      about.setAttribute('title','About this data tool');
+    }
+    var saved=document.getElementById('pinBtn');
+    if(saved)saved.setAttribute('title','Saved views');
+    var access=document.getElementById('a11yBtn');
+    if(access)access.setAttribute('title','Display and accessibility options');
+    var fab=document.getElementById('chartBuilderFab');
+    if(fab)fab.setAttribute('aria-label','Custom chart');
+  });
 })();
 </script>
 </body>
