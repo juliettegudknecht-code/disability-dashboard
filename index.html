@@ -13649,23 +13649,44 @@ function _ffBarEligible(chart){
  if(!FF_SHOW_NUMBERS)return false;
  var o=chart.config.options&&chart.config.options.plugins&&chart.config.options.plugins.ffValues;if(o===false)return false;
  if((chart.config.type||'')!=='bar')return false;
- var ds=chart.data.datasets||[];if(ds.length!==1)return false;
+ var ds=chart.data.datasets||[];if(ds.length<1||ds.length>2)return false;
  var n=(ds[0].data||[]).length;return n>0&&n<=16;
 }
 var ffValueLabels={id:'ffValueLabels',
- beforeLayout:function(chart){try{if(!_ffBarEligible(chart))return;var horizontal=(chart.options.indexAxis==='y');chart.options.layout=chart.options.layout||{};var pad=chart.options.layout.padding;if(pad==null||typeof pad==='number')pad=chart.options.layout.padding={top:typeof pad==='number'?pad:0,right:typeof pad==='number'?pad:0,bottom:typeof pad==='number'?pad:0,left:typeof pad==='number'?pad:0};if(horizontal){/* reserve room for the widest value label so numbers never run off the edge */var maxw=52;try{var c2=chart.ctx,ds0=chart.data.datasets[0];c2.save();c2.font='800 10px '+(Chart.defaults.font.family||'sans-serif');(ds0&&ds0.data||[]).forEach(function(v){if(v&&typeof v==='object')v=v.x;if(v==null||isNaN(v))return;maxw=Math.max(maxw,c2.measureText(_ffFmtVal(chart,'x',v)).width);});c2.restore();}catch(_){}pad.right=Math.max(pad.right||0,Math.ceil(maxw)+14);}else pad.top=Math.max(pad.top||0,18);}catch(e){}},
+ beforeLayout:function(chart){try{if(!_ffBarEligible(chart))return;var horizontal=(chart.options.indexAxis==='y');chart.options.layout=chart.options.layout||{};var pad=chart.options.layout.padding;if(pad==null||typeof pad==='number')pad=chart.options.layout.padding={top:typeof pad==='number'?pad:0,right:typeof pad==='number'?pad:0,bottom:typeof pad==='number'?pad:0,left:typeof pad==='number'?pad:0};if(horizontal){/* reserve room for the widest value label (across all series) so numbers never run off the edge */var maxw=52;try{var c2=chart.ctx;c2.save();c2.font='800 10px '+(Chart.defaults.font.family||'sans-serif');(chart.data.datasets||[]).forEach(function(d){(d.data||[]).forEach(function(v){if(v&&typeof v==='object')v=v.x;if(v==null||isNaN(v))return;maxw=Math.max(maxw,c2.measureText(_ffFmtVal(chart,'x',v)).width);});});c2.restore();}catch(_){}pad.right=Math.max(pad.right||0,Math.ceil(maxw)+14);}else pad.top=Math.max(pad.top||0,18);}catch(e){}},
  afterDatasetsDraw:function(chart){try{
   if(!_ffBarEligible(chart))return;
-  var meta=chart.getDatasetMeta(0);if(!meta||meta.hidden||!meta.data||!meta.data.length)return;
-  var ds=chart.data.datasets[0],horizontal=(chart.options.indexAxis==='y');
+  var horizontal=(chart.options.indexAxis==='y');
   var ctx=chart.ctx,dark=document.body.classList.contains('dark'),hc=document.body.classList.contains('hc');
   ctx.save();ctx.font='800 10px '+(Chart.defaults.font.family||'sans-serif');ctx.fillStyle=hc?(dark?'#fff':'#000'):(dark?'#e9eef5':'#13354e');
-  meta.data.forEach(function(el,i){var v=ds.data[i];if(v&&typeof v==='object')v=horizontal?v.x:v.y;if(v==null||isNaN(v))return;var t=_ffFmtVal(chart,horizontal?'x':'y',v);
-   if(horizontal){ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(t,el.x+6,el.y);}
-   else{ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(t,el.x,el.y-5);}});
+  (chart.data.datasets||[]).forEach(function(ds,di){var meta=chart.getDatasetMeta(di);if(!meta||meta.hidden||!meta.data||!meta.data.length)return;
+   meta.data.forEach(function(el,i){var v=ds.data[i];if(v&&typeof v==='object')v=horizontal?v.x:v.y;if(v==null||isNaN(v))return;var t=_ffFmtVal(chart,horizontal?'x':'y',v);
+    if(horizontal){ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(t,el.x+5,el.y);}
+    else{ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(t,el.x,el.y-5);}});});
   ctx.restore();
  }catch(e){}}};
 try{Chart.register(ffValueLabels);}catch(e){}
+/* Optional dashed "average" reference line on bar charts (drawn when options.plugins.ffAvg is set). */
+var ffAvgLine={id:'ffAvgLine',afterDatasetsDraw:function(chart){try{
+  var o=chart.config.options&&chart.config.options.plugins;if(!o||!o.ffAvg)return;
+  if((chart.config.type||'')!=='bar')return;
+  var ds=chart.data.datasets[0];if(!ds||!ds.data)return;
+  var vals=ds.data.map(function(v){return (v&&typeof v==='object')?(v.x!=null?v.x:v.y):v;}).filter(function(v){return v!=null&&!isNaN(v);});
+  if(vals.length<2)return;
+  var mean=vals.reduce(function(a,b){return a+b;},0)/vals.length;
+  var horizontal=(chart.options.indexAxis==='y');
+  var sc=horizontal?chart.scales.x:chart.scales.y, area=chart.chartArea;if(!sc)return;
+  var p=sc.getPixelForValue(mean),ctx=chart.ctx,dark=document.body.classList.contains('dark');
+  ctx.save();ctx.strokeStyle=dark?'#9fb2c4':'#475569';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);ctx.beginPath();
+  if(horizontal){ctx.moveTo(p,area.top);ctx.lineTo(p,area.bottom);}else{ctx.moveTo(area.left,p);ctx.lineTo(area.right,p);}
+  ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=dark?'#cdd9ea':'#475569';ctx.font='800 9px '+(Chart.defaults.font.family||'sans-serif');
+  var lbl='Avg '+_ffFmtVal(chart,horizontal?'x':'y',mean);
+  if(horizontal){ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(lbl,Math.max(area.left+18,Math.min(p,area.right-18)),area.top+2);}
+  else{ctx.textAlign='left';ctx.textBaseline='bottom';ctx.fillText(lbl,area.left+4,p-2);}
+  ctx.restore();
+}catch(e){}}};
+try{Chart.register(ffAvgLine);}catch(e){}
 
 /* ============ KPIs ============ */
 function kpis(){
@@ -15919,6 +15940,16 @@ function _renderVizChart(sid){
   cfg={type:'bubble',data:{datasets:[{data:bPts,backgroundColor:bPts.map(function(_,i){return shade(bPal[i%bPal.length],.8);}),borderColor:bPts.map(function(_,i){return bPal[i%bPal.length];}),borderWidth:1.5,hoverBorderWidth:2}]},plugins:[ffPb],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:26,bottom:4,left:8,right:8}},
    plugins:{legend:{display:false},tooltip:{callbacks:{title:function(it){return it[0].raw._l;},label:function(o){return unitFmt(o.raw._v);}}}},
    scales:{x:{type:'linear',min:-0.6,max:(bN-0.4),grid:{display:false,drawBorder:false},ticks:{stepSize:1,autoSkip:false,callback:function(v){var p=bPts[Math.round(v)];if(!p)return '';var s=p._l;return s.length>16?s.slice(0,15)+'…':s;},font:{size:9,weight:'700'},maxRotation:42,minRotation:0}},y:{display:false,min:0,max:2,grid:{display:false}}}}};
+ }else if(st.type==='scatter'&&datasets&&datasets.length>=2&&labels&&labels.length){
+  /* Comparison scatter: each category is a point (first State on x, second on y), with a y=x reference line. */
+  var aName=datasets[0].label||'A', bName=datasets[1].label||'B', dAx=datasets[0].data, dBx=datasets[1].data, sPal=TBL_PIE_COLORS;
+  var sPts=labels.map(function(l,i){return {x:dAx[i],y:dBx[i],_l:l};}).filter(function(p){return p.x!=null&&!isNaN(p.x)&&p.y!=null&&!isNaN(p.y);});
+  var sLab=ffFlag;
+  var ffSc={id:'ffSc',beforeDatasetsDraw:function(chart){try{var xs=chart.scales.x,ys=chart.scales.y;if(!xs||!ys)return;var lo=Math.max(xs.min,ys.min),hi=Math.min(xs.max,ys.max);if(!(hi>lo))return;var c=chart.ctx;c.save();c.strokeStyle='rgba(120,140,160,.55)';c.lineWidth=1;c.setLineDash([5,4]);c.beginPath();c.moveTo(xs.getPixelForValue(lo),ys.getPixelForValue(lo));c.lineTo(xs.getPixelForValue(hi),ys.getPixelForValue(hi));c.stroke();c.setLineDash([]);c.restore();}catch(e){}},afterDatasetsDraw:function(chart){if(!sLab)return;try{var meta=chart.getDatasetMeta(0);if(!meta||!meta.data)return;var c=chart.ctx,dark=document.body.classList.contains('dark');c.save();c.font='800 9px '+(Chart.defaults.font.family||'sans-serif');c.fillStyle=dark?'#e9eef5':'#13354e';c.textAlign='left';c.textBaseline='middle';meta.data.forEach(function(el,i){var p=sPts[i];if(!p)return;var s=p._l;c.fillText(s.length>16?s.slice(0,15)+'…':s,el.x+7,el.y);});c.restore();}catch(e){}}};
+  noteTxt='Each point is a category: '+aName+' on the horizontal axis and '+bName+' on the vertical. The dashed line marks equal values; points above it are higher in '+bName+', below it higher in '+aName+'.';if(noteEl)noteEl.textContent=noteTxt;
+  cfg={type:'scatter',data:{datasets:[{data:sPts,backgroundColor:sPts.map(function(_,i){return shade(sPal[i%sPal.length],.85);}),borderColor:sPts.map(function(_,i){return sPal[i%sPal.length];}),borderWidth:1.5,pointRadius:6,pointHoverRadius:8}]},plugins:[ffSc],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:10,right:96,bottom:6,left:6}},
+   plugins:{legend:{display:false},tooltip:{callbacks:{title:function(it){return it[0].raw._l;},label:function(o){return aName+': '+unitFmt(o.raw.x)+'  ·  '+bName+': '+unitFmt(o.raw.y);}}}},
+   scales:{x:{title:{display:true,text:aName,font:{size:10,weight:'700'}},beginAtZero:true,grace:'6%',grid:{color:GRIDC,drawBorder:false},ticks:{maxTicksLimit:6,callback:function(v){return pct?v+'%':(+v).toLocaleString();}}},y:{title:{display:true,text:bName,font:{size:10,weight:'700'}},beginAtZero:true,grace:'6%',grid:{color:GRIDC,drawBorder:false},ticks:{maxTicksLimit:6,callback:function(v){return pct?v+'%':(+v).toLocaleString();}}}}}};
  }else if(pieType){
   cfg={type:st.type,data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,cutout:st.type==='doughnut'?'58%':0,layout:{padding:6},
    plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:10,padding:7,font:{size:10,weight:'600'}}},
@@ -15930,9 +15961,13 @@ function _renderVizChart(sid){
   if(single&&datasets[0]){var _pal=TBL_PIE_COLORS;datasets[0].backgroundColor=labels.map(function(_,i){return shade(_pal[i%_pal.length],.9);});datasets[0].borderColor=labels.map(function(_,i){return _pal[i%_pal.length];});datasets[0].borderWidth=1;datasets[0].borderRadius=4;datasets[0].maxBarThickness=46;}
   // value labels are drawn by the global ffValueLabels plugin; ffValues toggles them per chart
   var _wrapTick=function(v){var s=this.getLabelForValue(v);return (typeof _wrapAxisLabel==='function')?_wrapAxisLabel(s,20):s;};
-  cfg={type:'bar',data:{labels:labels,datasets:datasets},options:{indexAxis:horizontal?'y':'x',responsive:true,maintainAspectRatio:false,
+  // Lollipop: thin "stem" bars with a dot drawn at each value end.
+  var lolli=(st.type==='lollipop');
+  if(lolli){datasets.forEach(function(d){d.maxBarThickness=4;d.borderRadius=3;});}
+  var ffLolli={id:'ffLolli',afterDatasetsDraw:function(chart){if(!lolli)return;try{chart.data.datasets.forEach(function(ds,di){var meta=chart.getDatasetMeta(di);if(!meta||meta.hidden)return;var c=chart.ctx;meta.data.forEach(function(el){c.save();c.fillStyle=(el.options&&el.options.borderColor)||'#1f6fa8';c.beginPath();c.arc(el.x,el.y,5,0,2*Math.PI);c.fill();c.restore();});});}catch(e){}}};
+  cfg={type:'bar',data:{labels:labels,datasets:datasets},plugins:lolli?[ffLolli]:[],options:{indexAxis:horizontal?'y':'x',responsive:true,maintainAspectRatio:false,
    layout:{padding:horizontal?{right:ffFlag?60:14,left:4,top:4,bottom:4}:{top:ffFlag?22:8,left:4,right:8,bottom:4}},
-   plugins:{ffValues:ffFlag,legend:{display:datasets.length>1,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10,weight:'700'}}},
+   plugins:{ffValues:ffFlag,ffAvg:!!(st&&st.avgLine),legend:{display:datasets.length>1,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10,weight:'700'}}},
     tooltip:{callbacks:{label:function(o){return o.dataset.label+': '+unitFmt(o.parsed[horizontal?'x':'y']);}}}},
    scales:horizontal?{x:{beginAtZero:true,max:pct?100:undefined,grace:'2%',grid:{color:GRIDC,drawBorder:false},ticks:{maxTicksLimit:7,callback:function(v){return pct?v+'%':(+v).toLocaleString();}}},y:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'700'},autoSkip:false,crossAlign:'far',callback:_wrapTick}}}:{x:{grid:{display:false,drawBorder:false},ticks:{font:{size:10,weight:'600'},autoSkip:false,maxRotation:55,minRotation:0,callback:_wrapTick}},y:{beginAtZero:true,max:pct?100:undefined,grace:'4%',grid:{color:GRIDC,drawBorder:false},ticks:{maxTicksLimit:7,callback:function(v){return pct?v+'%':(+v).toLocaleString();}}}}}};
  }
@@ -18619,6 +18654,8 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
           <button type="button" data-ct="doughnut" title="Donut"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a7 7 0 1 0 7 7h-3a4 4 0 1 1-4-4z"/></svg>Donut</button>
           <button type="button" data-ct="pie" title="Pie"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a7 7 0 1 0 7 7H8z"/></svg>Pie</button>
           <button type="button" data-ct="bubble" title="Bubble"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="6" cy="9" r="4.2"/><circle cx="12" cy="5" r="2.4"/></svg>Bubble</button>
+          <button type="button" data-ct="lollipop" data-orient="horizontal" title="Lollipop / dot plot"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="3.1" width="7" height="1.4" rx=".7"/><circle cx="9.5" cy="3.8" r="1.9"/><rect x="1" y="11.1" width="4" height="1.4" rx=".7"/><circle cx="6.5" cy="11.8" r="1.9"/></svg>Lollipop</button>
+          <button type="button" data-ct="scatter" title="Scatter (compare two States)"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="4" cy="11" r="1.8"/><circle cx="8" cy="7" r="1.8"/><circle cx="12" cy="4" r="1.8"/></svg>Scatter</button>
         </div>
       </div>
       <div class="cb-optgrp"><span class="cb-optlab">Values</span>
@@ -18635,6 +18672,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
         </div>
       </div>
       <label class="cb-check"><input type="checkbox" id="cbLabels" checked> Show data values</label>
+      <label class="cb-check"><input type="checkbox" id="cbAvg"> Average line</label>
       <div class="cb-optgrp"><span class="cb-optlab">Colors</span>
         <div class="cb-swatches" id="cbColorSeg" role="group" aria-label="Color palette">
           <button type="button" data-pal="classic" class="on" title="Classic" aria-label="Classic colors"><i style="background:#1f6fa8"></i><i style="background:#1c7b37"></i><i style="background:#df5e44"></i><i style="background:#c79a1f"></i></button>
@@ -18678,7 +18716,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
     var cbColl=$('cbColl'),cbBreak=$('cbBreak'),cbState=$('cbState'),cbCompare=$('cbCompare'),
         cbLabels=$('cbLabels'),cbCats=$('cbCats'),cbDrillTitle=$('cbDrillTitle'),cbTitle=$('cbTitle');
     if(!fab||!modal||!cbColl)return;
-    var built=false, S={type:'bar',orient:'horizontal',vals:'count',sort:'desc',color:'classic'}, selKeys=null;
+    var built=false, S={type:'bar',orient:'horizontal',vals:'count',sort:'desc',color:'classic',stack:'none',avg:false}, selKeys=null;
     var PALS={
       classic:['#1f6fa8','#1c7b37','#df5e44','#345065','#c79a1f','#5aa0c4','#6cb389','#12303b','#e89177','#9c7c2a','#2a8f8a','#b8472f','#7fa9c9','#cbeeeb'],
       blue:['#0b4a82','#1f6fa8','#3a82c4','#5aa0d0','#7cb8de','#13354e','#2c6e9c','#4d94c4','#9fcde9','#23577f','#3f7fb5','#6aa6d4','#0e2e4d','#86bce0'],
@@ -18699,6 +18737,19 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
       var age=am?am[0].replace(/\b(students?|children?|in kindergarten)\b/ig,'').replace(/[()]/g,'').replace(/\s+/g,' ').trim():'';
       return age?(by+' · '+age):by;
     }
+    /* Some collections (Discipline, Assessment) carry several measures behind the same demographic
+       breakdown. The builder can only chart one dimension, so a demographic-labeled breakdown of a
+       multi-measure table would mislabel it and (for Discipline) produce identical charts. This returns
+       a clear label describing the MEASURE that is actually charted; Discipline collapses to one per
+       removal type. */
+    function specDistinguisher(sp){
+      var t=(typeof _stripHtml==='function'?_stripHtml(sp.title||''):(sp.title||'')).toLowerCase(), cap=(''+(sp.cap||'')).toLowerCase();
+      var subj=/\bmath\b|mathematics/.test(t)?'Mathematics':(/\breading\b|\bela\b/.test(t)?'Reading':'');
+      if(subj){ var grp=/by grade level/.test(t)?'by grade':(/summed across grades/.test(cap)?'all grades':''); return {replace:true,label:subj+' assessments'+(grp?' ('+grp+')':'')}; }
+      var rt=/suspended or expelled/.test(t)?'Suspensions and expulsions':(/interim alternative|\biaes\b/.test(t)?'Removals to an IAES':(/subject to disciplinary removal/.test(t)?'All disciplinary removals':''));
+      if(rt){ return {replace:true,label:rt,removalType:rt}; }
+      return null;
+    }
     function specsFor(coll){ try{return (typeof TBL_SPECS!=='undefined'&&TBL_SPECS[coll])?TBL_SPECS[coll]():[];}catch(e){return [];} }
     function specNow(){ return specsFor(cbColl.value)[+cbBreak.value||0]||null; }
     function chartMetricIdx(sp){ try{var m=_vizChartMetrics(sp);return (m&&m[0])?m[0].i:0;}catch(e){return 0;} }
@@ -18718,8 +18769,16 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
       }).join('');
     }
     function fillBreak(){
-      var specs=specsFor(cbColl.value),seen={};
-      cbBreak.innerHTML=specs.map(function(sp,i){var l=breakLabel(sp);if(seen[l]){seen[l]++;l+=' ('+seen[l]+')';}else seen[l]=1;return '<option value="'+i+'">'+l+'</option>';}).join('');
+      var specs=specsFor(cbColl.value),seen={},seenRT={},opts=[];
+      specs.forEach(function(sp,i){
+        var d=specDistinguisher(sp);
+        /* Discipline: the demographic variants all chart the same measure totals, so keep one per removal type. */
+        if(d&&d.removalType){ if(seenRT[d.removalType])return; seenRT[d.removalType]=1; }
+        var l=(d&&d.replace)?d.label:(breakLabel(sp)+(d?(' · '+d.label):''));
+        if(seen[l]){seen[l]++;l+=' ('+seen[l]+')';}else seen[l]=1;
+        opts.push('<option value="'+i+'">'+l+'</option>');
+      });
+      cbBreak.innerHTML=opts.join('');
     }
     function stateOpts(){
       var names=(typeof STATES!=='undefined')?STATES.map(function(s){return s[0];}).slice().sort():[];
@@ -18735,7 +18794,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
       names.forEach(function(n){opts.push('<option value="'+n+'">'+n+'</option>');});
       cbCompare.innerHTML=opts.join('');
     }
-    function drillLabel(total){ var sp=specNow(); var name; if(sp&&drillMode(sp)==='metric'){ name=breakLabel(sp).split('·')[0].trim(); } else { name=(sp&&sp.rowHeader)?String(sp.rowHeader).replace(/\s+/g,' ').trim():'Categories'; } name=name.charAt(0).toUpperCase()+name.slice(1); return name+' · showing '+(selKeys?selKeys.size:0)+' of '+total; }
+    function drillLabel(total){ var sp=specNow(); var name; var d=sp?specDistinguisher(sp):null; if(d&&d.replace){ name=d.label; } else if(sp&&drillMode(sp)==='metric'){ name=breakLabel(sp).split('·')[0].trim(); } else { name=(sp&&sp.rowHeader)?String(sp.rowHeader).replace(/\s+/g,' ').trim():'Categories'; } name=name.charAt(0).toUpperCase()+name.slice(1); return name+' · showing '+(selKeys?selKeys.size:0)+' of '+total; }
     function syncChips(total){ if(!cbCats)return; [].slice.call(cbCats.querySelectorAll('.cb-chip')).forEach(function(c){var on=selKeys&&selKeys.has(c.getAttribute('data-k'));c.classList.toggle('on',!!on);c.setAttribute('aria-pressed',on?'true':'false');}); if(cbDrillTitle)cbDrillTitle.textContent=drillLabel(total!=null?total:cbCats.querySelectorAll('.cb-chip').length); }
     function topN(sp,rows,n){ var mi=chartMetricIdx(sp),usK=sp.usKey; return rows.slice().sort(function(a,b){return (_vizNum(sp,usK,b.key,mi)||0)-(_vizNum(sp,usK,a.key,mi)||0);}).slice(0,n); }
     function fillCats(resetSel){
@@ -18763,8 +18822,10 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
       var cm=(typeof COLL_META!=='undefined'&&COLL_META[cbColl.value])?COLL_META[cbColl.value]:null;
       var subj=cm?('IDEA Part '+(cm.part||'B')+' '+cm.name):'IDEA Section 618 data';
       var yr=(sp&&sp.year)?String(sp.year).replace(/^\s*School Year\s*/i,'').trim():'';
-      var t=subj+', by '+dim;
-      if(age) t+=', '+age;
+      /* For multi-measure collections (Discipline, Assessment) describe the measure that is charted, not a misread "by setting". */
+      var d=specDistinguisher(sp);
+      var t = (d&&d.replace) ? (subj+', '+d.label.charAt(0).toLowerCase()+d.label.slice(1)) : (subj+', by '+dim);
+      if(!(d&&d.replace)&&age) t+=', '+age;
       t+=', '+who+cmp;
       if(S.vals==='percent') t+=' (% share)';
       if(yr) t+=', '+yr;
@@ -18803,7 +18864,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
         try{ var _ct=document.getElementById('cbChartTitle'); if(_ct) _ct.textContent=sp._customTitle||''; }catch(_){}
         window._tblSpecs=window._tblSpecs||{}; window._tblSpecs[CB]=sp;
         var st=(typeof _vizState==='function')?_vizState(CB):null;
-        if(st){st.on=true;st.type=S.type;st.showUS=(list.indexOf(usKey)>=0);st.usSet=true;st.rowIdx=null;st.metricIdx=null;st.compareOn=false;st.showLabels=(cbLabels?cbLabels.checked:true);st.orient=(S.type==='bar'?S.orient:'auto');}
+        if(st){st.on=true;st.type=S.type;st.showUS=(list.indexOf(usKey)>=0);st.usSet=true;st.rowIdx=null;st.metricIdx=null;st.compareOn=false;st.showLabels=(cbLabels?cbLabels.checked:true);st.orient=((S.type==='bar'||S.type==='lollipop')?S.orient:'auto');st.stack=S.stack;st.avgLine=S.avg;st.cmpNames=list.map(function(v){return v===usKey?'the U.S.':v;});}
         try{ withPalette(PALS[S.color]||null, function(){ _renderVizChart(CB); }); }catch(e){}
       }finally{ try{ if(typeof tablesMode!=='undefined')tablesMode=prevMode; }catch(_){} }
     }
@@ -18820,6 +18881,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
     if(cbState)cbState.addEventListener('change',render);
     if(cbCompare)cbCompare.addEventListener('change',render);
     if(cbLabels)cbLabels.addEventListener('change',render);
+    var cbAvg=$('cbAvg'); if(cbAvg)cbAvg.addEventListener('change',function(){S.avg=cbAvg.checked;render();});
     wireSeg('cbTypeSeg',function(b){S.type=b.getAttribute('data-ct');S.orient=b.getAttribute('data-orient')||'auto';});
     wireSeg('cbValsSeg',function(b){S.vals=b.getAttribute('data-v');});
     wireSeg('cbSortSeg',function(b){S.sort=b.getAttribute('data-s');});
