@@ -133,6 +133,9 @@ window.addEventListener('load', function(){ try{ document.documentElement.classL
   --accent:#1c4f74;
   --autism:#cc5a33;
   --good:#4e9d2d;
+  --good-text:#3a7d22;
+  --bad:#c0392b;
+  --autism-text:#b8461f;
   --gold:#edcf36;
   --radius:4px;
   --gap:14px;
@@ -160,6 +163,13 @@ body{
 .card,.kpi,.picto,.lead,.exp-hero,.anniv{animation:fadeUp .35s ease-out both}
 :where(a,button,select,[role="switch"],[role="button"],input,summary,[tabindex]):focus-visible{
   outline:3px solid #0b4a8f;
+  outline-offset:2px;
+  border-radius:3px;
+}
+.section-switch select:focus-visible,
+.drill-select:focus-visible,
+.trend-series-control select:focus-visible{
+  outline:3px solid var(--primary);
   outline-offset:2px;
   border-radius:3px;
 }
@@ -602,7 +612,7 @@ header.top .src{display:none}
   color:var(--muted);
 }
 .kpi .c.up{
-  color:var(--good);
+  color:var(--good-text);
   font-weight:700;
 }
 .grid{
@@ -1227,7 +1237,7 @@ body.dark .fn b{color:#cfe0f2}
   margin-top:3px;
   font-variant-numeric:tabular-nums;
 }
-.exp-kpis .k .v.up{color:var(--good)}
+.exp-kpis .k .v.up{color:var(--good-text)}
 .exp-kpis .k .v.dn{color:#b50909}
 .fig .ey{
   font-size:0.6562rem;
@@ -1318,6 +1328,7 @@ canvas{max-width:100%}
   text-decoration:none;
 }
 .skip:focus{left:0}
+body.dark .skip{background:var(--primary);color:#06121f}
 .sitenav{
   position:sticky;
   top:0;
@@ -1588,6 +1599,8 @@ body.dark .themebtn{color:#d9d9d5}
   font-size:0.8438rem;
   margin-bottom:2px;
 }
+body.dark .maptip{background:#111d2b;color:#ededeb;box-shadow:0 6px 18px rgba(0,0,0,.6)}
+body.dark .maptip b{color:#fff}
 .maplegend{
   display:flex;
   align-items:center;
@@ -1783,7 +1796,7 @@ body.dark .a11ybtn{color:#d9d9d5}
   display:none;
 }
 .a11ypanel.open{display:block}
-.a11ypanel h4{
+.a11ypanel h2{
   font-size:0.7812rem;
   color:var(--navy);
   margin-bottom:12px;
@@ -1791,7 +1804,7 @@ body.dark .a11ybtn{color:#d9d9d5}
   text-transform:uppercase;
   letter-spacing:.6px;
 }
-body.dark .a11ypanel h4{color:var(--primary)}
+body.dark .a11ypanel h2{color:var(--primary)}
 .a11ypanel .grp{margin-bottom:14px}
 .a11ypanel .glab{
   font-size:0.7188rem;
@@ -1986,8 +1999,8 @@ body.dark .sparkcard .val{color:#ededeb}
   font-weight:700;
   margin-top:1px;
 }
-.sparkcard .chg.up{color:var(--good)}
-.sparkcard .chg.dn{color:#c0392b}
+.sparkcard .chg.up{color:var(--good-text)}
+.sparkcard .chg.dn{color:var(--bad)}
 .sparkcard svg{
   display:block;
   margin-top:6px;
@@ -4564,9 +4577,9 @@ body.dark .qlink .qt{color:#ededeb}
   letter-spacing:.5px;
 }
 .qlink.autism{border-top-color:var(--autism)}
-.qlink.autism .qgo{color:var(--autism)}
+.qlink.autism .qgo{color:var(--autism-text)}
 .qlink.good{border-top-color:var(--good)}
-.qlink.good .qgo{color:var(--good)}
+.qlink.good .qgo{color:var(--good-text)}
 body.hc .qlink{border-width:2px}
 /* ---- count-up tabular alignment ---- */
 .kpi .v,.exp-kpis .v,.srval{font-variant-numeric:tabular-nums}
@@ -5875,6 +5888,7 @@ body.dark .asmt-legend .nm{color:#ededeb}
 #st-table #stateTable thead th:first-child{left:0;z-index:3}
 #st-table #stateTable tbody td:first-child,#st-table #stateTable tbody th:first-child{position:sticky;left:0;z-index:1;background:var(--card)}
 body.dark #st-table #stateTable thead th,body.dark #st-table #stateTable tbody td:first-child,body.dark #st-table #stateTable tbody th:first-child{background:#101c2b}
+.delta{font-weight:600}.delta-pos{color:#1a7a3e}.delta-neg{color:var(--bad)}body.dark .delta-pos{color:#5fd07e}
 /* Horizontal scroll hint: a soft shadow at the right edge that fades away once you reach it */
 #st-table .tablewrap,.view[data-view="tables"] .tbl-scroll{
   background:
@@ -5917,13 +5931,13 @@ body.dark .a11y-card h3{color:#cfe2f4}
 .feedback-btn{display:inline-block;margin-top:6px;padding:9px 18px;background:var(--primary);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem}
 .feedback-btn:hover{background:var(--navy)}
 /* Pink mode: a soft, girly theme toggled from the Access panel */
-body.pink{--bg:#fff0f6;--card:#ffffff;--ink:#46213a;--muted:#9a6b85;--line:#ffd9e8;--line2:#fff5fa;--navy:#a61e6b;--navy2:#c43a86;--primary:#e64980;--primary-lt:#faa2c1;--accent:#c43a86;--gold:#ff8fab;--good:#2f9e44}
+body.pink:not(.dark){--bg:#fff0f6;--card:#ffffff;--ink:#46213a;--muted:#9a6b85;--line:#ffd9e8;--line2:#fff5fa;--navy:#a61e6b;--navy2:#c43a86;--primary:#e64980;--primary-lt:#faa2c1;--accent:#c43a86;--gold:#ff8fab;--good:#2f9e44}
 body.pink .home-hero{background:linear-gradient(135deg,#a8266e 0%,#e64980 55%,#ff8fab 100%)}
 body.pink .home-hero::after{color:rgba(255,255,255,.08)}
 body.pink .hh-eyebrow{color:#ffe3ef}
 body.pink .hh-50{background:#fff0f6;color:#a8266e}
 /* EVEN MORE PINK: push the theme across the chrome */
-body.pink{--bg:#ffe3ef;--card:#fff6fb;--muted:#a3617f;--line:#ffc4dd;--line2:#fff0f7;--navy:#a8266e;--primary:#e6398a;--gold:#ff7eb3;--shadow:0 1px 2px rgba(168,38,110,.08),0 6px 20px rgba(168,38,110,.12);--shadow-h:0 12px 30px rgba(168,38,110,.20)}
+body.pink:not(.dark){--bg:#ffe3ef;--card:#fff6fb;--muted:#a3617f;--line:#ffc4dd;--line2:#fff0f7;--navy:#a8266e;--primary:#e6398a;--gold:#ff7eb3;--shadow:0 1px 2px rgba(168,38,110,.08),0 6px 20px rgba(168,38,110,.12);--shadow-h:0 12px 30px rgba(168,38,110,.20)}
 body.pink .govbar{background:#ffd0e4!important;color:#a8266e!important}
 body.pink .govbar a{color:#c2185b!important}
 body.pink .section-title{color:#c2185b}
@@ -5938,7 +5952,7 @@ body.pink::-webkit-scrollbar-track{background:#ffe3ef}
 /* kill remaining non-pink chrome: the gold "Start here" button and any gold pills */
 body.pink .guidebtn{background:#ff8fc8!important;color:#7a0d3d!important;border-color:#ff6fb0!important}
 body.pink .guidebtn .gic{color:#a8266e!important}
-body.pink{--good:#c2185b}
+body.pink:not(.dark){--good:#c2185b}
 body.pink .osepband{background:#ff8fc8!important}
 /* Pink: override remaining hardcoded navy/blue/gold/category UI to black/white/pink only */
 body.pink .guidebtn{background:#ff8fc8!important;border-color:#ff6fb0!important;color:#7a0d3d!important}
@@ -5963,6 +5977,7 @@ body.pink a,body.pink button,body.pink summary,body.pink [role=button],body.pink
 .pink-glitter{position:fixed;z-index:2147483000;pointer-events:none;border-radius:50%;background:radial-gradient(circle,#fff 0%,#ff8fc8 45%,#ff2f93 100%);box-shadow:0 0 6px 1px rgba(255,47,147,.7);animation:glitterFall .95s ease-out forwards}
 @keyframes glitterFall{0%{opacity:1;transform:translate(0,0) scale(1) rotate(0)}100%{opacity:0;transform:translate(var(--gx,0),var(--gy,42px)) scale(.25) rotate(200deg)}}
 @media (prefers-reduced-motion: reduce){.pink-glitter{display:none}}
+body.reduce .pink-glitter,body.no-anim .pink-glitter{display:none}
 .a11y-card ul{margin:0;padding-left:18px}
 .a11y-card li{margin:0 0 8px;line-height:1.5;color:var(--ink)}
 .a11y-card li:last-child{margin-bottom:0}
@@ -5986,6 +6001,7 @@ h1,h2,.section-title,.welcome-head h2,h3{text-wrap:balance}
 .card.fig>h3:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:4px}
 /* Home landing hero: modern, on-brand navy with gold accents */
 .home-hero{position:relative;overflow:hidden;border-radius:5px;margin:4px 0 22px;padding:24px 30px;color:#fff;background:var(--navy);border-bottom:3px solid var(--gold);box-shadow:none}
+body.dark .home-hero{background:#16273b}
 .home-hero::before{content:none}
 .home-hero::after{content:none}
 .home-hero-inner{position:relative;z-index:1;max-width:780px}
@@ -6554,7 +6570,7 @@ body.hc .state-curated-note,.state-morefold.card{border-width:2px}
   text-decoration:underline;
   text-underline-offset:3px;
 }
-.part-card.part-c .part-foot a{color:var(--good)}
+.part-card.part-c .part-foot a{color:var(--good-text)}
 body:not(.no-anim):not(.reduce) .part-node{transition:transform .16s ease,border-color .16s ease,background .16s ease}
 body:not(.no-anim):not(.reduce) .part-card:hover .part-node{
   transform:translateY(-2px);
@@ -8781,6 +8797,9 @@ body.dark{
   --line:#2b3a4c;
   --line2:#172638;
   --navy:#eaeae8;
+  --good-text:#6cc24a;
+  --bad:#ef6f63;
+  --autism-text:#e08a6b;
   --primary:#8dc4ee;
   --gold:#d8c58a;
   background:#0d1724;
@@ -12683,7 +12702,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <rect x="30" y="29" width="40" height="3.5" rx="1.75" fill="#edcf36"/>
 </svg>
 </template>
-<a class="skip" href="#trends">Skip to data tool content</a>
+<a class="skip" href="#maincontent">Skip to data tool content</a>
 <header class="top">
   <div class="hinner">
     <div class="hrow">
@@ -12747,8 +12766,8 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     <span id="navSelection" class="nav-selection" hidden></span>
   </div>
 </nav>
-<div class="a11ypanel" id="a11yPanel" role="dialog" aria-label="Accessibility options">
-  <h4>Accessibility</h4>
+<div class="a11ypanel" id="a11yPanel" role="dialog" aria-labelledby="a11yPanelTitle" aria-label="Accessibility options">
+  <h2 id="a11yPanelTitle">Accessibility</h2>
   <div class="grp"><span class="glab">Text size</span>
     <div class="seg" id="a11ySize"><button data-l="0" aria-label="Normal text">A</button><button data-l="1" aria-label="Large text">A+</button><button data-l="2" aria-label="Extra-large text">A++</button></div>
   </div>
@@ -12810,9 +12829,9 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     </div>
   </div>
 </div>
-<div class="wrap">
+<main class="wrap" id="maincontent" tabindex="-1">
 <div class="plainbanner" id="plainBanner" role="status"><span class="pill-ic" aria-hidden="true">✓</span><span><b>Plain-language mode is on.</b> Technical terms are shown in everyday words.</span><button type="button" class="x" id="plainOff">Turn off</button></div>
-<div class="view active" data-view="trends" role="tabpanel" aria-label="Trends">
+<div class="view active" data-view="trends" role="region" aria-label="Trends">
 <h2 class="section-title" id="trends" data-pl="How the numbers changed over time">National Trends</h2>
 <div class="grid">
   <div class="card fig trend-focus-card" id="trend-main" data-drill-group="trends" data-drill-panel="national">
@@ -12875,7 +12894,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </section>
 
 </div>
-<div class="view" data-view="explorer" role="tabpanel" aria-label="Disability Explorer">
+<div class="view" data-view="explorer" role="region" aria-label="Disability Explorer">
 <h2 class="section-title" id="explorer" data-pl="Explore each type of disability">Disability Explorer</h2>
 <p class="viewlead">Choose one primary disability category to see how many Children and Students with Disabilities it serves, where they spend the school day, who they are, and how the numbers have changed over time. All figures cover Children and Students with Disabilities served under IDEA, Part&nbsp;B, ages 3 through 21, across the 50 States, the District of Columbia, and the additional IDEA reporting entities (Puerto Rico, the Bureau of Indian Education, the outlying areas, and the freely associated states).</p>
 <div class="explorer explorer-modern">
@@ -12955,7 +12974,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 
 </div>
-<div class="view" data-view="states" role="tabpanel" aria-label="State Snapshots">
+<div class="view" data-view="states" role="region" aria-label="State Snapshots">
 <h2 class="section-title" id="states" data-pl="State Snapshot">State Snapshot</h2>
 <p class="viewlead">See how any State compares with the rest of the nation for its Children and Students with Disabilities served under IDEA, Part B.</p>
 <div class="card state-toolbar" id="statePick">
@@ -13043,7 +13062,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <div class="state-determinations" id="stateDeterminations" aria-live="polite"></div>
 
 </div>
-<div class="view" data-view="tables" role="tabpanel" aria-label="SEA Tables">
+<div class="view" data-view="tables" role="region" aria-label="SEA Tables">
 <h2 class="section-title" id="tables">SEA Tables</h2>
 <!-- "About this page" and "What this shows" merged into one disclosure -->
 <details class="lead-fold"><summary>About this page</summary>
@@ -13051,7 +13070,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <p class="note" data-nf="skip" style="margin-top:8px">Every figure in these tables is an exact count reported to the U.S. Department of Education under IDEA Section&nbsp;618, not an estimate. Switch any table between <b>counts</b> (the number of children and students) and <b>percentages</b> (a share of the total). A dash (<b>–</b>) marks a cell the Department suppressed to protect student privacy when very few students are involved.</p>
 </details>
 <div class="tables-setup">
-<div class="tables-collrail" role="tablist" aria-label="Data collections">
+<div class="tables-collrail" role="group" aria-label="Data collections">
   <div class="tcr-group"><span class="tcr-label">Part B</span><button type="button" class="tcr-pill" data-coll="ccee">Child Count &amp; Environments</button><button type="button" class="tcr-pill" data-coll="exitB">Exiting</button><button type="button" class="tcr-pill" data-coll="discB">Discipline</button><button type="button" class="tcr-pill" data-coll="persB">Personnel</button><button type="button" class="tcr-pill" data-coll="asmtB">Assessment</button></div>
   <span class="tcr-sep" aria-hidden="true"></span>
   <div class="tcr-group"><span class="tcr-label">Part C</span><button type="button" class="tcr-pill" data-coll="pcSettings">Child Count &amp; Settings</button><button type="button" class="tcr-pill" data-coll="pcExit">Exiting</button></div><span class="tcr-hint">Pick one or more</span>
@@ -13099,7 +13118,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <div class="tables-collhead" id="tablesCollHead"></div>
 <div id="tablesBody"></div>
 </div>
-<div class="view" data-view="lea" role="tabpanel" aria-label="Part B LEA Explorer">
+<div class="view" data-view="lea" role="region" aria-label="Part B LEA Explorer">
 <h2 class="section-title" id="lea">Part B LEA Explorer</h2>
 <p class="viewlead">Individual school districts, the Local Educational Agencies (LEAs) that serve Children and Students with Disabilities under IDEA, Part&nbsp;B. Selecting a State lists its districts; each district profile reports the Children and Students with Disabilities served and the IDEA funds received. Child counts are School Year&nbsp;2024–25; funding figures are School Year&nbsp;2021–22.</p>
 <div class="card lea-controls">
@@ -13134,7 +13153,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <div id="leaBody"></div>
 <div class="fn"><b>Source:</b> U.S. Department of Education, Office of Special Education Programs. EDPass: “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” 2024–25 (LEA file, specifications 002 and 089); and the IDEA Part&nbsp;B LEA Maintenance of Effort (MOE) Reduction and Coordinated Early Intervening Services (CEIS) collection, SY&nbsp;2021–22. Suppressed cells are shown as “–”.</div>
 </div>
-<div class="view" data-view="gpra" role="tabpanel" aria-label="Part B GPRA Performance Analysis">
+<div class="view" data-view="gpra" role="region" aria-label="Part B GPRA Performance Analysis">
 <h2 class="section-title" id="gpra">Part B Performance Measures</h2>
 <p class="viewlead" data-pl="These are the national goals for the federal special-education money given to states (IDEA Part&nbsp;B). A federal law asks every program to set a yearly <strong>target</strong> and then report what actually happened (the <strong>actual</strong> result). The numbers come straight from the U.S. Department of Education's yearly budget request to Congress for 2025. If a result is not in yet, it shows a dash (–) or says <strong>TBD</strong>, and nothing is ever guessed.">These are the official national performance measures for the <strong>IDEA Part&nbsp;B Grants to States</strong> program. They come from a federal law called the <strong>Government Performance and Results Act</strong> (GPRA), which asks every federal program to set a yearly <strong>target</strong> and then report the <strong>actual</strong> result. The figures below are taken directly from the U.S. Department of Education's yearly budget request to Congress for 2025 (a public document known as the <strong>Congressional Justification</strong>, which is where an agency explains and justifies the money it is asking for). Where a result has not been reported yet, it is shown as a dash (–) or marked <strong>TBD</strong>, never estimated.</p>
 <div class="tbl-toggle gpra-viewtoggle" id="gpraViewToggle" role="group" aria-label="Show measures as tables or charts">
@@ -13149,7 +13168,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <div id="gpraBody"></div>
 <div class="exp-src">Source: U.S. Department of Education, <em>Fiscal Year 2025 Budget Request, Special Education</em>, State Grants: Grants to States, Program Performance Information (printed pp.&nbsp;28–32). NAEP "students with disabilities" includes any student a school classifies as having a disability, including those served under a Section&nbsp;504 plan. A dash (–) means data were not yet available when the budget was published; State-assessment results for 2020 were waived due to the COVID-19 pandemic.</div>
 </div>
-<div class="view" data-view="collections" role="tabpanel" aria-label="Collections">
+<div class="view" data-view="collections" role="region" aria-label="Collections">
 <h2 class="section-title" id="more" data-pl="More kinds of data">Data Collections</h2>
 <div class="home-about">
   <p class="home-about-text">The Office of Special Education Programs (OSEP), within the Office of Special Education and Rehabilitative Services (OSERS), is dedicated to improving results for infants, toddlers, children, and youth with disabilities, ages birth through 21, by providing leadership and financial support to assist States/entities, local districts, and programs. Section&nbsp;618 of IDEA requires that each State/entity submit data about the infants and toddlers, birth through age 2, who receive early intervention services under Part&nbsp;C of IDEA, and Students with Disabilities, ages 3 through 21, who receive special education and related services under Part&nbsp;B of IDEA.</p>
@@ -13173,7 +13192,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <div class="collection-quickgrid" id="collectionQuickGrid" aria-label="IDEA Section 618 collection cards"></div>
   <div class="collection-selection" id="collectionSelectionSummary" aria-live="polite"></div>
 </section>
-<details class="card collection-data-card" id="collectionDataCard" aria-live="polite">
+<details class="card collection-data-card" id="collectionDataCard">
   <summary>Tables</summary>
   <div class="collection-data-head">
     <div>
@@ -13190,7 +13209,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </details>
 <details class="srcfold"><summary>Source note</summary><div class="srcbody">U.S. Department of Education, Office of Special Education Programs: IDEA Part B Discipline, Exiting, Personnel, and Assessment collections, School Year 2023–24; IDEA Part C Child Count and Settings, School Year 2024–25; and IDEA Part C Exiting, School Year 2023–24.</div></details>
 <div class="exp-kpis coll-kpis-hidden" id="collKpis" hidden></div>
-<details class="card collection-graphs-card" id="collectionGraphsCard" aria-live="polite">
+<details class="card collection-graphs-card" id="collectionGraphsCard">
   <summary>Graphs</summary>
   <div class="note">Charts and visual summaries for the selected collection, when available.</div>
 <div id="collectionPanels" class="collection-panels" aria-live="polite">
@@ -13281,7 +13300,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </details>
 
 </div>
-<div class="view" data-view="accessibility" role="tabpanel" aria-label="Accessibility features">
+<div class="view" data-view="accessibility" role="region" aria-label="Accessibility features">
 <h2 class="section-title" id="accessibility">Accessibility features</h2>
 <p class="viewlead">Accessibility is treated as part of the accuracy of this data tool rather than a separate version of it. The features below support a range of access needs, including use with a keyboard, a screen reader, or a screen magnifier, and use of a calmer page with reduced motion and plainer wording. Features are grouped by the access need they address most directly. Designing for one specific need generally makes the data clearer for all users. Every setting is located in the <b>Access</b> menu at the top of the page. Each setting can be turned on or off at any time, and the selections made are retained the next time the tool is opened.</p>
 <div class="a11y-page">
@@ -13395,7 +13414,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <b>Accessibility.</b> <a href="#accessibility" class="a11y-foot-link">Learn about this dashboard's accessibility features</a>, including dark mode, high contrast, larger text, reduced motion, plain language, keyboard navigation, and screen-reader support.
 </footer>
 </details>
-</div><!-- /.wrap -->
+</main><!-- /.wrap -->
 <footer class="site-footer" role="contentinfo">
   <div class="sf-top">
     <div class="sf-brand">
@@ -14263,7 +14282,7 @@ function renderTable(){
   return `<tr data-s="${s[0]}" class="${s[0]===focusState?'sel':''}">
    <th scope="row">${s[0]}</th><td>${fmt(s[1])}</td><td>${fmt(s[3])}</td>
    <td><span class="bar-mini" style="width:${w}px;background:${s[0]===focusState?'#cc5a33':'#005ea2'}"></span>&nbsp;${fmt(s[4])}</td>
-   <td style="color:${g>=0?'#1a9850':'#c0392b'};font-weight:600">${g>=0?'+':''}${g.toFixed(0)}%</td>
+   <td class="delta ${g>=0?'delta-pos':'delta-neg'}">${g>=0?'+':''}${g.toFixed(0)}%</td>
    <td>${s[5]}%</td></tr>`;}).join('');
  document.querySelectorAll('#stateTable thead th').forEach(th=>{
    const sort=()=>{const c=th.dataset.c;const cc=(c==='g')?'g':+c;
@@ -14699,7 +14718,7 @@ function renderCollections(){
   options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
    tooltip:{callbacks:{label:o=>o.parsed.x+'% of all exiters ('+fmt(o.dataset._raw[o.dataIndex])+' students)'}}},scales:{x:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}},y:{ticks:{font:{size:11}}}}}});
  const exitGroups=[['Diploma or certificate',ex['Graduated with regular high school diploma']+ex['Graduated with an alternate diploma']+ex['Received a certificate'],'#2e8540'],['Continuing education or services',ex['Transferred to regular education']+ex['Moved, known to be continuing'],'#1f6fa8'],['Dropped out',ex['Dropped out'],'#cc5a33'],['Other exits',ex['Reached maximum age']+ex['Died'],'#5b6472']];
- if(document.getElementById('exitGroupChart'))new Chart(document.getElementById('exitGroupChart'),{type:'doughnut',data:{labels:exitGroups.map(function(r){return r[0];}),datasets:[{data:exitGroups.map(function(r){return r[1];}),backgroundColor:exitGroups.map(function(r){return r[2];}),borderColor:'#fff',borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10}}},tooltip:{callbacks:{label:function(o){var v=o.parsed||0;return o.label+': '+fmt(v)+' students ('+(v/exTot*100).toFixed(1)+'%)';}}}}}});
+ if(document.getElementById('exitGroupChart'))new Chart(document.getElementById('exitGroupChart'),{type:'doughnut',data:{labels:exitGroups.map(function(r){return r[0];}),datasets:[{data:exitGroups.map(function(r){return r[1];}),backgroundColor:exitGroups.map(function(r){return r[2];}),borderColor:getCSS('--card'),borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10}}},tooltip:{callbacks:{label:function(o){var v=o.parsed||0;return o.label+': '+fmt(v)+' students ('+(v/exTot*100).toFixed(1)+'%)';}}}}}});
  try{renderExitFunnel();}catch(e){console.warn('exit funnel',e);}
  // Personnel (stacked)
  const P=C.personnel;
@@ -14724,14 +14743,14 @@ function renderCollections(){
  // Part C settings, percent bar display
  const ps=C.partc_count.settings;
  const pcRows=[['Home',ps.Home,'#005ea2'],['Community-based',ps['Community-Based Setting'],'#4575b4'],['Other setting',ps['Other Setting'],'#9aa0a6']];
- new Chart(document.getElementById('pcCountChart'),{type:'doughnut',data:{labels:pcRows.map(r=>r[0]),datasets:[{data:pcRows.map(r=>r[1]),backgroundColor:pcRows.map(r=>r[2]),borderColor:'#ffffff',borderWidth:2,_raw:pcRows.map(r=>r[1])}]},
+ new Chart(document.getElementById('pcCountChart'),{type:'doughnut',data:{labels:pcRows.map(r=>r[0]),datasets:[{data:pcRows.map(r=>r[1]),backgroundColor:pcRows.map(r=>r[2]),borderColor:getCSS('--card'),borderWidth:2,_raw:pcRows.map(r=>r[1])}]},
   options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11,weight:'600'}}},
    tooltip:{callbacks:{label:o=>`${o.label}: ${(o.parsed/C.partc_count.total*100).toFixed(1)}% (${fmt(o.parsed)} infants and toddlers)`}}}}});
  const race=C.partc_count.race,raceRows=[['Hispanic/Latino',race.Hispanic,'#1f6fa8'],['American Indian or Alaska Native',race.AIAN,'#8c6d31'],['Asian',race.Asian,'#2e8540'],['Black or African American',race.Black,'#7048a8'],['Native Hawaiian or Other Pacific Islander',race.NHPI,'#cc5a33'],['White',race.White,'#5b6472'],['Two or more races',race.Multi,'#f2a541']].filter(function(r){return r[1]!=null;});
  const raceTotal=raceRows.reduce(function(a,r){return a+r[1];},0)||1;
  if(document.getElementById('pcRaceChart'))new Chart(document.getElementById('pcRaceChart'),{type:'bar',data:{labels:raceRows.map(function(r){return r[0];}),datasets:[{data:raceRows.map(function(r){return +(r[1]/raceTotal*100).toFixed(1);}),backgroundColor:raceRows.map(function(r){return r[2];}),borderRadius:4,_raw:raceRows.map(function(r){return r[1];})}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){return o.parsed.x+'% ('+fmt(o.dataset._raw[o.dataIndex])+' infants and toddlers)';}}}},scales:{x:{beginAtZero:true,max:60,ticks:{callback:function(v){return v+'%';}}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
  const sx=C.partc_count.sex,sexRows=[['Male',sx.Male,'#1f6fa8'],['Female',sx.Female,'#2e8540']],sexTotal=sexRows.reduce(function(a,r){return a+r[1];},0)||1;
- if(document.getElementById('pcSexChart'))new Chart(document.getElementById('pcSexChart'),{type:'doughnut',data:{labels:sexRows.map(function(r){return r[0];}),datasets:[{data:sexRows.map(function(r){return r[1];}),backgroundColor:sexRows.map(function(r){return r[2];}),borderColor:'#fff',borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10}},tooltip:{callbacks:{label:function(o){var v=o.parsed||0;return o.label+': '+fmt(v)+' infants and toddlers ('+(v/sexTotal*100).toFixed(1)+'%)';}}}}}});
+ if(document.getElementById('pcSexChart'))new Chart(document.getElementById('pcSexChart'),{type:'doughnut',data:{labels:sexRows.map(function(r){return r[0];}),datasets:[{data:sexRows.map(function(r){return r[1];}),backgroundColor:sexRows.map(function(r){return r[2];}),borderColor:getCSS('--card'),borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10}},tooltip:{callbacks:{label:function(o){var v=o.parsed||0;return o.label+': '+fmt(v)+' infants and toddlers ('+(v/sexTotal*100).toFixed(1)+'%)';}}}}}});
  // Part C national trend: infants & toddlers (birth-2) served, 2005-06..2024-25
  const PCTL=["2005–06", "2006–07", "2007–08", "2008–09", "2009–10", "2010–11", "2011–12", "2012–13", "2013–14", "2014–15", "2015–16", "2016–17", "2017–18", "2018–19", "2019–20", "2020–21", "2021–22", "2022–23", "2023–24", "2024–25"],PCTD=[294714, 299848, 316761, 337618, 343203, 337576, 331636, 329859, 335023, 346394, 354081, 369672, 386155, 406582, 424318, 361462, 403567, 438988, 460321, 456434];
  new Chart(document.getElementById('pcTrendChart'),{type:'line',data:{labels:PCTL,datasets:[{label:'Infants & toddlers served, birth to age 2',data:PCTD,borderColor:'#2e8540',backgroundColor:shade('#2e8540',.10),borderWidth:3,fill:true,tension:.3,pointRadius:0,pointHoverRadius:5}]},  options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},   tooltip:{callbacks:{title:it=>it[0].label,label:o=>fmt(o.parsed.y)+' served'}}},   scales:{x:{grid:{display:false},ticks:{maxRotation:60,minRotation:60,autoSkip:true,font:{size:10}}},    y:{beginAtZero:true,title:{display:true,text:'Infants & toddlers served'},ticks:{callback:v=>v.toLocaleString()}}}}});
@@ -14744,7 +14763,7 @@ function renderCollections(){
   options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
    tooltip:{callbacks:{label:o=>o.parsed.x+'% of all exiters ('+fmt(o.dataset._raw[o.dataIndex])+' infants/toddlers)'}}},scales:{x:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}},y:{ticks:{font:{size:10}}}}}});
  const exitPathRows=[['Part B eligible',pe['Part B eligible, exiting Part C']+pe['Part B eligible, Continuing in Part C'],'#1f6fa8'],['Not eligible or not determined',pe['Not eligible Part B - exit with no referrals']+pe['Not eligible Part B - exit to other program']+pe['Part B eligibility not determined'],'#f2a541'],['Family, contact, or moved',pe['Moved out of state']+pe['Withdrawal by parent']+pe['Attempts to contact unsuccessful'],'#7048a8'],['Completed IFSP',pe['Completion of IFSP prior to max age'],'#2e8540'],['Deceased',pe['Deceased'],'#5b6472']];
- if(document.getElementById('pcExitGroupChart'))new Chart(document.getElementById('pcExitGroupChart'),{type:'doughnut',data:{labels:exitPathRows.map(function(r){return r[0];}),datasets:[{data:exitPathRows.map(function(r){return r[1];}),backgroundColor:exitPathRows.map(function(r){return r[2];}),borderColor:'#fff',borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:8,padding:9,font:{size:10}}},tooltip:{callbacks:{label:function(o){var v=o.parsed||0;return o.label+': '+fmt(v)+' infants and toddlers ('+(v/peTot*100).toFixed(1)+'%)';}}}}}});
+ if(document.getElementById('pcExitGroupChart'))new Chart(document.getElementById('pcExitGroupChart'),{type:'doughnut',data:{labels:exitPathRows.map(function(r){return r[0];}),datasets:[{data:exitPathRows.map(function(r){return r[1];}),backgroundColor:exitPathRows.map(function(r){return r[2];}),borderColor:getCSS('--card'),borderWidth:2,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{usePointStyle:true,boxWidth:8,padding:9,font:{size:10}}},tooltip:{callbacks:{label:function(o){var v=o.parsed||0;return o.label+': '+fmt(v)+' infants and toddlers ('+(v/peTot*100).toFixed(1)+'%)';}}}}}});
  setSup('sup-disc',C.discipline.sup,'IDEA Part B Discipline Collection, School Year 2023–24');setSup('sup-exit',C.exiting.sup,'IDEA Part B Exiting Collection, School Year 2023–24');setSup('sup-pers',C.personnel.sup,'IDEA Part B Personnel Collection, School Year 2023–24');
  setSup('sup-asmt',C.assessment.sup,'IDEA Part B Assessment Collection, School Year 2023–24');setSup('sup-pct',{x:0,star:0,na:0},'IDEA Part C Child Count Collection, School Years 2005–06 through 2011–12, and IDEA Part C Child Count and Settings Collection, School Years 2012–13 through 2024–25');setSup('sup-pcc',C.partc_count.sup,'IDEA Part C Child Count and Settings Collection, School Year 2024–25');setSup('sup-pce',C.partc_exit.sup,'IDEA Part C Exiting Collection, School Year 2023–24');
  renderCollectionTree();
@@ -14818,7 +14837,7 @@ function renderACS(){
  document.getElementById('acsKpis').innerHTML=k.map(x=>`<div class="k ${x.alt?'alt':''}"><div class="l">${x.l}</div><div class="v">${x.v}</div><div class="l" style="font-weight:600;text-transform:none;letter-spacing:0;margin-top:2px">${x.s}</div></div>`).join('');
  // sex comparison, simple percent bars
  const _mkSex=(id,male,colM)=>new Chart(document.getElementById(id),{type:'doughnut',
-  data:{labels:['Male','Female'],datasets:[{data:[male,+(100-male).toFixed(1)],backgroundColor:[colM,'#cfd8e3'],borderColor:'#ffffff',borderWidth:2}]},
+  data:{labels:['Male','Female'],datasets:[{data:[male,+(100-male).toFixed(1)],backgroundColor:[colM, document.body.classList.contains('dark')?'#3a4a5c':'#cfd8e3'],borderColor:getCSS('--card'),borderWidth:2}]},
   options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:10,weight:'600'}}},
    tooltip:{callbacks:{label:o=>o.label+': '+o.parsed+'%'}}}}});
  _mkSex('acsSexIDEA',ACS.idea_male,'#005ea2');
@@ -14845,7 +14864,7 @@ function loadMap(){
  try{
   const W=960,H=600,fc=topojson.feature(US_ATLAS,US_ATLAS.objects.states);
   const proj=d3.geoAlbersUsa().fitSize([W,H],fc),path=d3.geoPath(proj);
-  const svg=d3.select('#usmap').append('svg').attr('class','usmap').attr('viewBox','0 0 '+W+' '+H);
+  const svg=d3.select('#usmap').append('svg').attr('class','usmap').attr('role','img').attr('aria-label','Choropleth map of the United States, 50 states and DC, shaded by the selected measure. The State selector above, the ranked bar chart, and the all-States table present the same values.').attr('viewBox','0 0 '+W+' '+H);
   mapPaths=svg.selectAll('path').data(fc.features).enter().append('path').attr('class','st').attr('d',path)
     .attr('data-name',d=>FIPS[String(d.id).padStart(2,'0')]||'')
     .on('mousemove',function(e){mapTip(e,this.getAttribute('data-name'));})
@@ -15545,8 +15564,10 @@ function init(){
  const lsGet=k=>{try{return localStorage.getItem(k);}catch(e){return null;}};
  document.getElementById('themeBtn').onclick=()=>applyTheme(!document.body.classList.contains('dark'));
  const a11yBtn=document.getElementById('a11yBtn'),a11yPanel=document.getElementById('a11yPanel');
- a11yBtn.onclick=()=>{const o=a11yPanel.classList.toggle('open');a11yBtn.setAttribute('aria-expanded',o);};
+ let a11yLastFocus=null;
+ a11yBtn.onclick=()=>{const o=a11yPanel.classList.toggle('open');a11yBtn.setAttribute('aria-expanded',o);if(o){a11yLastFocus=document.activeElement;setTimeout(function(){var f=a11yPanel.querySelector('#a11ySize button')||a11yPanel.querySelector('[role=switch],button');if(f)try{f.focus();}catch(e){}},60);}};
  document.addEventListener('click',e=>{if(!a11yPanel.contains(e.target)&&!a11yBtn.contains(e.target)&&e.target!==a11yBtn)a11yPanel.classList.remove('open');});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&a11yPanel.classList.contains('open')){a11yPanel.classList.remove('open');a11yBtn.setAttribute('aria-expanded','false');try{(a11yLastFocus&&a11yLastFocus.focus?a11yLastFocus:a11yBtn).focus();}catch(_){}}});
  document.querySelectorAll('#a11ySize button').forEach(b=>b.onclick=()=>setTextSize(+b.dataset.l));
  let descOn=false;
 function describeChart(id){
@@ -15644,7 +15665,7 @@ function swWire(id,fn){const el=document.getElementById(id);if(!el)return;const 
   renderExplorer,renderStateBar,renderStateDetail,renderStateReport,renderStateRankBanner,renderStateMeasureChart,renderTable,renderCatalog,renderCollections,renderNAEP,renderACS,
   renderCompare,injectTools,loadMap].forEach(fn=>{try{fn();}catch(e){console.error('render error in',fn.name,e);}});
  // screen-reader text alternative for each chart (NCADEMI alt text / WCAG 1.1.1)
- try{document.querySelectorAll('.canvas-box canvas').forEach(cv=>{if(cv.getAttribute('aria-label'))return;const card=cv.closest('.card');if(!card)return;const h=card.querySelector('h3'),n=card.querySelector('.note');let lab=h?h.textContent.trim():'Chart';if(n)lab+='. '+n.textContent.trim();cv.setAttribute('role','img');cv.setAttribute('aria-label',lab);});}catch(e){}
+ window._labelCharts=function(){try{document.querySelectorAll('.card canvas').forEach(cv=>{if(cv.getAttribute('aria-label'))return;const card=cv.closest('.card');if(!card)return;const mini=cv.closest('.collection-mini');const h=mini?mini.querySelector('h4'):card.querySelector('h3');const n=mini?mini.querySelector('.mini-note'):card.querySelector('.note');let lab=h?h.textContent.trim():'Chart';if(n)lab+='. '+n.textContent.trim();cv.setAttribute('role','img');cv.setAttribute('aria-label',lab);});}catch(e){}};window._labelCharts();
  if(lsGet('idea618plain')==='1')togglePlain(true);
  if(lsGet('idea618desc')==='1')toggleDescriptions(true);
  const an=lsGet('idea618anim');toggleAnim(an===null?true:an==='1');
@@ -16346,7 +16367,7 @@ function _setupTablesControls(){
 function renderTablesView(){
  _setupTablesControls();
  _renderStateChips(); _renderTablesCat(); _renderCatCompareControls();
- document.querySelectorAll('.tcr-pill').forEach(function(b){b.classList.toggle('on',tablesCollections.indexOf(b.dataset.coll)>=0);});
+ document.querySelectorAll('.tcr-pill').forEach(function(b){var on=tablesCollections.indexOf(b.dataset.coll)>=0;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});
  var ch=document.getElementById('tablesCollHead'); if(ch){ch.style.display='none';ch.innerHTML='';}
  var toggle=document.getElementById('tablesModeToggle'); var usesToggle=tablesCollections.some(function(k){return TOGGLE_COLL[k];}); if(toggle)toggle.style.display=usesToggle?'':'none';
  document.querySelectorAll('#tablesModeToggle button').forEach(function(b){var on=b.dataset.tm===tablesMode;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});
@@ -16603,7 +16624,7 @@ function renderGPRA(){
 function showView(v,scrollId){
   if(!PROTO_VIEWS.includes(v))v='home';
   document.querySelectorAll('.view').forEach(el=>el.classList.toggle('active',el.dataset.view===v));
-  document.querySelectorAll('#viewTabs .tab').forEach(b=>{const on=b.dataset.view===v;b.classList.toggle('active',on);b.setAttribute('aria-selected',on?'true':'false');});
+  document.querySelectorAll('#viewTabs .tab').forEach(b=>{const on=b.dataset.view===v;b.classList.toggle('active',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
   document.querySelectorAll('.navgroup').forEach(g=>{const t=g.querySelector('.navtrigger');if(!t)return;const on=[...g.querySelectorAll('.navitem')].some(b=>b.dataset.view===v);t.classList.toggle('active',on);});
   document.body.setAttribute('data-view',v);var hs=document.getElementById('homeSectionSelect');if(hs&&['trends','explorer','states','collections'].includes(v))hs.value=v;
   try{if(VIEW_REFRESH[v])VIEW_REFRESH[v]();}catch(e){console.warn('view refresh',v,e);}
@@ -16611,6 +16632,7 @@ function showView(v,scrollId){
   try{syncStateViewMode();}catch(e){}
   try{if(window.injectTools)injectTools();}catch(e){}
   countUpView();
+  try{ if(window.injectExplainButtons){var _cb=document.getElementById('cmp2ChartBody'); if(_cb) window.injectExplainButtons(_cb);} }catch(_){}
   _curView=v;
   try{updateVintageBadge(v);}catch(e){}
   try{history.replaceState(null,'','#'+v);}catch(e){}
@@ -16779,6 +16801,7 @@ function renderCompare2(){
     }
   }
   countUpView();
+  try{ if(window.injectExplainButtons){var _cb=document.getElementById('cmp2ChartBody'); if(_cb) window.injectExplainButtons(_cb);} }catch(_){}
 }
 
 /* ---- global SEARCH ---- */
@@ -17510,7 +17533,7 @@ function _leaBuildMap(){
  if(typeof d3==='undefined'||typeof topojson==='undefined'||typeof US_ATLAS==='undefined'||!LEA_DATA){box.innerHTML='<div class="mapfallback note">A geographic map is unavailable here; use the State selector and the ranked list of districts below.</div>';return;}
  try{
   var W=960,H=600,fc=topojson.feature(US_ATLAS,US_ATLAS.objects.states),proj=d3.geoAlbersUsa().fitSize([W,H],fc),path=d3.geoPath(proj);
-  var svg=d3.select('#leaMap').append('svg').attr('class','usmap').attr('viewBox','0 0 '+W+' '+H);
+  var svg=d3.select('#leaMap').append('svg').attr('class','usmap').attr('role','img').attr('aria-label','Choropleth map of the United States by State for IDEA Part B LEA data, School Year 2024-25. Select a State from the dropdown to view its school districts; the same data is in the table and CSV export.').attr('viewBox','0 0 '+W+' '+H);
   _leaMapPaths=svg.selectAll('path').data(fc.features).enter().append('path').attr('class','st').attr('d',path)
    .attr('data-name',function(d){return FIPS[String(d.id).padStart(2,'0')]||'';})
    .on('mousemove',function(e){var n=this.getAttribute('data-name'),t=document.getElementById('maptip');var vals=_LEA_MAP_VALS||{},met=_LEA_MAP_MET[_leaMapMetric()]||_LEA_MAP_MET.served;if(!n||vals[n]==null){t.style.opacity=0;return;}t.innerHTML='<b>'+n+'</b>'+met.fmt(vals[n])+' · '+(LEA_DATA.byState[n]?LEA_DATA.byState[n].length:0)+' districts';t.style.left=Math.min(e.clientX+14,innerWidth-240)+'px';t.style.top=(e.clientY+14)+'px';t.style.opacity=1;})
@@ -17634,7 +17657,7 @@ function _leaRenderStateCards(sortKey){
   var meet=x.pctMeet==null?'–':x.pctMeet+'%', met=x.pctMet==null?'–':x.pctMet+'%';
   var mf=x.pctMeet==null?0:x.pctMeet, tf=x.pctMet==null?0:x.pctMet;
   var tk=tierOf(x.pctMeet), tc=tierC[tk];
-  return '<div class="lea-scard tier-'+tk+'" data-st="'+x.state.replace(/"/g,'&quot;')+'">'+
+  return '<div class="lea-scard tier-'+tk+'" data-st="'+x.state.replace(/"/g,'&quot;')+'" role="button" tabindex="0">'+
    '<div class="lea-scard-h"><b>'+x.state+'</b><span>'+x.districts.toLocaleString()+' LEAs</span></div>'+
    _sppPill(x.osep)+
    '<div class="lea-scard-served">'+_leaFmt(x.served)+'</div><div class="lea-scard-cap">Children and Students with Disabilities served</div>'+
@@ -17644,7 +17667,7 @@ function _leaRenderStateCards(sortKey){
    (x.noMoe>0?'<div class="lea-scard-unmatched">⚠ '+x.noMoe.toLocaleString()+' of '+x.districts.toLocaleString()+' districts have no 2021–22 MOE match</div>':'')+
   '</div>';
  }).join('');
- grid.querySelectorAll('[data-st]').forEach(function(c){c.onclick=function(){var s=c.getAttribute('data-st');var sel=document.getElementById('leaStateSel');if(sel)sel.value=s;LEA_STATE=s;LEA_SEL=null;_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});};});
+ grid.querySelectorAll('[data-st]').forEach(function(c){var open=function(){var s=c.getAttribute('data-st');var sel=document.getElementById('leaStateSel');if(sel)sel.value=s;LEA_STATE=s;LEA_SEL=null;_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});};c.onclick=open;c.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});});
 }
 function _leaPickNation(item){if(!item)return;var sel=document.getElementById('leaStateSel');if(sel)sel.value=item._state;LEA_STATE=item._state;LEA_SEL=item;_leaRender();var bd=document.getElementById('leaBody');if(bd)bd.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}
 function _leaRenderNation(){
@@ -17740,8 +17763,8 @@ function _leaLandscapeChart(items,opts){
  var pick=opts.pick||function(){};
  var _anim=(document.body.classList.contains('reduce')||items.length>2000)?false:{duration:560,easing:'easeOutQuart'};
  _leaChart1=new Chart(cv,{type:'bubble',data:{datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:_anim,layout:{padding:{top:8,right:34,bottom:2,left:2}},onClick:function(e,els){if(els&&els.length){var el=els[0],ds=datasets[el.datasetIndex];var p=ds&&ds.data[el.index];if(p&&p._item)pick(p._item);}},onHover:function(e,els){e.native&&e.native.target&&(e.native.target.style.cursor=els.length?'pointer':'default');},
-  plugins:{ffValues:false,legend:{display:true,position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,boxHeight:8,padding:12,font:{size:11},color:'#5a6675'}},tooltip:{callbacks:{title:function(it){return it[0].raw._name;},label:function(o){return ['Served: '+_leaFmt(o.raw.x),'IDEA allocation (2021–22): '+_leaMoney(o.raw.y),'MOE determination: '+o.raw._det];}}}},
-  scales:{x:{beginAtZero:true,title:{display:true,text:'Children and Students with Disabilities Served (2024–25)',color:'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return (+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}},y:{beginAtZero:true,title:{display:true,text:'IDEA, Part B allocation, 2021–22 ($)',color:'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':'$'+(+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}}}}});
+  plugins:{ffValues:false,legend:{display:true,position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,boxHeight:8,padding:12,font:{size:11},color:document.body.classList.contains('dark')?'#b6c2d2':'#5a6675'}},tooltip:{callbacks:{title:function(it){return it[0].raw._name;},label:function(o){return ['Served: '+_leaFmt(o.raw.x),'IDEA allocation (2021–22): '+_leaMoney(o.raw.y),'MOE determination: '+o.raw._det];}}}},
+  scales:{x:{beginAtZero:true,title:{display:true,text:'Children and Students with Disabilities Served (2024–25)',color:document.body.classList.contains('dark')?'#b6c2d2':'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return (+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}},y:{beginAtZero:true,title:{display:true,text:'IDEA, Part B allocation, 2021–22 ($)',color:document.body.classList.contains('dark')?'#b6c2d2':'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':'$'+(+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}}}}});
  _addCardTools(cv.closest('.card'),function(){_captionedPNG(cv,(opts.title||'Districts by size and IDEA funding'),(opts.subtitle||''),(opts.fileslug||'idea618_districts_landscape.png'),(typeof SRC_NOTE!=='undefined'?SRC_NOTE:''));},function(){_gfxCSV((opts.csvRows?opts.csvRows():[]),(opts.csvslug||'idea618_districts'));});
 }
 function _leaDetInfo(code){var m={
@@ -17806,7 +17829,7 @@ function _leaCatChart(lea,type){
   _addCardTools(card,function(){var ttl=dname+': Students with Disabilities by Primary Disability Category';var note='School-age (ages 5 through 21) child count by category, 2024–25.';if(type==='bubble'){_gfxSvgPNG(document.querySelector('#leaCatBubbles svg'),ttl,note,'idea618_'+_tblSlug(dname)+'_categories');}else{_captionedPNG(cv,ttl,note,'idea618_'+_tblSlug(dname)+'_categories.png',(typeof SRC_NOTE!=='undefined'?SRC_NOTE:''));}},function(){var rows=[['Primary disability category','School-age count, 2024–25']];items.forEach(function(p){rows.push([p.l,p.v]);});_gfxCSV(rows,'idea618_'+_tblSlug(dname)+'_categories');});
  }
 }
-try{ var _sv_ns=showView; showView=function(){ var r=_sv_ns.apply(this,arguments); updateNavSelection(); foldLeads(); foldNotes(); try{var _v=document.body.getAttribute('data-view'); if(_v==='states')setupStateSubtabs(); else if(VIEW_SUBTABS[_v])applyViewSubtabs(_v,VIEW_SUBTABS[_v]);}catch(e){} try{if(document.body.getAttribute('data-view')==='collections')buildAdditionalCollections();}catch(e){} try{if(document.body.getAttribute('data-view')==='lea')initLEA();}catch(e){} try{var _av=document.querySelector('.view.active'); if(_av)setTimeout(function(){countUpRoot(_av);},90);}catch(e){} try{[160,460].forEach(function(t){setTimeout(function(){if(window.injectExplainButtons)window.injectExplainButtons();},t);});}catch(e){} return r; }; }catch(e){}
+try{ var _sv_ns=showView; showView=function(){ var r=_sv_ns.apply(this,arguments); updateNavSelection(); foldLeads(); foldNotes(); try{var _v=document.body.getAttribute('data-view'); if(_v==='states')setupStateSubtabs(); else if(VIEW_SUBTABS[_v])applyViewSubtabs(_v,VIEW_SUBTABS[_v]);}catch(e){} try{if(document.body.getAttribute('data-view')==='collections')buildAdditionalCollections();}catch(e){} try{if(document.body.getAttribute('data-view')==='lea')initLEA();}catch(e){} try{var _av=document.querySelector('.view.active'); if(_av)setTimeout(function(){countUpRoot(_av);},90);}catch(e){} try{[160,460].forEach(function(t){setTimeout(function(){if(window.injectExplainButtons)window.injectExplainButtons();if(window._labelCharts)window._labelCharts();},t);});}catch(e){} return r; }; }catch(e){}
 try{ var _asc_ns=afterStateChange; afterStateChange=function(){ var r=_asc_ns.apply(this,arguments); updateNavSelection(); try{setupStateSubtabs();}catch(e){} return r; }; }catch(e){}
 try{ var _rex_ns=renderExplorer; renderExplorer=function(){ var r=_rex_ns.apply(this,arguments); updateNavSelection(); try{if(document.body.getAttribute('data-view')==='explorer'&&VIEW_SUBTABS.explorer)applyViewSubtabs('explorer',VIEW_SUBTABS.explorer);}catch(e){} return r; }; }catch(e){}
 /* ---- GPRA section navigation: focus one measure group at a time ---- */
@@ -17961,6 +17984,7 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
 (function(){
   var last=0, reduce=false;
   try{ reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+  function motionOff(){return reduce||document.body.classList.contains('reduce')||document.body.classList.contains('no-anim');}
   function spawn(x,y){
     for(var i=0;i<3;i++){
       var s=document.createElement('span'); s.className='pink-glitter';
@@ -17975,16 +17999,16 @@ try{setTimeout(function(){countUpRoot(document.querySelector('.view.active'));},
     }
   }
   document.addEventListener('mousemove',function(e){
-    if(reduce||!document.body.classList.contains('pink'))return;
+    if(motionOff()||!document.body.classList.contains('pink'))return;
     var now=Date.now(); if(now-last<28)return; last=now;
     spawn(e.clientX,e.clientY);
   },{passive:true});
-  setInterval(function(){ if(reduce||!document.body.classList.contains('pink'))return; var f=document.getElementById('pinkFairy'); if(!f)return; var r=f.getBoundingClientRect(); if(r.width)spawn(r.left+r.width/2,r.top+r.height/2); },300);
+  setInterval(function(){ if(motionOff()||!document.body.classList.contains('pink'))return; var f=document.getElementById('pinkFairy'); if(!f)return; var r=f.getBoundingClientRect(); if(r.width)spawn(r.left+r.width/2,r.top+r.height/2); },300);
 
   /* Ambient glitter: gentle sparkles that drift and twinkle across the page on
      their own (no cursor needed), so Fairy mode always shimmers a little. */
   function ambient(){
-    if(reduce||!document.body.classList.contains('pink'))return;
+    if(motionOff()||!document.body.classList.contains('pink'))return;
     var n=2+Math.floor(Math.random()*3);
     for(var i=0;i<n;i++){
       var s=document.createElement('span'); s.className='fairy-amb';
@@ -18190,7 +18214,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 <style id="pinkModeOverrides">
 /* ====== FAIRY MODE: real pink chrome (loaded last; charts are pinked at the data layer now) ====== */
-body.pink{--autism:#d6418f;--ff-gold:#e6398a}
+body.pink:not(.dark){--autism:#d6418f;--ff-gold:#e6398a}
 body.pink #exportBtn{background:#a8266e!important;color:#fff!important;border-color:#a8266e!important}
 body.pink .trend-chip.on{background:#a8266e!important;border-color:#a8266e!important;color:#fff!important}
 body.pink .tbl-toggle button.on,body.pink .tbl-viz-seg.on{background:#a8266e!important;color:#fff!important}
@@ -18340,6 +18364,7 @@ body.pink #fairyReset:focus-visible{outline:3px solid #a8266e;outline-offset:2px
   60%{opacity:.85}
   100%{opacity:0;transform:translate(var(--drift),var(--rise)) scale(.5)}}
 @media (prefers-reduced-motion: reduce){.fairy-amb{display:none}}
+body.reduce .fairy-amb,body.no-anim .fairy-amb{display:none}
 
 /* --- the little pink + purple jukebox at the bottom --- */
 #fairyJukebox{display:none}
@@ -18547,6 +18572,7 @@ body.dark .state-drill-btn{background:#16242f;color:#dbe8f6;border-color:#2c3a47
 .lea-state-context .lsc-note{flex:1 1 240px;min-width:0;font-size:.88rem;line-height:1.4;color:var(--ink)}
 .lea-state-context .lsc-link{flex:0 0 auto;font:inherit;font-weight:700;font-size:.85rem;color:#fff;background:var(--navy);border:none;border-radius:8px;padding:8px 14px;cursor:pointer}
 .lea-state-context .lsc-link:hover{filter:brightness(1.08)}
+body.dark .lea-state-context .lsc-link{background:#1f6fa8;color:#fff}
 body.dark .lea-state-context{background:#16242f;border-color:#2c3a47}
 body.dark .lea-state-context .lsc-name,body.dark .lea-state-context .lsc-stat b{color:#dbe8f6}
 .cb-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:108px;overflow:auto}
@@ -18570,6 +18596,7 @@ body.dark .cb-chip.on{background:var(--primary);border-color:var(--primary);colo
 .cb-savebtn-2:hover{background:var(--line2);filter:none;border-color:var(--primary-lt)}
 .cb-savebtn-2:focus-visible{box-shadow:0 0 0 3px rgba(0,94,162,.18)}
 body.dark .cb-savebtn-2{background:#16242f;color:#dbe8f6;border-color:#2c3a47}
+body.dark .cb-savebtn{background:#1f6fa8;border-color:#1f6fa8;color:#fff}
 body.pink .cb-savebtn{background:#a8266e}
 body.pink .cb-seg button.on,body.pink .cb-chip.on{background:#a8266e;border-color:#a8266e}
 body.pink .cb-say .cb-pick{color:#a8266e}
@@ -18895,8 +18922,9 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
     }
     function subjectChanged(){ fillCats(true); if(cbTitle)cbTitle.value=''; render(); }
     function ensureBuilt(){ if(built)return; built=true; fillColl(); fillBreak(); fillState(); fillCompare(); fillCats(true); }
-    function open(){ ensureBuilt(); modal.hidden=false; document.body.classList.add('cb-open'); setTimeout(render,30); }
-    function close(){ modal.hidden=true; document.body.classList.remove('cb-open'); }
+    var cbLastFocus=null;
+    function open(){ cbLastFocus=document.activeElement; ensureBuilt(); modal.hidden=false; document.body.classList.add('cb-open'); setTimeout(render,30); var c=modal.querySelector('.cb-close'); if(c)setTimeout(function(){try{c.focus();}catch(e){}},40); }
+    function close(){ modal.hidden=true; document.body.classList.remove('cb-open'); if(cbLastFocus&&cbLastFocus.focus){try{cbLastFocus.focus();}catch(e){}} }
     function wireSeg(id,apply){ var seg=$(id); if(!seg)return; seg.addEventListener('click',function(e){var b=e.target.closest('button'); if(!b||!seg.contains(b))return; [].slice.call(seg.querySelectorAll('button')).forEach(function(x){x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',x===b?'true':'false');}); apply(b); render(); }); }
     fab.addEventListener('click',open);
     modal.addEventListener('click',function(e){ if(e.target.closest('[data-cb-close]'))close(); });
