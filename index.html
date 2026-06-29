@@ -15000,12 +15000,14 @@ function exportStateReportPNG(){
   ['Teachers fully certified',r.cert!=null?r.cert+'%':'–'],['In general class 80%+ (5-21)',r.incl!=null?r.incl+'%':'–'],
   ['Proficient: math / reading (IEPs)',(r.math!=null?r.math+'%':'–')+' / '+(r.read!=null?r.read+'%':'–')],
   ['Infants & toddlers · Part C (birth-2)',r.partc!=null?fmt(r.partc):'–']];
- var cols=3,cw=306,ch=94,pad=28,W=cols*cw+pad*2,nr=Math.ceil(items.length/cols),H=pad+58+nr*ch+34;
+ var cols=3,cw=306,ch=94,pad=28,headH=82,W=cols*cw+pad*2,nr=Math.ceil(items.length/cols),H=pad+headH+nr*ch+34;
  var cv=document.createElement('canvas');cv.width=W;cv.height=H;var x=cv.getContext('2d');
  x.fillStyle='#fff';x.fillRect(0,0,W,H);x.fillStyle='#edcf36';x.fillRect(0,0,W,7);
- x.fillStyle='#13354e';x.font='800 22px Calibri, Carlito, "Source Sans 3", Arial';x.fillText('State Snapshot',pad,pad+32);x.font='700 14px Calibri, Carlito, "Source Sans 3", Arial';x.fillText(focusState,pad,pad+54);
- x.fillStyle='#555';x.font='600 12px Calibri, Carlito, "Source Sans 3", Arial';x.fillText('Latest available year per collection · U.S. = 50 states + DC.',pad,pad+52);
- items.forEach(function(it,i){var cx=pad+(i%cols)*cw,cy=pad+58+Math.floor(i/cols)*ch;
+ x.textBaseline='alphabetic';
+ x.fillStyle='#c79a1f';x.font='800 11px Calibri, Carlito, "Source Sans 3", Arial';x.fillText('IDEA SECTION 618 · OFFICE OF SPECIAL EDUCATION PROGRAMS',pad,pad+12);
+ x.fillStyle='#13354e';x.font='800 22px Calibri, Carlito, "Source Sans 3", Arial';x.fillText('State Snapshot · '+focusState,pad,pad+40);
+ x.fillStyle='#555';x.font='600 12px Calibri, Carlito, "Source Sans 3", Arial';x.fillText('Latest available year per collection · U.S. = 50 states + DC.',pad,pad+62);
+ items.forEach(function(it,i){var cx=pad+(i%cols)*cw,cy=pad+headH+Math.floor(i/cols)*ch;
   x.strokeStyle='#dfe1e6';x.lineWidth=1;x.strokeRect(cx,cy,cw-14,ch-12);x.fillStyle='#0b4a8f';x.fillRect(cx,cy,4,ch-12);
   x.fillStyle='#565c65';x.font='700 11px Calibri, Carlito, "Source Sans 3", Arial';x.fillText(it[0].slice(0,44),cx+14,cy+24);
   x.fillStyle='#13354e';x.font='900 25px Calibri, Carlito, "Source Sans 3", Arial';x.fillText(it[1],cx+14,cy+58);});
@@ -15377,13 +15379,14 @@ function renderAll(){
 const SRC_NOTE='Source: U.S. Department of Education, Office of Special Education Programs, IDEA Section 618 data collections. National figures cover the 50 states, DC, and the additional IDEA reporting entities unless the chart states otherwise.';
 function _chartTitle(id){const c=Chart.getChart(id);const card=c&&c.canvas.closest('.card,.fig');
  let t=card&&card.querySelector('h3')?card.querySelector('h3').textContent.trim():'';
- if(!t&&typeof ARIA!=='undefined'&&ARIA[id])t=ARIA[id];return t||id;}
+ if(!t)t=String(id).replace(/_cv$/,'').replace(/Chart$/,'').replace(/([a-z0-9])([A-Z])/g,'$1 $2').replace(/[_-]+/g,' ').replace(/\b\w/g,function(m){return m.toUpperCase();}).trim();
+ return t||id;}
 function _chartNote(id){const c=Chart.getChart(id);const card=c&&c.canvas.closest('.card,.fig');
  return card&&card.querySelector('.note')?card.querySelector('.note').textContent.trim():'';}
 function _wrapLines(ctx,text,font,maxW){ctx.font=font;const ws=(text||'').split(/\s+/).filter(Boolean);const out=[];let ln='';
  for(const w of ws){const t=ln?ln+' '+w:w;if(ctx.measureText(t).width>maxW&&ln){out.push(ln);ln=w;}else ln=t;}if(ln)out.push(ln);return out;}
 function _captionedPNG(srcCanvas,title,note,filename,source){
- if(!srcCanvas||!srcCanvas.width||!srcCanvas.height){try{alert('Open the chart (Visualize) and let it finish drawing before saving the PNG.');}catch(e){}return;}
+ if(!srcCanvas||!srcCanvas.width||!srcCanvas.height){try{console.warn('PNG export skipped: chart not finished drawing.');}catch(e){}return;}
  var cw=srcCanvas.width||900,ch=srcCanvas.height||500,pad=Math.round(cw*0.05),W=cw+pad*2,FONT='Calibri, Carlito, "Source Sans 3", Arial';
  var fE=Math.max(10,Math.round(cw*0.0125)),fT=Math.max(18,Math.round(cw*0.030)),fN=Math.max(12,Math.round(cw*0.018)),fS=Math.max(10,Math.round(cw*0.0135));
  var lhT=fT*1.22,lhN=fN*1.35,lhS=fS*1.34,maxW=W-2*pad,eyebrowH=Math.round(fE*1.05)+Math.round(fE*0.85);
