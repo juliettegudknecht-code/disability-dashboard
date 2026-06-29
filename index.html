@@ -12823,6 +12823,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
       <button type="button" data-unit="count" class="on" aria-pressed="true">Number of students</button>
       <button type="button" data-unit="rate" aria-pressed="false">% of enrollment</button>
     </div>
+    <label class="trend-line-toggle" style="display:inline-flex;align-items:center;gap:7px;font-size:.84rem;font-weight:600;color:var(--ink);margin:9px 0 0;cursor:pointer"><input type="checkbox" id="trendLineToggle" style="width:16px;height:16px;cursor:pointer"> Show linear trend line</label>
     <div class="trend-series-control" id="trendPills"></div>
     <div class="trend-focus-summary" id="trendFocusSummary" aria-live="polite"></div>
     <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, National Center for Education Statistics, Digest of Education Statistics 2023, Table&nbsp;204.30; and Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” School Years 1976–77 through 2024–25.</div></details>
@@ -13378,6 +13379,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <b>Data suppression.</b> The Office of Special Education Programs suppresses small or unreliable cells. As defined in the source files: <span class="supleg"><span><b>x</b> suppressed, small cell size</span><span><b>*</b> suppressed, data-quality concerns</span><span><b>–</b> data not available</span></span>
   National totals are taken from the official Office of Special Education Programs total rows; where a chart sums individual state-level cells, suppressed cells are treated as zero, so a few such totals are marginal undercounts; the count and type of suppressed cells appear beneath each affected chart.<br>
   <b>Method and scope.</b> National counts cover the 50 states, the District of Columbia, and the additional IDEA reporting entities (Puerto Rico, the Bureau of Indian Education, the outlying areas, and the freely associated states; Part&nbsp;C: the 50 states, DC, and the outlying areas), drawn from the official OSEP national total rows, ages 3–21 for Part&nbsp;B and birth–2 for Part&nbsp;C, unless noted. The State map, the State rankings, and the all-States comparison table cover the 50 states and the District of Columbia. In the long-term child-count trend, figures for School Years 2020–21 through 2024–25 use the official OSEP total rows (all reporting entities); historical figures through 2019–20 are from the NCES Digest of Education Statistics 2023, sourced from the Office of Special Education Programs IDEA database. School Year 2023–24 and 2024–25 figures and all other collections were computed directly from the Office of Special Education Programs IDEA Section 618 state-level files (extracted 2024–2025). “Percent of enrollment” reflects 2022–23, the latest year with a published denominator.<br>
+  <b>Reconciling totals.</b> Figures are drawn from several Section&nbsp;618 collections that are reported and suppressed independently, so subtotals are not expected to sum exactly to the headline figure. The thirteen disability categories are taken from a collection whose scope and suppression differ slightly from the All&nbsp;Disabilities national total row, so they may not add exactly to it; the sum of the 50&nbsp;states and DC is smaller still, because it excludes the additional reporting entities. Likewise, the race and ethnicity, sex, English-learner, age, and educational-environment breakdowns each come from separate files and are not expected to sum to the child-count total.<br>
   <b>Sources:</b>
   <a href="https://data.ed.gov/dataset/idea-section-618-data-products" target="_blank" rel="noopener noreferrer">data.ed.gov · IDEA Section 618 Data Products</a> ·
   <a href="https://nces.ed.gov/programs/digest/d23/tables/dt23_204.30.asp" target="_blank" rel="noopener noreferrer">NCES 204.30 (by disability)</a> ·
@@ -13742,6 +13744,15 @@ function setupTrendUnitToggle(){
      renderTrend();
    };
  });
+ var tl=document.getElementById('trendLineToggle'); if(tl&&!tl._wired){tl._wired=true;tl.addEventListener('change',function(){trendShowTrend=tl.checked;renderTrend();});}
+}
+/* Least-squares linear fit over a series (ignoring nulls); returns a full-length array with the fitted line across the data's span, null elsewhere. */
+function _trendFit(data){
+ var xs=[],ys=[]; data.forEach(function(v,i){if(v!=null&&!isNaN(v)){xs.push(i);ys.push(v);}});
+ var n=xs.length; if(n<2)return null;
+ var sx=0,sy=0,sxy=0,sxx=0,i; for(i=0;i<n;i++){sx+=xs[i];sy+=ys[i];sxy+=xs[i]*ys[i];sxx+=xs[i]*xs[i];}
+ var denom=(n*sxx-sx*sx)||1, b=(n*sxy-sx*sy)/denom, a=(sy-b*sx)/n, i0=xs[0], i1=xs[n-1];
+ return data.map(function(_,i){return (i>=i0&&i<=i1)?(a+b*i):null;});
 }
 function renderTrendFocusSummary(){
  var el=document.getElementById('trendFocusSummary');if(!el)return;
@@ -13750,7 +13761,7 @@ function renderTrendFocusSummary(){
  var names=selected.slice(0,3).join(', ')+(selected.length>3?' +'+(selected.length-3)+' more':'');
  el.innerHTML='<div><span>SY 2024–25 total</span><b>'+fmtK(latest)+'</b></div><div><span>Selected overlays</span><b>'+(selected.length?selected.length+' categories':'None')+'</b></div>'+(selected.length?'<div><span>Combined selected</span><b>'+fmtK(latestSum)+'</b></div><div class="trend-summary-names">'+names+'</div>':'');
 }
-let trendUnit='count';
+let trendUnit='count', trendShowTrend=false;
 /* Convert a category's counts to its share of public-school enrollment, using the
    identity: cat% = (cat / all) * all%, where all% is the published ENROLL_PCT. */
 function trendRateSeries(arr){
@@ -13765,10 +13776,11 @@ function renderTrend(){
  var allData=rate?ENROLL_PCT.slice():ALL;
  const ds=[{type:'line',label:'All disabilities, ages 3–21',data:allData,borderColor:'#2e8540',backgroundColor:'#2e8540',borderWidth:3.2,fill:false,tension:.28,pointRadius:0,pointHoverRadius:5,pointHitRadius:12,spanGaps:true,order:0}];
  selected.forEach(function(k,i){var col=COLORS[k]||'#1f6fa8';ds.push({type:'line',label:k,data:rate?trendRateSeries(DIS[k]):DIS[k],borderColor:col,backgroundColor:shade(col,.10),borderWidth:2.2,tension:.28,pointRadius:0,pointHoverRadius:5,pointHitRadius:12,spanGaps:true,order:i+1});});
+ if(trendShowTrend){ ds.slice().forEach(function(s){ var fit=_trendFit(s.data); if(!fit)return; ds.push({type:'line',label:s.label+' (trend)',data:fit,borderColor:s.borderColor,backgroundColor:'transparent',borderWidth:1.6,borderDash:[6,4],fill:false,tension:0,pointRadius:0,pointHitRadius:0,spanGaps:true,order:-1,_trend:true}); }); }
  var fmtVal=rate?function(v){return v==null?'–':v.toFixed(1)+'%';}:fmtK;
  const cfg={type:'line',data:{labels:YEARS,datasets:ds},options:{responsive:true,maintainAspectRatio:false,
    interaction:{mode:'index',intersect:false},
-   plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10,weight:'800'}}},
+   plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10,weight:'800'},filter:function(it,data){return !(data.datasets[it.datasetIndex]||{})._trend;}}},
     tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+fmtVal(c.parsed.y);}}}},
    scales:{x:{grid:{display:false},ticks:{maxRotation:0,minRotation:0,autoSkip:true,maxTicksLimit:10,font:{size:10}}},
     y:{beginAtZero:true,title:{display:true,text:rate?'% of enrollment':'Students (thousands)',font:{size:10},padding:0},ticks:{callback:function(v){return rate?v+'%':v.toLocaleString();}}}}}};
@@ -14645,7 +14657,7 @@ function renderCollections(){
  const leavers=ex['Graduated with regular high school diploma']+ex['Graduated with an alternate diploma']+ex['Received a certificate']+ex['Reached maximum age']+ex['Dropped out']+ex['Died'];
  const gradRate=(ex['Graduated with regular high school diploma']/leavers*100).toFixed(1);
  const certPct=(C.personnel.teachers_cert/C.personnel.teachers_total*100).toFixed(0);
- const dch=C.discipline.children, removedPct=(dch.total/8081816*100).toFixed(1);
+ const dch=C.discipline.children, removedPct=(dch.total/DEMO.cur['All Disabilities'].total*100).toFixed(1);
  const k=[
   {l:'Part B Discipline Collection · School Year 2023–24',v:fmt(dch.total),s:'Students ages 3–21 with one or more disciplinary removals'},
   {l:'Part B Exiting Collection · School Year 2023–24',v:gradRate+'%',s:'Students ages 14–21 exiting with a regular high-school diploma',alt:1},
@@ -14900,7 +14912,11 @@ function colorMap(){
 }
 
 /* ============ STATE vs NATION COMPARE ============ */
-const NAT_PE=15.2,NAT_GROWTH=28.4,NAT_TOTAL=8081816,NAT_AVG=Math.round(8081816/STATES.length);
+/* NAT_TOTAL is the national All Disabilities total served (all reporting entities, ages 3–21),
+   matching the headline figure used elsewhere in the tool. NAT_AVG stays the mean of the
+   50 states + DC (the scope of the State map/rankings/comparison), so it remains a true
+   per-state average comparable to a single state. */
+const NAT_PE=15.2,NAT_GROWTH=28.4,NAT_TOTAL=DEMO.cur['All Disabilities'].total,NAT_AVG=Math.round(8081816/STATES.length);
 function renderCompare(){
  var _cp=document.getElementById('cmpPanel'); if(!_cp) return;
  const s=STATES.find(x=>x[0]===focusState);
@@ -14921,7 +14937,7 @@ function renderCompare(){
  _cp.innerHTML=html;
 }
 const STATE_RPT={"Wisconsin":{"grad":85.0,"dropout":12.6,"cert":96.9,"incl":79.6,"partc":6446,"math":20.3,"read":17.6},"Arkansas":{"grad":89.1,"dropout":6.8,"cert":87.0,"incl":74.7,"partc":1629,"math":8.7,"read":7.6},"Massachusetts":{"grad":79.1,"dropout":12.9,"cert":89.1,"incl":67.4,"partc":22312,"math":13.2,"read":12.0},"Illinois":{"grad":86.6,"dropout":10.4,"cert":98.1,"incl":53.7,"partc":17530,"math":8.0,"read":10.6},"Alaska":{"grad":64.6,"dropout":30.6,"cert":88.4,"incl":71.5,"partc":897,"math":10.1,"read":9.4},"Florida":{"grad":92.0,"dropout":7.2,"cert":100.0,"incl":78.3,"partc":16153},"South Dakota":{"grad":66.6,"dropout":25.1,"cert":91.3,"incl":77.2,"partc":1168},"New Hampshire":{"grad":85.3,"dropout":8.5,"cert":100.0,"incl":82.1,"partc":2486,"math":12.7,"read":16.8},"Vermont":{"grad":76.7,"dropout":20.8,"cert":88.3,"incl":82.3,"partc":1079,"math":10.1,"read":16.5},"Oklahoma":{"grad":99.5,"dropout":0.0,"cert":98.1,"incl":74.5,"partc":2420,"math":12.5,"read":14.8},"Minnesota":{"grad":91.2,"dropout":8.4,"cert":82.7,"incl":63.0,"partc":6549,"math":25.9,"read":26.6},"Hawaii":{"grad":76.1,"dropout":11.6,"cert":94.9,"incl":54.2,"partc":1370,"math":9.5,"read":11.6},"Alabama":{"grad":81.3,"dropout":2.3,"cert":98.7,"incl":82.2,"partc":4552,"math":9.6,"read":17.6},"Colorado":{"grad":80.0,"dropout":16.3,"cert":92.7,"incl":80.9,"partc":9914,"math":9.7,"read":12.4},"Indiana":{"grad":84.1,"dropout":7.6,"cert":68.7,"incl":77.6,"partc":14276,"math":17.1,"read":15.6},"Nebraska":{"grad":79.4,"dropout":15.3,"cert":90.0,"incl":82.0,"partc":2348,"math":27.3,"read":26.3},"Idaho":{"grad":67.9,"dropout":14.0,"cert":98.9,"incl":67.2,"partc":2082,"math":11.9,"read":14.8},"West Virginia":{"grad":84.1,"dropout":6.4,"cert":80.1,"incl":62.1,"partc":4308,"math":12.7,"read":14.5},"North Dakota":{"grad":75.9,"dropout":22.0,"cert":100.0,"incl":73.4,"partc":2129,"math":14.5,"read":15.7},"Kentucky":{"grad":85.4,"dropout":3.7,"cert":97.9,"incl":76.8,"partc":4783,"math":20.0,"read":23.2},"Washington":{"grad":75.1,"dropout":24.4,"cert":96.5,"incl":66.2,"partc":12585,"math":18.2,"read":21.5},"Delaware":{"grad":87.2,"dropout":8.4,"cert":72.4,"incl":64.6,"partc":1539,"math":9.1,"read":11.5},"New Mexico":{"incl":55.0,"partc":6686,"math":7.5,"read":12.8},"Texas":{"grad":47.3,"dropout":12.8,"cert":75.8,"incl":75.6,"partc":32777,"math":21.6,"read":23.0},"Michigan":{"grad":68.2,"dropout":23.1,"cert":91.2,"incl":73.9,"partc":13308,"math":15.1,"read":19.9},"District of Columbia":{"grad":62.4,"dropout":30.2,"cert":73.2,"incl":63.4,"partc":1216,"math":7.4,"read":10.2},"Connecticut":{"grad":89.3,"dropout":8.4,"cert":94.1,"incl":67.2,"partc":7150,"math":14.1,"read":17.4},"Oregon":{"grad":70.9,"dropout":19.2,"cert":82.8,"incl":77.7,"partc":3915,"math":14.9,"read":18.1},"New York":{"grad":78.6,"dropout":14.0,"cert":82.1,"incl":58.2,"partc":31425,"math":27.7,"read":27.5},"Pennsylvania":{"grad":90.3,"dropout":9.3,"cert":95.1,"incl":61.7,"partc":25269,"math":15.0,"read":20.5},"Ohio":{"grad":71.4,"dropout":16.1,"cert":96.1,"incl":66.4,"partc":14422,"math":19.6,"read":21.9},"Maine":{"grad":80.8,"dropout":18.2,"cert":97.8,"incl":57.4,"partc":1260,"math":17.8,"read":32.9},"Utah":{"grad":67.3,"dropout":17.9,"cert":95.2,"incl":75.1,"partc":4508,"math":14.7,"read":14.7},"Maryland":{"grad":68.6,"dropout":19.9,"cert":86.6,"incl":73.0,"partc":9371,"math":8.0,"read":13.2},"California":{"grad":75.9,"dropout":10.3,"cert":93.3,"incl":63.9,"partc":60457,"math":13.1,"read":16.9},"Mississippi":{"grad":65.6,"dropout":11.1,"cert":99.3,"incl":78.9,"partc":2018,"math":27.5,"read":20.3},"Tennessee":{"grad":77.2,"dropout":5.9,"cert":97.4,"incl":76.5,"partc":9892,"math":10.3,"read":10.8},"Kansas":{"grad":84.0,"dropout":14.9,"cert":86.0,"incl":72.8,"partc":5580,"math":12.4,"read":12.9},"Louisiana":{"grad":66.6,"dropout":15.2,"cert":72.2,"incl":68.3,"partc":6050,"math":18.5,"read":20.9},"Missouri":{"grad":86.6,"dropout":9.2,"cert":92.1,"incl":56.0,"partc":8449,"math":12.7,"read":13.7},"Nevada":{"grad":65.6,"dropout":27.2,"cert":93.8,"incl":59.6,"partc":3455,"math":11.0,"read":13.0},"New Jersey":{"grad":92.5,"dropout":5.5,"cert":100.0,"incl":45.1,"partc":17788,"math":16.4,"read":19.6},"South Carolina":{"grad":59.7,"dropout":20.8,"cert":98.2,"incl":64.8,"partc":8809,"math":18.7,"read":22.1},"Wyoming":{"grad":53.7,"dropout":35.3,"cert":84.7,"incl":80.1,"partc":1165,"math":19.3,"read":21.0},"Montana":{"grad":68.0,"dropout":26.4,"cert":92.5,"incl":60.4,"partc":649,"math":15.4,"read":17.3},"Georgia":{"grad":73.5,"dropout":18.1,"cert":96.2,"incl":60.8,"partc":8669,"math":20.7,"read":18.2},"Iowa":{"grad":76.9,"dropout":20.2,"cert":100.0,"incl":76.9,"partc":3033,"math":28.5,"read":27.1},"North Carolina":{"grad":80.4,"dropout":13.9,"cert":95.0,"incl":71.2,"partc":10120,"math":9.6,"read":7.2},"Rhode Island":{"grad":88.7,"dropout":5.9,"cert":99.8,"incl":72.9,"partc":2021,"math":7.1,"read":6.8},"Arizona":{"grad":79.3,"dropout":20.3,"cert":92.1,"incl":69.8,"partc":6088,"math":13.5,"read":13.7},"Virginia":{"grad":72.5,"dropout":7.7,"cert":91.5,"incl":70.8,"partc":12329,"math":42.3,"read":44.5}};
-const NAT_RPT={"grad":76.9,"dropout":12.5,"cert":91.0,"partc":456434,"childcount":8081816,"incl":69.5,"math":17.1,"read":18.9};
+const NAT_RPT={"grad":76.9,"dropout":12.5,"cert":91.0,"partc":456434,"childcount":DEMO.cur['All Disabilities'].total,"incl":69.5,"math":17.1,"read":18.9};
 function exportStateReportCSV(){
  var hdr=['State','Children served Part B (3-21)','Percent of public enrollment','Growth since 2000-01 %','Graduated regular diploma %','Dropped out %','Teachers fully certified %','In general class 80%+ %','Math proficient %','Reading proficient %','Infants & toddlers Part C (birth-2)'];
  var rows=[['State Snapshot'],['Selected State',focusState],[SRC_NOTE],[],hdr];
