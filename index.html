@@ -790,7 +790,7 @@ footer a{
   font-weight:600;
 }
 /* WCAG 1.4.1: links in text are underlined, not distinguished by color alone */
-.lead a,.fn a,.note a,.scopenote a,footer a,.ds a,.exp-src a{text-decoration:underline}
+.lead a,.fn a,.note a,.scopenote a,footer a,.ds a,.exp-src a,.notesbody a,.notesfold a,.srcbody a,.tbl-srcfold-body a,.funnel-src a{text-decoration:underline}
 /* ===== Global site footer (shown at the bottom of every view) ===== */
 .site-footer{margin:40px 0 0;border:none;border-top:3px solid var(--navy);border-radius:0;background:var(--line2);color:var(--ink);padding:28px clamp(16px,4vw,40px) 96px;font-size:.85rem;line-height:1.5}
 .site-footer .sf-top{display:flex;flex-wrap:wrap;gap:24px 56px;justify-content:space-between;max-width:1320px;margin:0 auto}
@@ -1892,7 +1892,7 @@ body.hc .card,body.hc .kpi,body.hc .controls,body.hc .sectionbar,body.hc .explor
 }
 body.hc a{text-decoration:underline}
 /* underline links */
-body.ul a{text-decoration:underline}
+body.ul a,body.ul [role="link"]{text-decoration:underline!important}
 /* manual reduce motion */
 body.reduce *{
   animation-duration:.001ms!important;
