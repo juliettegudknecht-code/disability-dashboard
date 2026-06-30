@@ -20607,13 +20607,17 @@ body.hc .whatmeans>summary{ border-width:2px; }
 @media (prefers-reduced-motion: reduce){ .whatmeans>summary::after{ transition:none; } }
 
 /* ---- (2) LEA "Exiting" card ---- */
-.lea-exit-card .lea-exit-grad{
-  margin:6px 0 14px; padding:12px 15px; border-radius:10px;
-  background:var(--line2); border-left:4px solid #2e8540;
-  font-size:1rem; line-height:1.55; color:var(--ink);
-}
-.lea-exit-card .lea-exit-grad b{ font-weight:800; color:var(--navy); }
-body.dark .lea-exit-card .lea-exit-grad b{ color:#9fd3ad; }
+/* Editorial "lead with the number" stat (replaces the generic colored callout box) */
+.lea-exit-card .lea-exit-stat{ display:flex; align-items:center; gap:18px; margin:10px 0 18px; }
+.lea-exit-card .les-fig{ flex:none; font-size:3.3rem; line-height:.92; font-weight:800; letter-spacing:-.02em; color:#2e8540; font-variant-numeric:tabular-nums; }
+.lea-exit-card .les-fig.les-fig-count{ font-size:2.1rem; color:var(--navy); }
+.lea-exit-card .les-fig .les-pct{ font-size:1.7rem; font-weight:800; margin-left:1px; }
+body.dark .lea-exit-card .les-fig{ color:#6fc08a; }
+body.dark .lea-exit-card .les-fig.les-fig-count{ color:#9fc3ec; }
+.lea-exit-card .les-cap{ line-height:1.4; }
+.lea-exit-card .les-cap b{ display:block; font-size:1.04rem; font-weight:800; color:var(--ink); }
+.lea-exit-card .les-cap span{ display:block; font-size:.84rem; color:var(--muted); margin-top:4px; max-width:48ch; }
+@media (max-width:520px){ .lea-exit-card .lea-exit-stat{ gap:13px; } .lea-exit-card .les-fig{ font-size:2.7rem; } }
 .lea-exit-card .lea-exit-subh{ margin:18px 0 10px; font-size:.92rem; color:var(--navy); font-weight:800; }
 body.dark .lea-exit-card .lea-exit-subh{ color:#9fc3ec; }
 
@@ -20951,20 +20955,19 @@ body.dark .bubble-hint .bh-ic{ color:#edcf36; }
    return '<div class="card fig lea-exit-card"><div class="ey">Exiting · School Year 2023–24</div><h3>'+heading+'</h3><div class="note" data-nf="skip">'+(opts.noneMsg||'No School Year 2023–24 exit record was available here.')+'</div></div>';
   }
   var gradRate=_pctOf(ex.gradReg,ex.totSpEd);
-  var headline=(gradRate!=null)
-   ? 'Of <b>'+_f(ex.totSpEd)+'</b> Students with Disabilities (ages 14 through 21) who exited special education '+(opts.scopePhrase||'in School Year 2023–24')+', <b>'+gradRate.toFixed(0)+'%</b> graduated with a regular high school diploma.'
-   : '<b>'+_f(ex.totSpEd)+'</b> Students with Disabilities (ages 14 through 21) exited special education '+(opts.scopePhrase||'in School Year 2023–24')+'.';
+  var statHTML=(gradRate!=null)
+   ? '<div class="lea-exit-stat"><div class="les-fig">'+gradRate.toFixed(0)+'<span class="les-pct">%</span></div><div class="les-cap"><b>graduated with a regular high school diploma</b><span>of the '+_f(ex.totSpEd)+' Students with Disabilities, ages 14 through 21, who exited special education '+(opts.scopePhrase||'in School Year 2023–24')+'</span></div></div>'
+   : '<div class="lea-exit-stat"><div class="les-fig les-fig-count">'+_f(ex.totSpEd)+'</div><div class="les-cap"><b>Students with Disabilities, ages 14 through 21, exited special education</b><span>'+(opts.scopePhrase||'in School Year 2023–24')+'</span></div></div>';
   return '<div class="card fig lea-exit-card">'+
    '<div class="ey">Exiting · School Year 2023–24</div>'+
    '<h3>'+heading+'</h3>'+
-   (opts.sub?'<div class="note" data-nf="skip">'+opts.sub+'</div>':'')+
    '<details class="whatmeans"><summary>What this means</summary><div class="note wm-body" data-nf="skip">Each year, States report how their Students with Disabilities, ages 14 through 21, left special education: by graduating, reaching the maximum age, receiving a certificate, transferring, moving, dropping out, or other reasons. The funnel narrows from everyone who exited, to those who left school, to those who graduated with a regular high school diploma. Each step is a smaller part of the step above it.</div></details>'+
-   '<div class="lea-exit-grad">'+headline+'</div>'+
+   statHTML+
    _exitFunnelHTML(ex)+
    (opts.compare?_exitCompareHTML(opts.compare):'')+
    '<details class="lea-exit-detailsfold"><summary>Every way students exited</summary><div class="lea-exit-detailsbody">'+
    _exitReasonsHTML(ex)+'</div></details>'+
-   '<details class="tbl-srcfold lea-exit-srcfold"><summary>Source &amp; notes</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, EDFacts Data Warehouse: &ldquo;IDEA Part&nbsp;B Exiting LEA Collection,&rdquo; School Year 2023–24'+(opts.srcScope?' ('+opts.srcScope+')':'')+'. Exiting figures are School Year 2023–24; the child counts and funding shown elsewhere on this page are from other years, so records are matched by NCES&nbsp;ID and will not line up perfectly for every district.'+_suppNote(ex,opts)+'</div></details>'+
+   '<details class="tbl-srcfold lea-exit-srcfold"><summary>Source &amp; notes</summary><div class="tbl-srcfold-body">'+(opts.sub?opts.sub+' ':'')+'U.S. Department of Education, Office of Special Education Programs, EDFacts Data Warehouse: &ldquo;IDEA Part&nbsp;B Exiting LEA Collection,&rdquo; School Year 2023–24'+(opts.srcScope?' ('+opts.srcScope+')':'')+'. Exiting figures are School Year 2023–24; the child counts and funding shown elsewhere on this page are from other years, so records are matched by NCES&nbsp;ID and will not line up perfectly for every district.'+_suppNote(ex,opts)+'</div></details>'+
    '</div>';
  }
 
