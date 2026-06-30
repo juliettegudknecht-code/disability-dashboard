@@ -8987,9 +8987,9 @@ body.dark .section-title{border-bottom-color:#2b4a63!important}
 /* Responsive app-bar fix: tabs wrap cleanly at every width. */
 nav.appbar .ninner{
   display:grid!important;
-  grid-template-columns:auto minmax(360px,1fr) auto;
+  grid-template-columns:auto auto 1fr;
   align-items:center!important;
-  gap:8px 12px!important;
+  gap:6px 20px!important;
   width:100%;
   min-width:0;
 }
@@ -9005,11 +9005,10 @@ nav.appbar .brand{
 nav.appbar .tabs,#viewTabs{
   grid-column:2;
   min-width:0;
-  width:100%;
   display:flex!important;
   flex-wrap:wrap!important;
   align-items:center!important;
-  justify-content:center!important;
+  justify-content:flex-start!important;
   gap:4px!important;
   row-gap:5px!important;
   border-top:0!important;
@@ -9056,7 +9055,7 @@ nav.appbar .search input{
   width:100%!important;
   max-width:none!important;
 }
-@media(max-width:1180px){
+@media(max-width:980px){
   nav.appbar .ninner{grid-template-columns:minmax(180px,1fr) auto!important}
   nav.appbar .brand{grid-column:1;max-width:min(46vw,420px)}
   nav.appbar .appbar-tools{grid-column:2;justify-self:end;max-width:min(64vw,720px)}
@@ -12640,6 +12639,21 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
     /* Always prompt on the next load/refresh: no unlock is stored. */
     try{ localStorage.removeItem('idea618_unlocked'); }catch(e){}
     dropGate();
+    /* Right after sign-in, open the "About this tool" guide so first-time and
+       general-public visitors get oriented before they meet the data. Honors the
+       guide's own "Don't show this again" preference for returning visitors. */
+    try{
+      var hideGuide=false; try{ hideGuide=localStorage.getItem('idea618_welcome_dismissed')==='1'; }catch(e){}
+      if(!hideGuide){ setTimeout(function(){
+        try{
+          var gb=document.getElementById('guideBtn'); if(gb) gb.click();
+          /* The first paint after sign-in is busy (charts build), so the guide's
+             own rAF "open" class can be starved. Guarantee the visible state. */
+          var ov=document.getElementById('welcomeOverlay');
+          if(ov){ setTimeout(function(){ ov.hidden=false; ov.classList.add('open'); document.body.style.overflow='hidden'; if(gb) gb.setAttribute('aria-expanded','true'); }, 130); }
+        }catch(e){}
+      }, 320); }
+    }catch(e){}
   }
   /* Already unlocked this session: the early script didn't lock. Just drop the gate. */
   if(!document.documentElement.classList.contains('locked')){ dropGate(); return; }
@@ -12838,12 +12852,12 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <h2 class="section-title" id="trends" data-pl="How the numbers changed over time">National Trends</h2>
 <div class="grid">
   <div class="card fig trend-focus-card" id="trend-main" data-drill-group="trends" data-drill-panel="national">
-    <h3>Children and Students with Disabilities Served Under IDEA, Part&nbsp;B, Ages 3 Through 21, 1976–2025</h3>
-    <div class="note">This chart illustrates the consistent and significant growth in the number of Children and Students with Disabilities served under IDEA, Part&nbsp;B, ages 3 through 21, from School Year 1976–77 to today. Select one or more primary disability categories below to compare each category with the overall total.</div>
+	    <h3>Children and Students with Disabilities Served Under IDEA, Part&nbsp;B, Ages 3 Through 21, School Years 1976&ndash;77 Through 2024&ndash;25</h3>
+	    <details class="whatmeans"><summary>What this means</summary><div class="note wm-body" data-nf="skip">National total over time. Add primary disability categories below to compare each category with the overall trend.</div></details>
     <div class="canvas-box tall"><canvas id="trendChart"></canvas></div>
     <div class="tbl-toggle trend-unit-toggle" id="trendUnitToggle" role="group" aria-label="Show the trend as counts or as a percent of enrollment">
-      <button type="button" data-unit="count" class="on" aria-pressed="true">Number of students</button>
-      <button type="button" data-unit="rate" aria-pressed="false">% of enrollment</button>
+	      <button type="button" data-unit="count" class="on" aria-pressed="true">Count</button>
+	      <button type="button" data-unit="rate" aria-pressed="false">% enrollment</button>
     </div>
     <label class="trend-line-toggle" style="display:inline-flex;align-items:center;gap:7px;font-size:.84rem;font-weight:600;color:var(--ink);margin:9px 0 0;cursor:pointer"><input type="checkbox" id="trendLineToggle" style="width:16px;height:16px;cursor:pointer"> Show linear trend line</label>
     <div class="trend-series-control" id="trendPills"></div>
@@ -12853,8 +12867,8 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <div class="grid">
   <div class="card" id="trend-sparks" data-drill-group="trends" data-drill-panel="categories">
-    <h3 data-pl="Each disability type, mini-trend">Number of Children and Students with Disabilities Served Under IDEA, Part B, Ages 3 Through 21, by Primary Disability Category, Most Recent and Change Since First Reported</h3>
-    <div class="note">A quick view of every primary disability category, showing the most recent count of children and students served and how much it has changed since the category was first reported under IDEA, Part&nbsp;B.</div>
+		    <h3 data-pl="Each disability type, mini-trend">Children and Students with Disabilities Served Under IDEA, Part&nbsp;B, Ages 3 Through 21, by Primary Disability Category: Most Recent Count and Change Since First Reported</h3>
+		    <details class="whatmeans"><summary>What this means</summary><div class="note wm-body" data-nf="skip">Most recent count and percent change from the first year each category was reported.</div></details>
     <div class="sparkgrid" id="sparks"></div>
     <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” School Years 1976–77 through 2024–25.</div></details>
   </div>
@@ -12862,8 +12876,8 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <div class="grid g2 trend-extra-grid">
   <div class="card fig" id="trend-change-card" data-drill-group="trends" data-drill-panel="categories">
     <div class="ey">Change</div>
-    <h3>Largest Changes in Count by Category</h3>
-    <div class="note">Among IDEA Part B primary disability categories, specific learning disability grew the most, up about 1,721 thousand children and students served from School Year 1976–77 to 2024–25, while intellectual disability fell the most, down about 542 thousand over the same span.</div>
+		    <h3>Change in Count by Primary Disability Category, First Reported Year to School Year 2024&ndash;25</h3>
+		    <details class="whatmeans"><summary>What this means</summary><div class="note wm-body" data-nf="skip">Change from first reported year to School Year 2024&ndash;25. Counts are shown in thousands.</div></details>
     <div class="canvas-box"><canvas id="trendChangeChart"></canvas></div>
     <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” School Years 2000–01 and 2024–25.</div></details>
   </div>
@@ -12873,8 +12887,8 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 
 <section class="home-launchpad" aria-label="Explore the rest of the data tool">
   <div class="home-launchpad-head">
-    <h3>Additional Views</h3>
-    <span class="lp-sub">Each view focuses on a different part of the public IDEA Section&nbsp;618 data that States and the additional reporting entities report to the Office of Special Education Programs (OSEP) each year. Select one to explore it in detail.</span>
+	    <h3>Other views</h3>
+	    <span class="lp-sub">State, district, table, and GPRA views use the same public IDEA Section&nbsp;618 data.</span>
   </div>
   <div class="launchgrid">
     <button type="button" class="launchcard" onclick="showView('states')" aria-label="Open State Snapshot">
@@ -13123,7 +13137,8 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <div class="view" data-view="lea" role="region" aria-label="Part B LEA Explorer">
 <h2 class="section-title" id="lea">Part B LEA Explorer</h2>
-<p class="viewlead">Individual school districts, the Local Educational Agencies (LEAs) that serve Children and Students with Disabilities under IDEA, Part&nbsp;B. Selecting a State lists its districts; each district profile reports the Children and Students with Disabilities served and the IDEA funds received. Child counts are School Year&nbsp;2024–25; funding figures are School Year&nbsp;2021–22.</p>
+<p class="viewlead">Individual school districts, the Local Educational Agencies (LEAs) that serve Children and Students with Disabilities under IDEA, Part&nbsp;B.</p>
+<details class="srcfold"><summary>About this page</summary><div class="srcbody">Selecting a State lists its districts; each district profile reports the Children and Students with Disabilities served, how its students exited special education, and the IDEA funds the district received. Child counts are School Year&nbsp;2024–25, exiting figures are School Year&nbsp;2023–24, and funding figures are School Year&nbsp;2021–22. Because these collections cover different years, district records are matched by NCES&nbsp;ID and will not line up perfectly for every district.</div></details>
 <div class="card lea-controls">
   <div class="lea-begin" id="leaBegin">
     <span class="lea-begin-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.7-7-11a7 7 0 0 1 14 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
@@ -13728,12 +13743,12 @@ function kpis(){
  const inc=pct(INCL['Autism'][0]+0,0); // not used
  const incAll=pct(5170041,7590772);
  const sld=2517135, sldShare=pct(2517,8194);
- const cards=[
-  {l:'IDEA, Part B, Ages 3 Through 21',v:'8,194,424',c:'Children and Students with Disabilities served, School Year 2024–25 (all 50 States, DC, and the additional IDEA reporting entities).',cls:''},
-  {l:'50-Year Growth, Ages 3 Through 21',v:'+122%',c:'More than doubled since 1976–77, from about 3.7 million to 8.2 million served.',cls:'up'},
-  {l:'IDEA, Part B, Ages 5 Through 21',v:incAll.toFixed(1)+'%',c:'Served in the regular class 80% or more of the school day, School Year 2024–25',cls:'good',pie:incAll},
-  {l:'IDEA, Part C, Birth Through Age 2',v:'458,920',c:'Infants and toddlers with disabilities served, School Year 2024–25',cls:'good'}
- ];
+	 const cards=[
+	  {l:'Part B Child Count',v:'8,194,424',c:'Ages 3 through 21, School Year 2024-25. Includes the 50 States, DC, and additional reporting entities.',cls:''},
+	  {l:'Change Since 1976-77',v:'+122%',c:'National count increased from about 3.7 million to 8.2 million.',cls:'up'},
+	  {l:'Regular Class 80%+',v:incAll.toFixed(1)+'%',c:'Ages 5 through 21, School Year 2024-25.',cls:'good',pie:incAll},
+	  {l:'Part C Child Count',v:'458,920',c:'Birth through age 2, School Year 2024-25.',cls:'good'}
+	 ];
  const KPI_ICONS=[
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="3.2"/><path d="M22 19v-1a4 4 0 0 0-3-3.87"/><path d="M16 4.13a4 4 0 0 1 0 7.75"/></svg>',
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M16 7h5v5"/></svg>',
@@ -13927,7 +13942,7 @@ function renderHomeBubbles(){
  var el=document.getElementById('homeBubbles');if(!el||typeof DEMO==='undefined'||!DEMO.cur)return;
  var cur=DEMO.cur;
  var items=Object.keys(cur).filter(function(k){return k!=='All Disabilities'&&cur[k]&&cur[k].total;}).map(function(k){return {name:k,v:cur[k].total,color:(typeof COLORS!=='undefined'&&COLORS[k])||'#227aa7'};});
- _packedBubbles(el,items,{maxR:84,minR:17,onClick:function(cat){if(typeof trendSelected!=='undefined'){trendSelected=[cat];buildPills();renderTrend();renderTrendShare();}var tm=document.getElementById('trend-main');if(tm)tm.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}});
+ _packedBubbles(el,items,{maxR:84,minR:17,onClick:function(cat){if(typeof openDisabilityModal==='function'){try{if(openDisabilityModal(cat))return;}catch(e){}}if(typeof trendSelected!=='undefined'){trendSelected=[cat];buildPills();renderTrend();renderTrendShare();}var tm=document.getElementById('trend-main');if(tm)tm.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}});
  _addCardTools(el.closest('.card'),function(){_gfxSvgPNG(el.querySelector('svg'),'Children and Students Served, by Primary Disability Category','IDEA Part B child count by primary disability category, ages 3 through 21, School Year 2024–25.','idea618_disability_bubbles');},function(){var rows=[['Primary disability category','Children and students served, 2024–25']];items.slice().sort(function(a,b){return b.v-a.v;}).forEach(function(it){rows.push([it.name,it.v]);});_gfxCSV(rows,'idea618_served_by_category');});
 }
 function renderSparks(){
@@ -14002,8 +14017,8 @@ function renderTrendChange(){
    datasets:[{
     label:'Change in students, thousands',
     data:rows.map(function(r){return +r.change.toFixed(1);}),
-    backgroundColor:rows.map(function(r){return r.change>=0?shade('#1f6fa8',.86):shade('#cc5a33',.84);}),
-    borderColor:rows.map(function(r){return r.change>=0?'#1f6fa8':'#a9441f';}),
+    backgroundColor:rows.map(function(r){return r.change>=0?shade('#4e9a3a',.88):shade('#13354e',.86);}),
+    borderColor:rows.map(function(r){return r.change>=0?'#3d7e2c':'#13354e';}),
     borderWidth:1,
     borderRadius:6,
     _first:rows.map(function(r){return r.first;}),
@@ -15503,6 +15518,8 @@ function exportSparksPNG(){
  const ds=[{label:'All disabilities',data:ALL,borderColor:'#162e51',borderWidth:2,pointRadius:0,tension:.3,fill:false}];
  cats.forEach(k=>ds.push({label:k,data:DIS[k],borderColor:COLORS[k],borderWidth:1.5,pointRadius:0,tension:.3,spanGaps:true,fill:false}));
  const ch=new Chart(cv,{type:'line',data:{labels:YEARS,datasets:ds},options:{responsive:false,animation:false,plugins:{legend:{position:'bottom',labels:{boxWidth:8,font:{size:10}}},title:{display:true,text:'Students with Disabilities by Primary Category, Ages 3–21, IDEA Part B, School Years 1976–77 Through 2024–25',font:{size:14,weight:'bold'},color:'#13354e'},subtitle:{display:true,text:SRC_NOTE,font:{size:9},color:'#666',padding:{bottom:6}}},scales:{y:{title:{display:true,text:'Students (thousands)'}}}}});
+ /* paint a solid white background behind the chart so the exported PNG is never transparent (which renders black in many viewers) */
+ var _wb=cv.getContext('2d');_wb.save();_wb.globalCompositeOperation='destination-over';_wb.fillStyle='#ffffff';_wb.fillRect(0,0,cv.width,cv.height);_wb.restore();
  const a=document.createElement('a');a.href=ch.toBase64Image('image/png',1);a.download='category_trends_1976-2025.png';a.click();ch.destroy();
 }
 function injectTools(){
@@ -15553,6 +15570,7 @@ function init(){
  // Accessibility: label every chart for screen readers (motion handled in setChartTheme)
  const ARIA={nationalSnapshotChart:'Horizontal bar chart showing the largest primary disability categories as a percent of Children and Students with Disabilities ages 3 through 21 served under IDEA, Part B in School Year 2024–25.',nationalPartCChart:'Horizontal bar chart showing primary early intervention settings for infants and toddlers, birth through age 2, served under IDEA, Part C in School Year 2024–25.',categoryShiftChart:'Diverging bar chart showing change in primary disability category shares from School Year 2000–01 to the selected school year.',officialDisplayChart:'Diverging horizontal bar chart showing how published Part B measures differ from the national value.',trendChart:'Line chart of Children and Students with Disabilities served under IDEA, Part B by school year, School Years 1976–77 to 2024–25, with selectable disability categories.',
   compChart:'Bar chart of students by disability category for the selected year.',
+  trendChangeChart:'Diverging horizontal bar chart of the change in count for each primary disability category, from the first reported year to School Year 2024–25, in thousands.',
   envChart:'Stacked bar chart of the share of students by educational environment, 2012 to 2024–25.',
   inclChart:'Bar chart of the percent of students in the general class 80%+ of the day, by disability, 2024–25.',
   expTrend:'Line chart of the selected disability category over 50 years.',expEnv:'Horizontal bar chart of educational environments for the selected category.',
@@ -17364,11 +17382,11 @@ function setupStateSubtabs(){
   }catch(e){}
 }
 var VIEW_SUBTABS={
-  trends:{ after:'#trends', groups:[
-    {key:'t-snap', label:'Snapshot', idx:[1]},
-    {key:'t-over', label:'Over time', idx:[2]},
-    {key:'t-mini', label:'Category trends', idx:[3,4]}
-  ]},
+	  trends:{ after:'#trends', groups:[
+	    {key:'t-snap', label:'Overview', idx:[1,5,6]},
+	    {key:'t-over', label:'Long-term trend', idx:[2]},
+	    {key:'t-mini', label:'Category detail', idx:[3,4]}
+	  ]},
   explorer:{ container:'.explorer-modern', after:'.exp-kpis', groups:[
     {key:'e-main', label:'Counts & environment', idx:[3]},
     {key:'e-sex', label:'By demographics', idx:[4]},
@@ -17394,28 +17412,28 @@ function buildTrendsOverview(){
       var h2=document.getElementById('trends')||view.querySelector('.section-title');
       var html=`
 <section class="trends-overview" id="trendsOverview">
-  <div class="home-hero">
-    <div class="home-hero-inner">
-      <div class="hh-eyebrow">50 Years of IDEA &nbsp;&middot;&nbsp; 1975&ndash;2025</div>
-      <h2 class="hh-title">Celebrating the last fifty years of IDEA Section 618 data collections</h2>
-    </div>
-  </div>
-  <details class="lead-fold"><summary>About this page</summary>
-  <p class="viewlead" data-folded="1">A 50-year view of how special education has grown and changed across the United States. These national charts follow the number of Children and Students with Disabilities served under IDEA, the share of all students they represent, the primary disability categories reported, and the educational environments where students spend the school day, from School Year 1976–77 through 2024–25. The figures cover the 50 States, the District of Columbia, and the additional IDEA reporting entities (Puerto Rico, the Bureau of Indian Education, the outlying areas, and the freely associated states); recent years use the official Office of Special Education Programs total rows, while the long-term historical series follows the published national counts. They come from the IDEA Section&nbsp;618 data that each State and entity reports every year to the Office of Special Education Programs, together with the National Center for Education Statistics (NCES) Digest of Education Statistics for the historical series. Use the section tabs to move between the national snapshot, the trend over time, each category's trend, and category shares; open Explore for a single disability category or State, or Collections for every Section&nbsp;618 data file.</p>
-  </details>
-  <div class="kpis" id="kpis"></div>
-  <div class="card fig home-bubbles-hero" id="home-bubbles-card">
-    <div class="ey">National Snapshot · School Year 2024–25</div>
-    <h3>Children and Students with Disabilities Served by Primary Disability Category, Ages 3 Through 21, Under IDEA, Part B, in the 50 States and DC, School Year 2024–25</h3>
-    <div class="note">Each circle is one primary disability category, sized in proportion to the number of Children and Students with Disabilities served under IDEA, Part&nbsp;B, ages&nbsp;3 through 21. Selecting a category focuses it in the trend below.</div>
-    <div class="home-bubblewrap" id="homeBubbles"></div>
-    <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” 2024–25.</div></details>
-  </div>
-  <div class="snapshot-stats">
-    <div class="snap-stat"><div class="pictostat" role="img" aria-label="1 in 7"><svg class="pf" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg></div><div class="snap-frac">1 in 7</div><div class="snap-desc">students in U.S. public schools received special education and related services under IDEA (ages 3 through 21).</div></div>
-    <div class="snap-stat"><div class="pictostat" role="img" aria-label="2 in 3"><svg class="pf" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 2.4 9.2V21h19.2V9.2Z"/></svg><svg class="pf" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 2.4 9.2V21h19.2V9.2Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 2.4 9.2V21h19.2V9.2Z"/></svg></div><div class="snap-frac">2 in 3</div><div class="snap-desc">Students with Disabilities spent 80% or more of the school day in general education classrooms.</div></div>
-    <div class="snap-stat"><div class="pictostat" role="img" aria-label="3 in 4"><svg class="pf" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 1.5 9 12 14 22.5 9Z"/><path d="M6 12v4c0 1.5 2.7 2.7 6 2.7s6-1.2 6-2.7v-4l-6 2.7Z"/><path d="M22.2 9.2v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/><circle cx="22.2" cy="14" r="1.05"/></svg><svg class="pf" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 1.5 9 12 14 22.5 9Z"/><path d="M6 12v4c0 1.5 2.7 2.7 6 2.7s6-1.2 6-2.7v-4l-6 2.7Z"/><path d="M22.2 9.2v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/><circle cx="22.2" cy="14" r="1.05"/></svg><svg class="pf" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 1.5 9 12 14 22.5 9Z"/><path d="M6 12v4c0 1.5 2.7 2.7 6 2.7s6-1.2 6-2.7v-4l-6 2.7Z"/><path d="M22.2 9.2v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/><circle cx="22.2" cy="14" r="1.05"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 1.5 9 12 14 22.5 9Z"/><path d="M6 12v4c0 1.5 2.7 2.7 6 2.7s6-1.2 6-2.7v-4l-6 2.7Z"/><path d="M22.2 9.2v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/><circle cx="22.2" cy="14" r="1.05"/></svg></div><div class="snap-frac">3 in 4</div><div class="snap-desc">Students with Disabilities, ages 14 through 21, who left school did so with a regular high school diploma.</div></div>
-  </div>
+	  <p class="viewlead">National child count data on Children and Students with Disabilities served under IDEA, Part&nbsp;B, ages 3 through 21, in the United States, Outlying Areas, and Freely Associated States. Counts are shown for School Years 1976&ndash;77 through 2024&ndash;25 where available; the most recent primary disability category counts are from School Year 2024&ndash;25.</p>
+	  <section class="trend-home-section trend-chart-section" aria-labelledby="homeBubbleHead">
+	    <div class="card fig home-bubbles-hero" id="home-bubbles-card">
+	    <div class="ey">School Year 2024&ndash;25</div>
+	    <h3 id="homeBubbleHead">Children and Students with Disabilities Served Under IDEA, Part B, Ages 3 Through 21, by Primary Disability Category, School Year 2024-25</h3>
+		    <details class="whatmeans"><summary>What this means</summary><div class="note wm-body" data-nf="skip">Each circle is one primary disability category, sized by the number of Children and Students with Disabilities served in School Year 2024&ndash;25. Select a circle to open a quick profile of that category, with a few graphs.</div></details>
+	    <div class="home-bubblewrap" id="homeBubbles"></div>
+	    <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” 2024&ndash;25.</div></details>
+	  </div>
+	  </section>
+	  <section class="trend-home-section trend-kpi-section" aria-labelledby="trendKpiHead">
+	    <div class="trend-strip-label"><span id="trendKpiHead">National Child Count and Related Indicators</span><small>Latest available data</small></div>
+	    <div class="kpis" id="kpis"></div>
+	  </section>
+	  <section class="trend-home-section trend-fastfacts" aria-labelledby="trendFastFactsHead">
+	    <div class="trend-strip-label"><span id="trendFastFactsHead">Selected National Indicators for Students with Disabilities</span><small>Part B context</small></div>
+	  <div class="snapshot-stats">
+	    <div class="snap-stat"><div class="pictostat" role="img" aria-label="1 in 7"><svg class="pf" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.9"/><path d="M4.5 23v-5a7.5 7.5 0 0 1 15 0v5Z"/></svg></div><div class="snap-frac">1 in 7</div><div class="snap-desc">Public school students receiving special education and related services, ages 3 through 21.</div></div>
+	    <div class="snap-stat"><div class="pictostat" role="img" aria-label="2 in 3"><svg class="pf" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 2.4 9.2V21h19.2V9.2Z"/></svg><svg class="pf" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 2.4 9.2V21h19.2V9.2Z"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 2.4 9.2V21h19.2V9.2Z"/></svg></div><div class="snap-frac">2 in 3</div><div class="snap-desc">Ages 5 through 21 in a regular class 80% or more of the school day.</div></div>
+	    <div class="snap-stat"><div class="pictostat" role="img" aria-label="3 in 4"><svg class="pf" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 1.5 9 12 14 22.5 9Z"/><path d="M6 12v4c0 1.5 2.7 2.7 6 2.7s6-1.2 6-2.7v-4l-6 2.7Z"/><path d="M22.2 9.2v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/><circle cx="22.2" cy="14" r="1.05"/></svg><svg class="pf" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 1.5 9 12 14 22.5 9Z"/><path d="M6 12v4c0 1.5 2.7 2.7 6 2.7s6-1.2 6-2.7v-4l-6 2.7Z"/><path d="M22.2 9.2v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/><circle cx="22.2" cy="14" r="1.05"/></svg><svg class="pf" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 1.5 9 12 14 22.5 9Z"/><path d="M6 12v4c0 1.5 2.7 2.7 6 2.7s6-1.2 6-2.7v-4l-6 2.7Z"/><path d="M22.2 9.2v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/><circle cx="22.2" cy="14" r="1.05"/></svg><svg class="pe" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 1.5 9 12 14 22.5 9Z"/><path d="M6 12v4c0 1.5 2.7 2.7 6 2.7s6-1.2 6-2.7v-4l-6 2.7Z"/><path d="M22.2 9.2v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/><circle cx="22.2" cy="14" r="1.05"/></svg></div><div class="snap-frac">3 in 4</div><div class="snap-desc">Ages 14 through 21 who exited school by graduating with a regular high school diploma.</div></div>
+	  </div>
+	  </section>
   <canvas id="nationalSnapshotChart" style="display:none"></canvas><canvas id="nationalPartCChart" style="display:none"></canvas>
 </section>`;
       if(h2) h2.insertAdjacentHTML('afterend', html);
@@ -18486,6 +18504,9 @@ body.dark .cb-style>summary{background:#16242f;color:#dbe8f6;border-color:#2c3a4
 body.pink:not(.dark) .cb-style>summary{color:#a8266e}
 .cb-optgrp{display:flex;align-items:center;gap:8px}
 .cb-optlab{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.cb-fixedtype{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--line);border-radius:6px;background:var(--card);color:var(--navy);font-size:.82rem;font-weight:800;padding:7px 12px}
+.cb-fixedtype svg{width:14px;height:14px;fill:currentColor}
+body.dark .cb-fixedtype{background:#16242f;color:#dbe8f6;border-color:#2c3a47}
 .cb-seg{display:inline-flex;border:1.5px solid var(--line);border-radius:6px;overflow:hidden;background:var(--card)}
 .cb-seg button{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:.82rem;font-weight:700;color:var(--muted);background:none;border:none;padding:7px 13px;cursor:pointer;border-right:1px solid var(--line);transition:background .14s ease,color .14s ease}
 .cb-seg button:last-child{border-right:none}
@@ -18694,7 +18715,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
   <div class="cb-modal-backdrop" data-cb-close></div>
   <div class="cb-dialog" role="document">
     <div class="cb-dialog-head">
-      <div><h2 class="cb-dialog-title">Custom Chart</h2><p class="cb-dialog-sub">Set the measure, collection, and geography below. The chart and its options update with each selection.</p></div>
+      <div><h2 class="cb-dialog-title">Custom chart</h2><p class="cb-dialog-sub">Set the measure, collection, and geography below. The bar chart and its options update with each selection.</p></div>
       <button type="button" class="cb-close" data-cb-close aria-label="Close chart builder">×</button>
     </div>
     <div class="cb-say">
@@ -18708,18 +18729,10 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
       <select id="cbCompare" class="cb-pick" aria-label="A second state to compare"></select>
     </div>
     <details class="cb-style">
-      <summary class="cb-style-sum"><span class="cb-style-lab">Chart style &amp; options</span><span class="cb-style-hint">type · values · sort · colors</span></summary>
+      <summary class="cb-style-sum"><span class="cb-style-lab">Chart style &amp; options</span><span class="cb-style-hint">bar chart · values · sort · colors</span></summary>
     <div class="cb-opts">
       <div class="cb-optgrp"><span class="cb-optlab">Chart</span>
-        <div class="cb-seg" id="cbTypeSeg" role="group" aria-label="Chart type">
-          <button type="button" data-ct="bar" data-orient="horizontal" class="on" title="Horizontal bars"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="9" height="2.6" rx="1"/><rect x="1" y="6.7" width="13" height="2.6" rx="1"/><rect x="1" y="11.4" width="6" height="2.6" rx="1"/></svg>Bars</button>
-          <button type="button" data-ct="bar" data-orient="vertical" title="Vertical columns"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="6" width="2.6" height="8" rx="1"/><rect x="6.7" y="2" width="2.6" height="12" rx="1"/><rect x="11.4" y="9" width="2.6" height="5" rx="1"/></svg>Columns</button>
-          <button type="button" data-ct="doughnut" title="Donut"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a7 7 0 1 0 7 7h-3a4 4 0 1 1-4-4z"/></svg>Donut</button>
-          <button type="button" data-ct="pie" title="Pie"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1a7 7 0 1 0 7 7H8z"/></svg>Pie</button>
-          <button type="button" data-ct="bubble" title="Bubble"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="6" cy="9" r="4.2"/><circle cx="12" cy="5" r="2.4"/></svg>Bubble</button>
-          <button type="button" data-ct="lollipop" data-orient="horizontal" title="Lollipop / dot plot"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="3.1" width="7" height="1.4" rx=".7"/><circle cx="9.5" cy="3.8" r="1.9"/><rect x="1" y="11.1" width="4" height="1.4" rx=".7"/><circle cx="6.5" cy="11.8" r="1.9"/></svg>Lollipop</button>
-          <button type="button" data-ct="scatter" title="Scatter (compare two States)"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="4" cy="11" r="1.8"/><circle cx="8" cy="7" r="1.8"/><circle cx="12" cy="4" r="1.8"/></svg>Scatter</button>
-        </div>
+        <span class="cb-fixedtype" aria-label="Chart type: bar chart"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="2" width="9" height="2.6" rx="1"/><rect x="1" y="6.7" width="13" height="2.6" rx="1"/><rect x="1" y="11.4" width="6" height="2.6" rx="1"/></svg>Bar chart</span>
       </div>
       <div class="cb-optgrp"><span class="cb-optlab">Values</span>
         <div class="cb-seg" id="cbValsSeg" role="group" aria-label="Values">
@@ -18896,6 +18909,8 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
     }
     function render(){
       if(typeof TBL_SPECS==='undefined'||typeof _renderVizChart!=='function')return;
+      S.type='bar';
+      S.orient='horizontal';
       var coll=cbColl.value;
       var prevMode=(typeof tablesMode!=='undefined')?tablesMode:'count';
       try{
@@ -18927,7 +18942,7 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
         try{ var _ct=document.getElementById('cbChartTitle'); if(_ct) _ct.textContent=sp._customTitle||''; }catch(_){}
         window._tblSpecs=window._tblSpecs||{}; window._tblSpecs[CB]=sp;
         var st=(typeof _vizState==='function')?_vizState(CB):null;
-        if(st){st.on=true;st.type=S.type;st.showUS=(list.indexOf(usKey)>=0);st.usSet=true;st.rowIdx=null;st.metricIdx=null;st.compareOn=false;st.showLabels=(cbLabels?cbLabels.checked:true);st.orient=((S.type==='bar'||S.type==='lollipop')?S.orient:'auto');st.stack=S.stack;st.avgLine=S.avg;st.cmpNames=list.map(function(v){return v===usKey?'the U.S.':v;});}
+        if(st){st.on=true;st.type='bar';st.showUS=(list.indexOf(usKey)>=0);st.usSet=true;st.rowIdx=null;st.metricIdx=null;st.compareOn=false;st.showLabels=(cbLabels?cbLabels.checked:true);st.orient='horizontal';st.stack=S.stack;st.avgLine=S.avg;st.cmpNames=list.map(function(v){return v===usKey?'the U.S.':v;});}
         try{ withPalette(PALS[S.color]||null, function(){ _renderVizChart(CB); }); }catch(e){}
       }finally{ try{ if(typeof tablesMode!=='undefined')tablesMode=prevMode; }catch(_){} }
     }
@@ -18946,7 +18961,6 @@ body.pink:not(.dark) .kpi-donut .kd-arc{stroke:#e6398a}
     if(cbCompare)cbCompare.addEventListener('change',render);
     if(cbLabels)cbLabels.addEventListener('change',render);
     var cbAvg=$('cbAvg'); if(cbAvg)cbAvg.addEventListener('change',function(){S.avg=cbAvg.checked;render();});
-    wireSeg('cbTypeSeg',function(b){S.type=b.getAttribute('data-ct');S.orient=b.getAttribute('data-orient')||'auto';});
     wireSeg('cbValsSeg',function(b){S.vals=b.getAttribute('data-v');});
     wireSeg('cbSortSeg',function(b){S.sort=b.getAttribute('data-s');});
     wireSeg('cbColorSeg',function(b){S.color=b.getAttribute('data-pal');});
@@ -19305,6 +19319,1622 @@ body.cb-open::after{display:none!important}
     var fab=document.getElementById('chartBuilderFab');
     if(fab)fab.setAttribute('aria-label','Custom chart');
   });
+})();
+</script>
+<style id="national-trends-cleanup">
+/* National Trends homepage cleanup: clear sections, larger primary charts. */
+.view[data-view="trends"] .trends-overview{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  margin-top:8px!important;
+}
+.view[data-view="trends"] .home-hero{
+  margin-bottom:0!important;
+}
+.view[data-view="trends"] .home-hero-inner{
+  align-items:flex-start!important;
+}
+.view[data-view="trends"] .hh-copy{
+  margin:2px 0 0;
+  max-width:34ch;
+  color:#d6e3ef;
+  font-size:.92rem;
+  line-height:1.45;
+  font-weight:600;
+}
+.trend-home-section{
+  display:block;
+}
+.trend-section-head{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:22px;
+  margin:0 0 10px;
+  padding-bottom:9px;
+  border-bottom:1px solid var(--line);
+}
+.trend-section-head.compact{
+  margin-bottom:8px;
+}
+.trend-section-kicker{
+  display:block;
+  margin:0 0 4px;
+  color:#687888;
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.trend-section-head h3{
+  margin:0;
+  color:var(--navy);
+  font-size:1.16rem;
+  line-height:1.25;
+  letter-spacing:0;
+}
+.trend-section-head p{
+  margin:0;
+  max-width:44ch;
+  color:#536374;
+  font-size:.86rem;
+  line-height:1.45;
+  font-weight:600;
+}
+body.dark .trend-section-head{border-bottom-color:#2b3645}
+body.dark .trend-section-kicker{color:#a9b7c7}
+body.dark .trend-section-head h3{color:#e7edf6}
+body.dark .trend-section-head p{color:#b8c7d7}
+
+.view[data-view="trends"] #kpis{
+  margin:0!important;
+}
+.view[data-view="trends"] #kpis .kpi{
+  min-height:142px!important;
+}
+.view[data-view="trends"] .trend-chart-section{
+  margin-top:2px;
+}
+.view[data-view="trends"] #home-bubbles-card{
+  padding:18px 22px 14px!important;
+  border-top-width:4px!important;
+}
+.view[data-view="trends"] #home-bubbles-card>h3{
+  font-size:1.18rem!important;
+  line-height:1.25!important;
+  max-width:820px;
+}
+.view[data-view="trends"] #home-bubbles-card>.note{
+  margin-bottom:10px!important;
+}
+.view[data-view="trends"] .home-bubblewrap{
+  width:100%;
+  max-width:980px!important;
+  min-height:470px;
+  margin:8px auto 0!important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.view[data-view="trends"] .home-bubblewrap svg{
+  width:100%!important;
+  height:clamp(460px,48vw,620px)!important;
+  max-height:none!important;
+}
+.view[data-view="trends"] .trend-fastfacts{
+  margin-top:-2px;
+}
+.view[data-view="trends"] .snapshot-stats{
+  margin:0!important;
+}
+.view[data-view="trends"] .snap-stat{
+  min-height:132px;
+}
+.view[data-view="trends"] .home-launchpad{
+  margin-top:20px!important;
+}
+
+.view[data-view="trends"] #trend-main{
+  padding:22px!important;
+}
+.view[data-view="trends"] #trend-main .canvas-box.tall{
+  height:clamp(420px,54vh,580px)!important;
+}
+.view[data-view="trends"] #trend-main .trend-series-control{
+  margin-top:12px;
+}
+.view[data-view="trends"] #trend-change-card .canvas-box{
+  height:390px!important;
+}
+.view[data-view="trends"] #trend-sparks{
+  padding:22px!important;
+}
+.view[data-view="trends"] #trend-sparks .sparkgrid{
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr))!important;
+  gap:12px!important;
+}
+.view[data-view="trends"] #trend-sparks .sparkcard{
+  min-height:128px;
+}
+
+@media(max-width:900px){
+  .trend-section-head{
+    display:block;
+  }
+  .trend-section-head p{
+    margin-top:6px;
+    max-width:none;
+  }
+  .view[data-view="trends"] .home-bubblewrap{
+    min-height:390px;
+  }
+  .view[data-view="trends"] .home-bubblewrap svg{
+    height:400px!important;
+  }
+  .view[data-view="trends"] #trend-main .canvas-box.tall{
+    height:380px!important;
+  }
+}
+@media(max-width:680px){
+  .view[data-view="trends"] .trends-overview{
+    gap:15px;
+  }
+  .view[data-view="trends"] .home-hero{
+    padding:15px 16px!important;
+  }
+  .view[data-view="trends"] .hh-copy{
+    max-width:none;
+    margin-top:8px;
+    font-size:.86rem;
+  }
+  .trend-section-head h3{
+    font-size:1.03rem;
+  }
+  .trend-section-head p{
+    font-size:.8rem;
+  }
+  .view[data-view="trends"] #kpis .kpi{
+    min-height:auto!important;
+  }
+  .view[data-view="trends"] #home-bubbles-card{
+    padding:15px 14px 12px!important;
+  }
+  .view[data-view="trends"] .home-bubblewrap{
+    min-height:340px;
+  }
+  .view[data-view="trends"] .home-bubblewrap svg{
+    height:345px!important;
+  }
+  .view[data-view="trends"] .snap-stat{
+    min-height:auto;
+  }
+  .view[data-view="trends"] #trend-main{
+    padding:16px!important;
+  }
+  .view[data-view="trends"] #trend-main .canvas-box.tall{
+    height:340px!important;
+  }
+  .view[data-view="trends"] #trend-change-card .canvas-box{
+    height:310px!important;
+  }
+  .view[data-view="trends"] #trend-sparks{
+    padding:16px!important;
+  }
+  .view[data-view="trends"] #trend-sparks .sparkgrid{
+    grid-template-columns:1fr!important;
+  }
+}
+
+/* OSEP Fast Facts reference layer: visible graphics, fewer titles, flatter document styling. */
+.view[data-view="trends"] .trend-scope{
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  overflow:hidden;
+  color:#fff!important;
+  background:#143f52!important;
+  box-shadow:none!important;
+}
+.view[data-view="trends"] .trend-masthead{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  padding:12px 26px 10px;
+  background:linear-gradient(180deg,#0e394c 0%,#194d61 100%);
+  border-bottom:3px solid #d8dde1;
+}
+.view[data-view="trends"] .trend-osep{
+  font-size:3rem;
+  line-height:.9;
+  font-weight:300;
+  letter-spacing:.03em;
+  color:#fff;
+}
+.view[data-view="trends"] .trend-office{
+  font-size:.95rem;
+  line-height:1.22;
+  color:#fff;
+  font-weight:500;
+}
+.view[data-view="trends"] .trend-office span{
+  font-size:.82rem;
+  color:#dce9ef;
+}
+.view[data-view="trends"] .trend-yellow-band{
+  margin:0;
+  padding:7px 18px 8px;
+  background:#efe64b;
+  color:#000;
+  text-align:center;
+  font-size:1.08rem;
+  line-height:1.15;
+  font-weight:900;
+}
+.view[data-view="trends"] .trend-scope-note{
+  margin:0;
+  padding:10px 28px 11px;
+  background:#fff;
+  color:#111;
+  border-bottom:3px solid #111;
+  text-align:center;
+  font-size:.91rem;
+  line-height:1.42;
+  font-weight:500;
+}
+.view[data-view="trends"] .trend-strip-label{
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:10px;
+  margin:0 0 10px;
+  padding:9px 0 7px;
+  border-top:3px solid #111;
+  border-bottom:1px solid #111;
+  color:#111;
+  text-align:center;
+}
+.view[data-view="trends"] .trend-strip-label span{
+  font-size:1rem;
+  line-height:1.2;
+  font-weight:900;
+}
+.view[data-view="trends"] .trend-strip-label small{
+  color:#3d3d3d;
+  font-size:.78rem;
+  font-weight:700;
+}
+.view[data-view="trends"] #kpis{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+.view[data-view="trends"] #kpis .kpi{
+  min-height:0!important;
+  padding:13px 14px!important;
+  border:0!important;
+  border-radius:18px!important;
+  background:#d6dbde!important;
+  text-align:center;
+}
+.view[data-view="trends"] #kpis .kpi .l{
+  color:#111!important;
+  font-size:.78rem!important;
+  line-height:1.22!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+}
+.view[data-view="trends"] #kpis .kpi .v{
+  color:#111!important;
+  font-size:1.75rem!important;
+  line-height:1!important;
+  margin-top:6px!important;
+}
+.view[data-view="trends"] #kpis .kpi .c{
+  color:#111!important;
+  font-size:.72rem!important;
+  line-height:1.35!important;
+  margin-top:6px!important;
+  font-weight:600!important;
+}
+.view[data-view="trends"] #home-bubbles-card,
+.view[data-view="trends"] #trend-main,
+.view[data-view="trends"] #trend-sparks,
+.view[data-view="trends"] #trend-change-card{
+  border:0!important;
+  border-radius:0!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+.view[data-view="trends"] #home-bubbles-card{
+  padding:0 0 12px!important;
+}
+.view[data-view="trends"] #home-bubbles-card>.ey{
+  display:block;
+  margin:0 0 8px!important;
+  padding:8px 10px;
+  background:#e7e7e7;
+  color:#111;
+  text-align:center;
+  font-size:.78rem;
+  letter-spacing:0;
+  text-transform:none;
+}
+.view[data-view="trends"] #home-bubbles-card>h3,
+.view[data-view="trends"] #trend-main>h3,
+.view[data-view="trends"] #trend-sparks>h3,
+.view[data-view="trends"] #trend-change-card>h3{
+  margin:0!important;
+  padding:9px 22px 7px!important;
+  border-top:3px solid #111;
+  color:#111!important;
+  text-align:center;
+  font-size:1rem!important;
+  line-height:1.32!important;
+  font-weight:900!important;
+  cursor:default!important;
+}
+.view[data-view="trends"] #home-bubbles-card>h3{
+  border-top:0;
+}
+.view[data-view="trends"] .card.fig>h3::after{
+  display:none!important;
+}
+.view[data-view="trends"] .card .note,
+.view[data-view="trends"] .note-fold .note{
+  color:#111!important;
+  text-align:center;
+  font-size:.84rem!important;
+  line-height:1.42!important;
+  font-weight:600!important;
+}
+.view[data-view="trends"] #home-bubbles-card>.note{
+  max-width:none;
+  margin:0 18px 8px!important;
+  padding:10px 16px;
+  border-radius:18px;
+  background:#d6dbde;
+}
+.view[data-view="trends"] .home-bubblewrap{
+  min-height:500px!important;
+  max-width:1040px!important;
+}
+.view[data-view="trends"] .home-bubblewrap svg{
+  height:clamp(500px,50vw,660px)!important;
+}
+.view[data-view="trends"] .snapshot-stats{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+.view[data-view="trends"] .snap-stat{
+  min-height:0!important;
+  padding:14px 16px!important;
+  border:0!important;
+  border-radius:18px!important;
+  background:#d6dbde!important;
+  text-align:center;
+}
+.view[data-view="trends"] .pictostat{
+  justify-content:center;
+}
+.view[data-view="trends"] .snap-frac{
+  color:#111!important;
+  font-size:1.65rem!important;
+  letter-spacing:0!important;
+}
+.view[data-view="trends"] .snap-desc{
+  color:#111!important;
+  font-size:.78rem!important;
+  line-height:1.38!important;
+}
+.view[data-view="trends"] .view-subtab-nav{
+  border-left:0!important;
+  border-radius:0!important;
+  border-top:3px solid #111!important;
+  border-bottom:1px solid #111!important;
+  box-shadow:none!important;
+}
+.view[data-view="trends"] .view-subtab-nav .vst-btn:before{
+  content:none!important;
+}
+.view[data-view="trends"] .view-subtab-nav .vst-btn.vst-active{
+  background:#efe64b!important;
+  border-color:#111!important;
+  color:#111!important;
+}
+body.dark .view[data-view="trends"] .trend-strip-label,
+body.dark .view[data-view="trends"] #home-bubbles-card>h3,
+body.dark .view[data-view="trends"] #trend-main>h3,
+body.dark .view[data-view="trends"] #trend-sparks>h3,
+body.dark .view[data-view="trends"] #trend-change-card>h3{
+  border-color:#d6dde5!important;
+}
+@media(max-width:900px){
+  .view[data-view="trends"] #kpis{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:680px){
+  .view[data-view="trends"] .trend-masthead{
+    display:block;
+    padding:12px 16px 10px;
+  }
+  .view[data-view="trends"] .trend-osep{
+    font-size:2.35rem;
+    margin-bottom:5px;
+  }
+  .view[data-view="trends"] .trend-yellow-band{
+    font-size:1rem;
+  }
+  .view[data-view="trends"] .trend-scope-note{
+    padding:10px 14px;
+    font-size:.84rem;
+  }
+  .view[data-view="trends"] .trend-strip-label{
+    display:block;
+  }
+  .view[data-view="trends"] .trend-strip-label small{
+    display:block;
+    margin-top:3px;
+  }
+  .view[data-view="trends"] #kpis,
+  .view[data-view="trends"] .snapshot-stats{
+    grid-template-columns:1fr!important;
+  }
+  .view[data-view="trends"] .home-bubblewrap{
+    min-height:360px!important;
+  }
+  .view[data-view="trends"] .home-bubblewrap svg{
+    height:370px!important;
+  }
+}
+</style>
+<script id="trends-keep-graphics-visible">
+(function(){
+  function isTrendTitle(t){
+    return !!(t&&t.closest&&t.closest('.view[data-view="trends"] .card.fig>h3'));
+  }
+  function cleanTitles(){
+    try{
+      document.querySelectorAll('.view[data-view="trends"] .card.fig>h3').forEach(function(h){
+        h.removeAttribute('role');
+        h.removeAttribute('tabindex');
+        h.removeAttribute('aria-label');
+      });
+    }catch(e){}
+  }
+  document.addEventListener('click',function(e){
+    if(isTrendTitle(e.target)){ e.stopImmediatePropagation(); }
+  },true);
+  document.addEventListener('keydown',function(e){
+    if((e.key==='Enter'||e.key===' ')&&isTrendTitle(e.target)){ e.stopImmediatePropagation(); }
+  },true);
+  cleanTitles();
+  try{ new MutationObserver(cleanTitles).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+})();
+</script>
+<style id="national-trends-web-polish">
+/* Softer web version of the OSEP Fast Facts reference. */
+.view[data-view="trends"] .trends-overview{
+  gap:16px!important;
+}
+.view[data-view="trends"] .trend-scope{
+  position:relative;
+  padding:0!important;
+  border:1px solid #d9dee2!important;
+  border-radius:6px!important;
+  overflow:hidden;
+  color:#111!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+.view[data-view="trends"] .trend-masthead{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:14px!important;
+  padding:11px 18px!important;
+  background:#173f56!important;
+  border:0!important;
+}
+.view[data-view="trends"] .trend-osep{
+  font-size:.76rem!important;
+  line-height:1!important;
+  font-weight:900!important;
+  letter-spacing:.06em!important;
+  text-transform:uppercase!important;
+  color:#fff!important;
+}
+.view[data-view="trends"] .trend-office{
+  font-size:.82rem!important;
+  line-height:1!important;
+  color:#dce9ef!important;
+  font-weight:700!important;
+}
+.view[data-view="trends"] .trend-yellow-band{
+  padding:8px 18px!important;
+  background:#efe64b!important;
+  color:#111!important;
+  text-align:left!important;
+  font-size:1.14rem!important;
+  line-height:1.15!important;
+  font-weight:900!important;
+}
+.view[data-view="trends"] .trend-scope-note{
+  margin:0!important;
+  padding:13px 18px 14px!important;
+  background:#fff!important;
+  border:0!important;
+  color:#1e1e1e!important;
+  text-align:left!important;
+  font-size:.9rem!important;
+  line-height:1.48!important;
+  font-weight:500!important;
+  max-width:1000px!important;
+}
+.view[data-view="trends"] .trend-strip-label{
+  justify-content:space-between!important;
+  margin:0 0 10px!important;
+  padding:8px 2px 7px!important;
+  border-top:0!important;
+  border-bottom:2px solid #111!important;
+  color:#111!important;
+  text-align:left!important;
+}
+.view[data-view="trends"] .trend-strip-label span{
+  font-size:.98rem!important;
+  font-weight:900!important;
+}
+.view[data-view="trends"] .trend-strip-label small{
+  color:#5c646b!important;
+  font-size:.74rem!important;
+  font-weight:800!important;
+}
+.view[data-view="trends"] #kpis{
+  gap:12px!important;
+}
+.view[data-view="trends"] #kpis .kpi,
+.view[data-view="trends"] .snap-stat{
+  border:1px solid #d5dbdf!important;
+  border-radius:8px!important;
+  background:#f2f4f5!important;
+  text-align:left!important;
+}
+.view[data-view="trends"] #kpis .kpi{
+  padding:13px 14px 12px!important;
+}
+.view[data-view="trends"] #kpis .kpi .l{
+  color:#243746!important;
+  font-size:.68rem!important;
+  line-height:1.25!important;
+  letter-spacing:.03em!important;
+  text-transform:uppercase!important;
+}
+.view[data-view="trends"] #kpis .kpi .v{
+  color:#173f56!important;
+  font-size:1.65rem!important;
+  line-height:1.05!important;
+  margin-top:5px!important;
+}
+.view[data-view="trends"] #kpis .kpi .c{
+  color:#3f4b55!important;
+  font-size:.73rem!important;
+  line-height:1.36!important;
+  margin-top:5px!important;
+  font-weight:600!important;
+}
+.view[data-view="trends"] #home-bubbles-card,
+.view[data-view="trends"] #trend-main,
+.view[data-view="trends"] #trend-sparks,
+.view[data-view="trends"] #trend-change-card{
+  border:1px solid #d9dee2!important;
+  border-radius:6px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+.view[data-view="trends"] #home-bubbles-card{
+  padding:14px 18px 12px!important;
+}
+.view[data-view="trends"] #home-bubbles-card>.ey{
+  display:inline-flex!important;
+  width:auto!important;
+  margin:0 0 8px!important;
+  padding:4px 9px!important;
+  border-radius:999px!important;
+  background:#eef1f3!important;
+  color:#394956!important;
+  text-align:left!important;
+  font-size:.7rem!important;
+  font-weight:900!important;
+  letter-spacing:.02em!important;
+  text-transform:uppercase!important;
+}
+.view[data-view="trends"] #home-bubbles-card>h3,
+.view[data-view="trends"] #trend-main>h3,
+.view[data-view="trends"] #trend-sparks>h3,
+.view[data-view="trends"] #trend-change-card>h3{
+  margin:0 0 7px!important;
+  padding:0 0 8px!important;
+  border-top:0!important;
+  border-bottom:2px solid #111!important;
+  color:#111!important;
+  text-align:left!important;
+  font-size:1.02rem!important;
+  line-height:1.28!important;
+  font-weight:900!important;
+}
+.view[data-view="trends"] .card .note,
+.view[data-view="trends"] .note-fold .note{
+  color:#3f4b55!important;
+  text-align:left!important;
+  font-size:.82rem!important;
+  line-height:1.4!important;
+  font-weight:600!important;
+}
+.view[data-view="trends"] #home-bubbles-card>.note{
+  max-width:none!important;
+  margin:0 0 8px!important;
+  padding:10px 14px!important;
+  border-radius:8px!important;
+  background:#edf0f2!important;
+  color:#111!important;
+}
+.view[data-view="trends"] .home-bubblewrap{
+  min-height:480px!important;
+  margin:4px auto 0!important;
+  max-width:1040px!important;
+}
+.view[data-view="trends"] .home-bubblewrap svg{
+  height:clamp(480px,48vw,630px)!important;
+}
+.view[data-view="trends"] .snapshot-stats{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+}
+.view[data-view="trends"] .snap-stat{
+  padding:13px 14px!important;
+}
+.view[data-view="trends"] .pictostat{
+  justify-content:flex-start!important;
+}
+.view[data-view="trends"] .snap-frac{
+  color:#173f56!important;
+  font-size:1.45rem!important;
+  line-height:1!important;
+}
+.view[data-view="trends"] .snap-desc{
+  color:#3f4b55!important;
+  font-size:.76rem!important;
+  line-height:1.36!important;
+  font-weight:650!important;
+}
+.view[data-view="trends"] .view-subtab-nav{
+  border:1px solid #d9dee2!important;
+  border-left:5px solid #efe64b!important;
+  border-radius:6px!important;
+  box-shadow:none!important;
+  background:#fff!important;
+}
+.view[data-view="trends"] .view-subtab-nav .vst-btn{
+  border-radius:6px!important;
+}
+.view[data-view="trends"] .view-subtab-nav .vst-btn.vst-active{
+  background:#173f56!important;
+  border-color:#173f56!important;
+  color:#fff!important;
+}
+.view[data-view="trends"] #trend-main,
+.view[data-view="trends"] #trend-sparks,
+.view[data-view="trends"] #trend-change-card{
+  padding:18px!important;
+}
+body.dark .view[data-view="trends"] .trend-scope,
+body.dark .view[data-view="trends"] #home-bubbles-card,
+body.dark .view[data-view="trends"] #trend-main,
+body.dark .view[data-view="trends"] #trend-sparks,
+body.dark .view[data-view="trends"] #trend-change-card{
+  background:#15202e!important;
+  border-color:#2b3645!important;
+}
+body.dark .view[data-view="trends"] .trend-yellow-band{
+  color:#111!important;
+}
+body.dark .view[data-view="trends"] .trend-scope-note,
+body.dark .view[data-view="trends"] #home-bubbles-card>h3,
+body.dark .view[data-view="trends"] #trend-main>h3,
+body.dark .view[data-view="trends"] #trend-sparks>h3,
+body.dark .view[data-view="trends"] #trend-change-card>h3,
+body.dark .view[data-view="trends"] .trend-strip-label{
+  color:#e7edf6!important;
+  border-color:#d6dde5!important;
+}
+@media(max-width:900px){
+  .view[data-view="trends"] #kpis{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:680px){
+  .view[data-view="trends"] .trend-masthead{
+    display:block!important;
+    padding:10px 14px!important;
+  }
+  .view[data-view="trends"] .trend-office{
+    margin-top:5px!important;
+  }
+  .view[data-view="trends"] .trend-yellow-band,
+  .view[data-view="trends"] .trend-scope-note{
+    padding-left:14px!important;
+    padding-right:14px!important;
+  }
+  .view[data-view="trends"] .trend-strip-label{
+    display:block!important;
+  }
+  .view[data-view="trends"] .trend-strip-label small{
+    display:block!important;
+    margin-top:3px!important;
+  }
+  .view[data-view="trends"] #kpis,
+  .view[data-view="trends"] .snapshot-stats{
+    grid-template-columns:1fr!important;
+  }
+  .view[data-view="trends"] .home-bubblewrap{
+    min-height:350px!important;
+  }
+  .view[data-view="trends"] .home-bubblewrap svg{
+    height:360px!important;
+  }
+}
+</style>
+<style id="national-trends-professional-pass">
+/* Professional National Trends pass: federal data-dashboard feel, no faux publication banner. */
+.view[data-view="trends"] .trend-scope{
+  display:grid!important;
+  grid-template-columns:minmax(180px,260px) 1fr!important;
+  gap:0!important;
+  padding:0!important;
+  border:1px solid #d8dee4!important;
+  border-top:5px solid #173f56!important;
+  border-radius:6px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+.view[data-view="trends"] .trend-masthead{
+  display:block!important;
+  padding:16px 18px!important;
+  background:#f3f5f7!important;
+  border:0!important;
+  border-right:1px solid #d8dee4!important;
+}
+.view[data-view="trends"] .trend-osep{
+  color:#173f56!important;
+  font-size:.74rem!important;
+  font-weight:900!important;
+  letter-spacing:.06em!important;
+  line-height:1.25!important;
+  text-transform:uppercase!important;
+}
+.view[data-view="trends"] .trend-office{
+  margin-top:7px!important;
+  color:#4d5c67!important;
+  font-size:.84rem!important;
+  font-weight:700!important;
+  line-height:1.35!important;
+}
+.view[data-view="trends"] .trend-yellow-band{
+  grid-column:2!important;
+  grid-row:1!important;
+  align-self:end!important;
+  padding:16px 18px 4px!important;
+  background:#fff!important;
+  color:#111!important;
+  text-align:left!important;
+  font-size:1.08rem!important;
+  line-height:1.28!important;
+  font-weight:900!important;
+}
+.view[data-view="trends"] .trend-yellow-band::after{
+  content:"";
+  display:block;
+  width:78px;
+  height:4px;
+  margin-top:10px;
+  background:#e6d84a;
+}
+.view[data-view="trends"] .trend-scope-note{
+  grid-column:2!important;
+  grid-row:2!important;
+  margin:0!important;
+  padding:0 18px 16px!important;
+  background:#fff!important;
+  border:0!important;
+  color:#3f4b55!important;
+  text-align:left!important;
+  font-size:.89rem!important;
+  line-height:1.5!important;
+  font-weight:500!important;
+}
+.view[data-view="trends"] .trend-strip-label{
+  padding:0 0 8px!important;
+  border-bottom:2px solid #1d1d1d!important;
+}
+.view[data-view="trends"] .trend-strip-label span,
+.view[data-view="trends"] #home-bubbles-card>h3,
+.view[data-view="trends"] #trend-main>h3,
+.view[data-view="trends"] #trend-sparks>h3,
+.view[data-view="trends"] #trend-change-card>h3{
+  color:#111!important;
+  font-weight:850!important;
+  letter-spacing:0!important;
+}
+.view[data-view="trends"] #home-bubbles-card>.ey{
+  background:transparent!important;
+  border:1px solid #d8dee4!important;
+  color:#4d5c67!important;
+}
+.view[data-view="trends"] #home-bubbles-card>.note{
+  background:#f3f5f7!important;
+  border:1px solid #d8dee4!important;
+  color:#34424e!important;
+}
+.view[data-view="trends"] #kpis .kpi,
+.view[data-view="trends"] .snap-stat{
+  background:#f7f8f9!important;
+  border:1px solid #d8dee4!important;
+  border-radius:6px!important;
+}
+.view[data-view="trends"] #kpis .kpi .v,
+.view[data-view="trends"] .snap-frac{
+  color:#173f56!important;
+}
+.view[data-view="trends"] .home-bubblewrap{
+  min-height:500px!important;
+  max-width:1080px!important;
+}
+.view[data-view="trends"] .home-bubblewrap svg{
+  height:clamp(500px,48vw,650px)!important;
+}
+@media(max-width:760px){
+  .view[data-view="trends"] .trend-scope{
+    display:block!important;
+  }
+  .view[data-view="trends"] .trend-masthead{
+    border-right:0!important;
+    border-bottom:1px solid #d8dee4!important;
+  }
+  .view[data-view="trends"] .trend-yellow-band{
+    padding:14px 14px 4px!important;
+  }
+  .view[data-view="trends"] .trend-scope-note{
+    padding:0 14px 14px!important;
+  }
+}
+</style>
+<style id="national-trends-ux-upgrade">
+/* Final National Trends UX pass: Fast Facts discipline, interactive dashboard polish. */
+.view[data-view="trends"]{
+  --trend-navy:#173f56;
+  --trend-blue:#2f6f8f;
+  --trend-gold:#e6d84a;
+  --trend-gray:#f4f6f8;
+  --trend-line:#d8dee4;
+}
+.view[data-view="trends"] .view-subtab-nav{
+  position:sticky!important;
+  top:calc(var(--appbarH,74px) + 8px)!important;
+  z-index:30!important;
+  display:flex!important;
+  gap:8px!important;
+  align-items:center!important;
+  margin:10px 0 16px!important;
+  padding:8px!important;
+  border:1px solid var(--trend-line)!important;
+  border-left:5px solid var(--trend-gold)!important;
+  border-radius:8px!important;
+  background:rgba(255,255,255,.96)!important;
+  backdrop-filter:saturate(1.1) blur(8px);
+}
+.view[data-view="trends"] .view-subtab-nav .vst-label{
+  margin:0 4px 0 2px!important;
+  color:#4d5c67!important;
+  letter-spacing:.07em!important;
+}
+.view[data-view="trends"] .view-subtab-nav .vst-btn{
+  border-radius:6px!important;
+  padding:7px 12px!important;
+  border-color:#dfe4e8!important;
+  color:#243746!important;
+}
+.view[data-view="trends"] .view-subtab-nav .vst-btn.vst-active{
+  background:var(--trend-navy)!important;
+  border-color:var(--trend-navy)!important;
+  color:#fff!important;
+}
+.view[data-view="trends"] .trend-scope{
+  grid-template-columns:minmax(190px,235px) minmax(0,1fr)!important;
+  border:1px solid var(--trend-line)!important;
+  border-top:0!important;
+  border-left:6px solid var(--trend-navy)!important;
+  border-radius:8px!important;
+  background:#fff!important;
+}
+.view[data-view="trends"] .trend-masthead{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  min-height:116px!important;
+  padding:18px!important;
+  background:var(--trend-navy)!important;
+  border-right:0!important;
+}
+.view[data-view="trends"] .trend-osep{
+  color:#fff!important;
+  font-size:.78rem!important;
+}
+.view[data-view="trends"] .trend-office{
+  color:#d9e6ed!important;
+  font-size:.86rem!important;
+}
+.view[data-view="trends"] .trend-yellow-band{
+  padding:19px 22px 5px!important;
+  font-size:1.22rem!important;
+  line-height:1.22!important;
+  max-width:920px!important;
+}
+.view[data-view="trends"] .trend-yellow-band::after{
+  width:92px!important;
+  height:5px!important;
+  margin-top:12px!important;
+  border-radius:4px!important;
+}
+.view[data-view="trends"] .trend-scope-note{
+  padding:0 22px 20px!important;
+  max-width:920px!important;
+  font-size:.92rem!important;
+  color:#34424e!important;
+}
+.view[data-view="trends"] #home-bubbles-card,
+.view[data-view="trends"] #trend-main,
+.view[data-view="trends"] #trend-sparks,
+.view[data-view="trends"] #trend-change-card{
+  border:1px solid var(--trend-line)!important;
+  border-top:4px solid var(--trend-blue)!important;
+  border-radius:8px!important;
+  background:#fff!important;
+}
+.view[data-view="trends"] #home-bubbles-card{
+  padding:18px 20px 16px!important;
+}
+.view[data-view="trends"] #home-bubbles-card>h3,
+.view[data-view="trends"] #trend-main>h3,
+.view[data-view="trends"] #trend-sparks>h3,
+.view[data-view="trends"] #trend-change-card>h3{
+  padding-bottom:9px!important;
+  border-bottom:2px solid #222!important;
+  font-size:clamp(1.05rem,1.65vw,1.32rem)!important;
+  line-height:1.25!important;
+}
+.view[data-view="trends"] #home-bubbles-card>.note,
+.view[data-view="trends"] #trend-main>.note,
+.view[data-view="trends"] #trend-sparks>.note,
+.view[data-view="trends"] #trend-change-card>.note{
+  display:block!important;
+  margin:0 0 12px!important;
+  padding:10px 13px!important;
+  border:1px solid var(--trend-line)!important;
+  border-left:4px solid var(--trend-gold)!important;
+  border-radius:6px!important;
+  background:var(--trend-gray)!important;
+  color:#34424e!important;
+  text-align:left!important;
+}
+.view[data-view="trends"] .home-bubblewrap{
+  min-height:520px!important;
+  max-width:1100px!important;
+  padding:8px!important;
+  border:1px solid #eef1f4!important;
+  border-radius:8px!important;
+  background:linear-gradient(180deg,#fff 0%,#fbfcfd 100%)!important;
+}
+.view[data-view="trends"] .home-bubblewrap svg{
+  height:clamp(520px,50vw,670px)!important;
+}
+.view[data-view="trends"] #kpis{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:12px!important;
+}
+.view[data-view="trends"] #kpis .kpi{
+  position:relative;
+  overflow:hidden;
+  padding:14px 15px 13px!important;
+  border-radius:8px!important;
+  background:#fff!important;
+}
+.view[data-view="trends"] #kpis .kpi::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  right:0;
+  height:4px;
+  background:var(--trend-blue);
+}
+.view[data-view="trends"] #kpis .kpi:nth-child(2)::before{background:var(--trend-gold)}
+.view[data-view="trends"] #kpis .kpi:nth-child(3)::before{background:#2e8540}
+.view[data-view="trends"] #kpis .kpi:nth-child(4)::before{background:#6f7f8d}
+.view[data-view="trends"] #kpis .kpi .l{
+  color:#4d5c67!important;
+}
+.view[data-view="trends"] #kpis .kpi .v{
+  font-size:clamp(1.45rem,2.1vw,1.9rem)!important;
+}
+.view[data-view="trends"] .snapshot-stats{
+  gap:12px!important;
+}
+.view[data-view="trends"] .snap-stat{
+  border-left:4px solid var(--trend-gold)!important;
+  background:#fff!important;
+}
+.view[data-view="trends"] #trend-main .canvas-box.tall{
+  height:clamp(460px,56vh,620px)!important;
+}
+.view[data-view="trends"] #trend-change-card .canvas-box{
+  height:420px!important;
+}
+.view[data-view="trends"] #trend-sparks .sparkgrid{
+  grid-template-columns:repeat(auto-fit,minmax(245px,1fr))!important;
+}
+.view[data-view="trends"] #trend-sparks .sparkcard{
+  border-radius:8px!important;
+  border-color:#dfe4e8!important;
+  background:#fff!important;
+}
+body.dark .view[data-view="trends"] .view-subtab-nav{
+  background:rgba(18,27,39,.96)!important;
+  border-color:#2b3645!important;
+}
+@media(max-width:860px){
+  .view[data-view="trends"] .view-subtab-nav{
+    position:static!important;
+  }
+  .view[data-view="trends"] .trend-scope{
+    display:block!important;
+  }
+  .view[data-view="trends"] .trend-masthead{
+    min-height:0!important;
+    padding:14px 16px!important;
+  }
+  .view[data-view="trends"] #kpis{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:680px){
+  .view[data-view="trends"] #kpis,
+  .view[data-view="trends"] .snapshot-stats{
+    grid-template-columns:1fr!important;
+  }
+  .view[data-view="trends"] #home-bubbles-card{
+    padding:15px 14px 13px!important;
+  }
+  .view[data-view="trends"] .home-bubblewrap{
+    min-height:370px!important;
+    padding:4px!important;
+  }
+  .view[data-view="trends"] .home-bubblewrap svg{
+    height:380px!important;
+  }
+  .view[data-view="trends"] #trend-main .canvas-box.tall{
+    height:360px!important;
+  }
+  .view[data-view="trends"] #trend-change-card .canvas-box{
+    height:330px!important;
+  }
+}
+</style>
+<style id="fastfacts-look">
+/* ===== OSEP Fast Facts look, scoped to the National Trends homepage ===== */
+/* Centered, bold, navy figure titles, the signature Fast Facts trait */
+.view[data-view="trends"] .card.fig h3,
+.view[data-view="trends"] #trend-sparks > h3,
+.view[data-view="trends"] .home-bubbles-hero h3,
+.view[data-view="trends"] .trend-focus-card h3,
+.view[data-view="trends"] #trend-change-card h3{
+  text-align:center;
+  max-width:780px;
+  margin-left:auto;margin-right:auto;
+  color:var(--navy);
+  font-weight:800;
+  line-height:1.34;
+  letter-spacing:-.004em;
+}
+body.dark .view[data-view="trends"] .card.fig h3,
+body.dark .view[data-view="trends"] #trend-sparks > h3{color:#eaf0f7}
+/* Centered eyebrows, descriptions, and "What this means" */
+.view[data-view="trends"] .card .ey{ text-align:center; letter-spacing:.08em; }
+.view[data-view="trends"] .card .whatmeans,
+.view[data-view="trends"] .card > .note{ text-align:center; }
+.view[data-view="trends"] .viewlead{
+  text-align:center; max-width:820px; margin-left:auto; margin-right:auto;
+}
+/* Centered source line, echoing the Fast Facts source citation */
+.view[data-view="trends"] .card .tbl-srcfold{ align-self:center; margin-left:auto; margin-right:auto; }
+.view[data-view="trends"] .card .tbl-srcfold-body{ text-align:center; margin-left:auto; margin-right:auto; }
+/* Flatter, cleaner figure cards with more breathing room */
+.view[data-view="trends"] .card.fig,
+.view[data-view="trends"] #trend-sparks.card{ box-shadow:none; }
+.view[data-view="trends"] .home-bubblewrap{ margin-left:auto; margin-right:auto; }
+
+/* ===== "What this means" disclosure: collapsed by default, calm and centered ===== */
+.view[data-view="trends"] .whatmeans{ margin:3px 0 12px; }
+.view[data-view="trends"] .whatmeans>summary{
+  list-style:none; display:inline-flex; align-items:center; gap:7px; cursor:pointer;
+  font-size:.8rem; font-weight:700; color:var(--primary);
+  padding:5px 13px; border:1px solid #cfe0f0; border-radius:999px; background:#eef5fc;
+  transition:background .14s,border-color .14s;
+}
+.view[data-view="trends"] .whatmeans>summary::-webkit-details-marker{display:none}
+.view[data-view="trends"] .whatmeans>summary:before{
+  content:"?"; font-weight:800; font-size:.66rem; line-height:1;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:15px; height:15px; border-radius:50%; background:var(--primary); color:#fff;
+}
+.view[data-view="trends"] .whatmeans>summary:after{ content:"\25BE"; font-size:.62em; transition:transform .15s ease; }
+.view[data-view="trends"] .whatmeans[open]>summary:after{ transform:rotate(180deg); }
+.view[data-view="trends"] .whatmeans>summary:hover{ background:#e0eefb; border-color:#9cc3e8; }
+.view[data-view="trends"] .whatmeans>summary:focus-visible{ outline:3px solid var(--primary); outline-offset:2px; }
+.view[data-view="trends"] .whatmeans .wm-body{
+  margin:9px auto 0; max-width:700px; text-align:center;
+  color:var(--muted); font-weight:400; line-height:1.5;
+}
+body.dark .view[data-view="trends"] .whatmeans>summary{ color:#9fc6ee; background:#10314f; border-color:#1f4e7a; }
+/* Keyboard focus ring for custom-button elements (e.g. clickable disability bubbles) */
+[role="button"]:focus-visible,[tabindex="0"]:focus-visible{ outline:3px solid var(--primary); outline-offset:2px; border-radius:4px; }
+
+/* ===== Navy + green palette accents on the homepage (matching the OSEP Fast Facts) ===== */
+.view[data-view="trends"] .section-title{ border-bottom-color:#cfe0cf !important; }
+.view[data-view="trends"] .section-title:before{ background:#4e9a3a !important; }
+.view[data-view="trends"] .section-title:after{ background:#3d7e2c !important; }
+.view[data-view="trends"] .card .ey:before{ background:#4e9a3a !important; }
+
+/* ===== "Other views" launchpad: smaller and more subdued so it does not compete with the data ===== */
+.view[data-view="trends"] .home-launchpad{ margin:26px 0 4px; padding-top:18px; opacity:.9; }
+.view[data-view="trends"] .home-launchpad-head h3{ font-size:1.02rem; }
+.view[data-view="trends"] .home-launchpad-head .lp-sub{ font-size:.82rem; margin-top:3px; }
+.view[data-view="trends"] .launchgrid{ grid-template-columns:repeat(auto-fill,minmax(208px,1fr)); gap:10px; margin-top:12px; }
+.view[data-view="trends"] .launchcard{ padding:12px 14px !important; gap:10px; }
+.view[data-view="trends"] .launchcard .lc-ic{ width:32px; height:32px; border-radius:9px; }
+.view[data-view="trends"] .launchcard .lc-ic svg{ width:17px; height:17px; }
+.view[data-view="trends"] .launchcard .lc-title{ font-size:.9rem; }
+.view[data-view="trends"] .launchcard .lc-desc{ font-size:.78rem; margin-top:3px; }
+
+@media (prefers-reduced-motion: reduce){
+  .view[data-view="trends"] .whatmeans>summary:after{ transition:none; }
+}
+</style>
+
+<style id="lea-exiting-and-bubble-popup-styles">
+/* =====================================================================
+   Add-on styles: (1) generalized "What this means" disclosure so it reads
+   the same calm way outside the Home page, (2) the LEA "Exiting" cards, and
+   (3) the disability quick-profile popup opened from the Home bubbles.
+   ===================================================================== */
+
+/* ---- (1) "What this means" disclosure, made cohesive across every view ---- */
+.whatmeans{ margin:7px 0 11px; }
+.whatmeans>summary{
+  list-style:none; display:inline-flex; align-items:center; gap:7px; cursor:pointer;
+  font-size:.8rem; font-weight:700; color:var(--primary);
+  padding:5px 13px; border:1px solid #cfe0f0; border-radius:999px; background:#eef5fc;
+  transition:background .14s,border-color .14s;
+}
+.whatmeans>summary::-webkit-details-marker{display:none}
+.whatmeans>summary::before{
+  content:"?"; font-weight:800; font-size:.66rem; line-height:1;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:15px; height:15px; border-radius:50%; background:var(--primary); color:#fff;
+}
+.whatmeans>summary::after{ content:"\25BE"; font-size:.62em; transition:transform .15s ease; }
+.whatmeans[open]>summary::after{ transform:rotate(180deg); }
+.whatmeans>summary:hover{ background:#e0eefb; border-color:#9cc3e8; }
+.whatmeans>summary:focus-visible{ outline:3px solid var(--primary); outline-offset:2px; }
+.whatmeans .wm-body{ margin:9px 0 2px; max-width:74ch; color:var(--muted); font-weight:400; line-height:1.5; }
+body.dark .whatmeans>summary{ color:#9fc6ee; background:#10314f; border-color:#1f4e7a; }
+body.hc .whatmeans>summary{ border-width:2px; }
+@media (prefers-reduced-motion: reduce){ .whatmeans>summary::after{ transition:none; } }
+
+/* ---- (2) LEA "Exiting" card ---- */
+.lea-exit-card .lea-exit-grad{
+  margin:6px 0 14px; padding:12px 15px; border-radius:10px;
+  background:var(--line2); border-left:4px solid #2e8540;
+  font-size:1rem; line-height:1.55; color:var(--ink);
+}
+.lea-exit-card .lea-exit-grad b{ font-weight:800; color:var(--navy); }
+body.dark .lea-exit-card .lea-exit-grad b{ color:#9fd3ad; }
+.lea-exit-card .funnel-cap{ font-weight:700; font-size:.86rem; color:var(--ink); text-align:center; }
+.lea-exit-card .funnel-sub{ font-size:.76rem; color:var(--muted); text-align:center; }
+.lea-exit-card .lea-exit-subh{ margin:18px 0 9px; font-size:.92rem; color:var(--navy); font-weight:800; }
+body.dark .lea-exit-card .lea-exit-subh{ color:#9fc3ec; }
+.lea-exit-reasons{ display:flex; flex-direction:column; gap:7px; }
+.lea-exit-reason{ display:grid; grid-template-columns:minmax(150px,1.4fr) 2fr minmax(96px,auto); align-items:center; gap:11px; }
+.lea-exit-reason .ler-name{ font-size:.83rem; color:var(--ink); font-weight:600; }
+.lea-exit-reason .ler-bar{ height:9px; border-radius:5px; background:var(--line); overflow:hidden; }
+.lea-exit-reason .ler-fill{ display:block; height:100%; border-radius:5px; }
+.lea-exit-reason .ler-val{ font-size:.8rem; color:var(--muted); font-weight:700; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.lea-exit-supp{ margin-top:11px; font-size:.78rem; line-height:1.45; color:var(--muted); }
+@media (max-width:560px){ .lea-exit-reason{ grid-template-columns:1fr auto; } .lea-exit-reason .ler-bar{ grid-column:1 / -1; order:3; } }
+
+/* ---- (3) Disability quick-profile popup ---- */
+.dm-overlay{
+  position:fixed; inset:0; z-index:4200; display:flex; align-items:center; justify-content:center;
+  padding:24px; background:rgba(12,26,40,.55); opacity:0; transition:opacity .2s ease;
+  -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px);
+}
+.dm-overlay.open{ opacity:1; }
+body.no-anim .dm-overlay,body.reduce .dm-overlay{ transition:none; }
+.dm-modal{
+  position:relative; width:min(880px,100%); max-height:90vh; overflow:auto;
+  background:var(--card,#fff); border-radius:16px; box-shadow:0 24px 70px rgba(8,22,38,.45);
+  border:1px solid var(--line); transform:translateY(10px) scale(.99); transition:transform .22s cubic-bezier(.22,1,.36,1);
+}
+.dm-overlay.open .dm-modal{ transform:none; }
+body.no-anim .dm-modal,body.reduce .dm-modal{ transition:none; }
+.dm-accent{ height:6px; border-radius:16px 16px 0 0; background:var(--dm-accent,#1f6fa8); }
+.dm-x{
+  position:absolute; top:13px; right:13px; width:34px; height:34px; border-radius:50%;
+  border:1px solid var(--line); background:var(--line2); color:var(--muted); font-size:1.25rem; line-height:1; cursor:pointer;
+}
+.dm-x:hover{ color:var(--ink); border-color:var(--primary); }
+.dm-x:focus-visible{ outline:3px solid var(--primary); outline-offset:2px; }
+.dm-head{ padding:18px 22px 4px; }
+.dm-head .dm-ey{ font-size:.72rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+.dm-head h2{ margin:5px 0 6px; font-size:1.5rem; line-height:1.15; color:var(--navy); }
+body.dark .dm-head h2{ color:#eaf1f8; }
+.dm-head .dm-take{ margin:0; font-size:.92rem; line-height:1.5; color:var(--ink); max-width:62ch; }
+.dm-head .dm-take b{ color:var(--navy); font-weight:800; }
+body.dark .dm-head .dm-take b{ color:#9fc3ec; }
+.dm-kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:9px; padding:14px 22px 4px; }
+.dm-kpi{ border:1px solid var(--line); border-radius:11px; padding:9px 11px; background:var(--line2); }
+.dm-kpi .dl{ font-size:.68rem; line-height:1.25; color:var(--muted); font-weight:700; }
+.dm-kpi .dv{ font-size:1.18rem; font-weight:800; color:var(--ink); margin-top:3px; font-variant-numeric:tabular-nums; }
+.dm-kpi .dv.up{ color:#2e8540; } .dm-kpi .dv.dn{ color:#cc5a33; }
+.dm-figs{ display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:14px 22px 6px; }
+.dm-fig{ border:1px solid var(--line); border-radius:12px; padding:11px 12px 12px; background:var(--card); }
+.dm-fig.dm-fig-wide{ grid-column:1 / -1; }
+.dm-fig .dm-fig-t{ font-size:.82rem; font-weight:800; color:var(--navy); margin-bottom:6px; }
+body.dark .dm-fig .dm-fig-t{ color:#9fc3ec; }
+.dm-canvas{ position:relative; height:188px; }
+.dm-fig.dm-fig-wide .dm-canvas{ height:232px; }
+.dm-foot{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:8px 22px 20px; }
+.dm-more{
+  border:1px solid var(--navy); background:var(--navy); color:#fff; font:inherit; font-weight:800; font-size:.86rem;
+  padding:9px 16px; border-radius:999px; cursor:pointer; transition:background .14s,transform .12s;
+}
+.dm-more:hover{ background:#0b3a63; transform:translateY(-1px); }
+.dm-more:focus-visible{ outline:3px solid var(--primary); outline-offset:2px; }
+body.dark .dm-more{ background:#1f6fa8; border-color:#1f6fa8; }
+.dm-foot .dm-src{ font-size:.72rem; color:var(--muted); line-height:1.4; flex:1 1 220px; min-width:0; }
+@media (max-width:620px){
+  .dm-kpis{ grid-template-columns:repeat(2,1fr); }
+  .dm-figs{ grid-template-columns:1fr; }
+  .dm-head h2{ font-size:1.28rem; }
+}
+body.hc .dm-modal{ border-width:2px; }
+</style>
+
+<script id="lea-exiting-and-bubble-popup">
+(function(){
+ 'use strict';
+
+ /* =====================================================================
+    PART 1 — LEA Part B Exiting (School Year 2023-24)
+    Reads bexitinglea2023-24.csv (sits next to this page), matches each
+    district by NCES ID exactly the way the funding file is matched, and adds
+    an "Exiting" card to the district, State, and national LEA views. Reuses
+    the tool's own CSV parser and _leaNum(), so suppressed cells (-8 small
+    cell, -9 data quality) read as blanks / "not available," like everywhere else.
+    ===================================================================== */
+
+ var EX_FIELDS=['died','dropout','gradAlt','gradReg','moved','maxAge','cert','transfer','totSchool','totSpEd'];
+ function _exZero(){ var o={_n:0}; EX_FIELDS.forEach(function(k){ o[k]=0; }); return o; }
+ function _exAdd(acc,e){ if(!e)return; var any=false; EX_FIELDS.forEach(function(k){ if(e[k]!=null){ acc[k]+=e[k]; any=true; } }); if(any) acc._n++; }
+
+ function _attachExiting(d){
+  if(!d||!d.byState||typeof _leaParseCSV!=='function') return Promise.resolve(d);
+  return fetch('bexitinglea2023-24.csv').then(function(r){
+   if(!r.ok) throw new Error('exit file not found');
+   return r.text();
+  }).then(function(txt){
+   var rows=_leaParseCSV(txt);
+   var hi=_leaFindHeader(rows,'School Year'); if(hi<0) throw new Error('exit header not found');
+   var H=rows[hi];
+   var iNces=_leaHdrIdx(H,'NCES LEA ID');
+   var col={
+    died:_leaHdrIdx(H,'Disabilities Died'),
+    dropout:_leaHdrIdx(H,'Dropped Out'),
+    gradAlt:_leaHdrIdx(H,'Alternate Diploma'),
+    gradReg:_leaHdrIdx(H,'Regular High School Diploma'),
+    moved:_leaHdrIdx(H,'Known to be Continuing'),
+    maxAge:_leaHdrIdx(H,'Maximum Age'),
+    cert:_leaHdrIdx(H,'Received a Certificate'),
+    transfer:_leaHdrIdx(H,'Transferred to Regular Education'),
+    totSchool:_leaHdrIdx(H,'Total Exiting School'),
+    totSpEd:_leaHdrIdx(H,'Total Exiting Special Education')
+   };
+   var exitBy={};
+   for(var r=hi+1;r<rows.length;r++){
+    var row=rows[r]; if(!row||row.length<6) continue;
+    var key=parseInt(((row[iNces]||'')+'').replace(/[^0-9]/g,''),10); if(!key) continue;
+    var rec={};
+    EX_FIELDS.forEach(function(k){ rec[k]=(col[k]>=0)?_leaNum(row[col[k]]):null; });
+    exitBy[key]=rec;
+   }
+   var exitState={}, exitUS=_exZero();
+   Object.keys(d.byState).forEach(function(s){
+    var acc=_exZero();
+    d.byState[s].forEach(function(rec){
+     var k=parseInt(((rec.nces||'')+'').replace(/[^0-9]/g,''),10);
+     rec.exit=(k&&exitBy[k])||null;
+     if(rec.exit) _exAdd(acc,rec.exit);
+    });
+    exitState[s]=acc; _exAdd(exitUS,acc);
+   });
+   exitUS._n=Object.keys(exitState).reduce(function(a,s){ return a+exitState[s]._n; },0);
+   d.exit={ byState:exitState, us:exitUS, ok:true };
+   return d;
+  }).catch(function(){ try{ d.exit={ ok:false }; }catch(e){} return d; });
+ }
+
+ if(typeof loadLEAData==='function'){
+  var _origLoad=loadLEAData;
+  loadLEAData=function(){ return _origLoad.apply(this,arguments).then(function(d){ return _attachExiting(d); }); };
+ }
+
+ /* ---- exit card rendering ---- */
+ function _f(v){ return (typeof _leaFmt==='function')?_leaFmt(v):(v==null?'–':Math.round(v).toLocaleString()); }
+ function _pctOf(part,whole){ return (whole>0&&part!=null)?(part/whole*100):null; }
+
+ var EXIT_REASONS=[
+  ['gradReg','Graduated with a regular high school diploma','#2e8540'],
+  ['gradAlt','Graduated with an alternate diploma','#4e9a3a'],
+  ['cert','Received a certificate','#7a9e3a'],
+  ['maxAge','Reached maximum age','#b8860b'],
+  ['transfer','Transferred to regular education','#3a7ca5'],
+  ['moved','Moved, known to be continuing','#5b6472'],
+  ['dropout','Dropped out','#cc5a33'],
+  ['died','Died','#8c1d1d']
+ ];
+
+ function _exitFunnelHTML(ex){
+  if(!(ex.totSpEd>0)) return '';
+  var tiers=[
+   {name:'Exited special education',value:ex.totSpEd,color:'#13496b'},
+   {name:'Left school',value:ex.totSchool,color:'#1f6fa8'},
+   {name:'Graduated with a regular high school diploma',value:ex.gradReg,color:'#2e8540'}
+  ].filter(function(t){ return t.value!=null; });
+  var top=tiers[0].value||1, html='<div class="funnel-tiers">';
+  tiers.forEach(function(t,i){
+   var w=Math.max(20,t.value/top*100), pctTop=t.value/top*100, pctPrev=i>0?t.value/tiers[i-1].value*100:100;
+   var sub=_f(t.value)+' students · '+pctTop.toFixed(0)+'% of all who exited'+(i>0?' · '+pctPrev.toFixed(0)+'% of the step above':'');
+   html+='<div class="funnel-tier"><div class="funnel-cap">'+t.name+'</div><div class="funnel-bar" style="width:'+w.toFixed(1)+'%;background:'+t.color+'">'+_f(t.value)+'</div><div class="funnel-sub">'+sub+'</div></div>';
+  });
+  return html+'</div>';
+ }
+
+ function _exitReasonsHTML(ex){
+  var totSpEd=ex.totSpEd||0;
+  var rows=EXIT_REASONS.map(function(p){ return { label:p[1], color:p[2], v:ex[p[0]] }; });
+  var avail=rows.filter(function(r){ return r.v!=null; });
+  if(!avail.length) return '';
+  var maxV=Math.max.apply(null,avail.map(function(r){ return r.v; }).concat([1]));
+  avail.sort(function(a,b){ return b.v-a.v; });
+  var html='<div class="lea-exit-reasons">';
+  avail.forEach(function(r){
+   var w=Math.max(2,r.v/maxV*100), share=_pctOf(r.v,totSpEd);
+   html+='<div class="lea-exit-reason"><span class="ler-name">'+r.label+'</span><span class="ler-bar"><span class="ler-fill" style="width:'+w.toFixed(1)+'%;background:'+r.color+'"></span></span><span class="ler-val">'+_f(r.v)+(share!=null?' · '+share.toFixed(0)+'%':'')+'</span></div>';
+  });
+  html+='</div>';
+  var suppressed=rows.length-avail.length;
+  if(suppressed>0) html+='<div class="lea-exit-supp">'+suppressed+' of the '+rows.length+' ways of exiting were suppressed here to protect small groups of students, so they are not shown.</div>';
+  return html;
+ }
+
+ function _exitCardHTML(ex, opts){
+  opts=opts||{};
+  var heading=opts.heading||'How Students Left Special Education';
+  if(!ex || ex.totSpEd==null || !(ex.totSpEd>0)){
+   return '<div class="card fig lea-exit-card"><div class="ey">Exiting · School Year 2023–24</div><h3>'+heading+'</h3><div class="note">'+(opts.noneMsg||'No School Year 2023–24 exit record was available here.')+'</div></div>';
+  }
+  var gradRate=_pctOf(ex.gradReg,ex.totSpEd);
+  var headline=(gradRate!=null)
+   ? 'Of <b>'+_f(ex.totSpEd)+'</b> Students with Disabilities (ages 14 through 21) who exited special education '+(opts.scopePhrase||'in School Year 2023–24')+', <b>'+gradRate.toFixed(0)+'%</b> graduated with a regular high school diploma.'
+   : '<b>'+_f(ex.totSpEd)+'</b> Students with Disabilities (ages 14 through 21) exited special education '+(opts.scopePhrase||'in School Year 2023–24')+'.';
+  return '<div class="card fig lea-exit-card">'+
+   '<div class="ey">Exiting · School Year 2023–24</div>'+
+   '<h3>'+heading+'</h3>'+
+   (opts.sub?'<div class="note">'+opts.sub+'</div>':'')+
+   '<details class="whatmeans"><summary>What this means</summary><div class="note wm-body">Each year, States report how their Students with Disabilities, ages 14 through 21, left special education: by graduating, reaching the maximum age, receiving a certificate, transferring, moving, dropping out, or other reasons. The funnel narrows from everyone who exited, to those who left school, to those who graduated with a regular high school diploma. Each step is a smaller part of the step above it.</div></details>'+
+   '<div class="lea-exit-grad">'+headline+'</div>'+
+   _exitFunnelHTML(ex)+
+   '<h4 class="lea-exit-subh">Every way students exited</h4>'+
+   _exitReasonsHTML(ex)+
+   '<div class="lea-align-note"><b>Source:</b> U.S. Department of Education, Office of Special Education Programs, EDFacts Data Warehouse: &ldquo;IDEA Part&nbsp;B Exiting LEA Collection,&rdquo; School Year 2023–24'+(opts.srcScope?' ('+opts.srcScope+')':'')+'. Exiting figures are School Year 2023–24; the child counts and funding shown elsewhere on this page are from other years, so records are matched by NCES&nbsp;ID and will not line up perfectly. Suppressed cells are treated as blank.</div>'+
+   '</div>';
+ }
+
+ function _appendExitCard(html){ var b=document.getElementById('leaBody'); if(b&&html) b.insertAdjacentHTML('beforeend',html); }
+
+ /* Self-healing attach: LEA_DATA can be loaded by the original loader during
+    init() before this wrap installs, so the exit data may be missing on the
+    first render. _ensureExitAttached() attaches it once (idempotent), and
+    _refreshLeaIfActive() repaints the LEA view so the card appears. */
+ var _exitBusy=null;
+ function _ensureExitAttached(){
+  if(typeof LEA_DATA==='undefined'||!LEA_DATA) return Promise.resolve(null);
+  if(LEA_DATA.exit) return Promise.resolve(LEA_DATA);        // already attached (ok true or false)
+  if(_exitBusy) return _exitBusy;
+  _exitBusy=_attachExiting(LEA_DATA).then(function(d){ _exitBusy=null; return d; }).catch(function(){ _exitBusy=null; return LEA_DATA; });
+  return _exitBusy;
+ }
+ function _refreshLeaIfActive(){
+  try{ if(document.body.getAttribute('data-view')==='lea'&&typeof _leaRender==='function'&&LEA_DATA) _leaRender(); }catch(e){}
+ }
+
+ if(typeof _leaRenderProfile==='function'){
+  var _origProfile=_leaRenderProfile;
+  _leaRenderProfile=function(lea,list){
+   _origProfile.apply(this,arguments);
+   try{
+    if(LEA_DATA&&LEA_DATA.exit&&LEA_DATA.exit.ok){
+     _appendExitCard(_exitCardHTML(lea&&lea.exit,{
+      heading:(lea&&lea.name?lea.name+': ':'')+'How Students Left Special Education',
+      scopePhrase:'from this district in School Year 2023–24',
+      noneMsg:'No School Year 2023–24 exit record matched this district. Districts open, close, and merge between years, so a 2024–25 district may not appear in the 2023–24 exiting file.'
+     }));
+    } else if(LEA_DATA){ _ensureExitAttached().then(function(d){ if(d&&d.exit&&d.exit.ok) _refreshLeaIfActive(); }); }
+   }catch(e){}
+  };
+ }
+ if(typeof _leaRenderState==='function'){
+  var _origState=_leaRenderState;
+  _leaRenderState=function(state,list){
+   _origState.apply(this,arguments);
+   try{
+    if(LEA_DATA&&LEA_DATA.exit&&LEA_DATA.exit.ok&&LEA_DATA.exit.byState){
+     var ex=LEA_DATA.exit.byState[state];
+     _appendExitCard(_exitCardHTML(ex,{
+      heading:'How Students Left Special Education in '+state,
+      scopePhrase:'in '+state+' in School Year 2023–24',
+      sub:'Summed from the '+((ex&&ex._n)?ex._n.toLocaleString():'0')+' districts in '+state+' that reported School Year 2023–24 exit data.',
+      srcScope:state,
+      noneMsg:'No School Year 2023–24 exit data was available for '+state+'’s districts.'
+     }));
+    } else if(LEA_DATA){ _ensureExitAttached().then(function(d){ if(d&&d.exit&&d.exit.ok) _refreshLeaIfActive(); }); }
+   }catch(e){}
+  };
+ }
+ if(typeof _leaRenderNation==='function'){
+  var _origNation=_leaRenderNation;
+  _leaRenderNation=function(){
+   _origNation.apply(this,arguments);
+   try{
+    if(LEA_DATA&&LEA_DATA.exit&&LEA_DATA.exit.ok&&LEA_DATA.exit.us){
+     var ex=LEA_DATA.exit.us;
+     _appendExitCard(_exitCardHTML(ex,{
+      heading:'How Students Left Special Education Nationwide',
+      scopePhrase:'nationwide in School Year 2023–24',
+      sub:'Summed from every district that reported School Year 2023–24 exit data ('+(ex._n?ex._n.toLocaleString():'0')+' districts).',
+      srcScope:'all reporting districts',
+      noneMsg:'National exit data could not be loaded.'
+     }));
+    } else if(LEA_DATA){ _ensureExitAttached().then(function(d){ if(d&&d.exit&&d.exit.ok) _refreshLeaIfActive(); }); }
+   }catch(e){}
+  };
+ }
+ /* If LEA_DATA was already loaded (or is loading) before this script ran,
+    attach the exit data now and repaint the LEA view if it is open. */
+ (function _bootExit(){
+  if(typeof LEA_DATA!=='undefined'&&LEA_DATA){ _ensureExitAttached().then(function(d){ if(d&&d.exit&&d.exit.ok) _refreshLeaIfActive(); }); }
+  else if(typeof LEA_STATUS!=='undefined'&&LEA_STATUS==='loading'){ setTimeout(_bootExit,250); }
+ })();
+
+ /* =====================================================================
+    PART 2 — Disability quick-profile popup (opened from the Home bubbles)
+    Reuses the same data and chart styles as the full Disability Explorer, in
+    a focused popup: a takeaway line, four numbers, and three small graphs,
+    with a button into the full Explorer for anyone who wants more.
+    ===================================================================== */
+
+ var _dmCharts={}, _dmLastFocus=null;
+ function _dmDestroy(){ Object.keys(_dmCharts).forEach(function(k){ try{ _dmCharts[k].destroy(); }catch(e){} delete _dmCharts[k]; }); }
+
+ function _dmEnsureOverlay(){
+  var ov=document.getElementById('disabilityModal');
+  if(ov) return ov;
+  ov=document.createElement('div');
+  ov.id='disabilityModal'; ov.className='dm-overlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-labelledby','dmTitle'); ov.hidden=true;
+  ov.innerHTML=
+   '<div class="dm-modal" role="document">'+
+    '<div class="dm-accent" aria-hidden="true"></div>'+
+    '<button type="button" class="dm-x" id="dmClose" aria-label="Close">×</button>'+
+    '<div class="dm-head"><div class="dm-ey">Disability quick profile · School Year 2024–25</div><h2 id="dmTitle">Category</h2><p class="dm-take" id="dmTake"></p></div>'+
+    '<div class="dm-kpis" id="dmKpis"></div>'+
+    '<div class="dm-figs">'+
+     '<div class="dm-fig dm-fig-wide"><div class="dm-fig-t" id="dmTrendT">Served over time</div><div class="dm-canvas"><canvas id="dmTrend"></canvas></div></div>'+
+     '<div class="dm-fig"><div class="dm-fig-t">Where students learn</div><div class="dm-canvas"><canvas id="dmEnv"></canvas></div></div>'+
+     '<div class="dm-fig"><div class="dm-fig-t">By age</div><div class="dm-canvas"><canvas id="dmAge"></canvas></div></div>'+
+    '</div>'+
+    '<div class="dm-foot"><button type="button" class="dm-more" id="dmMore">Open the full Disability Explorer →</button><span class="dm-src">U.S. Department of Education, OSEP, &ldquo;IDEA Part&nbsp;B Child Count and Educational Environments Collection,&rdquo; School Year 2024–25.</span></div>'+
+   '</div>';
+  document.body.appendChild(ov);
+  function close(){
+   ov.classList.remove('open'); document.body.style.overflow=''; _dmDestroy();
+   setTimeout(function(){ ov.hidden=true; },220);
+   if(_dmLastFocus&&_dmLastFocus.focus){ try{ _dmLastFocus.focus(); }catch(e){} }
+  }
+  ov._close=close;
+  ov.querySelector('#dmClose').addEventListener('click',close);
+  ov.addEventListener('click',function(e){ if(e.target===ov) close(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&ov.classList.contains('open')) close(); });
+  ov.querySelector('#dmMore').addEventListener('click',function(){ var c=ov._cat; close(); try{ if(typeof openCategory==='function') openCategory(c); }catch(e){} });
+  return ov;
+ }
+
+ function _dmBuildCharts(cat,c,col){
+  if(typeof Chart==='undefined') return;
+  var reduce=document.body.classList.contains('reduce');
+  var tEl=document.getElementById('dmTrend');
+  if(tEl&&typeof DIS!=='undefined'&&DIS[cat]){
+   _dmCharts.t=new Chart(tEl,{type:'line',data:{labels:YEARS,datasets:[
+     {label:'All disabilities',data:ALL,borderColor:'#c3cad6',borderWidth:1.4,borderDash:[5,4],pointRadius:0,tension:.3,spanGaps:true},
+     {label:cat,data:DIS[cat],borderColor:col,backgroundColor:shade(col,.12),borderWidth:3,fill:true,pointRadius:0,pointHoverRadius:5,tension:.3,spanGaps:true}
+   ]},options:{responsive:true,maintainAspectRatio:false,animation:reduce?false:undefined,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:true,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:10,font:{size:10}}},tooltip:{callbacks:{label:function(o){ return o.dataset.label+': '+fmtK(o.parsed.y); }}}},
+    scales:{x:{grid:{display:false},ticks:{maxRotation:60,minRotation:60,font:{size:9},autoSkip:true,maxTicksLimit:10}},y:{beginAtZero:true,title:{display:true,text:'Students (thousands)',font:{size:10}},ticks:{font:{size:10}}}}}});
+  }
+  var eEl=document.getElementById('dmEnv');
+  if(eEl&&typeof EX_ENV!=='undefined'){
+   var envRows=EX_ENV.map(function(e){ var raw=c.env[e[0]]||0; return { label:e[1], raw:raw, share:pct(raw,c.sa_total||1), color:e[2] }; }).sort(function(a,b){ return b.raw-a.raw; });
+   _dmCharts.e=new Chart(eEl,{type:'bar',data:{labels:envRows.map(function(r){ return r.label; }),datasets:[{data:envRows.map(function(r){ return +(r.share||0).toFixed(1); }),backgroundColor:envRows.map(function(r){ return shade(r.color,.84); }),borderColor:envRows.map(function(r){ return r.color; }),borderWidth:1,borderRadius:4,_raw:envRows.map(function(r){ return r.raw; })}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:reduce?false:undefined,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(o){ return fmt(o.dataset._raw[o.dataIndex])+' students · '+o.parsed.x.toFixed(1)+'%'; }}}},
+     scales:{x:{beginAtZero:true,max:100,ticks:{callback:function(v){ return v+'%'; },font:{size:9}}},y:{grid:{display:false},ticks:{font:{size:9,weight:'700'}}}}}});
+  }
+  var aEl=document.getElementById('dmAge');
+  if(aEl&&typeof EX_AGES!=='undefined'){
+   var ageVals=EX_AGES.map(function(a){ return c.ages[a]||0; });
+   _dmCharts.a=new Chart(aEl,{type:'bar',data:{labels:EX_AGES.slice(),datasets:[{data:ageVals,backgroundColor:shade(col,.85),borderColor:col,borderWidth:1,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:reduce?false:undefined,plugins:{legend:{display:false},tooltip:{callbacks:{title:function(o){ return 'Age '+o[0].label; },label:function(o){ return fmt(o.parsed.y)+' students'; }}}},
+     scales:{x:{grid:{display:false},title:{display:true,text:'Age (years)',font:{size:9}},ticks:{font:{size:9}}},y:{beginAtZero:true,ticks:{font:{size:9},callback:function(v){ return (+v).toLocaleString(); }}}}}});
+  }
+ }
+
+ function openDisabilityModal(cat){
+  try{
+   if(typeof DEMO==='undefined'||!DEMO.cur||!DEMO.cur[cat]) return false;
+   var ov=_dmEnsureOverlay(); ov._cat=cat;
+   _dmLastFocus=document.activeElement;
+   var c=DEMO.cur[cat], all=DEMO.cur['All Disabilities'], col=(typeof COLORS!=='undefined'&&COLORS[cat])||'#1f6fa8';
+   var share=pct(c.total,all.total), incl=pct(c.env['Inside regular class 80% or more of the day'],c.sa_total), male=pct(c.male,(c.male||0)+(c.female||0));
+   var prev=(DEMO.prevTotals&&DEMO.prevTotals[cat])||null, yoy=prev?((c.total-prev)/prev*100):null;
+   ov.style.setProperty('--dm-accent',col);
+   ov.querySelector('#dmTitle').textContent=cat;
+   ov.querySelector('#dmTake').innerHTML='<b>'+fmt(c.total)+'</b> Children and Students with Disabilities served under IDEA, Part B, ages 3 through 21, in School Year 2024–25.';
+   var kpis=[
+    {l:'Share of all students served',v:share.toFixed(1)+'%'},
+    {l:'Change from 2023–24',v:(yoy==null?'–':(yoy>=0?'+':'')+yoy.toFixed(1)+'%'),cls:(yoy==null?'':(yoy>=0?'up':'dn'))},
+    {l:'In regular class 80%+ of the day',v:incl.toFixed(0)+'%'},
+    {l:'Reported male share',v:male.toFixed(0)+'%'}
+   ];
+   ov.querySelector('#dmKpis').innerHTML=kpis.map(function(k){ return '<div class="dm-kpi"><div class="dl">'+k.l+'</div><div class="dv '+(k.cls||'')+'">'+k.v+'</div></div>'; }).join('');
+   ov.querySelector('#dmTrendT').textContent=cat+' served over time';
+   ov.hidden=false; document.body.style.overflow='hidden';
+   requestAnimationFrame(function(){ ov.classList.add('open'); });
+   setTimeout(function(){ ov.classList.add('open'); },60); // fallback if rAF is throttled
+   _dmDestroy();
+   setTimeout(function(){ try{ _dmBuildCharts(cat,c,col); }catch(e){} var x=ov.querySelector('#dmClose'); if(x){ try{ x.focus(); }catch(e){} } },30);
+   return true;
+  }catch(e){ return false; }
+ }
+ window.openDisabilityModal=openDisabilityModal;
+
 })();
 </script>
 </body>
