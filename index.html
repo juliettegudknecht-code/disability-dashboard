@@ -61,8 +61,11 @@ window.addEventListener('load', function(){ try{ document.documentElement.classL
 #pwGate .gate-msg{ min-height:18px; margin-top:12px; font-size:13px; color:#cc5a33; font-weight:600; }
   #pwGate.bad .gate-card{ animation:gateShake .4s; }
   @keyframes gateShake{ 0%,100%{transform:translateX(0);} 20%{transform:translateX(-9px);} 40%{transform:translateX(8px);} 60%{transform:translateX(-6px);} 80%{transform:translateX(4px);} }
-  #pwGate .gate-hint{ margin-top:18px; font-size:11.5px; color:#90a2b0; line-height:1.5; }
-  #pwGate .gate-hint b{ color:#5a6b78; white-space:nowrap; }
+  #pwGate .gate-refresh{ display:flex; align-items:flex-start; gap:10px; margin-top:18px; padding:12px 14px; text-align:left; background:#eef6ea; border:1px solid #cfe6c2; border-left:4px solid #84c13e; border-radius:10px; font-size:12.5px; line-height:1.5; color:#33513f; }
+  #pwGate .gate-refresh .gr-ic{ flex:0 0 auto; width:19px; height:19px; margin-top:1px; color:#2f7d5b; }
+  #pwGate .gate-refresh b{ color:#1e4d3d; }
+  #pwGate .gate-refresh kbd{ display:inline-block; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; font-size:11px; font-weight:700; color:#1e4d3d; background:#fff; border:1px solid #b9d6a8; border-bottom-width:2px; border-radius:5px; padding:1px 6px; white-space:nowrap; }
+  #pwGate .gate-refresh .gr-mac{ white-space:nowrap; }
   #pwGate .gate-updated{ margin-top:10px; padding-top:10px; border-top:1px solid #eef2f5; font-size:11px; color:#aab6c0; }
   /* Loading screen: shown until the app has finished setting up, so a refresh never
      flashes raw/partly-built content. Hidden once <html> gets the app-ready class. */
@@ -12623,7 +12626,10 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
       <button type="submit" class="gate-go">Continue</button>
       <div class="gate-msg" id="pwGateMsg" aria-live="polite"></div>
     </form>
-    <div class="gate-hint">Seeing an older version? Press <b>Ctrl&#8209;R</b> (<b>&#8984;R</b> on Mac) to hard-refresh and load the latest updates.</div>
+    <div class="gate-refresh" role="note">
+      <svg class="gr-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      <span class="gr-txt"><b>Seeing an older version?</b> Hard-refresh first: press <kbd>Ctrl</kbd>+<kbd>R</kbd> <span class="gr-mac">(<kbd>&#8984;</kbd>+<kbd>R</kbd> on Mac)</span> to load the latest updates.</span>
+    </div>
     <div class="gate-updated" id="pwGateUpdated"></div>
   </div>
 </div>
