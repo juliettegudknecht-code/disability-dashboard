@@ -12518,6 +12518,11 @@ body.printing .guidebtn{display:none}
   opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s ease;
 }
 .welcome-overlay.open{opacity:1;visibility:visible}
+/* Bulletproofing: a full-screen z-9000 overlay that is NOT actively open must never
+   intercept clicks or paint over the page, even if it gets stuck mid-animation
+   (the "shown-but-transparent" first-paint race). This keeps the nav and Explore
+   menu clickable at all times. */
+.welcome-overlay:not(.open){opacity:0!important;visibility:hidden!important;pointer-events:none!important}
 .welcome-modal{
   width:100%;max-width:740px;background:var(--card);color:var(--ink);
   border-radius:14px;overflow:hidden;
@@ -13716,11 +13721,31 @@ const modernChartTheme={id:'modernChartTheme',beforeUpdate:function(chart){
       if(!alreadyFills && !canAutoFill)return;
       ds.fill=(ds.fill===true||ds.fill==='origin')?ds.fill:'start';
       ds._modernBase=base;
-      ds.backgroundColor=gradFor(base);                  /* gradient tint instead of flat shade */
+      ds.backgroundColor=shade(base,.14);                /* flat tint (eager string: a scriptable fn trips Chart.js's _scriptable recursion guard on some charts) */
     });
   }catch(e){}
 }};
 try{Chart.register(modernChartTheme);}catch(e){}
+/* ===== USAFacts chart chrome: forest palette, warm gridlines, bold near-black
+   titles, forest-tinted tooltips. Applies to every Chart.js canvas so the
+   non-homepage charts match the National Trends figures. ===== */
+var UF_PALETTE=['#1e4d3d','#4e9f5b','#84c13e','#2a4cad','#8e44c9','#9a8f6a','#1a1a1a','#5fb98c'];
+window.UF_PALETTE=UF_PALETTE;
+function ufColor(i){return UF_PALETTE[i%UF_PALETTE.length];}
+function ufFill(base,ctx){ try{var ch=ctx.chart,a=ch.chartArea;if(!a)return shade(base,.12);var g=ch.ctx.createLinearGradient(0,a.top,0,a.bottom);g.addColorStop(0,shade(base,.22));g.addColorStop(1,shade(base,.04));return g;}catch(e){return shade(base,.12);} }
+window.ufColor=ufColor;window.ufFill=ufFill;
+try{
+  if(!document.body.classList.contains('hc')){
+    Chart.defaults.plugins.legend.labels.color='#1a1a1a';
+    Chart.defaults.plugins.tooltip.backgroundColor='rgba(26,42,34,.95)';
+    Chart.defaults.plugins.tooltip.borderColor='rgba(95,185,140,.5)';
+    Chart.defaults.plugins.title.color='#1a1a1a';
+  }
+}catch(e){}
+/* Warm gridlines are applied via the app's existing theme-aware
+   Chart.defaults.borderColor (see the applyTheme block), NOT a per-chart plugin
+   — mutating chart.options.scales inside beforeUpdate trips Chart.js's
+   "_scriptable->_scriptable" recursion guard. */
 /* Fairy tint: recolour every Chart.js dataset into the pink band while fairy mode
    is on. Stashes originals so toggling fairy mode off restores the real palette.
    Runs before each update so it covers charts built before the mode was on. */
@@ -14274,7 +14299,7 @@ function renderStateBar(){
  if(fr>=15){rows=ranked.slice(0,14).concat([ranked[fr]]);appended=true;}
  const labels=rows.map(r=>rankOf[r[0]]+'. '+r[0]);
  const data=rows.map(r=>+r[1].toFixed(m==='v2024'?0:1));
- const colors=rows.map(r=>r[0]===focusState?'#cc5a33':shade('#005ea2',.82));
+ const colors=rows.map(r=>r[0]===focusState?'#1e4d3d':shade('#4e9f5b',.82));
  const labelFmt=(m==='v2024')?(v=>Math.round(v/1000).toLocaleString()+'k'):MET[m].f;
  const titles={v2024:'Part B Child Count Ranking, Ages 3–21, School Year 2024–25',
   pe2022:'Part B Enrollment Share Ranking, Ages 3–21, School Year 2022–23',
@@ -14288,7 +14313,7 @@ function renderStateBar(){
  const valuePlugin={id:'svlab',afterDatasetsDraw(ch){const ctx=ch.ctx,meta=ch.getDatasetMeta(0);if(!meta)return;
    ctx.save();ctx.font='800 11px '+Chart.defaults.font.family;ctx.textBaseline='middle';ctx.textAlign='left';
    meta.data.forEach((el,i)=>{const v=ch.data.datasets[0].data[i];if(v==null)return;
-     ctx.fillStyle=rows[i][0]===focusState?'#cc5a33':Chart.defaults.color;ctx.fillText(labelFmt(v),el.x+7,el.y);});
+     ctx.fillStyle=rows[i][0]===focusState?'#1e4d3d':Chart.defaults.color;ctx.fillText(labelFmt(v),el.x+7,el.y);});
    ctx.restore();}};
  const cfg={type:'bar',data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:5,maxBarThickness:22}]},
   options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{right:16}},
@@ -14323,8 +14348,8 @@ function renderStateDetail(){
   `<div>Change in students served since School Year 2000–01<br><b>${grw>=0?'+':''}${grw.toFixed(0)}%</b></div>`;
  const _sps=document.getElementById('statePanelStats');if(_sps)_sps.innerHTML=statsHtml;
  const _mkDsets=()=>[
-   {label:focusState,data:series.slice(),borderColor:'#005ea2',backgroundColor:shade('#005ea2',.12),borderWidth:2.5,fill:true,tension:.3,pointRadius:3,order:1},
-   {label:'Average State',data:avgSeries.slice(),borderColor:'#cc5a33',backgroundColor:'transparent',borderWidth:2,borderDash:[5,4],fill:false,tension:.3,pointRadius:2,order:2}
+   {label:focusState,data:series.slice(),borderColor:'#1e4d3d',backgroundColor:shade('#1e4d3d',.12),borderWidth:2.5,fill:true,tension:.3,pointRadius:3,order:1},
+   {label:'Average State',data:avgSeries.slice(),borderColor:'#4e9f5b',backgroundColor:'transparent',borderWidth:2,borderDash:[5,4],fill:false,tension:.3,pointRadius:2,order:2}
  ];
  const _opts=()=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{usePointStyle:true,boxWidth:8,padding:14}},
    tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.y)+' students'}}},
@@ -15414,7 +15439,7 @@ function toggleCompPlay(){const btn=document.getElementById('compPlay');
 let reduceMotion=(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)||false;
 function setChartTheme(){const dark=document.body.classList.contains('dark'),hc=document.body.classList.contains('hc');
  Chart.defaults.color=hc?(dark?'#ffffff':'#000000'):(dark?'#b6c2d2':'#5b6472');
- Chart.defaults.borderColor=hc?(dark?'rgba(255,255,255,.45)':'rgba(0,0,0,.4)'):(dark?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)');
+ Chart.defaults.borderColor=hc?(dark?'rgba(255,255,255,.45)':'rgba(0,0,0,.4)'):(dark?'rgba(127,207,163,.10)':'rgba(226,225,214,.9)');
  var _anOff=document.body.classList.contains('no-anim')||document.body.classList.contains('reduce')||reduceMotion,_anD=_anOff?0:850;
  Chart.defaults.animation.duration=_anD;Chart.defaults.animation.easing='easeOutQuart';
  if(Chart.overrides){
@@ -15844,7 +15869,7 @@ var TBL_B_US='US, Outlying Areas, and Freely Associated States';
 var TBL_C_US='US and Outlying Areas';
 var TBL_FI={cnt3_21:0,totalSA:1,reg80:2,reg4079:3,reglt40:4,sepclass:5,sepschool:6,resfac:7,homebound:8,correct:9,private:10,female:11,male:12,elYes:13,elNo:14,aian:15,asian:16,black:17,hisp:18,nhpi:19,two:20,white:21};
 /* OSEP "50 Years of IDEA" Fast Facts palette: teal-blue, forest green, coral, slate, gold, navy. */
-var TBL_COLORS=['#227aa7','#1c7b37','#df5e44','#345065','#c79a1f','#12303b'];
+var TBL_COLORS=['#1e4d3d','#4e9f5b','#84c13e','#2a4cad','#8e44c9','#9a8f6a'];
 var TBL_COLORS_ORIG=TBL_COLORS.slice();
 var TBL_USALL='__USALL__'; /* sentinel: "US, Outlying Areas, and Freely Associated States" national total */
 function _tblPrimary(){ if(tablesPrimary===TBL_USALL)return TBL_USALL; if(tablesPrimary&&CCEE.data[tablesPrimary])return tablesPrimary; return (typeof focusState!=='undefined'&&CCEE.data[focusState])?focusState:'New York';}
@@ -15935,7 +15960,7 @@ function _specCard(spec,openFirst,idx){
 /* ===== Data Tables: per-table "Visualize" charts ===== */
 var _VIZ={}; var _vizDelegated=false;
 /* OSEP Fast Facts palette extended with tints/shades for many pie slices. */
-var TBL_PIE_COLORS=['#227aa7','#1c7b37','#df5e44','#ebd24a','#345065','#5aa0c4','#6cb389','#12303b','#e89177','#9c7c2a','#2a8f8a','#b8472f','#7fa9c9','#cbeeeb'];
+var TBL_PIE_COLORS=['#1e4d3d','#4e9f5b','#84c13e','#2a4cad','#8e44c9','#9a8f6a','#5fb98c','#1a1a1a','#3f7a5a','#6cb389','#b9ad84','#2a8f8a','#7fa9c9','#cbeeeb'];
 var TBL_PIE_COLORS_ORIG=TBL_PIE_COLORS.slice();
 try{_applyActivePalette();}catch(e){}
 function _vizNum(spec,col,rk,mi){var t=_stripHtml(spec.metrics[mi].cell(col,rk)).trim();if(!t||t==='N/A'||t==='–')return null;var neg=/^-/.test(t);var n=parseFloat(t.replace(/[^0-9.]/g,''));if(isNaN(n))return null;return neg?-n:n;}
@@ -16062,7 +16087,7 @@ function _renderVizChart(sid){
  }
  if(noteEl)noteEl.textContent=noteTxt;
  var cfg;
- var GRIDC='rgba(120,140,160,.13)';
+ var GRIDC='rgba(226,225,214,.9)';
  var ffFlag=(st.showLabels===false)?false:true;
  var bubbleType=(st.type==='bubble'&&!pieType&&labels&&labels.length);
  if(bubbleType){
@@ -17586,7 +17611,7 @@ function _leaStateTotals(){
  var t={};Object.keys(LEA_DATA.byState).forEach(function(s){t[s]=LEA_DATA.byState[s].reduce(function(a,l){return a+(l.total||0);},0);});
  _LEA_STATE_TOTALS=t;return t;
 }
-function _leaMapColor(v,maxV){if(v==null||!v)return _fairyOn()?'#ffe6f2':'#e7edf3';var k=Math.sqrt(v/maxV);function mix(a,b){return Math.round(a+(b-a)*k);}var c='rgb('+mix(210,11)+','+mix(228,74)+','+mix(240,130)+')';return _fairyOn()?_toFairy(c):c;}
+function _leaMapColor(v,maxV){if(v==null||!v)return _fairyOn()?'#ffe6f2':'#eceae2';var k=Math.sqrt(v/maxV);function mix(a,b){return Math.round(a+(b-a)*k);}var c='rgb('+mix(246,30)+','+mix(245,77)+','+mix(239,61)+')';return _fairyOn()?_toFairy(c):c;}
 function _leaUpdateMapSel(){if(!_leaMapPaths)return;_leaMapPaths.classed('sel',function(){return this.getAttribute('data-name')===LEA_STATE;});}
 var _LEA_MAP_VALS=null;
 var _LEA_MAP_MET={
@@ -19529,8 +19554,8 @@ body.dark .trend-section-head p{color:#b8c7d7}
 }
 .view[data-view="trends"] .home-bubblewrap{
   width:100%;
-  max-width:980px!important;
-  min-height:470px;
+  max-width:840px!important;
+  min-height:410px;
   margin:8px auto 0!important;
   display:flex;
   align-items:center;
@@ -19538,7 +19563,7 @@ body.dark .trend-section-head p{color:#b8c7d7}
 }
 .view[data-view="trends"] .home-bubblewrap svg{
   width:100%!important;
-  height:clamp(460px,48vw,620px)!important;
+  height:clamp(390px,41vw,530px)!important;
   max-height:none!important;
 }
 .view[data-view="trends"] .trend-fastfacts{
@@ -21771,6 +21796,158 @@ body:not(.no-anim):not(.reduce) #ufBand .uf-db-a,body:not(.no-anim):not(.reduce)
 })();
 </script>
 
+<style id="usafacts-global-vibe">
+/* ============================================================================
+   USAFacts vibe, applied to EVERY view (the unscoped sibling of the National
+   Trends "ufStyle2" block): flat cream cards, left-aligned bold near-black
+   figure titles, gray subtitles/sources, forest-green active toggles. Placed
+   last so it out-orders the older "professional pass" white-card !important
+   rules (e.g. body:not(.dark) .card{background:#fff!important}).
+   ============================================================================ */
+:root{
+  --uf-cream:#f6f5ef; --uf-cream-d:#13251d; --uf-cardborder:#e6e5da; --uf-cardborder-d:#27412f; --uf-radius:8px;
+  --uf-ink:#1a1a1a; --uf-ink-d:#f3f3ee; --uf-sub:#6b6b6b; --uf-sub-d:#aab0a8; --uf-src:#8a8a82;
+  --uf-forest:#1e4d3d; --uf-forest-d:#5fb98c; --uf-grid:#e2e1d6;
+}
+/* warm the page background a touch so the cream cards read as intentional */
+body:not(.dark):not(.hc){ --bg:#f1efe8; }
+
+/* --- flat cream cards everywhere --- */
+body:not(.dark):not(.hc) .card{ background:var(--uf-cream)!important; border-color:var(--uf-cardborder)!important; box-shadow:none!important; border-radius:var(--uf-radius)!important; }
+body.dark .card{ background:var(--uf-cream-d)!important; border-color:var(--uf-cardborder-d)!important; box-shadow:none!important; border-radius:var(--uf-radius)!important; }
+body:not(.dark):not(.hc) .kpi, body:not(.dark):not(.hc) .mini, body:not(.dark):not(.hc) .launchcard,
+body:not(.dark):not(.hc) .pick-empty, body:not(.dark):not(.hc) .tables-empty, body:not(.dark):not(.hc) .insightpanel{
+  background:var(--uf-cream)!important; border-color:var(--uf-cardborder)!important; box-shadow:none!important; border-radius:var(--uf-radius)!important;
+}
+body.dark .kpi, body.dark .mini, body.dark .launchcard, body.dark .pick-empty, body.dark .tables-empty, body.dark .insightpanel{
+  background:var(--uf-cream-d)!important; border-color:var(--uf-cardborder-d)!important; box-shadow:none!important;
+}
+
+/* --- figure titles: left, bold, near-black; eyebrows + sources gray --- */
+.card.fig>h3, .card.fig .ey{ text-align:left!important; margin-left:0!important; margin-right:0!important; max-width:none!important; }
+body:not(.dark):not(.hc) .card.fig>h3{ font-weight:800!important; color:var(--uf-ink)!important; letter-spacing:-.01em!important; }
+body.dark .card.fig>h3{ color:var(--uf-ink-d)!important; }
+body:not(.dark):not(.hc) .card .ey{ color:var(--uf-sub)!important; letter-spacing:.05em!important; }
+body:not(.dark):not(.hc) .card .tbl-srcfold-body{ color:var(--uf-src)!important; }
+
+/* --- active toggles / pills -> forest green (match homepage figures) --- */
+body:not(.dark):not(.hc) .tbl-toggle button.on,
+body:not(.dark):not(.hc) .hxm-toggle button.on,
+body:not(.dark):not(.hc) .lea-mini-toggle button.on,
+body:not(.dark):not(.hc) .seg button.on{
+  background:var(--uf-forest)!important; border-color:var(--uf-forest)!important; color:#fff!important;
+}
+</style>
+<style id="usafacts-vibe-allpages">
+/* ============================================================================
+   USAFacts vibe -> EVERY view (from the per-view audit). Out-specifies the
+   older "professional pass" white-!important rules on explorer/states/tables/
+   gpra/lea by matching their .view[...] scope and being LAST in source order.
+   ============================================================================ */
+:root{
+  --uf-medium:#4e9f5b;--uf-lime:#84c13e;--uf-blue:#2a4cad;--uf-purple:#8e44c9;
+  --uf-decline:#9a8f6a;--uf-decline-text:#6f6650;
+}
+/* 1. Flat cream cards on every off-vibe surface */
+body:not(.dark):not(.hc) .tbl-card,body:not(.dark):not(.hc) .tbl-card-summary,
+body:not(.dark):not(.hc) .lea-scard,
+body:not(.dark):not(.hc) .gpra-card,body:not(.dark):not(.hc) .gpra-card.gpra-measure,
+body:not(.dark):not(.hc) .gpra-takeaways,body:not(.dark):not(.hc) .gpra-goalbox,body:not(.dark):not(.hc) .gpra-goalfold{
+  background:var(--uf-cream)!important;border:1px solid var(--uf-cardborder)!important;
+  box-shadow:none!important;border-radius:var(--uf-radius)!important;
+}
+body:not(.dark):not(.hc) .view[data-view="explorer"] .card.fig,
+body:not(.dark):not(.hc) .view[data-view="explorer"] .exp-hero,
+body:not(.dark):not(.hc) .view[data-view="states"] .state-profile,
+body:not(.dark):not(.hc) .view[data-view="states"] .state-comparewrap,
+body:not(.dark):not(.hc) .view[data-view="states"] #officialDisplay .dd-card,
+body:not(.dark):not(.hc) .view[data-view="states"] .grid.g2>.card,
+body:not(.dark):not(.hc) .view[data-view="states"] .state-morefold{
+  background:var(--uf-cream)!important;border:1px solid var(--uf-cardborder)!important;
+  box-shadow:none!important;border-radius:var(--uf-radius)!important;
+}
+body:not(.dark):not(.hc) .view[data-view="explorer"] .canvas-box,
+body:not(.dark):not(.hc) .gpra-scale-track{ background:var(--uf-grid)!important; }
+
+/* 2. Accent bars + KPI strips -> forest green */
+body:not(.dark):not(.hc) .view[data-view="explorer"] .exp-hero,
+body:not(.dark):not(.hc) .view[data-view="states"] .state-profile,
+body:not(.dark):not(.hc) .view[data-view="states"] #officialDisplay .dd-card,
+body:not(.dark):not(.hc) .gpra-goalbox,body:not(.dark):not(.hc) .gpra-goalfold,body:not(.dark):not(.hc) .gpra-predict{
+  border-left:4px solid var(--uf-forest)!important;
+}
+body:not(.dark):not(.hc) .view[data-view="states"] .srcard{ border-left:4px solid var(--uf-forest)!important; }
+body:not(.dark):not(.hc) .view[data-view="explorer"] .exp-kpis .k{
+  background:var(--uf-cream)!important;border:1px solid var(--uf-cardborder)!important;
+  border-left:4px solid var(--uf-forest)!important;box-shadow:none!important;border-radius:var(--uf-radius)!important;
+}
+/* navy explorer header -> forest-filled bar (keeps hierarchy; risk #5) */
+body:not(.dark):not(.hc) .view[data-view="explorer"] .explorer-head{
+  background:var(--uf-forest)!important;color:#fff!important;
+  border:1px solid var(--uf-forest)!important;border-radius:var(--uf-radius)!important;
+}
+body:not(.dark):not(.hc) .view[data-view="lea"] .lea-scard:hover{ border-color:var(--uf-forest)!important; }
+body:not(.dark):not(.hc) .view[data-view="lea"] .lea-scard.tier-low{ background:rgba(154,143,106,.08)!important; }
+body:not(.dark):not(.hc) .view[data-view="lea"] .lea-scard.tier-vlow{ background:rgba(154,143,106,.14)!important; }
+body:not(.dark):not(.hc) .view[data-view="lea"] .lea-begin-ic{ background:rgba(30,77,61,.10)!important; }
+
+/* 3. Titles: left, bold, near-black; eyebrows/sources gray */
+.gpra-card h3,.tbl-card h3,.lea-scard-h{ text-align:left!important;max-width:none!important;margin-left:0!important;margin-right:0!important; }
+body:not(.dark):not(.hc) .gpra-card h3,
+body:not(.dark):not(.hc) .tbl-card-summary h3,
+body:not(.dark):not(.hc) .view[data-view="states"] .state-profile-head h3,
+body:not(.dark):not(.hc) .view[data-view="states"] #stateMeasureTitle,
+body:not(.dark):not(.hc) .view[data-view="states"] #cmpTitle,
+body:not(.dark):not(.hc) .view[data-view="states"] #stateBarTitle{
+  font-weight:800!important;letter-spacing:-.01em!important;color:var(--uf-ink)!important;
+}
+body:not(.dark):not(.hc) .gpra-goalbox .ey{ color:var(--uf-sub)!important;letter-spacing:.05em!important; }
+body:not(.dark):not(.hc) .view[data-view="states"] .statehl{ color:var(--uf-ink)!important; }
+body:not(.dark):not(.hc) .view[data-view="states"] .srcard .srval{ color:var(--uf-forest)!important; }
+body:not(.dark):not(.hc) .view[data-view="lea"] .lea-scard-h b,
+body:not(.dark):not(.hc) .view[data-view="lea"] .lea-det-v,
+body:not(.dark):not(.hc) .view[data-view="lea"] .lea-begin-tx h3,
+body:not(.dark):not(.hc) .gpra-predict-k,body:not(.dark):not(.hc) .gpra-predict-v{ color:var(--uf-forest)!important; }
+
+/* 4. Empty states: cream card, forest icon chip */
+body:not(.dark):not(.hc) .view[data-view="tables"] .tables-empty{
+  background:var(--uf-cream)!important;border:1px solid var(--uf-cardborder)!important;border-left:4px solid var(--uf-forest)!important;
+}
+body:not(.dark):not(.hc) .tables-empty-ic{ background:var(--uf-forest)!important;color:#fff!important; }
+body:not(.dark):not(.hc) .tables-empty h3{ color:var(--uf-ink)!important; }
+
+/* 5. Toggle/segment "on" states -> forest green */
+body:not(.dark):not(.hc) .tbl-toggle button.on,
+body:not(.dark):not(.hc) .tbl-viz-type.on,
+body:not(.dark):not(.hc) .tbl-viz-btn.on,
+body:not(.dark):not(.hc) .hxm-toggle button.on,
+body:not(.dark):not(.hc) .lea-mini-toggle button.on,
+body:not(.dark):not(.hc) .seg button.on{
+  background:var(--uf-forest)!important;border-color:var(--uf-forest)!important;color:#fff!important;
+}
+body:not(.dark):not(.hc) .view[data-view="tables"] .tbl-viz-ustoggle input,
+body:not(.dark):not(.hc) .trend-line-toggle input,
+body:not(.dark):not(.hc) .view[data-view="tables"] input[type=checkbox],
+body:not(.dark):not(.hc) .view[data-view="tables"] input[type=radio]{ accent-color:var(--uf-forest)!important; }
+
+/* 6. Toolbars / selects / pills -> cream + green-family */
+body:not(.dark):not(.hc) .view[data-view="tables"] .tables-toolbar{ background:var(--uf-cream)!important;border-bottom-color:var(--uf-cardborder)!important; }
+body:not(.dark):not(.hc) .tbl-card-sum-pill.partb{ background:rgba(30,77,61,.10)!important;color:var(--uf-forest)!important;border-color:#c8dcc8!important; }
+body:not(.dark):not(.hc) .tbl-card-sum-pill.partc{ background:rgba(78,159,91,.10)!important;color:var(--uf-medium)!important;border-color:#d4e8d0!important; }
+
+/* 7. Table hover + total rows -> green tints */
+body:not(.dark):not(.hc) .view[data-view="tables"] .dd-table tbody tr:hover td{ background:var(--uf-hover)!important; }
+body:not(.dark):not(.hc) .view[data-view="tables"] .dd-table tr.tbl-total td{ background:rgba(132,193,62,.08)!important;border-top:2px solid var(--uf-lime)!important; }
+
+/* 8. GPRA direction badges + scale fills (khaki text darkened per risk #2) */
+body:not(.dark):not(.hc) .gpra-dir.is-good{ background:rgba(30,77,61,.10)!important;color:var(--uf-forest)!important;border-color:rgba(30,77,61,.20)!important; }
+body:not(.dark):not(.hc) .gpra-dir.is-good:before{ background:var(--uf-forest)!important; }
+body:not(.dark):not(.hc) .gpra-dir.is-watch{ background:rgba(154,143,106,.12)!important;color:var(--uf-decline-text)!important;border-color:rgba(154,143,106,.28)!important; }
+body:not(.dark):not(.hc) .gpra-dir.is-watch:before{ background:var(--uf-decline)!important; }
+body:not(.dark):not(.hc) .gpra-scale[data-met="yes"] .gpra-scale-fill{ background:linear-gradient(90deg,var(--uf-medium),var(--uf-forest))!important; }
+body:not(.dark):not(.hc) .gpra-scale[data-met="no"] .gpra-scale-fill{ background:var(--uf-decline)!important; }
+body:not(.dark):not(.hc) .gpra-scale-tlabel{ color:var(--uf-decline-text)!important; }
+</style>
 <style id="usafacts-motion-css">
 /* ===== USAFacts-style motion layer: count-up figures + fade-up reveals =====
    Adds data-journalism entrance motion across every view. Fully reduced-motion
