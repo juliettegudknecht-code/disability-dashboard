@@ -12667,7 +12667,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   /* Show when this file was last updated (auto-reflects the actual file save time). */
   try{
     var lm=document.lastModified, d=lm?new Date(lm):null, up=document.getElementById('pwGateUpdated');
-    if(up&&d&&!isNaN(d)){ up.textContent='Last updated '+d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}); }
+    if(up&&d&&!isNaN(d)){ up.textContent='Last updated '+d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})+' at '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}); }
   }catch(e){}
   try{ input.focus(); }catch(e){}
   /* Typing animation on the "Password" placeholder: type it out, hold, erase, repeat.
