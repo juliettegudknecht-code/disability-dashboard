@@ -13926,14 +13926,18 @@ function _packedBubbles(el,items,opts){
  var svg='<svg viewBox="'+(minX-pad).toFixed(1)+' '+(minY-pad).toFixed(1)+' '+vbW.toFixed(1)+' '+vbH.toFixed(1)+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Bubble cluster sized by value">';
  placed.forEach(function(it,bi){
   var col=it.color||'#227aa7';
+  /* solid, fully-saturated fills (was a washed-out 85% tint) + a label colour chosen
+     by the fill's luminance, so text stays crisp on both light and dark bubbles */
+  var _lum=(function(h){h=(''+h).replace('#','');if(h.length<6)return 120;return 0.299*parseInt(h.substr(0,2),16)+0.587*parseInt(h.substr(2,2),16)+0.114*parseInt(h.substr(4,2),16);})(col);
+  var tcol=(_lum>150)?'#12303f':'#ffffff';
   svg+='<g class="hb-bubble" style="animation-delay:'+(bi*0.045).toFixed(2)+'s"'+(click?' data-hbcat="'+(''+it.name).replace(/"/g,'')+'" tabindex="0" role="button"':'')+'><title>'+it.name+': '+it.v.toLocaleString()+'</title>'+
-   '<circle cx="'+it.x.toFixed(1)+'" cy="'+it.y.toFixed(1)+'" r="'+it.r.toFixed(1)+'" fill="'+shade(col,.85)+'" stroke="'+col+'" stroke-width="1.6"/>';
+   '<circle cx="'+it.x.toFixed(1)+'" cy="'+it.y.toFixed(1)+'" r="'+it.r.toFixed(1)+'" fill="'+col+'"/>';
   if(it.r>=23){
    var fs=Math.max(8.5,Math.min(15,it.r*0.3)),lfs=Math.max(7,fs*0.6);
    var maxc=Math.max(6,Math.floor((it.r*1.7)/(lfs*0.54)));
    var lines=wrap(it.name,maxc),blockH=fs+lines.length*lfs*1.02,vy=it.y-blockH/2+fs;
-   svg+='<text class="hb-v" x="'+it.x.toFixed(1)+'" y="'+vy.toFixed(1)+'" text-anchor="middle" font-size="'+fs.toFixed(1)+'" fill="#ffffff" font-weight="900" font-family="Calibri,Carlito,\'Source Sans 3\',Arial,sans-serif">'+fmtV(it.v)+'</text>';
-   lines.forEach(function(ln,li){svg+='<text class="hb-l" x="'+it.x.toFixed(1)+'" y="'+(vy+(li+1)*lfs*1.02).toFixed(1)+'" text-anchor="middle" font-size="'+lfs.toFixed(1)+'" fill="#ffffff" fill-opacity="0.93" font-weight="700" font-family="Calibri,Carlito,\'Source Sans 3\',Arial,sans-serif">'+ln+'</text>';});
+   svg+='<text class="hb-v" x="'+it.x.toFixed(1)+'" y="'+vy.toFixed(1)+'" text-anchor="middle" font-size="'+fs.toFixed(1)+'" fill="'+tcol+'" font-weight="900" font-family="Calibri,Carlito,\'Source Sans 3\',Arial,sans-serif">'+fmtV(it.v)+'</text>';
+   lines.forEach(function(ln,li){svg+='<text class="hb-l" x="'+it.x.toFixed(1)+'" y="'+(vy+(li+1)*lfs*1.02).toFixed(1)+'" text-anchor="middle" font-size="'+lfs.toFixed(1)+'" fill="'+tcol+'" fill-opacity="0.92" font-weight="700" font-family="Calibri,Carlito,\'Source Sans 3\',Arial,sans-serif">'+ln+'</text>';});
   }
   svg+='</g>';
  });
@@ -13952,7 +13956,7 @@ function renderHomeBubbles(){
  var el=document.getElementById('homeBubbles');if(!el||typeof DEMO==='undefined'||!DEMO.cur)return;
  var cur=DEMO.cur;
  var items=Object.keys(cur).filter(function(k){return k!=='All Disabilities'&&cur[k]&&cur[k].total;}).map(function(k){return {name:k,v:cur[k].total,color:(typeof COLORS!=='undefined'&&COLORS[k])||'#227aa7'};});
- _packedBubbles(el,items,{maxR:84,minR:17,onClick:function(cat){if(typeof openDisabilityModal==='function'){try{if(openDisabilityModal(cat))return;}catch(e){}}if(typeof trendSelected!=='undefined'){trendSelected=[cat];buildPills();renderTrend();renderTrendShare();}var tm=document.getElementById('trend-main');if(tm)tm.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}});
+ _packedBubbles(el,items,{maxR:76,minR:16,onClick:function(cat){if(typeof openDisabilityModal==='function'){try{if(openDisabilityModal(cat))return;}catch(e){}}if(typeof trendSelected!=='undefined'){trendSelected=[cat];buildPills();renderTrend();renderTrendShare();}var tm=document.getElementById('trend-main');if(tm)tm.scrollIntoView({block:'start',behavior:document.body.classList.contains('reduce')?'auto':'smooth'});}});
  _addCardTools(el.closest('.card'),function(){_gfxSvgPNG(el.querySelector('svg'),'Children and Students Served, by Primary Disability Category','IDEA Part B child count by primary disability category, ages 3 through 21, School Year 2024–25.','idea618_disability_bubbles');},function(){var rows=[['Primary disability category','Children and students served, 2024–25']];items.slice().sort(function(a,b){return b.v-a.v;}).forEach(function(it){rows.push([it.name,it.v]);});_gfxCSV(rows,'idea618_served_by_category');});
 }
 function renderSparks(){
@@ -20769,6 +20773,31 @@ body.dark .site-footer .sources-fold.in-footer>summary{ color:#9fc3ec; }
 .view[data-view="trends"] .trend-line-toggle input{ width:15px; height:15px; cursor:pointer; accent-color:#1f6f9c; }
 body.dark .view[data-view="trends"] .trend-line-toggle{ background:#16202c; border-color:#2f3a48; color:#dbe8f6; }
 
+/* ---- US hex tile-grid cartogram (home page, USAFacts-style) ---- */
+.hexmap-card .hxm-toggle{ display:inline-flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; margin:4px auto 14px; }
+.hexmap-card .hxm-toggle button{ font:inherit; font-size:.79rem; font-weight:700; color:var(--muted); background:none; border:none; padding:6px 16px; cursor:pointer; transition:background .14s, color .14s; }
+.hexmap-card .hxm-toggle button+button{ border-left:1px solid var(--line); }
+.hexmap-card .hxm-toggle button:hover{ color:var(--ink); }
+.hexmap-card .hxm-toggle button.on{ background:#2e8540; color:#fff; }
+.hexmap-card .hxm-toggle button:focus-visible{ outline:2px solid var(--primary); outline-offset:-2px; }
+.hxm-wrap{ max-width:600px; margin:0 auto; }
+.hxm-wrap svg{ display:block; width:100%; height:auto; overflow:visible; }
+.hxm-cell polygon{ stroke:var(--card,#fff); stroke-width:1.7px; transition:filter .15s ease; }
+body:not(.no-anim):not(.reduce) .hxm-cell:hover polygon,.hxm-cell:focus-visible polygon{ filter:brightness(1.09) drop-shadow(0 2px 6px rgba(16,42,67,.32)); }
+.hxm-cell{ cursor:default; }
+.hxm-cell:focus-visible{ outline:none; }
+.hxm-cell:focus-visible polygon{ stroke:#edcf36; stroke-width:2.4px; }
+.hxm-ab{ font-size:9px; font-weight:800; text-anchor:middle; letter-spacing:.02em; }
+.hxm-v{ font-size:7.6px; font-weight:600; text-anchor:middle; }
+.hxm-legend{ display:flex; align-items:center; justify-content:center; gap:11px; max-width:440px; margin:0 auto 14px; }
+.hxm-legend .hxm-leg-cap{ font-size:.72rem; font-weight:700; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums; }
+.hxm-legend .hxm-leg-bar{ height:9px; flex:1 1 auto; min-width:110px; max-width:230px; border-radius:999px; background:linear-gradient(90deg,#cee4d6,#124237); }
+.hxm-entlabel{ font-size:8px; font-weight:700; text-anchor:middle; fill:var(--muted); letter-spacing:.02em; text-transform:uppercase; }
+
+/* ---- crisper home bubble cluster: clean card-coloured separation between packed circles ---- */
+.home-bubblewrap .hb-bubble circle{ stroke:var(--card,#fff); stroke-width:2px; }
+body.dark .home-bubblewrap .hb-bubble circle{ stroke:#16202c; }
+
 /* ---- "click a bubble" lightbulb hint on the home bubble chart ---- */
 .bubble-hint{ display:flex; align-items:center; justify-content:center; gap:8px; margin:4px auto 2px; max-width:560px; font-size:.84rem; font-weight:600; color:var(--navy); }
 .bubble-hint .bh-ic{ width:18px; height:18px; flex:none; color:#e0a325; }
@@ -21227,6 +21256,248 @@ body.dark .bubble-hint .bh-ic{ color:#edcf36; }
  }
  window.openDisabilityModal=openDisabilityModal;
 
+ /* =====================================================================
+    PART 3 — US hex tile-grid cartogram on the Home page (USAFacts-style):
+    one hexagon per State + DC, shaded green by the number of Children and
+    Students with Disabilities served under IDEA, Part B. Reuses STATES (count
+    at index 4, percent-of-enrollment at 5) and SEARCH_ABBR.
+    ===================================================================== */
+ var HEX={ AK:[0.5,0],ME:[10.5,0], VT:[10,1],NH:[11,1],
+  WA:[1,2],MT:[2,2],ND:[3,2],MN:[4,2],WI:[5,2],MI:[7,2],NY:[9,2],MA:[10,2],RI:[11,2],
+  ID:[1.5,3],WY:[2.5,3],SD:[3.5,3],IA:[4.5,3],IL:[5.5,3],IN:[6.5,3],OH:[7.5,3],PA:[8.5,3],NJ:[9.5,3],CT:[10.5,3],
+  OR:[1,4],NV:[2,4],CO:[3,4],NE:[4,4],MO:[5,4],KY:[6,4],WV:[7,4],MD:[8,4],DE:[9,4],
+  CA:[1.5,5],AZ:[2.5,5],UT:[3.5,5],KS:[4.5,5],AR:[5.5,5],TN:[6.5,5],VA:[7.5,5],NC:[8.5,5],DC:[11,5],
+  NM:[2,6],OK:[3,6],LA:[4,6],MS:[5,6],AL:[6,6],SC:[7,6],
+  TX:[2.5,7],GA:[7.5,7], FL:[7.5,8], HI:[0.5,8] };
+ /* the 9 additional IDEA reporting entities (50 states + DC + these = 60), in a band below the map */
+ var HEX_ENT={ PR:[2,9.5],BIE:[3,9.5],GU:[4,9.5],MP:[5,9.5],VI:[6,9.5],AS:[7,9.5],FM:[8,9.5],MH:[9,9.5],PW:[10,9.5] };
+ var ENT_ABBR={'Commonwealth of Puerto Rico':'PR','Bureau of Indian Education':'BIE','Guam':'GU','Commonwealth of the Northern Mariana Islands':'MP','U.S. Virgin Islands':'VI','American Samoa':'AS','Federated States of Micronesia':'FM','Republic of the Marshall Islands':'MH','Republic of Palau':'PW'};
+ var _hexMetric='count';
+ function _hexFmt(v){ if(v==null)return '–'; if(v>=1e6)return (v/1e6).toFixed(1)+'M'; if(v>=1e3)return Math.round(v/1e3)+'K'; return ''+Math.round(v); }
+ function _hexVals(metric){ var o={byAb:{},max:0,min:1e18};
+  if(typeof STATES!=='undefined'&&typeof SEARCH_ABBR!=='undefined'){ STATES.forEach(function(st){ var ab=SEARCH_ABBR[st[0]]; if(!ab||!HEX[ab])return; var v=(metric==='pct')?st[5]:st[4]; if(v==null||isNaN(v))return; o.byAb[ab]=v; if(v>o.max)o.max=v; if(v<o.min)o.min=v; }); }
+  /* additional entities report a count but no percent-of-enrollment denominator */
+  if(metric!=='pct'&&typeof ENTITIES_618!=='undefined'){ ENTITIES_618.forEach(function(e){ var ab=ENT_ABBR[e[0]]; if(!ab||!HEX_ENT[ab])return; var v=e[2]; if(v==null||isNaN(v))return; o.byAb[ab]=v; if(v>o.max)o.max=v; if(v<o.min)o.min=v; }); }
+  return o; }
+ function _hexColor(v,max){ if(v==null||!(v>0)||!(max>0))return '#e7efe9'; var k=Math.sqrt(v/max); var a=[206,228,214],b=[18,66,55]; function m(i){return Math.round(a[i]+(b[i]-a[i])*k);} return 'rgb('+m(0)+','+m(1)+','+m(2)+')'; }
+ function _hexTxt(v,max){ return (max>0&&Math.sqrt((v||0)/max)>0.42)?'#ffffff':'#13342b'; }
+ function _hexPts(cx,cy,s){ var p=[]; for(var i=0;i<6;i++){ var a=Math.PI/180*(60*i-90); p.push((cx+s*Math.cos(a)).toFixed(2)+','+(cy+s*Math.sin(a)).toFixed(2)); } return p.join(' '); }
+ function _hexSVG(metric){
+  var s=26, w=Math.sqrt(3)*s, vstep=1.5*s, V=_hexVals(metric), max=V.max;
+  var ALL={}; Object.keys(HEX).forEach(function(k){ALL[k]=HEX[k];}); Object.keys(HEX_ENT).forEach(function(k){ALL[k]=HEX_ENT[k];});
+  var minx=1e9,miny=1e9,maxx=-1e9,maxy=-1e9;
+  Object.keys(ALL).forEach(function(ab){ var c=ALL[ab],px=c[0]*w,py=c[1]*vstep; minx=Math.min(minx,px-w/2);maxx=Math.max(maxx,px+w/2);miny=Math.min(miny,py-s);maxy=Math.max(maxy,py+s); });
+  var pad=3,W=(maxx-minx)+pad*2,H=(maxy-miny)+pad*2;
+  var svg='<svg viewBox="'+(minx-pad).toFixed(1)+' '+(miny-pad).toFixed(1)+' '+W.toFixed(1)+' '+H.toFixed(1)+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hexagon tile map of the 50 States, the District of Columbia, and the additional IDEA reporting entities, each shaded by '+(metric==='pct'?'percent of public-school enrollment served':'number of Children and Students with Disabilities served')+' under IDEA, Part B, ages 3 through 21.">';
+  svg+='<text class="hxm-entlabel" x="'+(6*w).toFixed(1)+'" y="'+((9.5*vstep)-s-9).toFixed(1)+'">Additional IDEA reporting entities</text>';
+  Object.keys(ALL).forEach(function(ab){ var c=ALL[ab],px=c[0]*w,py=c[1]*vstep,v=V.byAb[ab]; var vs=(v==null)?'–':(metric==='pct'?(v+'%'):_hexFmt(v)); var tc=_hexTxt(v,max);
+   svg+='<g class="hxm-cell" tabindex="0" role="img" aria-label="'+ab+': '+(v==null?'no data':vs)+'"><title>'+ab+': '+vs+'</title>'+
+    '<polygon points="'+_hexPts(px,py,s)+'" fill="'+_hexColor(v,max)+'"/>'+
+    '<text class="hxm-ab" x="'+px.toFixed(1)+'" y="'+(py-2.5).toFixed(1)+'" fill="'+tc+'">'+ab+'</text>'+
+    '<text class="hxm-v" x="'+px.toFixed(1)+'" y="'+(py+9).toFixed(1)+'" fill="'+tc+'">'+vs+'</text></g>';
+  });
+  return svg+'</svg>';
+ }
+ function _hexLegend(metric){ var V=_hexVals(metric); var mn=(metric==='pct')?(V.min+'%'):_hexFmt(V.min), mx=(metric==='pct')?(V.max+'%'):_hexFmt(V.max); return '<div class="hxm-legend"><span class="hxm-leg-cap">'+mn+'</span><span class="hxm-leg-bar"></span><span class="hxm-leg-cap">'+mx+'</span></div>'; }
+ function _hexRender(){ var host=document.getElementById('hexMapBody'); if(!host)return; host.innerHTML=_hexLegend(_hexMetric)+'<div class="hxm-wrap">'+_hexSVG(_hexMetric)+'</div>'; var yr=document.getElementById('hexMapYear'); if(yr)yr.textContent=(_hexMetric==='pct')?'School Year 2022–23':'School Year 2024–25'; }
+ function _injectHexMap(){
+  var ov=document.getElementById('trendsOverview'); if(!ov||document.getElementById('hexMapCard'))return;
+  if(typeof STATES==='undefined'||typeof SEARCH_ABBR==='undefined')return;
+  var sec=document.createElement('section'); sec.className='trend-home-section hexmap-section';
+  sec.innerHTML='<div class="card fig hexmap-card" id="hexMapCard">'+
+   '<div class="ey" id="hexMapYear">School Year 2024–25</div>'+
+   '<h3>Children and Students with Disabilities Served Under IDEA, Part&nbsp;B, by State</h3>'+
+   '<details class="whatmeans"><summary>What this means</summary><div class="note wm-body" data-nf="skip">Each tile is a State, plus the District of Columbia, shaded by how many Children and Students with Disabilities it serves under IDEA, Part&nbsp;B, ages 3 through 21. Darker means more. The tiles are laid out in the rough shape of the United States.</div></details>'+
+   '<div class="hxm-toggle" id="hexMapToggle" role="group" aria-label="Choose the measure"><button type="button" data-hm="count" class="on" aria-pressed="true">Number served</button><button type="button" data-hm="pct" aria-pressed="false">% of enrollment</button></div>'+
+   '<div id="hexMapBody"></div>'+
+   '<details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, Office of Special Education Programs, &ldquo;IDEA Part&nbsp;B Child Count and Educational Environments Collection,&rdquo; School Year 2024–25; percent of public-school enrollment, School Year 2022–23 (NCES). Covers the 50 States and the District of Columbia.</div></details>'+
+   '</div>';
+  var bubbleSec=ov.querySelector('.trend-chart-section');
+  if(bubbleSec&&bubbleSec.parentNode===ov){ ov.insertBefore(sec, bubbleSec.nextSibling); } else { ov.appendChild(sec); }
+  _hexRender();
+  var tg=document.getElementById('hexMapToggle');
+  if(tg)tg.addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b||!tg.contains(b))return; _hexMetric=b.getAttribute('data-hm'); [].slice.call(tg.querySelectorAll('button')).forEach(function(x){var on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on?'true':'false');}); _hexRender(); });
+ }
+ if(typeof buildTrendsOverview==='function'){ var _origBTO=buildTrendsOverview; buildTrendsOverview=function(){ var r=_origBTO.apply(this,arguments); try{ _injectHexMap(); }catch(e){} return r; }; }
+ try{ _injectHexMap(); }catch(e){}
+
+})();
+</script>
+<style id="ufStyle">
+/* === USAFacts-style National Trends figures (2026-06-29): compact, flat, green palette === */
+#ufBand{margin-top:16px}
+#ufBand .uf-bandhead{font-weight:800;font-size:.8rem;line-height:1.2;letter-spacing:.05em;text-transform:uppercase;color:#1e4d3d;margin:0 2px 9px;border-bottom:2px solid #1e4d3d;padding-bottom:5px}
+#ufBand .uf-card{background:#f6f5ef!important;border:1px solid #e6e5da!important;box-shadow:none!important;border-radius:8px!important;padding:14px 16px!important;margin-bottom:12px;text-align:left!important}
+#ufBand .uf-card h3.uf-h{font-weight:800!important;font-size:1.02rem!important;line-height:1.22!important;color:#1a1a1a!important;margin:0 0 2px!important;padding:0!important;letter-spacing:-.01em;text-align:left!important}
+#ufBand .uf-sub{font-weight:400;font-size:.78rem;line-height:1.35;color:#6b6b6b;margin:0 0 9px;max-width:72ch}
+#ufBand .uf-figwrap{width:100%}
+#ufBand .uf-figwrap svg{display:block;width:100%;height:auto;font-family:inherit}
+#ufBand .uf-src{font-weight:400;font-size:.67rem;line-height:1.4;color:#8a8a82;margin-top:9px}
+#ufBand .uf-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 0 7px;font-weight:700;font-size:.72rem;color:#444}
+#ufBand .uf-lg{display:inline-flex;align-items:center;gap:6px}
+#ufBand .uf-lg i{width:11px;height:11px;display:inline-block}
+#ufBand .uf-lg i.d2000{background:#84c13e;border-radius:50%}
+#ufBand .uf-lg i.d2024{background:#1e4d3d;border-radius:50%}
+#ufBand .uf-lg i.sm{background:#2a4cad;border-radius:2px}
+#ufBand .uf-lg i.sf{background:#8e44c9;border-radius:2px}
+#ufBand .uf-grid{stroke:#e2e1d6;stroke-width:1}
+#ufBand .uf-axl{fill:#8a8a82;font-weight:500;font-size:9.5px}
+#ufBand .uf-rowlbl{fill:#33332e;font-weight:600;font-size:10px}
+#ufBand .uf-rowlbl.uf-emph{font-weight:800;fill:#1a1a1a}
+#ufBand .uf-line{fill:none;stroke:#1e4d3d;stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+#ufBand .uf-ldot{fill:#1e4d3d}
+#ufBand .uf-anno{fill:#33332e;font-weight:600;font-size:9.6px}
+#ufBand .uf-anno-line{stroke:#9a9a90;stroke-width:1;fill:none}
+#ufBand .uf-anno-dot{fill:#1e4d3d}
+#ufBand .uf-db-line{stroke:#5a5a52;stroke-width:2}
+#ufBand .uf-db-a{fill:#84c13e}
+#ufBand .uf-db-b{fill:#1e4d3d}
+#ufBand .uf-sx-m{fill:#2a4cad}
+#ufBand .uf-sx-f{fill:#8e44c9}
+#ufBand .uf-sx-lbl{fill:#fff;font-weight:700;font-size:9.6px}
+#ufBand .hxm-cell:focus{outline:none}
+/* gentle tightening of the National Trends homepage (less whitespace, smaller headers) */
+#trends.section-title{font-size:1.2rem!important;margin:10px 2px 6px!important}
+.view[data-view="trends"] .trend-home-section{margin-top:12px!important}
+.view[data-view="trends"] .trend-strip-label{margin-top:8px!important}
+/* dark mode */
+body.dark #ufBand .uf-card{background:#13251d!important;border-color:#27412f!important}
+body.dark #ufBand .uf-card h3.uf-h{color:#f3f3ee!important}
+body.dark #ufBand .uf-sub{color:#aab0a8}
+body.dark #ufBand .uf-src{color:#8e978c}
+body.dark #ufBand .uf-rowlbl{fill:#d8dcd5}
+body.dark #ufBand .uf-rowlbl.uf-emph{fill:#f3f3ee}
+body.dark #ufBand .uf-axl{fill:#9aa39a}
+body.dark #ufBand .uf-grid{stroke:#2c3a31}
+body.dark #ufBand .uf-anno{fill:#cfd4cc}
+body.dark #ufBand .uf-line{stroke:#5fb98c}
+body.dark #ufBand .uf-ldot,body.dark #ufBand .uf-db-b{fill:#5fb98c}
+body.dark #ufBand .uf-bandhead{color:#7fcfa3;border-bottom-color:#7fcfa3}
+</style>
+<script>
+/* USAFacts-style figures injected into the National Trends homepage. Pure SVG, no
+   added libraries. Reuses the embedded data: YEARS, ALL, DIS, DEMO. Self-contained. */
+(function(){
+ "use strict";
+ function ready(){ try{ return typeof YEARS!=='undefined'&&typeof ALL!=='undefined'&&typeof DIS!=='undefined'&&typeof DEMO!=='undefined'&&DEMO&&DEMO.cur; }catch(e){ return false; } }
+ // n is an absolute count
+ function fmtAbs(n){ if(n==null||isNaN(n))return '–'; var a=Math.abs(n);
+  if(a>=1e6)return (n/1e6).toFixed(1).replace(/\.0$/,'')+'M';
+  if(a>=1e3)return Math.round(n/1e3)+'K';
+  return ''+Math.round(n); }
+
+ /* ---------- 1) Annotated 50-year national line ---------- */
+ function lineSVG(){
+  var YM={'1976-77':1976,'1980-81':1980,'1990-91':1990,'2000-01':2000,'2008-09':2008,'2009-10':2009,'2010-11':2010,'2011-12':2011,'2012-13':2012,'2013-14':2013,'2014-15':2014,'2015-16':2015,'2016-17':2016,'2017-18':2017,'2018-19':2018,'2019-20':2019,'2020-21':2020,'2021-22':2021,'2022-23':2022,'2023-24':2023,'2024-25':2024};
+  var pts=[]; YEARS.forEach(function(y,i){ if(ALL[i]!=null&&YM[y]!=null) pts.push([YM[y],ALL[i]]); });
+  var W=740,H=340,mL=40,mR=14,mT=18,mB=28, x0=1976,x1=2024,y1=9000;
+  var PX=function(yr){return mL+(yr-x0)/(x1-x0)*(W-mL-mR);};
+  var PY=function(v){return H-mB-(v/y1)*(H-mT-mB);};
+  var g='';
+  [0,2000,4000,6000,8000].forEach(function(t){ var y=PY(t);
+   g+='<line class="uf-grid" x1="'+mL+'" y1="'+y.toFixed(1)+'" x2="'+(W-mR)+'" y2="'+y.toFixed(1)+'"/>';
+   g+='<text class="uf-axl" x="'+(mL-6)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+(t===0?'0':(t/1000)+'M')+'</text>'; });
+  [1976,1990,2000,2010,2020].forEach(function(yr){ g+='<text class="uf-axl" x="'+PX(yr).toFixed(1)+'" y="'+(H-mB+14)+'" text-anchor="middle">'+yr+'</text>'; });
+  var d=pts.map(function(p,i){return (i?'L':'M')+PX(p[0]).toFixed(1)+' '+PY(p[1]).toFixed(1);}).join(' ');
+  var area=d+' L'+PX(pts[pts.length-1][0]).toFixed(1)+' '+PY(0).toFixed(1)+' L'+PX(pts[0][0]).toFixed(1)+' '+PY(0).toFixed(1)+' Z';
+  g+='<path d="'+area+'" fill="url(#ufLineGrad)" opacity="0.16"/>';
+  g+='<path class="uf-line" d="'+d+'"/>';
+  function callout(ax,ay,tx,ty,al,lines){
+   var s='<path class="uf-anno-line" d="M'+ax.toFixed(1)+' '+ay.toFixed(1)+' L'+tx.toFixed(1)+' '+ty.toFixed(1)+'"/>';
+   s+='<circle class="uf-anno-dot" cx="'+ax.toFixed(1)+'" cy="'+ay.toFixed(1)+'" r="3.4"/>';
+   s+='<text class="uf-anno" x="'+tx.toFixed(1)+'" y="'+ty.toFixed(1)+'" text-anchor="'+al+'">';
+   lines.forEach(function(ln,i){ s+='<tspan x="'+tx.toFixed(1)+'" dy="'+(i?11.5:0)+'">'+ln+'</tspan>'; });
+   return s+'</text>';
+  }
+  // 1990 rename (text upper-left, points down-right to the 1990 point)
+  g+=callout(PX(1990),PY(4710), PX(1979),PY(8550),'start',['1990: the law is renamed IDEA;','autism and traumatic brain injury','added as categories']);
+  // 2020-21 pandemic dip (text lower area, points up)
+  g+=callout(PX(2020),PY(7214), PX(2002),PY(1150),'start',['2020-21: the count dipped','during the pandemic']);
+  // 2024-25 peak (text upper-right, points right to the peak)
+  g+=callout(PX(2024),PY(8194), PX(2017),PY(8780),'end',['2024-25: 8.2M served,','the most on record']);
+  g+='<circle class="uf-ldot" cx="'+PX(1990).toFixed(1)+'" cy="'+PY(4710).toFixed(1)+'" r="3"/>';
+  g+='<circle class="uf-ldot" cx="'+PX(2020).toFixed(1)+'" cy="'+PY(7214).toFixed(1)+'" r="3"/>';
+  g+='<circle class="uf-ldot" cx="'+PX(2024).toFixed(1)+'" cy="'+PY(8194).toFixed(1)+'" r="3.6"/>';
+  g+='<text class="uf-anno" x="'+(PX(1976)+5).toFixed(1)+'" y="'+(PY(3694)-8).toFixed(1)+'">3.7M in 1976-77</text>';
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Line chart: children and students served under IDEA Part B grew from 3.7 million in 1976-77 to 8.2 million in 2024-25.">'
+   +'<defs><linearGradient id="ufLineGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e4d3d"/><stop offset="1" stop-color="#1e4d3d" stop-opacity="0"/></linearGradient></defs>'+g+'</svg>';
+ }
+
+ /* ---------- 2) Dumbbell: child count by category, 2000-01 vs 2024-25 ---------- */
+ function dumbbellSVG(){
+  var iA=YEARS.indexOf('2000-01'), iB=YEARS.indexOf('2024-25');
+  var rows=Object.keys(DIS).map(function(k){return {k:k,a:DIS[k][iA],b:DIS[k][iB]};})
+   .filter(function(r){return r.a!=null&&r.b!=null;})
+   .sort(function(p,q){return q.b-p.b;});
+  var W=760,mL=192,mR=18,mT=14,mB=26,rowH=24, H=mT+mB+rows.length*rowH;
+  var maxV=0; rows.forEach(function(r){ maxV=Math.max(maxV,r.a,r.b); });
+  var xMax=Math.ceil(maxV/500)*500||500;
+  var PX=function(v){return mL+(v/xMax)*(W-mL-mR);};
+  var g='';
+  for(var t=0;t<=xMax;t+=500){ var x=PX(t);
+   g+='<line class="uf-grid" x1="'+x.toFixed(1)+'" y1="'+mT+'" x2="'+x.toFixed(1)+'" y2="'+(H-mB)+'"/>';
+   g+='<text class="uf-axl" x="'+x.toFixed(1)+'" y="'+(H-mB+13)+'" text-anchor="middle">'+(t===0?'0':(t/1000)+'M')+'</text>'; }
+  rows.forEach(function(r,i){ var y=mT+i*rowH+rowH/2, xa=PX(r.a), xb=PX(r.b);
+   g+='<text class="uf-rowlbl" x="'+(mL-10)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+r.k+'</text>';
+   g+='<line class="uf-db-line" x1="'+xa.toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+xb.toFixed(1)+'" y2="'+y.toFixed(1)+'"/>';
+   g+='<circle class="uf-db-a" cx="'+xa.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="5"><title>'+r.k+', 2000-01: '+fmtAbs(r.a*1000)+'</title></circle>';
+   g+='<circle class="uf-db-b" cx="'+xb.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="5"><title>'+r.k+', 2024-25: '+fmtAbs(r.b*1000)+'</title></circle>';
+  });
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Dumbbell chart comparing the number of children and students served by primary disability category in 2000-01 and 2024-25.">'+g+'</svg>';
+ }
+
+ /* ---------- 3) Reported-sex split, by category, 2024-25 ---------- */
+ function sexSVG(){
+  var cur=DEMO.cur;
+  function ms(k){var d=cur[k];return d.male/(d.male+d.female);}
+  var cats=Object.keys(cur).filter(function(k){return k!=='All Disabilities'&&cur[k]&&cur[k].male!=null&&cur[k].female!=null;});
+  cats.sort(function(a,b){return ms(b)-ms(a);});
+  var rows=(cur['All Disabilities']?['All Disabilities']:[]).concat(cats);
+  var W=760,mL=192,mR=16,mT=12,mB=8,rowH=26, H=mT+mB+rows.length*rowH, barW=W-mL-mR;
+  var g='';
+  rows.forEach(function(k,i){ var d=cur[k], tot=d.male+d.female, mp=d.male/tot;
+   var y=mT+i*rowH, by=y+5, bh=rowH-12, emph=(k==='All Disabilities'); var mw=mp*barW;
+   g+='<text class="uf-rowlbl'+(emph?' uf-emph':'')+'" x="'+(mL-10)+'" y="'+(by+bh/2+3.2).toFixed(1)+'" text-anchor="end">'+k+'</text>';
+   g+='<rect class="uf-sx-m" x="'+mL+'" y="'+by+'" width="'+mw.toFixed(1)+'" height="'+bh+'"/>';
+   g+='<rect class="uf-sx-f" x="'+(mL+mw).toFixed(1)+'" y="'+by+'" width="'+(barW-mw).toFixed(1)+'" height="'+bh+'"/>';
+   g+='<text class="uf-sx-lbl" x="'+(mL+6)+'" y="'+(by+bh/2+3.2).toFixed(1)+'">'+Math.round(mp*100)+'%</text>';
+   g+='<text class="uf-sx-lbl" x="'+(mL+barW-6)+'" y="'+(by+bh/2+3.2).toFixed(1)+'" text-anchor="end">'+Math.round((1-mp)*100)+'%</text>';
+  });
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Bar chart: male and female share of children and students served by primary disability category, 2024-25. Male students are the majority in every category.">'+g+'</svg>';
+ }
+
+ function figCard(title,sub,inner,src){
+  return '<div class="card fig uf-card"><h3 class="uf-h">'+title+'</h3><div class="uf-sub">'+sub+'</div>'
+   +'<div class="uf-figwrap">'+inner+'</div><div class="uf-src">Source: '+src+'</div></div>';
+ }
+ function legend(items){ return '<div class="uf-legend">'+items.map(function(it){return '<span class="uf-lg"><i class="'+it[0]+'"></i>'+it[1]+'</span>';}).join('')+'</div>'; }
+
+ function buildBand(){
+  var SRC='U.S. Department of Education, Office of Special Education Programs, “IDEA Part B Child Count and Educational Environments Collection,” ';
+  var sec=document.createElement('section');
+  sec.className='trend-home-section'; sec.id='ufBand';
+  sec.innerHTML='<div class="uf-bandhead">A closer look at the national data</div>'
+   +figCard('Students served under IDEA has grown to 8.2 million',
+     'Children and students with disabilities served under IDEA, Part B, ages 3 through 21, by school year. United States, the Outlying Areas, and the Freely Associated States.',
+     lineSVG(), SRC+'School Years 1976–77 through 2024–25.')
+   +figCard('Autism and other health impairments drove the growth since 2000',
+     'Number of children and students served by primary disability category, School Years 2000–01 and 2024–25. Each line links the two years.',
+     legend([['d2000','2000–01'],['d2024','2024–25']])+dumbbellSVG(), SRC+'School Years 2000–01 and 2024–25.')
+   +figCard('Male students are the majority in every primary disability category',
+     'Share of children and students served under IDEA, Part B by reported sex, School Year 2024–25.',
+     legend([['sm','Male'],['sf','Female']])+sexSVG(), SRC+'School Year 2024–25. Percentages are of students reported as male or female; a small number are not reported by sex.');
+  return sec;
+ }
+
+ function inject(){
+  try{
+   var ov=document.getElementById('trendsOverview'); if(!ov||document.getElementById('ufBand'))return;
+   if(!ready())return;
+   ov.appendChild(buildBand());
+  }catch(e){}
+ }
+ if(typeof buildTrendsOverview==='function'){ var _o=buildTrendsOverview; buildTrendsOverview=function(){ var r=_o.apply(this,arguments); try{inject();}catch(e){} return r; }; }
+ try{ inject(); }catch(e){}
 })();
 </script>
 </body>
