@@ -21,11 +21,11 @@ window.addEventListener('load', function(){ try{ document.documentElement.classL
   html.locked #pwGate{
     display:flex; visibility:visible !important; position:fixed; inset:0; z-index:2147483647;
     align-items:center; justify-content:center; padding:24px;
-    background:linear-gradient(180deg,#16395a 0%,#0f2b45 100%);
+    background:linear-gradient(160deg,#1e4d3d 0%,#11281e 100%);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
   #pwGate .gate-card{
-    width:min(430px,100%); background:#fff; border-radius:14px; padding:32px 30px 26px; border-top:4px solid #edcf36;
+    width:min(440px,100%); background:#fdfdfb; border-radius:16px; padding:34px 32px 28px; border-top:5px solid #84c13e;
     box-shadow:0 24px 60px rgba(0,0,0,.45); text-align:center;
     animation:gateIn .45s cubic-bezier(.2,.8,.2,1) both;
   }
@@ -36,8 +36,8 @@ window.addEventListener('load', function(){ try{ document.documentElement.classL
   }
   #pwGate .gate-seal b{ font-size:22px; letter-spacing:.5px; }
   #pwGate .gate-seal span{ font-size:10px; letter-spacing:1px; color:#edcf36; margin-top:2px; }
-  #pwGate .gate-eyebrow{ font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:#1c4f74; margin-bottom:11px; }
-  #pwGate h2{ margin:0 0 6px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,'Carlito','Source Sans 3',Roboto,Helvetica,Arial,sans-serif; font-weight:800; font-size:24px; line-height:1.18; letter-spacing:-.01em; color:#13354e; }
+  #pwGate .gate-eyebrow{ font-size:10.5px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:#2f7d5b; margin-bottom:11px; }
+  #pwGate h2{ margin:0 0 6px; font-family:'Charter618',Georgia,'Times New Roman',serif; font-weight:700; font-size:26px; line-height:1.14; letter-spacing:-.015em; color:#15241c; }
   #pwGate p{ margin:0 0 20px; font-size:13.5px; color:#5a6b78; line-height:1.45; }
   #pwGate .gate-field{ position:relative; display:flex; align-items:center; }
   #pwGate input{
@@ -45,18 +45,18 @@ window.addEventListener('load', function(){ try{ document.documentElement.classL
     border:2px solid #cfd9e1; border-radius:10px; outline:none; transition:border-color .15s, box-shadow .15s;
     color:#13354e;
   }
-  #pwGate input:focus{ border-color:#73b3e7; box-shadow:0 0 0 3px rgba(115,179,231,.35); }
+  #pwGate input:focus{ border-color:#4e9d6e; box-shadow:0 0 0 3px rgba(132,193,62,.32); }
   #pwGate.bad input{ border-color:#cc5a33; box-shadow:0 0 0 3px rgba(204,90,51,.25); }
   #pwGate .gate-toggle{
     position:absolute; right:8px; border:none; background:transparent; cursor:pointer;
-    font-size:12px; font-weight:600; color:#73b3e7; padding:6px 8px; border-radius:6px;
+    font-size:12px; font-weight:700; color:#2f7d5b; padding:6px 8px; border-radius:6px;
   }
-  #pwGate .gate-toggle:hover{ background:#eef5fb; }
+  #pwGate .gate-toggle:hover{ background:#eef3ec; }
   #pwGate button.gate-go{
     margin-top:14px; width:100%; padding:13px; font-size:15px; font-weight:600; cursor:pointer;
-    border:none; border-radius:10px; background:#13354e; color:#fff; transition:background .15s, transform .05s;
+    border:none; border-radius:10px; background:#1e4d3d; color:#fff; transition:background .15s, transform .05s;
   }
-  #pwGate button.gate-go:hover{ background:#1c4a6e; }
+  #pwGate button.gate-go:hover{ background:#2f7d5b; }
   #pwGate button.gate-go:active{ transform:translateY(1px); }
 #pwGate .gate-msg{ min-height:18px; margin-top:12px; font-size:13px; color:#cc5a33; font-weight:600; }
   #pwGate.bad .gate-card{ animation:gateShake .4s; }
@@ -12612,6 +12612,7 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 </div>
 <div id="pwGate" role="dialog" aria-modal="true" aria-labelledby="pwGateTitle">
   <div class="gate-card">
+    <div class="gate-eyebrow">U.S. special education data</div>
     <h2 id="pwGateTitle">IDEA Section 618 Data Tool</h2>
     <p>Enter the password to continue.</p>
     <form id="pwGateForm" autocomplete="off">
@@ -13936,8 +13937,8 @@ function renderComp(){
 /* ============ HEATMAP (disability × year) ============ */
 let heatMode='count';
 function lerpHex(a,b,t){const p=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];const A=p(a),B=p(b);return 'rgb('+A.map((x,i)=>Math.round(x+(B[i]-x)*t)).join(',')+')';}
-function seqColor(t){t=Math.max(0,Math.min(1,t));var c=t<.5?lerpHex('#eaf2fb','#4292c6',t/.5):lerpHex('#4292c6','#08306b',(t-.5)/.5);return _fairyOn()?_toFairy(c):c;}
-function divColor(t){t=Math.max(0,Math.min(1,t));var c=t<.5?lerpHex('#c0392b','#f7f7f7',t/.5):lerpHex('#f7f7f7','#005ea2',(t-.5)/.5);return _fairyOn()?_toFairy(c):c;}
+function seqColor(t){t=Math.max(0,Math.min(1,t));var c=t<.5?lerpHex('#e8f0e6','#4e9f5b',t/.5):lerpHex('#4e9f5b','#1e4d3d',(t-.5)/.5);return _fairyOn()?_toFairy(c):c;}
+function divColor(t){t=Math.max(0,Math.min(1,t));var c=t<.5?lerpHex('#9a8f6a','#f6f5ef',t/.5):lerpHex('#f6f5ef','#1e4d3d',(t-.5)/.5);return _fairyOn()?_toFairy(c):c;}
 function renderHeatmap(){
  const cats=COMP_ORDER, base={};
  cats.forEach(k=>{const a=DIS[k];for(let i=0;i<a.length;i++){if(a[i]!=null){base[k]=a[i];break;}}});
@@ -14309,7 +14310,7 @@ function renderStateBar(){
  const srcByMetric={v2024:'Source: U.S. Department of Education, Office of Special Education Programs, IDEA Part B Child Count and Educational Environments Collection, School Year 2024–25.',
   pe2022:'Source: U.S. Department of Education, Office of Special Education Programs, IDEA Part B Child Count and Educational Environments Collection, with NCES public-school enrollment, School Year 2022–23.',
   growth:'Source: U.S. Department of Education, Office of Special Education Programs, IDEA Part B Child Count and Educational Environments Collection, School Years 2000–01 and 2024–25.'};
- if(sn)sn.innerHTML='Top 15 of 51 states and DC. '+(appended?focusState+' is shown for reference. ':'')+'Selected state shown in orange. '+(srcByMetric[m]||srcByMetric.v2024);
+ if(sn)sn.innerHTML='Top 15 of 51 states and DC. '+(appended?focusState+' is shown for reference. ':'')+'Selected state shown in dark green. '+(srcByMetric[m]||srcByMetric.v2024);
  const valuePlugin={id:'svlab',afterDatasetsDraw(ch){const ctx=ch.ctx,meta=ch.getDatasetMeta(0);if(!meta)return;
    ctx.save();ctx.font='800 11px '+Chart.defaults.font.family;ctx.textBaseline='middle';ctx.textAlign='left';
    meta.data.forEach((el,i)=>{const v=ch.data.datasets[0].data[i];if(v==null)return;
@@ -22057,6 +22058,577 @@ body:not(.no-anim):not(.reduce) .ufx-reveal.ufx-in{ opacity:1; transform:none; }
     }catch(e){}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+</script>
+
+<style id="ufShowpiece">
+/* ============================================================
+   USAFacts Homepage Showpiece (2026-06-30)
+   Wave 1: compact editorial hero w/ animated count-ups,
+   draw-in for the hand-drawn SVG line, reusable click-through
+   popup engine. Self-contained; respects reduce-motion + print.
+   ============================================================ */
+.view[data-view="trends"]{ --ufs-forest:#1e4d3d; --ufs-forest2:#2f7d5b; --ufs-lime:#84c13e; --ufs-cream:#f6f5ef; --ufs-line:#e6e5da; }
+/* hide the tiny redundant title; the hero carries it */
+#trends.section-title{ display:none !important; }
+
+/* ---- HERO ---- */
+.uf-hero{ position:relative; margin:2px 0 20px; padding:32px 34px 28px;
+  background:radial-gradient(130% 150% at 100% 0%, #eaf2e7 0%, var(--ufs-cream) 48%, var(--ufs-cream) 100%);
+  border:1px solid var(--ufs-line); border-radius:16px; overflow:hidden; }
+.uf-hero::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:6px; background:linear-gradient(180deg,var(--ufs-lime),var(--ufs-forest)); }
+.uf-hero-eyebrow{ font-family:'Carlito',system-ui,sans-serif; font-weight:800; font-size:.73rem; letter-spacing:.13em; text-transform:uppercase; color:var(--ufs-forest); margin:0 0 11px; display:flex; align-items:center; gap:8px; }
+.uf-hero-eyebrow::after{ content:""; flex:1; height:1px; background:linear-gradient(90deg,var(--ufs-line),transparent); max-width:160px; }
+.uf-hero-title{ font-family:'Charter618',Georgia,serif; font-weight:700; font-size:clamp(1.75rem,3.6vw,2.85rem); line-height:1.06; letter-spacing:-.018em; color:#15241c; margin:0 0 13px; max-width:21ch; text-wrap:balance; }
+.uf-hero-title em{ font-style:normal; color:var(--ufs-forest); background:linear-gradient(180deg,transparent 62%,rgba(132,193,62,.34) 62%); padding:0 .04em; }
+.uf-hero-lede{ font-family:'Carlito',system-ui,sans-serif; font-size:1.04rem; line-height:1.52; color:#46554d; margin:0 0 22px; max-width:64ch; }
+.uf-hero-stats{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.uf-hstat{ position:relative; padding:15px 17px 14px; background:#fff; border:1px solid var(--ufs-line); border-radius:11px; cursor:pointer; text-align:left;
+  transition:transform .18s cubic-bezier(.22,1,.36,1), box-shadow .18s, border-color .18s; }
+.uf-hstat:hover{ transform:translateY(-3px); box-shadow:0 12px 26px rgba(30,77,61,.16); border-color:var(--ufs-forest2); }
+.uf-hstat:focus-visible{ outline:3px solid rgba(47,125,91,.5); outline-offset:2px; }
+.uf-hstat .num{ font-family:'Charter618',Georgia,serif; font-weight:700; font-variant-numeric:tabular-nums; font-size:clamp(1.8rem,3.1vw,2.45rem); line-height:1; color:var(--ufs-forest); letter-spacing:-.012em; }
+.uf-hstat .lbl{ display:block; margin-top:8px; font-size:.79rem; line-height:1.34; color:#5a6b62; font-weight:600; }
+.uf-hstat .more{ position:absolute; top:13px; right:14px; font-size:.62rem; font-weight:800; letter-spacing:.04em; color:#9bada3; text-transform:uppercase; opacity:0; transition:opacity .18s; }
+.uf-hstat:hover .more{ opacity:1; color:var(--ufs-forest2); }
+@media(max-width:640px){ .uf-hero-stats{ grid-template-columns:1fr; } .uf-hero{ padding:24px 20px; } }
+
+/* entrance helper */
+body:not(.no-anim):not(.reduce):not(.printing):not(.print) .uf-anim{ opacity:0; transform:translateY(15px); }
+.uf-anim.uf-shown{ opacity:1 !important; transform:none !important; transition:opacity .6s ease, transform .72s cubic-bezier(.22,1,.36,1); }
+.uf-d2{ transition-delay:.09s !important; } .uf-d3{ transition-delay:.18s !important; } .uf-d4{ transition-delay:.27s !important; }
+
+/* dark mode hero */
+body.dark .uf-hero{ background:radial-gradient(130% 150% at 100% 0%, rgba(22,48,36,.55) 0%, #13251d 60%); border-color:#27412f; }
+body.dark .uf-hero-title{ color:#eaf3ed; } body.dark .uf-hero-lede{ color:#aab8af; } body.dark .uf-hero-eyebrow{ color:#7fcfa3; }
+body.dark .uf-hstat{ background:#0f1f18; border-color:#27412f; } body.dark .uf-hstat .num{ color:#5fb98c; } body.dark .uf-hstat .lbl{ color:#9fb1a6; }
+
+/* ---- draw-in for the hand-drawn 50-year line ---- */
+body:not(.no-anim):not(.reduce):not(.printing):not(.print) #ufBand .uf-line.uf-draw{ stroke-dasharray:var(--uflen); stroke-dashoffset:var(--uflen); }
+body:not(.no-anim):not(.reduce):not(.printing):not(.print) #ufBand .uf-line.uf-draw.uf-drawn{ stroke-dashoffset:0; transition:stroke-dashoffset 1.8s cubic-bezier(.33,0,.18,1); }
+body:not(.no-anim):not(.reduce):not(.printing):not(.print) #ufBand .uf-fade{ opacity:0; }
+body:not(.no-anim):not(.reduce):not(.printing):not(.print) #ufBand .uf-fade.uf-drawn{ opacity:1; transition:opacity .55s ease; }
+
+/* ---- reusable click-through popup ---- */
+.uf-modal-scrim{ position:fixed; inset:0; z-index:90000; display:flex; align-items:center; justify-content:center; padding:22px;
+  background:rgba(13,28,21,.52); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); opacity:0; transition:opacity .26s ease; }
+.uf-modal-scrim.in{ opacity:1; }
+.uf-modal{ position:relative; width:100%; max-width:540px; max-height:86vh; overflow:auto; background:#fff; border-radius:18px;
+  border-top:6px solid var(--ufs-forest,#1e4d3d); box-shadow:0 34px 90px rgba(0,0,0,.42); padding:26px 28px 24px;
+  transform:translateY(20px) scale(.97); transition:transform .32s cubic-bezier(.22,1,.36,1); font-family:'Carlito',system-ui,sans-serif; }
+.uf-modal-scrim.in .uf-modal{ transform:none; }
+.uf-modal-x{ position:absolute; top:14px; right:14px; width:34px; height:34px; border:none; border-radius:9px; background:#f1efe7; color:#46554d; font-size:21px; line-height:1; cursor:pointer; transition:background .15s, color .15s; }
+.uf-modal-x:hover{ background:#e3e0d4; color:#15241c; }
+.uf-modal-eyebrow{ font-weight:800; font-size:.71rem; letter-spacing:.11em; text-transform:uppercase; color:var(--ufs-forest,#1e4d3d); margin:0 36px 7px 0; }
+.uf-modal-title{ font-family:'Charter618',Georgia,serif; font-weight:700; font-size:1.5rem; line-height:1.16; letter-spacing:-.01em; color:#15241c; margin:0 30px 12px 0; }
+.uf-modal-body{ font-size:.96rem; line-height:1.55; color:#46554d; }
+.uf-modal-body p{ margin:0 0 12px; }
+.uf-modal-big{ font-family:'Charter618',Georgia,serif; font-weight:700; font-size:2.4rem; line-height:1; color:var(--ufs-forest,#1e4d3d); margin:2px 0 10px; font-variant-numeric:tabular-nums; }
+.uf-rowlist{ margin:14px 0 4px; display:grid; gap:9px; }
+.uf-rl{ display:grid; grid-template-columns:1fr auto; gap:4px 12px; align-items:center; font-size:.86rem; }
+.uf-rl .nm{ font-weight:600; color:#33403a; } .uf-rl .vl{ font-weight:800; color:#15241c; font-variant-numeric:tabular-nums; }
+.uf-rl .bar{ grid-column:1/3; height:7px; border-radius:4px; background:#ece9df; overflow:hidden; }
+.uf-rl .bar > i{ display:block; height:100%; border-radius:4px; background:linear-gradient(90deg,var(--ufs-lime,#84c13e),var(--ufs-forest,#1e4d3d)); width:0; transition:width 1s cubic-bezier(.22,1,.36,1); }
+.uf-modal-cta{ margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; }
+.uf-modal-cta button{ font:inherit; font-weight:700; font-size:.85rem; padding:9px 15px; border-radius:9px; border:1px solid var(--ufs-forest,#1e4d3d); background:var(--ufs-forest,#1e4d3d); color:#fff; cursor:pointer; transition:filter .15s, transform .05s; }
+.uf-modal-cta button:hover{ filter:brightness(1.12); } .uf-modal-cta button:active{ transform:translateY(1px); }
+.uf-modal-cta button.ghost{ background:#fff; color:var(--ufs-forest,#1e4d3d); }
+.uf-modal-note{ margin-top:14px; font-size:.74rem; color:#8a8a82; line-height:1.45; }
+body.dark .uf-modal{ background:#13251d; border-top-color:#5fb98c; } body.dark .uf-modal-title{ color:#eaf3ed; } body.dark .uf-modal-body{ color:#b9c4bc; }
+body.dark .uf-modal-x{ background:#1d3328; color:#cfe0d6; } body.dark .uf-modal-big{ color:#5fb98c; } body.dark .uf-rl .nm{ color:#c3cdc6; } body.dark .uf-rl .vl{ color:#eaf3ed; } body.dark .uf-rl .bar{ background:#22382c; }
+@media (prefers-reduced-motion: reduce){ .uf-modal-scrim,.uf-modal{ transition:none !important; } .uf-rl .bar>i{ transition:none !important; } }
+</style>
+<script id="ufShowpieceJS">
+(function(){
+  "use strict";
+  function reduced(){ try{ return document.body.classList.contains('no-anim')||document.body.classList.contains('reduce')||document.body.classList.contains('uf-calm')||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches); }catch(e){ return false; } }
+  function exporting(){ try{ return document.body.classList.contains('printing')||document.body.classList.contains('print'); }catch(e){ return false; } }
+  function dataReady(){ try{ return typeof YEARS!=='undefined'&&typeof ALL!=='undefined'&&typeof DIS!=='undefined'&&Array.isArray(ALL); }catch(e){ return false; } }
+  function lastIdx(a){ for(var i=a.length-1;i>=0;i--){ if(a[i]!=null) return i; } return -1; }
+  function firstIdx(a){ for(var i=0;i<a.length;i++){ if(a[i]!=null) return i; } return -1; }
+  function fmtThou(v){ if(v==null||isNaN(v)) return '\u2013'; return v>=1000 ? (v/1000).toFixed(2).replace(/\.?0+$/,'')+'M' : Math.round(v)+'K'; }
+
+  /* ---------- reusable popup ---------- */
+  window.ufPop=function(opts){
+    opts=opts||{};
+    var old=document.querySelector('.uf-modal-scrim'); if(old){ try{ old.remove(); }catch(e){} }
+    var scrim=document.createElement('div'); scrim.className='uf-modal-scrim';
+    var inner='<div class="uf-modal" role="dialog" aria-modal="true" aria-label="'+(opts.title||'Detail').replace(/"/g,'&quot;')+'">';
+    inner+='<button class="uf-modal-x" aria-label="Close">\u00d7</button>';
+    if(opts.eyebrow) inner+='<div class="uf-modal-eyebrow">'+opts.eyebrow+'</div>';
+    if(opts.title) inner+='<h3 class="uf-modal-title">'+opts.title+'</h3>';
+    inner+='<div class="uf-modal-body">'+(opts.html||'')+'</div></div>';
+    scrim.innerHTML=inner;
+    document.body.appendChild(scrim);
+    var lastFocus=document.activeElement;
+    function close(){ scrim.classList.remove('in'); document.removeEventListener('keydown',onkey); setTimeout(function(){ try{ scrim.remove(); }catch(e){} try{ if(lastFocus&&lastFocus.focus) lastFocus.focus(); }catch(e){} },280); }
+    function onkey(e){ if(e.key==='Escape'){ close(); } }
+    scrim.addEventListener('click',function(e){ if(e.target===scrim) close(); });
+    scrim.querySelector('.uf-modal-x').addEventListener('click',close);
+    document.addEventListener('keydown',onkey);
+    if(opts.onBody){ try{ opts.onBody(scrim.querySelector('.uf-modal-body'), close); }catch(e){} }
+    scrim.querySelectorAll('[data-uf-go]').forEach(function(b){ b.addEventListener('click',function(){ var v=b.getAttribute('data-uf-go'); close(); setTimeout(function(){ try{ if(typeof showView==='function') showView(v); }catch(e){} },120); }); });
+    requestAnimationFrame(function(){ scrim.classList.add('in'); setTimeout(function(){ scrim.querySelectorAll('.uf-rl .bar > i').forEach(function(i){ i.style.width=(i.getAttribute('data-w')||'0')+'%'; }); },120); var x=scrim.querySelector('.uf-modal-x'); if(x) x.focus(); });
+    return { close:close };
+  };
+
+  function topCats(n){
+    if(!dataReady()) return [];
+    var li=lastIdx(ALL);
+    var rows=Object.keys(DIS).map(function(k){ return {k:k, v:DIS[k][li]}; }).filter(function(r){ return r.v!=null; });
+    rows.sort(function(a,b){ return b.v-a.v; });
+    var max=rows.length?rows[0].v:1;
+    return rows.slice(0,n).map(function(r){ return {k:r.k, v:r.v, pct:Math.round(r.v/max*100)}; });
+  }
+  function rowsHTML(rows){
+    return '<div class="uf-rowlist">'+rows.map(function(r){
+      return '<div class="uf-rl"><span class="nm">'+r.k+'</span><span class="vl">'+fmtThou(r.v)+'</span><span class="bar"><i data-w="'+r.pct+'"></i></span></div>';
+    }).join('')+'</div>';
+  }
+
+  /* ---------- count-up for hero numbers ---------- */
+  function heroCount(el){
+    var to=parseFloat(el.getAttribute('data-uf-count')); if(isNaN(to)) return;
+    var dec=parseInt(el.getAttribute('data-uf-dec')||'0',10);
+    var pre=el.getAttribute('data-uf-prefix')||'', suf=el.getAttribute('data-uf-suffix')||'';
+    function set(v){ el.textContent=pre+v.toFixed(dec)+suf; }
+    if(reduced()||exporting()){ set(to); return; }
+    var t0=null, dur=1450;
+    function step(ts){ if(!t0)t0=ts; var k=Math.min(1,(ts-t0)/dur); var e=1-Math.pow(1-k,3); set(to*e); if(k<1) requestAnimationFrame(step); else set(to); }
+    requestAnimationFrame(step);
+  }
+
+  /* ---------- build the hero ---------- */
+  function buildHero(){
+    if(!dataReady()) return false;
+    var ov=document.getElementById('trendsOverview');
+    var view=document.querySelector('.view[data-view="trends"]');
+    if(!ov||!view) return false;
+    if(document.getElementById('ufHero')) return true;
+    var li=lastIdx(ALL), fi=firstIdx(ALL);
+    var latest=ALL[li], first=ALL[fi];
+    var pct=Math.round((latest-first)/first*100);
+    var latestM=(latest/1000).toFixed(1);
+
+    var hero=document.createElement('div');
+    hero.id='ufHero'; hero.className='uf-hero uf-anim';
+    hero.innerHTML=
+      '<div class="uf-hero-eyebrow uf-anim uf-shown">IDEA Section 618 \u00b7 The national picture</div>'+
+      '<h1 class="uf-hero-title">Special education in America has <em>more than doubled</em> in 50 years.</h1>'+
+      '<p class="uf-hero-lede">Behind that growth are children and students ages 3 to 21 served under IDEA, Part\u00a0B in every State. Explore who they are, how the count has changed, and how States compare.</p>'+
+      '<div class="uf-hero-stats">'+
+        '<button type="button" class="uf-hstat" data-pop="served"><span class="more">Details \u2192</span><span class="num" data-uf-count="'+latestM+'" data-uf-dec="1" data-uf-suffix="M">0.0M</span><span class="lbl">students served under IDEA, Part\u00a0B (2024\u201325)</span></button>'+
+        '<button type="button" class="uf-hstat" data-pop="growth"><span class="more">Details \u2192</span><span class="num" data-uf-count="'+pct+'" data-uf-dec="0" data-uf-prefix="+" data-uf-suffix="%">+0%</span><span class="lbl">growth since 1976\u201377, the first year counted</span></button>'+
+        '<button type="button" class="uf-hstat" data-pop="share"><span class="more">Details \u2192</span><span class="num">1 in 7</span><span class="lbl">public school students, ages 3 through 21</span></button>'+
+      '</div>';
+    view.insertBefore(hero, view.firstChild);
+
+    /* shift the subtab index map by one (hero is now child 0) \u2014 once */
+    try{
+      if(window.VIEW_SUBTABS && VIEW_SUBTABS.trends && !VIEW_SUBTABS.trends._ufShift){
+        VIEW_SUBTABS.trends._ufShift=1;
+        VIEW_SUBTABS.trends.groups.forEach(function(g){ g.idx=g.idx.map(function(i){ return i+1; }); });
+        if(typeof applyViewSubtabs==='function') applyViewSubtabs('trends', VIEW_SUBTABS.trends);
+      }
+    }catch(e){}
+
+    /* wire stat popups */
+    hero.querySelectorAll('.uf-hstat').forEach(function(b){
+      b.addEventListener('click',function(){ openHeroPop(b.getAttribute('data-pop'), {latestM:latestM, pct:pct, latest:latest, first:first}); });
+    });
+
+    /* entrance + counts (hero is above the fold) */
+    requestAnimationFrame(function(){
+      hero.classList.add('uf-shown');
+      var stats=hero.querySelectorAll('.uf-hstat'); stats.forEach(function(s,i){ s.classList.add('uf-anim'); s.classList.add('uf-d'+(i+2)); requestAnimationFrame(function(){ s.classList.add('uf-shown'); }); });
+      setTimeout(function(){ hero.querySelectorAll('.num[data-uf-count]').forEach(heroCount); }, 260);
+    });
+    return true;
+  }
+
+  function openHeroPop(kind, d){
+    if(kind==='served'){
+      window.ufPop({ eyebrow:'2024\u201325 child count', title:'8.2 million students served',
+        html:'<div class="uf-modal-big">'+fmtThou(d.latest)+'</div>'+
+          '<p>Children and students ages 3 through 21 served under IDEA, Part\u00a0B across the 50 States, DC, and the additional reporting entities. Specific learning disability and speech or language impairment remain the largest categories, while autism has grown fastest.</p>'+
+          '<p style="font-weight:700;color:#15241c;margin:14px 0 2px">Largest categories, 2024\u201325</p>'+
+          rowsHTML(topCats(6))+
+          '<div class="uf-modal-cta"><button data-uf-go="explorer">Open the Disability Explorer</button><button class="ghost" data-uf-go="states">Compare States</button></div>'+
+          '<div class="uf-modal-note">Counts reflect each child\u2019s single primary IDEA category, not clinical prevalence.</div>' });
+    } else if(kind==='growth'){
+      window.ufPop({ eyebrow:'1976\u201377 \u2192 2024\u201325', title:'From 3.7M to 8.2M',
+        html:'<div class="uf-modal-big">+'+d.pct+'%</div>'+
+          '<p>When federal counts began in 1976\u201377, '+fmtThou(d.first)+' students were served. The count has grown by '+d.pct+'% since then, driven by the 1990 renaming to IDEA (which added autism and traumatic brain injury), broader identification of conditions like other health impairment, and the rise of developmental delay for young children.</p>'+
+          '<div class="uf-modal-cta"><button data-uf-go="trends">See the 50-year trend</button></div>' });
+    } else {
+      window.ufPop({ eyebrow:'Share of enrollment', title:'About 1 in 7 students',
+        html:'<div class="uf-modal-big">14%</div>'+
+          '<p>Roughly one in seven public school students ages 3 through 21 receives special education and related services under IDEA, Part\u00a0B. That share has climbed steadily as identification has improved.</p>'+
+          '<div class="uf-modal-cta"><button data-uf-go="states">How does your State compare?</button></div>' });
+    }
+  }
+
+  /* ---------- draw-in for the hand-drawn line ---------- */
+  var drawIO=null;
+  function setupDrawIn(){
+    if(reduced()||exporting()) return;
+    if(!drawIO && 'IntersectionObserver' in window){
+      drawIO=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ markDrawn(e.target); drawIO.unobserve(e.target); } }); },{ threshold:.2 });
+    }
+    document.querySelectorAll('#ufBand .uf-line:not([data-ufdraw])').forEach(function(p){
+      p.setAttribute('data-ufdraw','1');
+      var L=0; try{ L=p.getTotalLength(); }catch(e){ return; }
+      if(!L) return;
+      p.style.setProperty('--uflen', L.toFixed(1));
+      p.classList.add('uf-draw');
+      var svg=p.ownerSVGElement;
+      if(svg){ svg.querySelectorAll('.uf-anno,.uf-anno-line,.uf-anno-dot,.uf-ldot,.uf-lhit').forEach(function(n){ if(!n.classList.contains('uf-lhit')) n.classList.add('uf-fade'); }); }
+      if(drawIO) drawIO.observe(p); else markDrawn(p);
+      /* safety: never leave a line hidden */
+      setTimeout(function(){ if(!p.classList.contains('uf-drawn')) markDrawn(p); }, 3200);
+    });
+  }
+  function markDrawn(p){
+    p.classList.add('uf-drawn');
+    var svg=p.ownerSVGElement; if(svg){ svg.querySelectorAll('.uf-fade').forEach(function(n,i){ setTimeout(function(){ n.classList.add('uf-drawn'); }, 900+Math.min(i,12)*40); }); }
+  }
+
+  /* ---------- boot + keep alive against re-renders ---------- */
+  function tick(){ try{ buildHero(); }catch(e){} try{ setupDrawIn(); }catch(e){} }
+  function boot(){
+    var tries=0, iv=setInterval(function(){ tick(); if(document.getElementById('ufHero')) { /* keep scanning a bit for late SVGs */ } if(++tries>40) clearInterval(iv); }, 350);
+    tick();
+    try{
+      var root=document.querySelector('.view[data-view="trends"]')||document.body, raf=0;
+      new MutationObserver(function(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(tick); }).observe(root,{ childList:true, subtree:true });
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else setTimeout(boot, 400);
+})();
+</script>
+
+<style id="ufScrollyCSS">
+/* ===== Wave 2: scrollytelling 50-year narrative ===== */
+#ufScrolly{ margin:34px 0 12px; --ufs-forest:#1e4d3d; --ufs-forest2:#2f7d5b; --ufs-lime:#84c13e; --ufs-line:#e6e5da; }
+.ufsc-intro{ margin:0 0 16px; }
+.ufsc-eyebrow{ font-family:'Carlito',system-ui,sans-serif; font-weight:800; font-size:.73rem; letter-spacing:.13em; text-transform:uppercase; color:var(--ufs-forest); margin:0 0 8px; }
+.ufsc-title{ font-family:'Charter618',Georgia,serif; font-weight:700; font-size:clamp(1.45rem,2.7vw,2.1rem); line-height:1.1; letter-spacing:-.015em; color:#15241c; margin:0 0 8px; max-width:26ch; text-wrap:balance; }
+.ufsc-lede{ font-family:'Carlito',system-ui,sans-serif; font-size:.98rem; line-height:1.5; color:#5a6b62; max-width:62ch; margin:0; }
+.ufsc-grid{ display:grid; grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr); gap:36px; align-items:start; }
+.ufsc-stickywrap{ position:sticky; top:calc(var(--appbarH,74px) + 14px); }
+.ufsc-card{ background:#fff; border:1px solid var(--ufs-line); border-radius:14px; padding:16px 18px 13px; box-shadow:0 1px 2px rgba(17,46,81,.06),0 12px 28px rgba(17,46,81,.06); }
+.ufsc-readout{ display:flex; align-items:baseline; gap:11px; flex-wrap:wrap; margin:0 2px 10px; }
+.ufsc-yr{ font-family:'Carlito',system-ui,sans-serif; font-weight:800; font-size:.82rem; letter-spacing:.03em; color:#8a8a82; font-variant-numeric:tabular-nums; }
+.ufsc-v{ font-family:'Charter618',Georgia,serif; font-weight:700; font-size:2rem; line-height:1; color:var(--ufs-forest); font-variant-numeric:tabular-nums; }
+.ufsc-cap{ font-family:'Carlito',system-ui,sans-serif; font-size:.78rem; color:#8a8a82; font-weight:600; }
+.ufsc-svgwrap svg{ display:block; width:100%; height:auto; font-family:'Carlito',system-ui,sans-serif; }
+.ufsc-grid-ln{ stroke:#ece9df; stroke-width:1; }
+.ufsc-axl{ fill:#9a9a90; font-size:10px; font-weight:600; }
+.ufsc-fill{ }
+.ufsc-line{ fill:none; stroke:var(--ufs-forest); stroke-width:3.1; stroke-linejoin:round; stroke-linecap:round; }
+.ufsc-mark{ fill:var(--ufs-forest); stroke:#fff; stroke-width:2.6; }
+.ufsc-hit{ fill:transparent; cursor:pointer; }
+.ufsc-steps{ display:flex; flex-direction:column; }
+.ufsc-step{ min-height:64vh; display:flex; align-items:center; }
+.ufsc-step:first-child{ min-height:42vh; padding-top:4vh; }
+.ufsc-step:last-child{ min-height:56vh; }
+.ufsc-stepcard{ position:relative; padding:18px 20px 16px 22px; background:#fff; border:1px solid var(--ufs-line); border-radius:12px; opacity:.4; transform:translateY(10px); transition:opacity .45s ease, transform .45s cubic-bezier(.22,1,.36,1), box-shadow .45s, border-color .45s; }
+.ufsc-step.active .ufsc-stepcard{ opacity:1; transform:none; box-shadow:0 16px 32px rgba(30,77,61,.13); border-color:var(--ufs-forest2); }
+.ufsc-stepcard::before{ content:""; position:absolute; left:0; top:15px; bottom:15px; width:4px; border-radius:4px; background:linear-gradient(180deg,var(--ufs-lime),var(--ufs-forest)); opacity:0; transition:opacity .45s; }
+.ufsc-step.active .ufsc-stepcard::before{ opacity:1; }
+.ufsc-kicker{ font-family:'Carlito',system-ui,sans-serif; font-weight:800; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ufs-forest2); margin:0 0 5px; }
+.ufsc-h{ font-family:'Charter618',Georgia,serif; font-weight:700; font-size:1.22rem; line-height:1.2; color:#15241c; margin:0 0 6px; }
+.ufsc-p{ font-family:'Carlito',system-ui,sans-serif; font-size:.93rem; line-height:1.5; color:#46554d; margin:0 0 11px; }
+.ufsc-detail{ font:inherit; font-family:'Carlito',system-ui,sans-serif; font-weight:700; font-size:.79rem; color:var(--ufs-forest); background:none; border:none; padding:0; cursor:pointer; display:inline-flex; align-items:center; gap:5px; }
+.ufsc-detail:hover{ text-decoration:underline; }
+body:not(.no-anim):not(.reduce):not(.printing):not(.print) .ufsc-line.ufsc-drawn{ transition:stroke-dashoffset 1.6s cubic-bezier(.33,0,.18,1); }
+body:not(.no-anim):not(.reduce):not(.printing):not(.print) #ufscClipRect{ transition:width 1s cubic-bezier(.33,0,.18,1); }
+body:not(.no-anim):not(.reduce):not(.printing):not(.print) .ufsc-mark{ transition:cx .95s cubic-bezier(.33,0,.18,1), cy .95s cubic-bezier(.33,0,.18,1); }
+@media(max-width:820px){
+  .ufsc-grid{ grid-template-columns:1fr; gap:8px; }
+  .ufsc-stickywrap{ position:sticky; top:calc(var(--appbarH,74px) + 4px); z-index:6; }
+  .ufsc-card{ box-shadow:0 6px 18px rgba(17,46,81,.1); }
+  .ufsc-step{ min-height:80vh; }
+  .ufsc-step:first-child{ min-height:16vh; padding-top:0; }
+}
+body.dark #ufScrolly .ufsc-title,body.dark #ufScrolly .ufsc-h{ color:#eaf3ed; }
+body.dark #ufScrolly .ufsc-lede,body.dark #ufScrolly .ufsc-p{ color:#aab8af; }
+body.dark #ufScrolly .ufsc-card,body.dark #ufScrolly .ufsc-stepcard{ background:#13251d; border-color:#27412f; }
+body.dark #ufScrolly .ufsc-line{ stroke:#5fb98c; }
+body.dark #ufScrolly .ufsc-mark{ fill:#5fb98c; stroke:#13251d; } body.dark #ufScrolly .ufsc-v{ color:#5fb98c; }
+body.dark #ufScrolly .ufsc-grid-ln{ stroke:#22382c; } body.dark #ufScrolly .ufsc-axl{ fill:#8da89a; }
+body.dark #ufScrolly .ufsc-eyebrow,body.dark #ufScrolly .ufsc-detail{ color:#7fcfa3; } body.dark #ufScrolly .ufsc-kicker{ color:#7fcfa3; }
+@media (prefers-reduced-motion: reduce){ #ufScrolly .ufsc-line,#ufScrolly .ufsc-mark,#ufScrolly #ufscClipRect,#ufScrolly .ufsc-stepcard{ transition:none !important; } }
+/* De-duplicate homepage statistics: the hero owns the headline count, the
+   growth figure, and the 1-in-7 share, so the repeated KPI strip and the
+   duplicate "1 in 7" fast fact are hidden. Each statistic is named once. */
+.view[data-view="trends"] .trend-kpi-section{ display:none !important; }
+.view[data-view="trends"] .snapshot-stats .snap-stat:first-child{ display:none !important; }
+</style>
+<script id="ufScrollyJS">
+(function(){
+  "use strict";
+  function reduced(){ try{ return document.body.classList.contains('no-anim')||document.body.classList.contains('reduce')||document.body.classList.contains('uf-calm')||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches); }catch(e){ return false; } }
+  function exporting(){ try{ return document.body.classList.contains('printing')||document.body.classList.contains('print'); }catch(e){ return false; } }
+  function dataReady(){ try{ return typeof YEARS!=='undefined'&&Array.isArray(ALL); }catch(e){ return false; } }
+  function startYear(s){ return parseInt((''+s).slice(0,4),10); }
+  function fmtThou(v){ if(v==null||isNaN(v)) return '\u2013'; return v>=1000 ? (v/1000).toFixed(2).replace(/\.?0+$/,'')+'M' : Math.round(v)+'K'; }
+
+  var STEPS=[
+    {yr:1976, kicker:'1976 to 1977', h:'Federal counts begin', p:'In the first year of national reporting, children begin to be counted under the Education for All Handicapped Children Act, the law that first guaranteed them a free public education.'},
+    {yr:1990, kicker:'1990 to 1991', h:'The law becomes IDEA', p:'Congress renames the law the Individuals with Disabilities Education Act and, for the first time, adds autism and traumatic brain injury as their own categories.'},
+    {yr:2000, kicker:'2000 to 2001', h:'A steady climb', p:'Broader identification, especially of other health impairment and specific learning disability, carries the national count higher year after year.'},
+    {yr:2020, kicker:'2020 to 2021', h:'The pandemic interrupts the climb', p:'For the first time in decades the count falls, as school closures and delayed evaluations reduce the number of students identified and served.'},
+    {yr:2024, kicker:'2024 to 2025', h:'The highest count on record', p:'The count rebounds to its highest level ever recorded under IDEA, Part\u00a0B.'}
+  ];
+
+  var cur=-1, line=null, mark=null, clipRect=null, len=0, MS=[];
+
+  function build(){
+    if(!dataReady()) return false;
+    var ov=document.getElementById('trendsOverview'); if(!ov) return false;
+    if(document.getElementById('ufScrolly')) return true;
+
+    var pts=[]; YEARS.forEach(function(y,i){ if(ALL[i]!=null) pts.push({yr:startYear(y), v:ALL[i], lbl:y}); });
+    pts.sort(function(a,b){ return a.yr-b.yr; });
+    if(pts.length<3) return false;
+    var W=580,H=380,mL=46,mR=20,mT=26,mB=38,x0=1976,x1=2024,ymax=9000;
+    function PX(yr){ return mL+(yr-x0)/(x1-x0)*(W-mL-mR); }
+    function PY(v){ return H-mB-(v/ymax)*(H-mT-mB); }
+    var cum=[0]; for(var i=1;i<pts.length;i++){ var dx=PX(pts[i].yr)-PX(pts[i-1].yr), dy=PY(pts[i].v)-PY(pts[i-1].v); cum[i]=cum[i-1]+Math.sqrt(dx*dx+dy*dy); }
+    var total=cum[cum.length-1];
+
+    MS=STEPS.map(function(st){
+      var idx=-1; for(var j=0;j<pts.length;j++){ if(pts[j].yr===st.yr){ idx=j; break; } }
+      if(idx<0){ for(var k=0;k<pts.length;k++){ if(pts[k].yr>=st.yr){ idx=k; break; } } if(idx<0) idx=pts.length-1; }
+      var p=pts[idx];
+      return { lbl:p.lbl, v:p.v, frac:cum[idx]/total, x:PX(p.yr), y:PY(p.v) };
+    });
+
+    var grid='';
+    [0,2000,4000,6000,8000].forEach(function(t){ var y=PY(t); grid+='<line class="ufsc-grid-ln" x1="'+mL+'" y1="'+y.toFixed(1)+'" x2="'+(W-mR)+'" y2="'+y.toFixed(1)+'"/>'; grid+='<text class="ufsc-axl" x="'+(mL-7)+'" y="'+(y+3.5).toFixed(1)+'" text-anchor="end">'+(t===0?'0':(t/1000)+'M')+'</text>'; });
+    [1976,1990,2000,2010,2020].forEach(function(yr){ grid+='<text class="ufsc-axl" x="'+PX(yr).toFixed(1)+'" y="'+(H-mB+16)+'" text-anchor="middle">'+yr+'</text>'; });
+    var d=pts.map(function(p,i){ return (i?'L':'M')+PX(p.yr).toFixed(1)+' '+PY(p.v).toFixed(1); }).join(' ');
+    var area=d+' L'+PX(pts[pts.length-1].yr).toFixed(1)+' '+PY(0).toFixed(1)+' L'+PX(pts[0].yr).toFixed(1)+' '+PY(0).toFixed(1)+' Z';
+    var hits=MS.map(function(m,i){ return '<circle class="ufsc-hit" data-detail="'+i+'" cx="'+m.x.toFixed(1)+'" cy="'+m.y.toFixed(1)+'" r="16"/>'; }).join('');
+    var svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Line chart of children and students served under IDEA Part B, growing from 3.7 million in 1976-77 to 8.2 million in 2024-25.">'
+      +'<defs><linearGradient id="ufscGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e4d3d" stop-opacity="0.18"/><stop offset="1" stop-color="#1e4d3d" stop-opacity="0"/></linearGradient>'
+      +'<clipPath id="ufscClip"><rect id="ufscClipRect" x="0" y="0" width="'+MS[0].x.toFixed(1)+'" height="'+H+'"/></clipPath></defs>'
+      +grid
+      +'<path class="ufsc-fill" d="'+area+'" fill="url(#ufscGrad)" clip-path="url(#ufscClip)"/>'
+      +'<path id="ufscLine" class="ufsc-line" d="'+d+'"/>'
+      +'<circle id="ufscMark" class="ufsc-mark" cx="'+MS[0].x.toFixed(1)+'" cy="'+MS[0].y.toFixed(1)+'" r="6.2"/>'+hits+'</svg>';
+
+    var wrap=document.createElement('section'); wrap.id='ufScrolly'; wrap.setAttribute('aria-label','Fifty years of the national child count');
+    wrap.innerHTML='<div class="ufsc-intro"><div class="ufsc-eyebrow">Fifty years of data</div>'
+      +'<h3 class="ufsc-title">Fifty years of the national child count</h3>'
+      +'<p class="ufsc-lede">Scroll to follow the count from the first federal tally in 1976 to the present day, and select any point to open the detail.</p></div>'
+      +'<div class="ufsc-grid"><div><div class="ufsc-stickywrap"><div class="ufsc-card">'
+      +'<div class="ufsc-readout"><span class="ufsc-yr" id="ufscYr">'+MS[0].lbl+'</span><span class="ufsc-v" id="ufscV">'+(MS[0].v/1000).toFixed(2)+'M</span><span class="ufsc-cap">children and students served, ages 3 to 21</span></div>'
+      +'<div class="ufsc-svgwrap">'+svg+'</div></div></div></div>'
+      +'<div class="ufsc-steps">'+STEPS.map(function(st,i){ return '<div class="ufsc-step" data-step="'+i+'"><div class="ufsc-stepcard"><div class="ufsc-kicker">'+st.kicker+'</div><h4 class="ufsc-h">'+st.h+'</h4><p class="ufsc-p">'+st.p+'</p><button class="ufsc-detail" data-detail="'+i+'">View the numbers \u2192</button></div></div>'; }).join('')+'</div></div>';
+
+    var anchor=ov.querySelector('.trend-chart-section')||ov.querySelector('.trend-home-section');
+    if(anchor&&anchor.parentNode){ anchor.parentNode.insertBefore(wrap, anchor.nextSibling); }
+    else { ov.appendChild(wrap); }
+
+    line=wrap.querySelector('#ufscLine'); mark=wrap.querySelector('#ufscMark'); clipRect=wrap.querySelector('#ufscClipRect');
+    try{ len=line.getTotalLength(); }catch(e){ len=total; }
+    if(!(reduced()||exporting())){ line.style.strokeDasharray=len; line.style.strokeDashoffset=len; }
+    if('IntersectionObserver' in window){
+      var dio=new IntersectionObserver(function(ee){ ee.forEach(function(e2){ if(e2.isIntersecting){ line.classList.add('ufsc-drawn'); line.style.strokeDashoffset=0; dio.disconnect(); } }); },{ threshold:.25 });
+      try{ dio.observe(line.ownerSVGElement||wrap); }catch(e){ line.classList.add('ufsc-drawn'); line.style.strokeDashoffset=0; }
+      setTimeout(function(){ if(line&&!line.classList.contains('ufsc-drawn')){ line.classList.add('ufsc-drawn'); line.style.strokeDashoffset=0; } }, 3000);
+    } else { line.style.strokeDashoffset=0; }
+
+    var steps=[].slice.call(wrap.querySelectorAll('.ufsc-step'));
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ var s=parseInt(e.target.getAttribute('data-step'),10); if(s!==cur) setStep(s); } }); },{ rootMargin:'-45% 0px -45% 0px', threshold:0 });
+      steps.forEach(function(st){ io.observe(st); });
+    }
+    wrap.querySelectorAll('[data-detail]').forEach(function(b){ b.addEventListener('click',function(){ stepPop(parseInt(b.getAttribute('data-detail'),10)); }); });
+    setStep(0);
+    return true;
+  }
+
+  function countTo(el, vThou){
+    var to=vThou/1000;
+    if(reduced()||exporting()){ el.textContent=to.toFixed(2)+'M'; el.setAttribute('data-cur',to); return; }
+    var from=parseFloat(el.getAttribute('data-cur')||'0'); el.setAttribute('data-cur',to);
+    var t0=null,dur=750; function step(ts){ if(!t0)t0=ts; var k=Math.min(1,(ts-t0)/dur); var e=1-Math.pow(1-k,3); el.textContent=(from+(to-from)*e).toFixed(2)+'M'; if(k<1) requestAnimationFrame(step); else el.textContent=to.toFixed(2)+'M'; } requestAnimationFrame(step);
+  }
+  function setStep(s){
+    if(!MS[s]) return; var m=MS[s];
+    if(clipRect) clipRect.setAttribute('width', m.x.toFixed(1));
+    if(mark){ mark.setAttribute('cx', m.x.toFixed(1)); mark.setAttribute('cy', m.y.toFixed(1)); }
+    var yr=document.getElementById('ufscYr'), vv=document.getElementById('ufscV');
+    if(yr) yr.textContent=m.lbl; if(vv) countTo(vv, m.v);
+    document.querySelectorAll('#ufScrolly .ufsc-step').forEach(function(st,i){ st.classList.toggle('active', i===s); });
+    cur=s;
+  }
+  function stepPop(s){
+    if(!MS[s]||!window.ufPop) return; var m=MS[s], st=STEPS[s];
+    var prev=s>0?MS[s-1]:null, delta='';
+    if(prev){ var diff=m.v-prev.v, pc=Math.round((m.v-prev.v)/prev.v*100); delta='<p style="font-weight:700;color:#15241c;margin-top:12px">'+(diff>=0?'+':'\u2212')+fmtThou(Math.abs(diff))+'  ('+(pc>=0?'+':'')+pc+'%) since '+prev.lbl+'</p>'; }
+    window.ufPop({ eyebrow:st.kicker, title:st.h, html:'<div class="uf-modal-big">'+(m.v/1000).toFixed(2)+'M</div><p>'+st.p+'</p>'+delta+'<div class="uf-modal-cta"><button data-uf-go="explorer">Explore by category</button><button class="ghost" data-uf-go="states">Compare States</button></div>' });
+  }
+
+  function boot(){
+    var tries=0, iv=setInterval(function(){ try{ if(build()){ clearInterval(iv); } }catch(e){} if(++tries>50) clearInterval(iv); }, 350);
+    try{ build(); }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else setTimeout(boot, 600);
+})();
+</script>
+
+<style id="ufTweaksCSS">
+/* ===== Wave 3: Tweaks panel (palette / density / motion) ===== */
+#ufTweakBtn{ position:fixed; right:18px; bottom:18px; z-index:9500; display:inline-flex; align-items:center; gap:8px; padding:10px 15px 10px 13px; border:none; border-radius:999px; background:#1e4d3d; color:#fff; font-family:'Carlito',system-ui,sans-serif; font-weight:700; font-size:.84rem; cursor:pointer; box-shadow:0 8px 22px rgba(17,46,81,.22); transition:transform .16s cubic-bezier(.22,1,.36,1), box-shadow .16s, background .16s; }
+#ufTweakBtn:hover{ transform:translateY(-2px); box-shadow:0 14px 30px rgba(30,77,61,.3); background:#23583f; }
+#ufTweakBtn svg{ width:17px; height:17px; }
+#ufTweakBtn:focus-visible{ outline:3px solid rgba(132,193,62,.6); outline-offset:2px; }
+@media(max-width:640px){ #ufTweakBtn span{ display:none; } #ufTweakBtn{ padding:12px; } }
+#ufTweakPanel{ position:fixed; right:18px; bottom:70px; z-index:9500; width:300px; max-width:calc(100vw - 36px); background:#fdfdfb; border:1px solid #e6e5da; border-top:5px solid #84c13e; border-radius:16px; box-shadow:0 26px 70px rgba(0,0,0,.3); padding:16px 18px 14px; font-family:'Carlito',system-ui,sans-serif; opacity:0; transform:translateY(12px) scale(.98); transform-origin:bottom right; transition:opacity .24s ease, transform .26s cubic-bezier(.22,1,.36,1); }
+#ufTweakPanel.in{ opacity:1; transform:none; }
+#ufTweakPanel[hidden]{ display:none; }
+.uft-head{ display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:13px; }
+.uft-eyebrow{ font-weight:800; font-size:.64rem; letter-spacing:.12em; text-transform:uppercase; color:#2f7d5b; }
+.uft-title{ font-family:'Charter618',Georgia,serif; font-weight:700; font-size:1.24rem; color:#15241c; line-height:1.08; margin-top:3px; }
+.uft-x{ width:30px; height:30px; border:none; border-radius:8px; background:#f1efe7; color:#46554d; font-size:19px; line-height:1; cursor:pointer; transition:background .15s; }
+.uft-x:hover{ background:#e3e0d4; }
+.uft-sec{ margin:0 0 13px; }
+.uft-lbl{ font-weight:700; font-size:.74rem; color:#5a6b62; margin:0 0 6px; }
+.uft-seg{ display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap:5px; background:#eef0ea; border-radius:10px; padding:4px; }
+.uft-seg button{ display:inline-flex; align-items:center; justify-content:center; gap:6px; font:inherit; font-weight:700; font-size:.76rem; color:#46554d; background:transparent; border:none; border-radius:7px; padding:8px 4px; cursor:pointer; transition:background .15s, color .15s, box-shadow .15s; white-space:nowrap; }
+.uft-seg button i{ width:11px; height:11px; border-radius:50%; display:inline-block; box-shadow:inset 0 0 0 1px rgba(0,0,0,.08); }
+.uft-seg button.on{ background:#fff; color:#15241c; box-shadow:0 1px 2px rgba(17,46,81,.14); }
+.uft-seg button:hover:not(.on){ color:#15241c; }
+.uft-note{ font-size:.7rem; color:#9aa39a; margin-top:5px; }
+body.dark #ufTweakPanel{ background:#13251d; border-color:#27412f; }
+body.dark .uft-title{ color:#eaf3ed; } body.dark .uft-lbl{ color:#9fb1a6; } body.dark .uft-eyebrow{ color:#7fcfa3; }
+body.dark .uft-seg{ background:#0f1f18; } body.dark .uft-seg button{ color:#aab8af; } body.dark .uft-seg button.on{ background:#1e3a2c; color:#eaf3ed; }
+body.dark .uft-x{ background:#1d3328; color:#cfe0d6; }
+
+/* ---- palette: NAVY ---- */
+body.ufpal-navy .view[data-view="trends"], body.ufpal-navy #ufScrolly{ --ufs-forest:#13354e; --ufs-forest2:#1c4f74; --ufs-lime:#73b3e7; }
+body.ufpal-navy .uf-modal{ --ufs-forest:#13354e; --ufs-lime:#1c4f74; }
+body.ufpal-navy .uf-hero{ background:radial-gradient(130% 150% at 100% 0%, #e7eef6 0%, #f6f5ef 48%, #f6f5ef 100%); }
+body.ufpal-navy .uf-hero-title em{ color:#13354e; background:linear-gradient(180deg,transparent 62%,rgba(115,179,231,.36) 62%); }
+body.ufpal-navy #ufBand .uf-line{ stroke:#13354e; } body.ufpal-navy #ufBand .uf-ldot,body.ufpal-navy #ufBand .uf-db-b,body.ufpal-navy #ufBand .uf-anno-dot{ fill:#13354e; }
+body.ufpal-navy #ufBand .uf-db-a{ fill:#73b3e7; } body.ufpal-navy #ufBand .uf-sx-m{ fill:#1c4f74; }
+body.ufpal-navy #ufBand .uf-bandhead{ color:#13354e; border-bottom-color:#13354e; }
+body.ufpal-navy #ufTweakBtn{ background:#13354e; } body.ufpal-navy #ufTweakBtn:hover{ background:#1c4f74; }
+body.ufpal-navy #ufTweakPanel,body.ufpal-navy #pwGate .gate-card{ border-top-color:#73b3e7; }
+/* ---- palette: SLATE ---- */
+body.ufpal-slate .view[data-view="trends"], body.ufpal-slate #ufScrolly{ --ufs-forest:#324155; --ufs-forest2:#52677f; --ufs-lime:#9bb1c9; }
+body.ufpal-slate .uf-modal{ --ufs-forest:#324155; --ufs-lime:#52677f; }
+body.ufpal-slate .uf-hero{ background:radial-gradient(130% 150% at 100% 0%, #eceff3 0%, #f6f5ef 48%, #f6f5ef 100%); }
+body.ufpal-slate .uf-hero-title em{ color:#324155; background:linear-gradient(180deg,transparent 62%,rgba(155,177,201,.42) 62%); }
+body.ufpal-slate #ufBand .uf-line{ stroke:#324155; } body.ufpal-slate #ufBand .uf-ldot,body.ufpal-slate #ufBand .uf-db-b,body.ufpal-slate #ufBand .uf-anno-dot{ fill:#324155; }
+body.ufpal-slate #ufBand .uf-db-a{ fill:#9bb1c9; } body.ufpal-slate #ufBand .uf-sx-m{ fill:#52677f; }
+body.ufpal-slate #ufBand .uf-bandhead{ color:#324155; border-bottom-color:#324155; }
+body.ufpal-slate #ufTweakBtn{ background:#324155; } body.ufpal-slate #ufTweakBtn:hover{ background:#52677f; }
+body.ufpal-slate #ufTweakPanel,body.ufpal-slate #pwGate .gate-card{ border-top-color:#9bb1c9; }
+
+/* ---- density: SPACIOUS ---- */
+body.ufden-spacious .uf-hero{ padding:42px 44px 38px; } body.ufden-spacious .uf-hero-lede{ margin-bottom:28px; }
+body.ufden-spacious .uf-hero-stats{ gap:18px; } body.ufden-spacious #ufScrolly{ margin:50px 0 18px; }
+body.ufden-spacious .ufsc-grid{ gap:50px; } body.ufden-spacious .ufsc-step{ min-height:82vh; } body.ufden-spacious .ufsc-intro{ margin-bottom:24px; }
+/* ---- density: COMPACT ---- */
+body.ufden-compact .uf-hero{ padding:20px 22px 17px; } body.ufden-compact .uf-hero-title{ margin-bottom:9px; }
+body.ufden-compact .uf-hero-lede{ margin-bottom:14px; } body.ufden-compact .uf-hero-stats{ gap:10px; } body.ufden-compact .uf-hstat{ padding:11px 13px 10px; }
+body.ufden-compact #ufScrolly{ margin:22px 0 8px; } body.ufden-compact .ufsc-grid{ gap:24px; } body.ufden-compact .ufsc-step{ min-height:46vh; } body.ufden-compact .ufsc-intro{ margin-bottom:10px; }
+
+/* ---- motion: CALM ---- */
+body.uf-calm .uf-anim{ opacity:1 !important; transform:none !important; transition:none !important; }
+body.uf-calm .ufsc-stepcard{ opacity:1 !important; transform:none !important; transition:none !important; }
+body.uf-calm .ufsc-line{ stroke-dashoffset:0 !important; transition:none !important; }
+body.uf-calm #ufscClipRect, body.uf-calm .ufsc-mark{ transition:none !important; }
+body.uf-calm #ufBand .uf-line.uf-draw{ stroke-dasharray:none !important; stroke-dashoffset:0 !important; }
+body.uf-calm #ufBand .uf-fade{ opacity:1 !important; }
+</style>
+<script id="ufTweaksJS">
+(function(){
+  var K={pal:'uf_pal', den:'uf_den', mo:'uf_motion'};
+  var PAL=['forest','navy','slate'], DEN=['spacious','standard','compact'], MO=['cinematic','calm'];
+  function get(k,def){ try{ var v=localStorage.getItem(k); return v||def; }catch(e){ return def; } }
+  function setv(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+  function apply(){
+    var pal=get(K.pal,'forest'), den=get(K.den,'standard'), mo=get(K.mo,'cinematic'), b=document.body; if(!b) return;
+    PAL.forEach(function(p){ b.classList.toggle('ufpal-'+p, p===pal); });
+    DEN.forEach(function(d){ b.classList.toggle('ufden-'+d, d===den); });
+    b.classList.toggle('uf-calm', mo==='calm');
+    var panel=document.getElementById('ufTweakPanel'); if(!panel) return;
+    panel.querySelectorAll('[data-opt]').forEach(function(btn){
+      var grp=btn.getAttribute('data-grp'), val=btn.getAttribute('data-opt');
+      var cur = grp==='pal'?pal : grp==='den'?den : mo;
+      btn.classList.toggle('on', val===cur); btn.setAttribute('aria-pressed', val===cur?'true':'false');
+    });
+  }
+  function build(){
+    if(document.getElementById('ufTweakBtn')||!document.body) return;
+    var btn=document.createElement('button'); btn.id='ufTweakBtn'; btn.type='button'; btn.setAttribute('aria-label','Customize the look');
+    btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/><circle cx="9" cy="8" r="2.5" fill="currentColor" stroke="none"/><circle cx="15" cy="16" r="2.5" fill="currentColor" stroke="none"/></svg><span>Customize</span>';
+    var panel=document.createElement('div'); panel.id='ufTweakPanel'; panel.setAttribute('role','dialog'); panel.setAttribute('aria-label','Customize the look'); panel.hidden=true;
+    panel.innerHTML=''
+      +'<div class="uft-head"><div><div class="uft-eyebrow">Customize</div><div class="uft-title">Make it yours</div></div><button class="uft-x" type="button" aria-label="Close">\u00d7</button></div>'
+      +'<div class="uft-sec"><div class="uft-lbl">Accent palette</div><div class="uft-seg" role="group" aria-label="Accent palette">'
+        +'<button type="button" data-grp="pal" data-opt="forest"><i style="background:#1e4d3d"></i>Forest</button>'
+        +'<button type="button" data-grp="pal" data-opt="navy"><i style="background:#13354e"></i>Navy</button>'
+        +'<button type="button" data-grp="pal" data-opt="slate"><i style="background:#324155"></i>Slate</button></div></div>'
+      +'<div class="uft-sec"><div class="uft-lbl">Reading density</div><div class="uft-seg" role="group" aria-label="Reading density">'
+        +'<button type="button" data-grp="den" data-opt="spacious">Spacious</button>'
+        +'<button type="button" data-grp="den" data-opt="standard">Standard</button>'
+        +'<button type="button" data-grp="den" data-opt="compact">Compact</button></div></div>'
+      +'<div class="uft-sec"><div class="uft-lbl">Story motion</div><div class="uft-seg" role="group" aria-label="Story motion">'
+        +'<button type="button" data-grp="mo" data-opt="cinematic">Cinematic</button>'
+        +'<button type="button" data-grp="mo" data-opt="calm">Calm</button></div></div>'
+      +'<div class="uft-note">Choices are saved on this device.</div>';
+    document.body.appendChild(btn); document.body.appendChild(panel);
+    function open(){ panel.hidden=false; requestAnimationFrame(function(){ panel.classList.add('in'); }); }
+    function close(){ panel.classList.remove('in'); setTimeout(function(){ panel.hidden=true; }, 240); }
+    btn.addEventListener('click', function(){ if(panel.hidden) open(); else close(); });
+    panel.querySelector('.uft-x').addEventListener('click', close);
+    panel.querySelectorAll('[data-opt]').forEach(function(o){ o.addEventListener('click', function(){ var g=o.getAttribute('data-grp'); setv(g==='pal'?K.pal:g==='den'?K.den:K.mo, o.getAttribute('data-opt')); apply(); }); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape'&&!panel.hidden) close(); });
+    document.addEventListener('click', function(e){ if(!panel.hidden && !panel.contains(e.target) && e.target!==btn && !btn.contains(e.target)) close(); });
+    apply();
+  }
+  function boot(){ try{ build(); }catch(e){} try{ apply(); }catch(e){} }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else setTimeout(boot, 200);
+})();
+</script>
+
+<style id="ufFactsCSS">
+/* ===== Wave 4: clickable fast-fact drill-downs ===== */
+.view[data-view="trends"] .snapshot-stats .snap-stat{ cursor:pointer; position:relative; }
+.view[data-view="trends"] .snapshot-stats .snap-stat::after{ content:"Details \2192"; position:absolute; top:12px; right:14px; font-size:.6rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#9bada3; opacity:0; transition:opacity .16s; pointer-events:none; }
+body:not(.no-anim):not(.reduce) .view[data-view="trends"] .snapshot-stats .snap-stat:hover::after,
+.view[data-view="trends"] .snapshot-stats .snap-stat:focus-visible::after{ opacity:1; color:var(--ufs-forest2,#2f7d5b); }
+.view[data-view="trends"] .snapshot-stats .snap-stat:focus-visible{ outline:3px solid rgba(47,125,91,.45); outline-offset:2px; }
+</style>
+<script id="ufFactsJS">
+(function(){
+  function pop(kind){
+    if(!window.ufPop) return;
+    if(kind==='env'){
+      window.ufPop({ eyebrow:'Educational environment', title:'Most students learn in the general classroom',
+        html:'<div class="uf-modal-big">68%</div><p>About two in three school-aged students with disabilities, ages 5 to 21, spend 80% or more of the school day inside the regular class, the most inclusive setting reported. A higher share reflects more time learning alongside peers without disabilities.</p><div class="uf-modal-cta"><button data-uf-go="explorer">See environment by category</button><button class="ghost" data-uf-go="states">Compare States</button></div><div class="uf-modal-note">Source: OSEP IDEA Part B Educational Environments Collection, 2024 to 2025.</div>' });
+    } else {
+      window.ufPop({ eyebrow:'Outcomes', title:'About three in four earn a diploma',
+        html:'<div class="uf-modal-big">3 in 4</div><p>Among students with disabilities ages 14 to 21 who left school, roughly three in four exited by graduating with a regular high school diploma. The remainder exited through other paths, including certificates, reaching maximum age, or dropping out.</p><div class="uf-modal-cta"><button data-uf-go="gpra">See performance targets</button><button class="ghost" data-uf-go="states">Compare States</button></div><div class="uf-modal-note">Source: OSEP IDEA Part B Exiting Collection.</div>' });
+    }
+  }
+  function labelOf(s){ var p=s.querySelector('.pictostat'); return (p&&p.getAttribute('aria-label'))||s.textContent||''; }
+  function actFrom(s){ var lbl=labelOf(s); if(/2\s*in\s*3/.test(lbl)) pop('env'); else if(/3\s*in\s*4/.test(lbl)) pop('grad'); }
+  function wire(){
+    var box=document.querySelector('.view[data-view="trends"] .snapshot-stats'); if(!box||box._ufFactsWired) return; box._ufFactsWired=1;
+    box.addEventListener('click', function(e){ var s=e.target.closest('.snap-stat'); if(s&&box.contains(s)) actFrom(s); });
+    box.addEventListener('keydown', function(e){ if(e.key!=='Enter'&&e.key!==' ') return; var s=e.target.closest('.snap-stat'); if(s&&box.contains(s)){ e.preventDefault(); actFrom(s); } });
+    [].forEach.call(box.querySelectorAll('.snap-stat'), function(s){ if(s.offsetParent!==null||getComputedStyle(s).display!=='none'){ s.setAttribute('tabindex','0'); s.setAttribute('role','button'); } });
+  }
+  function boot(){ var t=0, iv=setInterval(function(){ wire(); if(++t>40) clearInterval(iv); }, 400); wire(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else setTimeout(boot, 500);
 })();
 </script>
 </body>
