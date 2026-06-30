@@ -17804,7 +17804,11 @@ function _leaLandscapeChart(items,opts){
  }).filter(function(d){return d.data.length;});
  var pick=opts.pick||function(){};
  var _anim=(document.body.classList.contains('reduce')||items.length>2000)?false:{duration:560,easing:'easeOutQuart'};
- _leaChart1=new Chart(cv,{type:'bubble',data:{datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:_anim,layout:{padding:{top:8,right:34,bottom:2,left:2}},onClick:function(e,els){if(els&&els.length){var el=els[0],ds=datasets[el.datasetIndex];var p=ds&&ds.data[el.index];if(p&&p._item)pick(p._item);}},onHover:function(e,els){e.native&&e.native.target&&(e.native.target.style.cursor=els.length?'pointer':'default');},
+ /* Nearest-point hit testing (not exact-overlap): many district bubbles are only a
+    pixel or two wide, so default intersect hit testing missed them on hover and click.
+    A distance guard keeps clicks/cursor from firing far out in empty space. */
+ var _hitR=function(els,e){ if(!els||!els.length)return null; var el=els[0],elem=el.element; if(!elem)return null; var r=(elem.options&&elem.options.radius)||4; var dx=elem.x-e.x, dy=elem.y-e.y; return (Math.sqrt(dx*dx+dy*dy)<=Math.max(r+10,16))?el:null; };
+ _leaChart1=new Chart(cv,{type:'bubble',data:{datasets:datasets},options:{responsive:true,maintainAspectRatio:false,animation:_anim,layout:{padding:{top:8,right:34,bottom:2,left:2}},interaction:{mode:'nearest',intersect:false},onClick:function(e,els){var el=_hitR(els,e);if(el){var ds=datasets[el.datasetIndex],p=ds&&ds.data[el.index];if(p&&p._item)pick(p._item);}},onHover:function(e,els){if(e.native&&e.native.target)e.native.target.style.cursor=_hitR(els,e)?'pointer':'default';},
   plugins:{ffValues:false,legend:{display:true,position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,boxHeight:8,padding:12,font:{size:11},color:document.body.classList.contains('dark')?'#b6c2d2':'#5a6675'}},tooltip:{callbacks:{title:function(it){return it[0].raw._name;},label:function(o){return ['Served: '+_leaFmt(o.raw.x),'IDEA allocation (2021–22): '+_leaMoney(o.raw.y),'MOE determination: '+o.raw._det];}}}},
   scales:{x:{beginAtZero:true,title:{display:true,text:'Children and Students with Disabilities Served (2024–25)',color:document.body.classList.contains('dark')?'#b6c2d2':'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return (+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}},y:{beginAtZero:true,title:{display:true,text:'IDEA, Part B allocation, 2021–22 ($)',color:document.body.classList.contains('dark')?'#b6c2d2':'#5a6675',font:{size:11,weight:'700'}},ticks:{callback:function(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':'$'+(+v).toLocaleString();},font:{size:10}},grid:{color:'rgba(120,140,160,.13)'}}}}});
  _addCardTools(cv.closest('.card'),function(){_captionedPNG(cv,(opts.title||'Districts by size and IDEA funding'),(opts.subtitle||''),(opts.fileslug||'idea618_districts_landscape.png'),(typeof SRC_NOTE!=='undefined'?SRC_NOTE:''));},function(){_gfxCSV((opts.csvRows?opts.csvRows():[]),(opts.csvslug||'idea618_districts'));});
@@ -20608,16 +20612,16 @@ body.hc .whatmeans>summary{ border-width:2px; }
 
 /* ---- (2) LEA "Exiting" card ---- */
 /* Editorial "lead with the number" stat (replaces the generic colored callout box) */
-.lea-exit-card .lea-exit-stat{ display:flex; align-items:center; gap:18px; margin:10px 0 18px; }
-.lea-exit-card .les-fig{ flex:none; font-size:3.3rem; line-height:.92; font-weight:800; letter-spacing:-.02em; color:#2e8540; font-variant-numeric:tabular-nums; }
-.lea-exit-card .les-fig.les-fig-count{ font-size:2.1rem; color:var(--navy); }
-.lea-exit-card .les-fig .les-pct{ font-size:1.7rem; font-weight:800; margin-left:1px; }
+.lea-exit-card .lea-exit-stat{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:5px; margin:12px auto 18px; max-width:600px; }
+.lea-exit-card .les-fig{ font-size:3.5rem; line-height:.92; font-weight:800; letter-spacing:-.02em; color:#2e8540; font-variant-numeric:tabular-nums; }
+.lea-exit-card .les-fig.les-fig-count{ font-size:2.3rem; color:var(--navy); }
+.lea-exit-card .les-fig .les-pct{ font-size:1.8rem; font-weight:800; margin-left:1px; }
 body.dark .lea-exit-card .les-fig{ color:#6fc08a; }
 body.dark .lea-exit-card .les-fig.les-fig-count{ color:#9fc3ec; }
-.lea-exit-card .les-cap{ line-height:1.4; }
-.lea-exit-card .les-cap b{ display:block; font-size:1.04rem; font-weight:800; color:var(--ink); }
-.lea-exit-card .les-cap span{ display:block; font-size:.84rem; color:var(--muted); margin-top:4px; max-width:48ch; }
-@media (max-width:520px){ .lea-exit-card .lea-exit-stat{ gap:13px; } .lea-exit-card .les-fig{ font-size:2.7rem; } }
+.lea-exit-card .les-cap{ line-height:1.45; }
+.lea-exit-card .les-cap b{ display:block; font-size:1.06rem; font-weight:800; color:var(--ink); }
+.lea-exit-card .les-cap span{ display:block; font-size:.84rem; color:var(--muted); margin:4px auto 0; max-width:54ch; }
+@media (max-width:520px){ .lea-exit-card .les-fig{ font-size:2.9rem; } }
 .lea-exit-card .lea-exit-subh{ margin:18px 0 10px; font-size:.92rem; color:var(--navy); font-weight:800; }
 body.dark .lea-exit-card .lea-exit-subh{ color:#9fc3ec; }
 
