@@ -67,12 +67,12 @@
       const wrap = document.createElement('div'); wrap.className = 'det-donut';
       const cap = document.createElement('div'); cap.className = 'det-cap';
       cap.innerHTML = `<b>${part === 'partB' ? 'Part B' : 'Part C'}</b><span>${part === 'partB' ? 'ages 3–21' : 'birth–age 2'} · ${total} entities</span>`;
-      const cb = document.createElement('div'); cb.className = 'chartbox'; cb.style.maxWidth = '240px';
+      const cb = document.createElement('div'); cb.className = 'chartbox'; cb.style.maxWidth = '176px';
       const d = C.donut({
-        size: 230, stroke: 38,
+        size: 172, stroke: 30,
         segments: DET.levels.map(l => ({ name: l.label, value: l[part], color: l.color })),
         onClick: seg => openDetModal(seg.name),
-        centerValue: DET.levels[0][part], centerFmt: v => Math.round(v), centerSub: 'meet requirements',
+        centerValue: total - DET.levels[0][part], centerFmt: v => Math.round(v), centerSub: 'do not meet requirements',
       });
       cb.appendChild(d.node); wrap.appendChild(cap); wrap.appendChild(cb);
       return { wrap, reveal: d.reveal };
@@ -81,8 +81,19 @@
     const row = document.createElement('div'); row.className = 'det-row';
     row.appendChild(a.wrap); row.appendChild(b.wrap); box.appendChild(row);
     S.onView(box, () => { a.reveal(); b.reveal(); });
+    // scorecard: each level with a colored check (meets) or alert (does not meet) + counts
+    const CHECK = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+    const ALERT = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>';
+    const sc = document.createElement('div'); sc.className = 'det-score';
+    sc.innerHTML = `<div class="det-score-head"><span></span><span>Part&nbsp;B</span><span>Part&nbsp;C</span></div>` + DET.levels.map(l => `<button class="det-score-row" data-level="${l.label}" style="--c:${l.color}">
+        <span class="det-score-lab"><span class="det-ic">${l.key === 'meets' ? CHECK : ALERT}</span>${l.label}</span>
+        <span class="det-score-n">${l.partB}</span>
+        <span class="det-score-n">${l.partC}</span>
+      </button>`).join('');
+    box.appendChild(sc);
+    sc.querySelectorAll('.det-score-row').forEach(b2 => b2.addEventListener('click', () => openDetModal(b2.dataset.level)));
     S.legend('detLegend', DET.levels.map(l => [l.label, l.color]), name => openDetModal(name));
-    S.hint('chart-det', 'Tap a slice or a key for what each level means');
+    S.hint('chart-det', 'Tap a slice, a key, or a row for what each level means');
     S.expbar && S.expbar('chart-det', 'idea-determinations-2026', [['Determination level', 'Part B (n=64)', 'Part C (n=59)'], ...DET.levels.map(l => [l.label, l.partB, l.partC])]);
   })();
 
@@ -106,11 +117,22 @@
   /* ---- exhibit C · population context (ACS) ----------------- */
   (function () {
     const box = document.getElementById('chart-acs'); if (!box) return;
+    // creative: a 1-in-7.5 pictograph of all children, then the age-band dip beneath
+    const picWrap = document.createElement('div'); picWrap.className = 'chartbox';
+    const pic = C.pictograph({ total: 30, a: 4, cols: 10, cell: 27, aColor: P.greenD, bColor: P.sage });
+    picWrap.appendChild(pic.node);
+    const cap = document.createElement('div'); cap.className = 'figure-sub'; cap.style.cssText = 'margin:12px 0 26px;max-width:60ch';
+    cap.innerHTML = 'Each figure stands for about 1 in 30 of the roughly 54.6&nbsp;million U.S. children ages 5&ndash;17. The <b style="color:var(--green-d)">4 shaded green</b> represent the about <b style="color:var(--green-d)">1 in 7.5</b> (13.3%) served under IDEA, Part&nbsp;B.';
+    const sub2 = document.createElement('div'); sub2.className = 'figure-title'; sub2.style.cssText = 'margin:0 0 2px'; sub2.textContent = 'The share served dips through the teen years';
+    const sub2b = document.createElement('div'); sub2b.className = 'figure-sub'; sub2b.style.cssText = 'margin:0 0 10px'; sub2b.textContent = 'Percent of U.S. children served under IDEA, Part B, by age band, 2024–25.';
+    const barsWrap = document.createElement('div'); barsWrap.className = 'chartbox';
     const ch = C.barsH({
       items: ACS.byAge.map(([k, v], i) => ({ label: k, value: v, color: i === 1 ? P.greenD : P.green })),
-      labelW: 120, barH: 26, gap: 16, padR: 56, xMax: 20, valueFmt: v => v.toFixed(1) + '%',
+      labelW: 120, barH: 24, gap: 14, padR: 56, xMax: 20, valueFmt: v => v.toFixed(1) + '%',
     });
-    box.appendChild(ch.node); S.onView(box, ch.reveal);
+    barsWrap.appendChild(ch.node);
+    box.appendChild(picWrap); box.appendChild(cap); box.appendChild(sub2); box.appendChild(sub2b); box.appendChild(barsWrap);
+    S.onView(box, () => { pic.reveal(); ch.reveal(); });
     S.expbar && S.expbar('chart-acs', 'idea-population-context', [['Age band', 'Percent of U.S. children served under IDEA Part B (2024-25)'], ...ACS.byAge]);
   })();
 

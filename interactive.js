@@ -7,6 +7,7 @@
   const I = window.IDEA, C = window.Charts, P = I.PAL, S = window.IDEAStory, MOE = window.MOE;
   if (!I || !C || !S) return;
   const cats = Object.keys(I.DIS);
+  const CAT = window.CATDATA || null;   // per-state & per-district counts by disability category (SY 2024-25)
   const detOf = name => { const D = window.DET2026; return D ? { b: D.partB[name], c: D.partC[name] } : {}; };
   const detClass = s => !s ? '' : /^Meets/.test(s) ? 'det-meets' : /intervention/i.test(s) ? 'det-int' : /two or more/i.test(s) ? 'det-na2' : 'det-na1';
 
@@ -19,9 +20,8 @@
       pop.innerHTML = `<div class="focuspop-card" role="dialog" aria-modal="true" aria-label="Focus mode">
         <button class="focuspop-x" aria-label="Close">×</button>
         <div class="focuspop-head">
-          <div class="m-kicker">Focus mode</div>
           <h3 class="m-title" style="margin-bottom:6px">Focus on a category, a state, or both</h3>
-          <p class="m-dek">Pick any primary disability category and any state. Leave one blank to focus on just the other.</p>
+          <p class="m-dek">Pick any primary disability category and any state. Leave one blank to focus on just the other; choose both to see how many students that state serves under that category.</p>
         </div>
         <div class="focus-controls">
           <label><span class="src-k">Disability category</span>
@@ -36,8 +36,8 @@
       catSel = pop.querySelector('#focusCat'); stSel = pop.querySelector('#focusState'); out = pop.querySelector('#focusOut');
       cats.forEach(c => catSel.add(new Option(c, c)));
       I.STATES.slice().sort((a, b) => a[0].localeCompare(b[0])).forEach(r => stSel.add(new Option(r[0], r[1])));
-      catSel.value = 'Specific learning disability';   // both populated by default
-      stSel.value = 'CA';
+      catSel.value = '';   // open empty: "Choose a disability category or a state above to begin."
+      stSel.value = '';
       catSel.addEventListener('change', render); stSel.addEventListener('change', render);
       pop.querySelector('.focuspop-x').addEventListener('click', close);
       pop.addEventListener('click', e => { if (e.target === pop) close(); });
@@ -45,7 +45,7 @@
     }
     function catCol(cat) {
       const last = I.YEARS.length - 1, ser = I.DIS[cat];
-      const cnt = (ser[last] || 0) * 1000;
+      const cnt = (CAT && CAT.nat && CAT.nat[cat] != null) ? CAT.nat[cat] : (ser[last] || 0) * 1000;
       const totalLast = cats.reduce((s, k) => s + (I.DIS[k][last] || 0), 0);
       const share = ser[last] / totalLast * 100;
       const inclRow = I.ARC.inclByCat.find(x => x[0] === cat), incl = inclRow ? inclRow[1] : null;
@@ -82,29 +82,65 @@
         <button class="focus-more" data-kind="state">Open the full ${r[0]} snapshot</button>
       </div>`;
     }
+    function intersectCol(cat, r) {
+      const vec = CAT && CAT.state[r[1]];
+      const idx = CAT ? CAT.cats.indexOf(cat) : -1;
+      const cnt = (vec && idx >= 0) ? vec[idx] : null;
+      const stateTot = vec ? vec.reduce((a, b) => a + b, 0) : r[5];
+      const natCat = (CAT && CAT.nat && CAT.nat[cat] != null) ? CAT.nat[cat] : (I.DIS[cat] ? (I.DIS[cat][I.YEARS.length - 1] || 0) * 1000 : null);
+      const shareState = (cnt != null && stateTot) ? cnt / stateTot * 100 : null;
+      const shareNat = (cnt != null && natCat) ? cnt / natCat * 100 : null;
+      return `<div class="focus-col" style="grid-column:1/-1">
+        <div class="focus-h">${cat} in ${r[0]}</div>
+        <div class="focus-name">${cnt != null ? I.nf(cnt) : 'Not reported'}</div>
+        <div class="snap-grid">
+          <div class="snap-cell"><div class="k">Served under primary disability category of ${cat}</div><div class="v">${cnt != null ? I.nf(cnt) : 'n/a'}</div><div class="sub">${r[0]}, ages 3–21, 2024–25</div></div>
+          ${shareState != null ? `<div class="snap-cell"><div class="k">Share of ${r[0]}'s students served</div><div class="v">${shareState.toFixed(1)}%</div><div class="sub">of ${I.nf(stateTot)} served</div></div>` : ''}
+          ${shareNat != null ? `<div class="snap-cell"><div class="k">Share of all U.S. ${cat.toLowerCase()}</div><div class="v accent">${shareNat.toFixed(1)}%</div><div class="sub">of ${I.nf(Math.round(natCat))} served nationally</div></div>` : ''}
+        </div>
+        <div class="figure-sub" style="margin:16px 0 2px">${r[0]}: every disability category, with ${cat.toLowerCase()} highlighted</div>
+        <div id="focusIntCats" class="chartbox"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+          <button class="focus-more" data-kind="cat">Open the full ${cat} profile</button>
+          <button class="focus-more" data-kind="state">Open the full ${r[0]} snapshot</button>
+        </div>
+      </div>`;
+    }
     function render() {
       const cat = catSel.value, r = stSel.value ? I.STATES.find(x => x[1] === stSel.value) : null;
       if (!cat && !r) { out.innerHTML = `<div class="focus-empty">Choose a disability category or a state above to begin.</div>`; return; }
-      out.innerHTML = (cat ? catCol(cat) : '') + (r ? stateCol(r) : '');
-      if (cat) {
-        const ser = I.DIS[cat], cv = ser.slice(3).map(v => v == null ? null : v / 1000);
-        const t1 = C.lineChart({ labels: I.YEARS.slice(3), xs: I.YEARS.slice(3).map(y => +y.slice(0, 4)), xTicks: [2000, 2012, 2024],
-          series: [{ values: cv, color: P.greenD, area: true, areaOpacity: .12, highlight: true }],
-          yMin: 0, yMax: Math.max(...cv.filter(v => v != null)) * 1.25 || 1, yTicks: 3, yFmt: v => v >= 1 ? v.toFixed(1) + 'M' : (v * 1000).toFixed(0) + 'k', height: 190, width: 430, padL: 46 });
-        const ctEl = document.getElementById('focusCatTrend');
-        ctEl.appendChild(t1.node); t1.reveal();
-        ctEl.classList.add('focus-drill'); ctEl.title = 'Open the full ' + cat + ' profile';
-        ctEl.addEventListener('click', () => S.openCatModal(cat));
-      }
-      if (r) {
-        const sv = [r[2], r[3], r[4], r[5]];
-        const t2 = C.lineChart({ labels: ['2000–01', '2010–11', '2022–23', '2024–25'], xs: [2000, 2010, 2022, 2024], xTicks: [2000, 2010, 2024],
-          series: [{ values: sv, color: P.green, area: true, areaOpacity: .12, highlight: true, endLabel: I.nf(r[5]) }],
-          yMin: 0, yMax: Math.max(...sv) * 1.2, yTicks: 3, yFmt: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : Math.round(v), height: 190, width: 430, padL: 50 });
-        const stEl = document.getElementById('focusStTrend');
-        stEl.appendChild(t2.node); t2.reveal();
-        stEl.classList.add('focus-drill'); stEl.title = 'Open the full ' + r[0] + ' snapshot';
-        stEl.addEventListener('click', () => S.openStateModal(r[1]));
+      if (cat && r) {
+        // BOTH chosen -> the disability's count IN that state
+        out.innerHTML = intersectCol(cat, r);
+        const vec = CAT && CAT.state[r[1]];
+        if (vec) {
+          const items = CAT.cats.map((c, i) => ({ label: c, value: vec[i] })).filter(d => d.value > 0).sort((a, b) => b.value - a.value);
+          const ch = C.barsH({ onClick: it => S.openCatModal(it.label), items: items.map(d => ({ label: d.label, value: d.value, color: d.label === cat ? P.navy : P.green, highlight: d.label === cat })), labelW: 204, barH: 14, gap: 7, padR: 62, xMax: items[0].value * 1.02, valueFmt: v => v >= 1000 ? (v / 1000).toFixed(v >= 100000 ? 0 : 1) + 'k' : Math.round(v) });
+          const host = document.getElementById('focusIntCats'); if (host) { host.appendChild(ch.node); ch.reveal(); }
+        }
+      } else {
+        // ONE chosen -> that single profile
+        out.innerHTML = (cat ? catCol(cat) : '') + (r ? stateCol(r) : '');
+        if (cat) {
+          const ser = I.DIS[cat], cv = ser.slice(3).map(v => v == null ? null : v / 1000);
+          const t1 = C.lineChart({ labels: I.YEARS.slice(3), xs: I.YEARS.slice(3).map(y => +y.slice(0, 4)), xTicks: [2000, 2012, 2024],
+            series: [{ values: cv, color: P.greenD, area: true, areaOpacity: .12, highlight: true }],
+            yMin: 0, yMax: Math.max(...cv.filter(v => v != null)) * 1.25 || 1, yTicks: 3, yFmt: v => v >= 1 ? v.toFixed(1) + 'M' : (v * 1000).toFixed(0) + 'k', height: 190, width: 430, padL: 46 });
+          const ctEl = document.getElementById('focusCatTrend');
+          ctEl.appendChild(t1.node); t1.reveal();
+          ctEl.classList.add('focus-drill'); ctEl.title = 'Open the full ' + cat + ' profile';
+          ctEl.addEventListener('click', () => S.openCatModal(cat));
+        }
+        if (r) {
+          const sv = [r[2], r[3], r[4], r[5]];
+          const t2 = C.lineChart({ labels: ['2000–01', '2010–11', '2022–23', '2024–25'], xs: [2000, 2010, 2022, 2024], xTicks: [2000, 2010, 2024],
+            series: [{ values: sv, color: P.green, area: true, areaOpacity: .12, highlight: true, endLabel: I.nf(r[5]) }],
+            yMin: 0, yMax: Math.max(...sv) * 1.2, yTicks: 3, yFmt: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : Math.round(v), height: 190, width: 430, padL: 50 });
+          const stEl = document.getElementById('focusStTrend');
+          stEl.appendChild(t2.node); t2.reveal();
+          stEl.classList.add('focus-drill'); stEl.title = 'Open the full ' + r[0] + ' snapshot';
+          stEl.addEventListener('click', () => S.openStateModal(r[1]));
+        }
       }
       out.querySelectorAll('.focus-more').forEach(b => b.addEventListener('click', () => {
         if (b.dataset.kind === 'cat') S.openCatModal(catSel.value); else S.openStateModal(stSel.value);
@@ -137,6 +173,14 @@
     const moneyOf = name => { const m = MOE && MOE.states[name]; return m ? m.f611 + m.f619 : null; };
     const normNces = n => { const d = String(n).replace(/\D/g, ''); return d ? String(parseInt(d, 10)) : ''; };
     const LEAEXIT = (window.LEAEXIT && window.LEAEXIT.byNces) || {};
+    const CAT = window.CATDATA || null;
+    function renderCatBars(host, vec) {                                  // full disability-category breakdown
+      if (!host || !CAT || !vec) return;
+      const items = CAT.cats.map((c, i) => ({ label: c, value: vec[i] })).filter(d => d.value > 0).sort((a, b) => b.value - a.value);
+      if (!items.length) { host.innerHTML = '<div class="map-empty">No category detail reported.</div>'; return; }
+      const ch = C.barsH({ onClick: it => S.openCatModal && S.openCatModal(it.label), items: items.map(d => ({ label: d.label, value: d.value, color: P.green })), labelW: 204, barH: 14, gap: 7, padR: 60, xMax: items[0].value * 1.02, valueFmt: v => v >= 1000 ? (v / 1000).toFixed(v >= 100000 ? 0 : 1) + 'k' : Math.round(v) });
+      host.innerHTML = ''; host.appendChild(ch.node); ch.reveal();
+    }
 
     const MONEY_BLURB = {
       'Section 611 — school-age (3–21)': 'Section 611 is the larger Part B grant to states. It funds special education and related services for school-age children, ages 3 through 21.',
@@ -167,6 +211,7 @@
       fund: { val: r => moneyOf(r[0]), fmt: fmtMoney, title: 'Reported IDEA, Part B funding (Sections 611 and 619), by State: School year 2021–22', src: 'IDEA Part B Maintenance of Effort (MOE) Reduction and CEIS Collection, School Year 2021–22 (FFY 2021 allocations include American Rescue Plan funds). Totals reflect only reporting LEAs.' },
     };
     let metric = 'pct';
+    let choro = null;
 
     function setCrumb(items) {
       crumbEl.innerHTML = items.map((it, i) => (it[1] && i !== items.length - 1) ? `<button class="crumb-link" data-i="${i}">${it[0]}</button>` : `<span class="crumb-cur">${it[0]}</span>`).join('<span class="crumb-sep">›</span>');
@@ -176,8 +221,8 @@
       const M = METRICS[metric], vals = {}, list = [];
       I.STATES.forEach(r => { const v = M.val(r); vals[r[1]] = v; if (v != null) list.push(v); });
       const min = Math.min(...list), max = Math.max(...list);
-      const ch = C.choropleth({ values: vals, min, max, stops, fmt: M.fmt, nameOf: a => nameOf[a] || a, onClick: ab => drillState(ab) });
-      box.innerHTML = ''; box.appendChild(ch.node); ch.reveal();
+      choro = C.choropleth({ values: vals, min, max, stops, fmt: M.fmt, nameOf: a => nameOf[a] || a, onClick: ab => drillState(ab) });
+      box.innerHTML = ''; box.appendChild(choro.node); choro.reveal();
       titleEl.textContent = M.title;
       rampEl.style.background = `linear-gradient(90deg, ${stops.map(s => s.color + ' ' + (s.t * 100) + '%').join(', ')})`;
       loEl.textContent = M.fmt(min); hiEl.textContent = M.fmt(max);
@@ -188,6 +233,7 @@
       });
     }
     function showUS() {
+      choro && choro.select(null);
       setCrumb([['United States', null]]);
       drillEl.innerHTML = `<div class="figure-sub" style="margin:8px 0 4px">National reported IDEA, Part B funding (Sections 611 and 619), 2021–22 — reporting LEAs</div><div id="drillFlow" class="chartbox"></div><p class="map-hint2">Tap any state on the map to drill into its districts and funding.</p>`;
       drillEl.classList.add('show');
@@ -196,6 +242,7 @@
     function drillState(ab) {
       const r = byAbbr[ab]; if (!r) return;
       tip.classList.remove('show');
+      choro && choro.select(ab);                          // glowing gold + sparkles on the chosen state
       setCrumb([['United States', showUS], [r[0], null]]);
       const dt = window.DET2026 ? { b: window.DET2026.partB[r[0]], c: window.DET2026.partC[r[0]] } : {};
       const rank = I.STATES.slice().sort((a, b) => b[5] - a[5]).findIndex(x => x[1] === ab) + 1;
@@ -239,19 +286,36 @@
         <div class="snap-grid">
           <div class="snap-cell"><div class="k">Students served, 3–21</div><div class="v">${tot == null ? 'n/a' : I.nf(tot)}</div><div class="sub">2024–25</div></div>
           ${sa != null ? `<div class="snap-cell"><div class="k">School age (5–21)</div><div class="v">${I.nf(sa)}</div><div class="sub">2024–25</div></div>` : ''}
-          ${aut != null && aut > 0 ? `<div class="snap-cell"><div class="k">Served under autism</div><div class="v">${I.nf(aut)}</div><div class="sub">2024–25</div></div>` : ''}
+          ${aut != null && aut > 0 ? `<div class="snap-cell"><div class="k">Served under primary disability category of autism</div><div class="v">${I.nf(aut)}</div><div class="sub">2024–25</div></div>` : ''}
           ${exShow && exd[0] != null ? `<div class="snap-cell"><div class="k">Graduated, regular diploma</div><div class="v">${exd[0].toFixed(1)}%</div><div class="sub">of those who exited, 2023–24</div></div>` : ''}
           ${exShow && exd[1] != null ? `<div class="snap-cell"><div class="k">Dropped out</div><div class="v accent">${exd[1].toFixed(1)}%</div><div class="sub">of those who exited, 2023–24</div></div>` : ''}
         </div>`;
+      const cvec = CAT && CAT.lea[normNces(nces)];
+      if (cvec) html += `<div class="figure-sub" style="margin:18px 0 6px">Students served by disability category, 2024–25</div><div id="drillCats" class="chartbox"></div>`;
       if (f) html += `<div class="figure-sub" style="margin:18px 0 4px">Reported IDEA, Part B funding (Sections 611 and 619), 2021–22</div><div id="drillFlow2" class="chartbox"></div>`;
       else html += `<p class="map-empty" style="margin-top:16px">No 2021–22 funding is reported for this district.</p>`;
       if (exShow) html += `<p class="source" style="margin-top:14px"><span class="src-k">Exiting source</span> U.S. Department of Education, OSEP, EDFacts, IDEA Part&nbsp;B Exiting LEA Collection, School Year 2023–24. Graduation and dropout are shares of students who exited school; districts with very few exiters are omitted.</p>`;
       drillEl.innerHTML = html;
+      if (cvec) renderCatBars($('drillCats'), cvec);
       if (f) renderFlow($('drillFlow2'), { f611: f[3], f619: f[4], ceisReq: f[5], ceisVol: 0 }, nm);
       drillEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
     metricSel && metricSel.addEventListener('change', () => { metric = metricSel.value; renderMap(); });
     S.onView(box, () => { renderMap(); showUS(); });
+    S.expbar && S.expbar('chart-map', 'idea-states-map', () => {
+      const M = METRICS[metric];
+      return [['State', 'Abbr', M.title.split(':')[0].trim()], ...I.STATES.map(r => [r[0], r[1], M.val(r)])];
+    });
+    // exposed so the top search can jump straight into a state or district on the map
+    window.IDEAUMAP = {
+      toState: function (ab) { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); drillState(ab); },
+      toDistrict: function (ab, nces) {
+        box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const r = byAbbr[ab]; if (!r) return;
+        const list = LEAALL[ab] || [], i = list.findIndex(x => normNces(x[1]) === normNces(nces));
+        if (i >= 0) drillDistrict(ab, r, i, fundMapFor(r[0])); else drillState(ab);
+      }
+    };
   })();
 
   /* ===== SCATTER: funding vs students served (states / all districts / one state) ===== */
@@ -268,6 +332,7 @@
     const DET_LABEL = { 1: 'Meets requirements', 2: 'Needs assistance', 3: 'Needs intervention', 4: 'Needs substantial intervention' };
     const detColor = lvl => DET_COLOR[lvl] || P.gray;
     const detLabel = lvl => lvl ? DET_LABEL[lvl] : 'Not reported';
+    const hiddenLevels = new Set();   // determination levels toggled off via the legend
     const fmtMoney = v => v >= 1e9 ? '$' + (v / 1e9).toFixed(1) + 'B' : v >= 1e6 ? '$' + Math.round(v / 1e6) + 'M' : v >= 1e3 ? '$' + Math.round(v / 1e3) + 'K' : '$' + Math.round(v);
     const fmtNum = v => v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? Math.round(v / 1e3) + 'k' : Math.round(v);
     if (stateSel) { stateSel.innerHTML = ''; I.STATES.slice().sort((a, b) => a[0].localeCompare(b[0])).forEach(r => stateSel.add(new Option(r[0], r[1]))); stateSel.value = 'CA'; }
@@ -275,14 +340,14 @@
     function statePoints() {
       return I.STATES.map(r => {
         const m = MOE.states[r[0]], lvl = detByState[r[0]];
-        return { x: r[5], y: m ? m.f611 + m.f619 : 0, label: r[0], ab: r[1], color: detColor(lvl), highlight: true, moe: detLabel(lvl) };
+        return { x: r[5], y: m ? m.f611 + m.f619 : 0, label: r[0], ab: r[1], color: detColor(lvl), highlight: true, moe: detLabel(lvl), lvl: lvl || 0 };
       }).filter(p => p.y > 0);
     }
     function districtPoints(ab) {
       const out = [], keys = ab ? [ab] : Object.keys(LEAALL);
       keys.forEach(k => (LEAALL[k] || []).forEach(x => {
         const served = x[2], nn = norm(x[1]), fund = byNces[nn];
-        if (served > 0 && fund > 0) out.push({ x: served, y: fund, label: x[0], ab: k, state: nameOf[k], color: detColor(detByNces[nn]), moe: detLabel(detByNces[nn]) });
+        if (served > 0 && fund > 0) out.push({ x: served, y: fund, label: x[0], ab: k, state: nameOf[k], color: detColor(detByNces[nn]), moe: detLabel(detByNces[nn]), lvl: detByNces[nn] || 0 });
       }));
       return out;
     }
@@ -314,14 +379,21 @@
         onClick = openDistrict;
       }
       titleEl.textContent = title;
-      subEl.textContent = sub + (view === 'states'
-        ? ' Each state is shaded by its most common district determination under 34 CFR 300.600(a)(2) (the determination that controls Maintenance of Effort reduction, SY 2021–22).'
-        : ' Colored by each district’s determination under 34 CFR 300.600(a)(2), which controls whether it may reduce Maintenance of Effort (SY 2021–22). Determinations vary district by district within a state.');
+      subEl.textContent = sub + ' Colored by each district’s determination under 34 CFR 300.600(a)(2), which controls whether it may reduce Maintenance of Effort (SY 2021–22). Tap a determination in the key to hide or show those dots.';
+      const shownPoints = points.filter(p => !hiddenLevels.has(p.lvl));
       const lg = $('scatterLegend');
-      if (lg) lg.innerHTML = [['Meets requirements', DET_COLOR[1]], ['Needs assistance', DET_COLOR[2]], ['Needs intervention', DET_COLOR[3]], ['Needs substantial intervention', DET_COLOR[4]], ['Not reported', P.gray]].map(([t, c]) => `<span class="k"><span class="sw" style="background:${c}"></span>${t}</span>`).join('');
+      if (lg) {
+        const LEG = [[1, 'Meets requirements', DET_COLOR[1]], [2, 'Needs assistance', DET_COLOR[2]], [3, 'Needs intervention', DET_COLOR[3]], [4, 'Needs substantial intervention', DET_COLOR[4]], [0, 'Not reported', P.gray]];
+        lg.innerHTML = LEG.map(([k, t, c]) => `<span class="k click det-toggle${hiddenLevels.has(k) ? ' off' : ''}" data-lvl="${k}" role="button" tabindex="0"><span class="sw" style="background:${c}"></span>${t}</span>`).join('');
+        lg.querySelectorAll('.det-toggle').forEach(el => {
+          const toggle = () => { const k = +el.dataset.lvl; hiddenLevels.has(k) ? hiddenLevels.delete(k) : hiddenLevels.add(k); render(); };
+          el.addEventListener('click', toggle);
+          el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+        });
+      }
       srcEl.innerHTML = '<span class="src-k">Source</span> U.S. Department of Education, OSEP, IDEA Part B Child Count (School Year 2024–25) and IDEA Part B Maintenance of Effort (MOE) Reduction and CEIS Collection (School Year 2021–22). Section 611 + 619 funding (FFY 2021) includes American Rescue Plan (ARP) Act supplemental funds. Districts with a suppressed count or no reported funding are not plotted.';
       const ch = C.scatter({
-        points, logX: true, logY: true, width: 760, height: 440,
+        points: shownPoints, logX: true, logY: true, width: 760, height: 440,
         xAxisLabel: 'Students served, ages 3–21 (log scale)', yAxisLabel: 'IDEA Part B funding (log scale)',
         xFmt: fmtNum, yFmt: fmtMoney,
         r: view === 'all' ? 2.6 : view === 'state' ? 5 : 6, dotOpacity: view === 'all' ? .4 : .65,
@@ -334,6 +406,11 @@
     viewSel && viewSel.addEventListener('change', render);
     stateSel && stateSel.addEventListener('change', () => { if (viewSel.value === 'state') render(); });
     S.onView(box, render);
+    S.expbar && S.expbar('chart-scatter', 'idea-funding-vs-served', () => {
+      const view = viewSel ? viewSel.value : 'all';
+      const pts = view === 'state' ? districtPoints(stateSel.value) : districtPoints(null);
+      return [['District', 'State', 'Students served (3-21)', 'Part B funding ($)', 'MOE determination'], ...pts.map(p => [p.label, p.state || '', p.x, p.y, p.moe])];
+    });
   })();
 
   /* ===== TOP SEARCH ========================================= */
@@ -353,6 +430,12 @@
     I.STATES.forEach(r => index.push({ type: 'State', label: r[0], act: () => S.openStateModal(r[1]) }));
     cats.forEach(c => index.push({ type: 'Disability category', label: c, act: () => S.openCatModal(c) }));
     SECTIONS.forEach(([label, id]) => index.push({ type: 'Section', label, act: () => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }));
+    // every school district (LEA) is searchable; a hit drills the Explore map into it
+    const LEAALL = (window.LEAALL && window.LEAALL.states) || {};
+    Object.keys(LEAALL).forEach(ab => (LEAALL[ab] || []).forEach(x => index.push({
+      type: 'District · ' + ab, label: x[0],
+      act: () => { if (window.IDEAUMAP) window.IDEAUMAP.toDistrict(ab, x[1]); }
+    })));
     function open() { bar.hidden = false; toggle.setAttribute('aria-expanded', 'true'); setTimeout(() => input.focus(), 30); }
     function shut() { bar.hidden = true; toggle.setAttribute('aria-expanded', 'false'); input.value = ''; out.innerHTML = ''; }
     function run() {

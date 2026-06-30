@@ -5,6 +5,20 @@
    ============================================================ */
 (function () {
   const I = window.IDEA, C = window.Charts, P = I.PAL, X = window.IDEA_X || {}, $ = s => document.querySelector(s);
+  const CAT = window.CATDATA || null;
+  // render a state's (or district's) full category breakdown into a host element
+  function catBars(host, vec, total, openCat) {
+    if (!host || !CAT || !vec) return;
+    const items = CAT.cats.map((c, i) => ({ label: c, value: vec[i] })).filter(d => d.value > 0).sort((a, b) => b.value - a.value);
+    if (!items.length) { host.innerHTML = '<div class="map-empty">No category detail reported.</div>'; return; }
+    const ch = C.barsH({
+      onClick: openCat ? (it => window.IDEAStory && window.IDEAStory.openCatModal && window.IDEAStory.openCatModal(it.label)) : null,
+      items: items.map(d => ({ label: d.label, value: d.value, color: P.green })),
+      labelW: 220, barH: 15, gap: 8, padR: 66, xMax: items[0].value * 1.02,
+      valueFmt: v => v >= 1000 ? (v / 1000).toFixed(v >= 100000 ? 0 : 1) + 'k' : Math.round(v),
+    });
+    host.appendChild(ch.node); ch.reveal();
+  }
 
   /* tab switching */
   document.querySelectorAll('.extab').forEach(b => b.addEventListener('click', () => {
@@ -47,7 +61,10 @@
       </div>${extra}${detBlock}
       <div class="snap-compare"><div class="figure-title">${r[0]}: child count trend</div>
         <div class="figure-sub">Students served, ages 3&ndash;21, selected school years.</div>
-        <div id="snapTrend" class="chartbox"></div></div>`;
+        <div id="snapTrend" class="chartbox"></div></div>
+      ${(CAT && CAT.state[r[1]]) ? `<div class="snap-compare"><div class="figure-title">${r[0]}: students served by disability category</div>
+        <div class="figure-sub">All 13 primary categories, ages 3&ndash;21, School&nbsp;Year 2024&ndash;25. Tap a bar for the category profile.</div>
+        <div id="snapCats" class="chartbox"></div></div>` : ''}`;
       const vals = [r[2], r[3], r[4], r[5]];
       const trend = C.lineChart({
         labels: ['2000\u201301', '2010\u201311', '2022\u201323', '2024\u201325'], xs: [2000, 2010, 2022, 2024], xTicks: [2000, 2010, 2022, 2024],
@@ -56,6 +73,7 @@
         height: 300, width: 740, padL: 50,
       });
       $('#snapTrend').appendChild(trend.node); trend.reveal();
+      if (CAT && CAT.state[r[1]]) { const vec = CAT.state[r[1]]; catBars($('#snapCats'), vec, vec.reduce((a, b) => a + b, 0), true); }
     }
     sel.addEventListener('change', render); render();
   }
@@ -159,6 +177,7 @@
         }));
         const ch = C.barsH({ items, labelW: 232, barH: 17, gap: 9, padR: 54, xMax: 100, valueFmt: v => v.toFixed(1) + '%' });
         exBox.appendChild(ch.node); ch.reveal();
+        window.IDEAStory && window.IDEAStory.expbar('moreExit', 'idea-exiting-by-disability-2023-24', [['Disability category', 'Graduated regular diploma %', 'Dropped out %'], ...X.EXIT_DIS.map(r => [r[0], r[1], r[2]])]);
       }
 
       // B. Disciplinary removals per 100 students served, by disability (2023-24)
@@ -174,6 +193,7 @@
         }));
         const ch = C.barsH({ items, labelW: 232, barH: 17, gap: 9, padR: 60, xMax: 120, valueFmt: v => v.toFixed(0) });
         ddBox.appendChild(ch.node); ch.reveal();
+        window.IDEAStory && window.IDEAStory.expbar('moreDiscDis', 'idea-discipline-per-100-2023-24', [['Disability category', 'Removals per 100 served'], ...items.map(d => [d.label, d.value])]);
       }
 
       // C. Disproportionality: share of students served vs share of removals, by race
@@ -189,6 +209,7 @@
         const ch = C.dumbbell({ items, labelW: 196, rowH: 42, ticks: 5, xMin: 0, xMax: 50,
           aColor: P.greenL, bColor: P.accent, showValues: true, valueFmt: v => v.toFixed(0) + '%' });
         drBox.appendChild(ch.node); ch.reveal();
+        window.IDEAStory && window.IDEAStory.expbar('moreDiscRace', 'idea-discipline-by-race-2023-24', [['Race/ethnicity', 'Share of students served %', 'Share of removals %'], ...items.map(d => [d.label, d.a, d.b])]);
         const lg = $('#moreRaceLegend');
         if (lg) lg.innerHTML = `<span class="k"><span class="sw" style="background:${P.greenL}"></span>Share of students served (2024&ndash;25)</span><span class="k"><span class="sw" style="background:${P.accent}"></span>Share of disciplinary removals (2023&ndash;24)</span>`;
       }

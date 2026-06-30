@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=15">
+<link rel="stylesheet" href="styles.css?v=17">
 <!-- ============ SOFT PASSWORD GATE ============ -->
 <script>
   /* Light access gate (client-side only, not real security). Lock before render. */
@@ -49,6 +49,7 @@
   #pwGate button:hover { transform: translateY(-1px); }
   #pwGate .pw-tip { margin-top: 22px; font-size: 12px; color: #8aa3b6; line-height: 1.8; }
   #pwGate .pw-tip kbd { font-family: inherit; font-size: 11px; font-weight: 600; color: #cfe0ec; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 5px; padding: 1px 6px; }
+  #pwGate .pw-time { margin-top: 14px; font-size: 11.5px; font-weight: 600; letter-spacing: .02em; color: #7c93a6; }
 </style>
 </head>
 <body>
@@ -64,8 +65,21 @@
     </form>
     <div id="pwErr" class="pw-err" role="alert"></div>
     <div class="pw-tip">The gate shows on every load. Refresh anytime with <kbd>Ctrl</kbd>+<kbd>R</kbd> (<kbd>&#8984;</kbd>+<kbd>R</kbd> on Mac).</div>
+    <div class="pw-time" id="pwTime"></div>
   </div>
 </div>
+<script>
+  /* show the date/time this page was last loaded/refreshed on the gate */
+  (function () {
+    try {
+      var el = document.getElementById('pwTime'); if (!el) return;
+      var d = new Date();
+      var day = d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+      var time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      el.textContent = 'Last refreshed ' + day + ' at ' + time;
+    } catch (e) {}
+  })();
+</script>
 <script>
   /* Animated "second brain" background for the gate: drifting green/blue glow
      blobs + a translucent particle network, layered over the navy gradient.
@@ -183,7 +197,7 @@
     <div class="wrap">
       <div class="searchbar-in">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
-        <input id="searchInput" type="search" placeholder="Search a state, a disability category, or a section" aria-label="Search" autocomplete="off">
+        <input id="searchInput" type="search" placeholder="Search a state, a district, a disability category, or a section" aria-label="Search" autocomplete="off">
         <button id="searchClose" class="tb-icon" aria-label="Close search">×</button>
       </div>
       <div id="searchResults" class="search-results"></div>
@@ -194,7 +208,7 @@
 <!-- ============ HERO ============ -->
 <section class="hero" id="top">
   <div class="wrap">
-    <h1 class="reveal d1">The IDEA Section&nbsp;618 Data Collections Story: <span class="u-green">fifty years</span> of counting every child served</h1>
+    <h1 class="reveal d1"><span class="hero-main">The IDEA Section&nbsp;618 Data Collections Story</span><span class="hero-tagline"><span class="u-green">Fifty years</span> of counting every child served</span></h1>
     <p class="dek reveal d2">Section&nbsp;618 of IDEA requires each state to report data every year on the infants, toddlers,
       children, and students with disabilities it serves. The figures below draw on those public reports. All figures
       are reported counts, not estimates.</p>
@@ -226,6 +240,7 @@
           <button data-unit="count" class="on" aria-pressed="true">Number served</button>
           <button data-unit="rate" aria-pressed="false">Percent of enrollment</button>
         </div>
+        <label class="chk-toggle"><input type="checkbox" id="riseLabelsChk"> Turn off labels</label>
       </div>
       <div class="figure-title" id="riseTitle">Children and students with disabilities served under IDEA, Part&nbsp;B, ages 3 through 21</div>
       <div class="figure-sub" id="riseSub">By school year, in millions.</div>
@@ -333,7 +348,8 @@
       </div>
       <div style="margin-top:36px">
         <div class="figure-title">Number of children and students ages 3 through 21 served under IDEA, Part&nbsp;B, by single year of age: School year 2024&ndash;25</div>
-        <div class="figure-sub">Number of students served at each age, School Year 2024&ndash;25.</div>
+        <div class="figure-sub">Number of students served at each age, School Year 2024&ndash;25. Part&nbsp;B preschool (ages 3&ndash;5) and school age (6&ndash;21) are shaded separately; infants and toddlers (birth&ndash;age&nbsp;2) are served under Part&nbsp;C, a separate collection.</div>
+        <div class="legend" id="ageLegend"></div>
         <div class="chartbox" id="chart-age"></div>
       </div>
       <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Year 2024&ndash;25. Sex shares exclude a small number of records reported without sex.</div>
@@ -410,9 +426,11 @@
 <!-- ============ EXPLORE ============ -->
 <section class="section" id="explore">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">States, districts, and funding: explore one map.</h2>
-    <p class="scene-dek reveal d2">Shade the map by what you want to see, then tap a state to drill into its districts (LEAs) and its reported IDEA, Part&nbsp;B funding. Tap a district to go deeper.</p>
+    <h2 class="scene-h reveal d1">Explore the data: states, districts, and funding.</h2>
+    <p class="scene-dek reveal d2">Two ways in. Start with the interactive map, or jump straight to the lookup tables below to pull up any state, school district, or collection.</p>
+
     <div class="figure reveal d2" id="umap">
+      <div class="exhibit-label">1 · Interactive map</div>
       <div class="umap-controls">
         <label><span class="src-k">Shade states by</span><select id="umapMetric" class="ex-select">
           <option value="pct">Percent of public-school enrollment (2022&ndash;23)</option>
@@ -422,13 +440,15 @@
         <nav id="umapCrumb" class="umap-crumb" aria-label="Map drilldown"></nav>
       </div>
       <div class="figure-title" id="umapTitle"></div>
-      <div class="figure-sub" id="umapSub">Darker shading means a larger value. Tap a state to drill in.</div>
+      <div class="figure-sub" id="umapSub">Darker shading means a larger value. Tap a state to drill into its districts and funding.</div>
       <div class="chartbox" id="chart-map" style="max-width:720px"></div>
       <div class="map-scale"><span id="mapLo"></span><span class="ramp" id="mapRamp"></span><span id="mapHi"></span></div>
       <div id="mapDrill" class="map-drill"></div>
       <div class="source" id="umapSource"></div>
     </div>
+
     <div class="explore reveal d2">
+      <div class="exhibit-label">2 · Look up a state, district, or collection</div>
       <div class="extabs" role="tablist" aria-label="Explore views">
         <button class="extab on" data-tab="state" role="tab" aria-selected="true">State snapshot</button>
         <button class="extab" data-tab="sea" role="tab" aria-selected="false">All states</button>
@@ -529,19 +549,20 @@
 
 <div class="maptip" id="maptip"></div>
 
-<script src="data.js?v=15"></script>
-<script src="enrich.js?v=15"></script>
-<script src="moe.js?v=15"></script>
-<script src="usmap.js?v=15"></script>
-<script src="det.js?v=15"></script>
-<script src="lea.js?v=15"></script>
-<script src="leaexit.js?v=15"></script>
-<script src="charts.js?v=15"></script>
-<script src="story.js?v=15"></script>
-<script src="explore.js?v=15"></script>
-<script src="extra.js?v=15"></script>
-<script src="interactive.js?v=15"></script>
-<script src="builder.js?v=15"></script>
-<script src="quickstats.js?v=15"></script>
+<script src="data.js?v=17"></script>
+<script src="enrich.js?v=17"></script>
+<script src="moe.js?v=17"></script>
+<script src="usmap.js?v=17"></script>
+<script src="det.js?v=17"></script>
+<script src="lea.js?v=17"></script>
+<script src="leaexit.js?v=17"></script>
+<script src="catdata.js?v=17"></script>
+<script src="charts.js?v=17"></script>
+<script src="story.js?v=17"></script>
+<script src="explore.js?v=17"></script>
+<script src="extra.js?v=17"></script>
+<script src="interactive.js?v=17"></script>
+<script src="builder.js?v=17"></script>
+<script src="quickstats.js?v=17"></script>
 </body>
 </html>

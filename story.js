@@ -100,6 +100,7 @@
     const served = r[5], pe = r[6], growth = (r[5] - r[2]) / r[2] * 100;
     const rank = I.STATES.slice().sort((a, b) => b[5] - a[5]).findIndex(x => x[1] === ab) + 1;
     const ex = (X.EXIT_STATE || {})[ab], dt = detLevel(r[0]);
+    const CATX = window.CATDATA, vec = CATX && CATX.state[ab];
     openModal(`<div class="m-kicker">State snapshot</div><h3 class="m-title">${r[0]}</h3>
       <div class="m-grid">
         <div><span class="mv">${I.nf(served)}</span><span class="ml">students served, ages 3\u201321 (2024\u201325)</span></div>
@@ -111,7 +112,24 @@
       </div>
       ${dt.b ? `<div class="m-det"><div class="figure-sub" style="margin:16px 0 8px">2026 IDEA determination</div>
         <div class="det-pills"><span class="det-pill ${detClass(dt.b)}">Part&nbsp;B: ${dt.b}</span>${dt.c ? `<span class="det-pill ${detClass(dt.c)}">Part&nbsp;C: ${dt.c}</span>` : ''}</div></div>` : ''}
+      <div class="figure-sub" style="margin:18px 0 2px">Students served, ages 3\u201321, by school year</div>
+      <div id="m-state-trend" class="chartbox"></div>
+      ${vec ? `<div class="figure-sub" style="margin:18px 0 2px">Students served by disability category (2024\u201325)</div><div id="m-state-cats" class="chartbox"></div>` : ''}
       <p class="m-src">IDEA Part B Child Count, Exiting, and Discipline Collections${dt.b ? '; 2026 Determination Letters on State Implementation of IDEA' : ''}.</p>`);
+    const th = document.getElementById('m-state-trend');
+    if (th) {
+      const vals = [r[2], r[3], r[4], r[5]];
+      const t = C.lineChart({ labels: ['2000\u201301', '2010\u201311', '2022\u201323', '2024\u201325'], xs: [2000, 2010, 2022, 2024], xTicks: [2000, 2010, 2024],
+        series: [{ values: vals, color: P.greenD, area: true, areaOpacity: .12, highlight: true, endLabel: I.nf(r[5]) }],
+        yMin: 0, yMax: Math.max(...vals) * 1.18, yTicks: 3, yFmt: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : Math.round(v), height: 196, width: 430, padL: 48 });
+      th.appendChild(t.node); t.reveal();
+    }
+    const ch2 = document.getElementById('m-state-cats');
+    if (ch2 && vec) {
+      const items = CATX.cats.map((c, i) => ({ label: c, value: vec[i] })).filter(d => d.value > 0).sort((a, b) => b.value - a.value);
+      const cc = C.barsH({ onClick: it => openCatModal(it.label), items: items.map(d => ({ label: d.label, value: d.value, color: P.green })), labelW: 196, barH: 13, gap: 7, padR: 60, xMax: items[0].value * 1.02, valueFmt: v => v >= 1000 ? (v / 1000).toFixed(v >= 100000 ? 0 : 1) + 'k' : Math.round(v) });
+      ch2.appendChild(cc.node); cc.reveal();
+    }
   }
   // "Other disabilities combined" (and any non-DIS grouping) expands into its constituent categories
   const NAMED_CATS = new Set(['Specific learning disability', 'Speech or language impairment', 'Other health impairment', 'Autism', 'Intellectual disability', 'Emotional disturbance']);
@@ -136,15 +154,18 @@
   function openCatModal(cat) {
     if (!I.DIS[cat]) { openOtherCatsModal(cat); return; }
     const last = I.YEARS.length - 1, series = I.DIS[cat];
-    const count = series[last] * 1000;
+    const CATX = window.CATDATA;
+    const exact = (CATX && CATX.nat && CATX.nat[cat] != null) ? CATX.nat[cat] : null;   // authoritative exact count
+    const count = exact != null ? exact : series[last] * 1000;
+    const totalExact = (CATX && CATX.nat) ? Object.values(CATX.nat).reduce((a, b) => a + b, 0) : null;
     const totalLast = Object.keys(I.DIS).reduce((sx, k) => sx + (I.DIS[k][last] || 0), 0);
-    const share = series[last] / totalLast * 100;
+    const share = exact != null && totalExact ? exact / totalExact * 100 : series[last] / totalLast * 100;
     const inclRow = I.ARC.inclByCat.find(x => x[0] === cat), incl = inclRow ? inclRow[1] : null;
     const v2000 = series[3], chg = v2000 ? (series[last] - v2000) / v2000 * 100 : null;
     const exd = EXITD[cat], remd = DISCD[cat];
     openModal(`<div class="m-kicker">Disability category</div><h3 class="m-title">${cat}</h3>
       <div class="m-grid">
-        <div><span class="mv">${I.nf(count)}</span><span class="ml">served, ages 3\u201321 (2024\u201325)</span></div>
+        <div><span class="mv">${I.nf(count)}</span><span class="ml">served under the primary disability category of ${cat.toLowerCase()}, ages 3\u201321 (2024\u201325)</span></div>
         <div><span class="mv">${share.toFixed(1)}%</span><span class="ml">of all students served</span></div>
         ${incl != null ? `<div><span class="mv">${incl.toFixed(0)}%</span><span class="ml">in regular class 80%+ of day (SY 2023\u201324)</span></div>` : ''}
         ${chg != null ? `<div><span class="mv" style="color:var(--accent)">${chg >= 0 ? '+' : ''}${chg.toFixed(0)}%</span><span class="ml">change since 2000\u201301</span></div>` : ''}
@@ -212,7 +233,7 @@
     openModal(`<div class="m-kicker">Race and ethnicity · ${profile === 'Autism' ? 'autism' : 'all disabilities'}</div><h3 class="m-title">${I.RACE_LBL[key]}</h3>
       <div class="m-grid">
         <div><span class="mv">${I.nf(cnt)}</span><span class="ml">students served (2024–25)</span></div>
-        <div><span class="mv">${share.toFixed(1)}%</span><span class="ml">of ${profile === 'Autism' ? 'students served under autism' : 'all students served'}</span></div>
+        <div><span class="mv">${share.toFixed(1)}%</span><span class="ml">of ${profile === 'Autism' ? 'students served under the primary disability category of autism' : 'all students served'}</span></div>
         ${remShare != null ? `<div><span class="mv" style="color:var(--accent)">${remShare.toFixed(1)}%</span><span class="ml">of all disciplinary removals (2023–24)</span></div>` : ''}
       </div>
       ${remShare != null ? `<p class="m-dek" style="margin-top:14px;font-size:13.5px">Students in this group make up ${share.toFixed(1)} percent of those served but ${remShare.toFixed(1)} percent of disciplinary removals, ${remShare > share + 0.5 ? 'a larger share of removals than of enrollment' : remShare < share - 0.5 ? 'a smaller share of removals than of enrollment' : 'about the same share in both'}.</p>` : ''}
@@ -254,7 +275,7 @@
         <div><span class="mv">${I.nf(d.male)}</span><span class="ml">male (${mp.toFixed(1)}%)</span></div>
         <div><span class="mv">${I.nf(d.female)}</span><span class="ml">female (${fp.toFixed(1)}%)</span></div>
       </div>
-      <p class="m-dek" style="margin-top:14px;font-size:13.5px">About ${mp.toFixed(0)} percent of ${profile === 'Autism' ? 'students served under autism' : 'all students served'} were reported male in School Year 2024–25.</p>
+      <p class="m-dek" style="margin-top:14px;font-size:13.5px">About ${mp.toFixed(0)} percent of ${profile === 'Autism' ? 'students served under the primary disability category of autism' : 'all students served'} were reported male in School Year 2024–25.</p>
       <p class="m-src">IDEA Part B Child Count and Educational Environments Collection, School Year 2024–25. Sex shares exclude a small number of records reported without sex.</p>`);
   }
   function openAgeModal(age, count, profile) {
@@ -266,7 +287,7 @@
         <div><span class="mv">${I.nf(count)}</span><span class="ml">served at age ${age} (2024–25)</span></div>
         <div><span class="mv">${share.toFixed(1)}%</span><span class="ml">of those served, ages 3–21</span></div>
       </div>
-      <p class="m-dek" style="margin-top:14px;font-size:13.5px">Among ${profile === 'Autism' ? 'students served under autism' : 'all students served'}, the single year of age with the most students is age ${peakAge}.</p>
+      <p class="m-dek" style="margin-top:14px;font-size:13.5px">Among ${profile === 'Autism' ? 'students served under the primary disability category of autism' : 'all students served'}, the single year of age with the most students is age ${peakAge}.</p>
       <p class="m-src">IDEA Part B Child Count and Educational Environments Collection, School Year 2024–25.</p>`);
   }
 
@@ -281,9 +302,11 @@
    * EXHIBIT 1 · CHILD COUNT OVER TIME (count / % toggle)       *
    * ========================================================== */
   const riseBox = document.getElementById('chart-rise');
-  let riseShown = false;
+  let riseShown = false, riseUnit = 'count', riseLabels = true;
   function buildRise(unit) {
+    riseUnit = unit;
     riseBox.innerHTML = '';
+    const marks = riseLabels ? IDEA_MARKS : [];
     let chart;
     if (unit === 'rate') {
       const idx = I.ENROLL_PCT.map((v, i) => v == null ? null : i).filter(v => v != null);
@@ -291,8 +314,8 @@
         labels: idx.map(i => I.YEARS[i]), xs: idx.map(i => startYears[i]),
         xTicks: [1980, 1990, 2000, 2010, 2020],
         series: [{ values: idx.map(i => I.ENROLL_PCT[i]), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endLabel: '15.2%' }],
-        yMin: 0, yMax: 16, yTicks: 4, yFmt: v => v.toFixed(0) + '%', vmarkers: IDEA_MARKS,
-        annotations: [{ atIndex: 0, value: I.ENROLL_PCT[0], text: ['1975: law enacted', '8.3% of enrollment'], dx: 8, dy: 24, anchor: 'start', color: P.navy }],
+        yMin: 0, yMax: 16, yTicks: 4, yFmt: v => v.toFixed(0) + '%', vmarkers: marks,
+        annotations: riseLabels ? [{ atIndex: 0, value: I.ENROLL_PCT[0], text: ['Public Law 94-142 enacted, 1975', '8.3% of enrollment, 1976–77'], dx: 8, dy: 24, anchor: 'start', color: P.navy }] : [],
       });
       document.getElementById('riseTitle').textContent = 'Percentage of children and students ages 3 through 21 served under IDEA, Part B, of public school enrollment, by year: School year 1976–77 through 2022–23';
       document.getElementById('riseSub').textContent = 'Served as a percent of public-school enrollment, by school year.';
@@ -300,8 +323,8 @@
       chart = C.lineChart({
         labels: I.YEARS, xs: startYears, xTicks: [1980, 1990, 2000, 2010, 2020, 2024],
         series: [{ values: I.ALL.map(v => v / 1000), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endLabel: '8.2M' }],
-        yMin: 0, yMax: 9, yTicks: 3, yFmt: v => v.toFixed(0) + 'M', vmarkers: IDEA_MARKS,
-        annotations: [{ atIndex: 0, value: I.ALL[0] / 1000, text: ['1975: law enacted', 'first count, 3.7M'], dx: 8, dy: 26, anchor: 'start', color: P.navy }],
+        yMin: 0, yMax: 9, yTicks: 3, yFmt: v => v.toFixed(0) + 'M', vmarkers: marks,
+        annotations: riseLabels ? [{ atIndex: 0, value: I.ALL[0] / 1000, text: ['Public Law 94-142 enacted, 1975', '3.7M served, 1976–77'], dx: 8, dy: 26, anchor: 'start', color: P.navy }] : [],
       });
       document.getElementById('riseTitle').textContent = 'Number of children and students ages 3 through 21 served under IDEA, Part B, by year: School year 1976–77 through 2024–25';
       document.getElementById('riseSub').textContent = 'Children and students served under IDEA, Part B, ages 3 through 21, in millions, by school year.';
@@ -310,6 +333,10 @@
     if (riseShown) chart.reveal(); else onView(riseBox, () => { riseShown = true; chart.reveal(); });
   }
   buildRise('count');
+  (function () {
+    const chk = document.getElementById('riseLabelsChk');
+    if (chk) chk.addEventListener('change', () => { riseLabels = !chk.checked; riseShown = true; buildRise(riseUnit); });
+  })();
   document.getElementById('riseToggle').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     riseShown = true;
@@ -347,8 +374,9 @@
   (function () {
     const start = 3, labels = I.YEARS.slice(start), xs = startYears.slice(start);
     const sv = k => I.DIS[k].slice(start).map(v => v == null ? null : v / 1000);
-    const grayCats = ['Specific learning disability', 'Speech or language impairment', 'Intellectual disability', 'Emotional disturbance', 'Developmental delay'];
-    const series = grayCats.map(k => ({ values: sv(k), color: P.gray, width: 1.6 }));
+    // every other category as a gray context line (all 13 shown), autism + OHI highlighted
+    const grayCats = Object.keys(I.DIS).filter(k => k !== 'Autism' && k !== 'Other health impairment');
+    const series = grayCats.map(k => ({ values: sv(k), color: P.gray, width: 1.4 }));
     series.push({ values: sv('Other health impairment'), color: P.green, width: 2.8, highlight: true });
     series.push({ values: sv('Autism'), color: P.navy, width: 2.8, highlight: true });
     mount('chart-autism', C.lineChart({
@@ -439,8 +467,10 @@
       }), 'race');
       const ages = Object.keys(d.ages).map(Number).sort((a, b) => a - b);
       const counts = ages.map(a => d.ages[a]), pmax = Math.max(...counts), pAge = ages[counts.indexOf(pmax)];
+      const ageColors = ages.map(a => a <= 5 ? P.greenL : P.greenD);   // 3-5 preschool vs 6-21 school age
+      legend('ageLegend', [['Preschool, ages 3–5 (Part B)', P.greenL], ['School age, ages 6–21 (Part B)', P.greenD]]);
       play(ageBox, C.columns({
-        labels: ages.map(String), values: counts,
+        labels: ages.map(String), values: counts, colors: ageColors,
         yMax: profile === 'Autism' ? 120000 : 700000, yTicks: 3, yFmt: v => v === 0 ? '0' : (v / 1000).toFixed(0) + 'k',
         xEvery: 2, padL: 44, height: 300, onClick: d => openAgeModal(+d.label, d.value, profile),
         peakLabel: (pmax >= 1000 ? (pmax / 1000).toFixed(0) + 'k' : pmax) + ' at age ' + pAge,

@@ -164,7 +164,7 @@
         else ch = C.barsH({ onClick: oc, items: races.map((r) => ({ label: I.RACE_LBL[r.k], value: r.v, color: P.green })), labelW: 210, barH: 20, gap: 10, padR: 58, valueFmt: fmt });
         return {
           node: ch.node, reveal: ch.reveal,
-          title: 'Number of children and students ages 3 through 21 served under IDEA, Part B, by race/ethnicity' + (sel.profile === 'Autism' ? ', reported under autism' : '') + ': School year 2024–25',
+          title: 'Number of children and students ages 3 through 21 served under IDEA, Part B, by race/ethnicity' + (sel.profile === 'Autism' ? ', under the primary disability category of autism' : '') + ': School year 2024–25',
           sub: 'Number served, School Year 2024–25.',
           source: 'U.S. Department of Education, OSEP, IDEA Part B Child Count and Educational Environments Collection, School Year 2024–25.',
           csv: [['Race/ethnicity', 'Served, 2024-25'], ...races.map(r => [I.RACE_LBL[r.k], r.v])],
@@ -183,7 +183,7 @@
         else ch = C.columns({ labels: ages.map(String), values: vals, yFmt, xEvery: 2, height: 340, onClick: (x, i) => S.openAgeModal && S.openAgeModal(ages[i], vals[i], sel.profile) });
         return {
           node: ch.node, reveal: ch.reveal,
-          title: 'Number of children and students ages 3 through 21 served under IDEA, Part B, by single year of age' + (sel.profile === 'Autism' ? ', reported under autism' : '') + ': School year 2024–25',
+          title: 'Number of children and students ages 3 through 21 served under IDEA, Part B, by single year of age' + (sel.profile === 'Autism' ? ', under the primary disability category of autism' : '') + ': School year 2024–25',
           sub: 'Number served at each age, School Year 2024–25.',
           source: 'U.S. Department of Education, OSEP, IDEA Part B Child Count and Educational Environments Collection, School Year 2024–25.',
           csv: [['Age', 'Served, 2024-25'], ...ages.map(a => [a, d.ages[a]])],
@@ -260,11 +260,10 @@
           return { label: d, total: rem, per100: cc ? +(rem / cc * 100).toFixed(1) : null };
         }).filter(d => d[sel.metric] != null).sort((a, b) => b[sel.metric] - a[sel.metric]);
         const fmt = sel.metric === 'per100' ? (v => v.toFixed(0)) : (v => v >= 1e3 ? Math.round(v / 1e3) + 'k' : Math.round(v));
-        const col = d => d.label === 'Emotional disturbance' ? P.navy : P.green;
         const oc = (x, i) => S.openCatModal && S.openCatModal(items[i].label);
         let ch;
         if (type === 'columns') ch = C.columns({ labels: items.map(d => d.label.split(' ')[0]), values: items.map(d => d[sel.metric]), yFmt: fmt, xEvery: 1, height: 340, onClick: oc });
-        else ch = C.barsH({ onClick: oc, items: items.map(d => ({ label: d.label, value: d[sel.metric], color: col(d), highlight: d.label === 'Emotional disturbance' })), labelW: 232, barH: 16, gap: 8, padR: 60, valueFmt: fmt });
+        else ch = C.barsH({ onClick: oc, items: items.map(d => ({ label: d.label, value: d[sel.metric], color: P.green })), labelW: 232, barH: 16, gap: 8, padR: 60, valueFmt: fmt });
         return {
           node: ch.node, reveal: ch.reveal,
           title: sel.metric === 'per100' ? 'Disciplinary removals per 100 students served, by disability' : 'Total disciplinary removals, by disability',
@@ -411,6 +410,7 @@
   function open() { panel.classList.add('show'); fab.classList.add('hidden'); if (!curType) selectTopic(); }
   function close() { panel.classList.remove('show'); fab.classList.remove('hidden'); }
   fab.addEventListener('click', open);
+  fab.addEventListener('mouseenter', open);   // hovering the corner button opens the builder
   panel.querySelector('.cb-x').addEventListener('click', close);
   window.addEventListener('keydown', e => { if (e.key === 'Escape' && panel.classList.contains('show')) close(); });
 

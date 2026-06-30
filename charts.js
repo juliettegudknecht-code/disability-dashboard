@@ -177,7 +177,7 @@
     let played = false;
     function reveal() {
       if (played) return; played = true;
-      const drawDur = 1200, pStag = 120, rm = reduced();
+      const drawDur = 1500, pStag = 140, rm = reduced();
       paths.forEach((p, i) => {
         if (rm) return;
         const L = p.getTotalLength();
@@ -186,16 +186,20 @@
         p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
         // keep dashed styling for dashed lines after draw
         void p.getBoundingClientRect();
-        p.style.transition = `stroke-dashoffset ${drawDur}ms cubic-bezier(.4,0,.2,1) ${i * pStag}ms`;
+        p.style.transition = `stroke-dashoffset ${drawDur}ms cubic-bezier(.33,.08,.24,1) ${i * pStag}ms`;
         p.style.strokeDashoffset = 0;
         if (base) setTimeout(() => { p.style.strokeDasharray = base; }, drawDur + 60 + i * pStag);
       });
       // when the last line finishes drawing
       const lastDone = rm ? 0 : drawDur + (paths.length - 1) * pStag;
-      // area fills grow in softly while the line draws
+      // area fills wipe in left-to-right, in lockstep with the line being drawn
       fills.forEach(f => {
-        f.style.transition = rm ? 'none' : 'opacity 900ms ease 250ms';
         f.style.opacity = f.getAttribute('fill-opacity') || 1;
+        if (rm) { f.style.clipPath = 'none'; return; }
+        f.style.clipPath = 'inset(0 100% 0 0)';
+        void f.getBoundingClientRect();
+        f.style.transition = `clip-path ${drawDur}ms cubic-bezier(.33,.08,.24,1)`;
+        f.style.clipPath = 'inset(0 -1% 0 0)';
       });
       // end dots + labels land with the line tip; markers and annotations follow
       [...dots, ...markers, ...annos].forEach((d, i) => {
@@ -233,10 +237,10 @@
       const bar = mk('rect', { x: labelW, y: yTop, width: 0, height: barH, rx: 3, class: 'cv-bar',
         fill: d.color || (d.highlight ? P.accent : P.green) });
       row.appendChild(bar);
-      const inside = fullW > 70;
-      const val = mk('text', { x: labelW + fullW + (inside ? -10 : 10), y: cy + 4,
-        'text-anchor': inside ? 'end' : 'start', class: 'cv-barval' + (inside ? ' in' : ''),
-        fill: inside ? '#fff' : P.ink, text: '' });
+      const inside = false;   // always place the value label outside the bar, in ink (no white-on-bar)
+      const val = mk('text', { x: labelW + fullW + 10, y: cy + 4,
+        'text-anchor': 'start', class: 'cv-barval',
+        fill: P.ink, text: '' });
       val.style.opacity = 0; row.appendChild(val);
       if (opts.onClick) {
         row.appendChild(mk('rect', { x: 0, y: yTop, width: w, height: barH, fill: 'transparent' }));
@@ -520,13 +524,20 @@
       s.appendChild(mk('text', { x: padL - 8, y: yy + 3.5, 'text-anchor': 'end', class: 'cv-axt', text: (opts.yFmt || (v => v))(val) }));
     }
     const step = plotW / n, bw = step * 0.66, every = opts.xEvery || 2;
-    const peak = opts.highlight != null ? opts.highlight : vals.indexOf(Math.max(...vals));
-    const bars = [];
+    const maxIdx = vals.indexOf(Math.max(...vals));
+    const peak = opts.highlight != null ? opts.highlight : -1;   // no auto-accent unless explicitly asked
+    const bars = [], valLabels = [];
+    const colFmt = opts.valueFmt || opts.yFmt || (v => Math.round(v).toLocaleString());
     for (let i = 0; i < n; i++) {
       const cx = padL + step * i + step / 2, bh = Math.max(1, (vals[i] / yMax) * plotH), top = padT + plotH - bh;
-      const rect = mk('rect', { x: cx - bw / 2, y: top, width: bw, height: bh, rx: 2.5, fill: i === peak ? P.accent : P.green });
+      const fillC = opts.colors ? opts.colors[i] : (i === peak ? P.accent : P.green);
+      const rect = mk('rect', { x: cx - bw / 2, y: top, width: bw, height: bh, rx: 2.5, fill: fillC });
       rect.style.transformBox = 'fill-box'; rect.style.transformOrigin = 'bottom'; rect.style.transform = 'scaleY(0)';
       s.appendChild(rect); bars.push(rect);
+      if (vals[i] > 0 && !(opts.peakLabel && i === maxIdx)) {   // value label above each bar, in ink
+        const vl = mk('text', { x: cx, y: top - 5, 'text-anchor': 'middle', class: 'cv-colval', fill: P.ink, text: colFmt(vals[i]) });
+        vl.style.opacity = 0; s.appendChild(vl); valLabels.push(vl);
+      }
       if (i % every === 0 || i === n - 1) s.appendChild(mk('text', { x: cx, y: h - 10, 'text-anchor': 'middle', class: 'cv-axt', text: labels[i] }));
     }
     // clickable full-height hit columns, layered on top so the whole column is a target
@@ -540,8 +551,8 @@
     }
     let pk = null;
     if (opts.peakLabel) {
-      const cx = padL + step * peak + step / 2;
-      pk = mk('text', { x: cx, y: Y(vals[peak]) - 8, 'text-anchor': 'middle', class: 'cv-end', fill: P.accent, text: opts.peakLabel });
+      const cx = padL + step * maxIdx + step / 2;
+      pk = mk('text', { x: cx, y: Y(vals[maxIdx]) - 8, 'text-anchor': 'middle', class: 'cv-end', fill: P.accent, text: opts.peakLabel });
       pk.style.opacity = 0; s.appendChild(pk);
     }
     let played = false;
@@ -552,6 +563,7 @@
         b.style.transition = `transform .65s cubic-bezier(.22,.61,.36,1) ${d}ms`;
         requestAnimationFrame(() => { b.style.transform = 'scaleY(1)'; });
       });
+      valLabels.forEach((vl, i) => { vl.style.transition = `opacity .4s ease ${reduced() ? 0 : i * 30 + 280}ms`; requestAnimationFrame(() => { vl.style.opacity = 1; }); });
       if (pk) { pk.style.transition = `opacity .5s ease ${reduced() ? 0 : n * 30 + 120}ms`; requestAnimationFrame(() => { pk.style.opacity = 1; }); }
     }
     return { node: s, reveal };
@@ -636,39 +648,62 @@
    * BUBBLES (proportional circle grid, scale-in)               *
    * ---------------------------------------------------------- */
   function bubbles(opts) {
-    const items = opts.items, n = items.length;
-    const cols = opts.cols || Math.min(n, Math.ceil(Math.sqrt(n) * 1.4));
-    const rows = Math.ceil(n / cols);
-    const w = opts.width || 760, cellW = w / cols, cellH = opts.cellH ?? 150;
-    const h = rows * cellH + 8;
+    const items = opts.items;
+    const w = opts.width || 720, h = opts.height || 380;
     const s = svgRoot(w, h, 'cv-bubble');
     const maxV = Math.max(...items.map(d => d.value));
-    const rMax = Math.min(cellW, cellH) / 2 - 30;
+    const rMax = opts.rMax || Math.min(w, h) / 4.0;
+    const rOf = v => Math.max(13, Math.sqrt(v / maxV) * rMax);
+    // circle-pack: place the biggest at the centre, then nestle each next one
+    // against the cluster at the spot closest to the centre that doesn't overlap
+    const order = items.map((d, i) => ({ d, i, r: rOf(d.value) })).sort((a, b) => b.r - a.r);
+    const placed = [];
+    order.forEach((o, k) => {
+      if (k === 0) { o.x = 0; o.y = 0; placed.push(o); return; }
+      let best = null;
+      for (let pi = 0; pi < placed.length; pi++) {
+        const p = placed[pi];
+        for (let a = 0; a < 6.2832; a += Math.PI / 18) {
+          const dist = p.r + o.r + 1.5;
+          const x = p.x + Math.cos(a) * dist, y = p.y + Math.sin(a) * dist;
+          const ok = placed.every(q => { const dx = x - q.x, dy = y - q.y; return dx * dx + dy * dy >= (q.r + o.r - 0.5) * (q.r + o.r - 0.5); });
+          if (ok) { const d2 = x * x + y * y; if (!best || d2 < best.d2) best = { x, y, d2 }; }
+        }
+      }
+      o.x = best ? best.x : 0; o.y = best ? best.y : 0; placed.push(o);
+    });
+    // fit the cluster into the viewport
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    placed.forEach(o => { minX = Math.min(minX, o.x - o.r); maxX = Math.max(maxX, o.x + o.r); minY = Math.min(minY, o.y - o.r); maxY = Math.max(maxY, o.y + o.r); });
+    const bbw = maxX - minX || 1, bbh = maxY - minY || 1, pad = 8;
+    const sc = Math.min((w - 2 * pad) / bbw, (h - 2 * pad) / bbh);
+    const ox = (w - bbw * sc) / 2 - minX * sc, oy = (h - bbh * sc) / 2 - minY * sc;
     const fmt = opts.valueFmt || (v => Math.round(v).toLocaleString());
     const blobs = [];
-    items.forEach((d, i) => {
-      const r = Math.floor(i / cols), c = i % cols;
-      const cx = c * cellW + cellW / 2, cy = r * cellH + cellH / 2 - 6;
-      const rad = Math.max(6, Math.sqrt(d.value / maxV) * rMax);
+    placed.forEach(o => {
+      const cx = o.x * sc + ox, cy = o.y * sc + oy, rad = o.r * sc, d = o.d;
       const fill = d.color || (d.highlight ? P.accent : P.green);
-      const circ = mk('circle', { cx, cy, r: rad, fill, 'fill-opacity': d.highlight ? 1 : .9 });
+      const light = colorContrast(fill);
+      const circ = mk('circle', { cx, cy, r: rad, fill, 'fill-opacity': d.highlight ? 1 : .92, stroke: '#fff', 'stroke-width': 1.5 });
       circ.style.transformBox = 'fill-box'; circ.style.transformOrigin = 'center'; circ.style.transform = 'scale(0)';
-      if (opts.onClick) clickify(circ, d.label, () => opts.onClick(d, i));
+      if (opts.onClick) clickify(circ, d.label, () => opts.onClick(d, o.i));
       s.appendChild(circ); blobs.push(circ);
-      if (rad > 22) {
-        const vt = mk('text', { x: cx, y: cy + 4, 'text-anchor': 'middle', class: 'cv-tilet', fill: colorContrast(fill) ? '#fff' : P.ink, text: fmt(d.value) });
+      if (rad > 30) {
+        const lab = mk('text', { x: cx, y: cy - 2, 'text-anchor': 'middle', class: 'cv-bub-lab', fill: light ? '#fff' : P.ink, text: d.label });
+        const vt = mk('text', { x: cx, y: cy + 13, 'text-anchor': 'middle', class: 'cv-bub-val', fill: light ? 'rgba(255,255,255,.85)' : P.muted, text: fmt(d.value) });
+        lab.style.opacity = 0; vt.style.opacity = 0; s.appendChild(lab); s.appendChild(vt); blobs.push(lab, vt);
+      } else if (rad > 15) {
+        const vt = mk('text', { x: cx, y: cy + 4, 'text-anchor': 'middle', class: 'cv-bub-val', fill: light ? '#fff' : P.ink, text: fmt(d.value) });
         vt.style.opacity = 0; s.appendChild(vt); blobs.push(vt);
       }
-      const lab = mk('text', { x: cx, y: r * cellH + cellH - 14, 'text-anchor': 'middle', class: d.highlight ? 'cv-rowlab hi' : 'cv-rowlab', text: d.label });
-      lab.style.opacity = 0; s.appendChild(lab); blobs.push(lab);
     });
     let played = false;
     function reveal() {
       if (played) return; played = true;
       blobs.forEach((el, i) => {
-        const d = reduced() ? 0 : i * 35;
-        if (el.tagName === 'circle') { el.style.transition = `transform .6s cubic-bezier(.34,1.3,.5,1) ${d}ms`; requestAnimationFrame(() => { el.style.transform = 'scale(1)'; }); }
-        else { el.style.transition = `opacity .5s ease ${d + 200}ms`; requestAnimationFrame(() => { el.style.opacity = 1; }); }
+        const dl = reduced() ? 0 : i * 30;
+        if (el.tagName === 'circle') { el.style.transition = `transform .6s cubic-bezier(.34,1.3,.5,1) ${dl}ms`; requestAnimationFrame(() => { el.style.transform = 'scale(1)'; }); }
+        else { el.style.transition = `opacity .5s ease ${dl + 200}ms`; requestAnimationFrame(() => { el.style.opacity = 1; }); }
       });
     }
     return { node: s, reveal };
@@ -802,7 +837,33 @@
       if (played) return; played = true;
       shapes.forEach((p, i) => { const d = reduced() ? 0 : i * 12; p.style.transition = `opacity .5s ease ${d}ms`; requestAnimationFrame(() => { p.style.opacity = 1; }); });
     }
-    return { node: s, reveal, shapes };
+    // ---- selected-state highlight: glowing gold + twinkling sparkles ----
+    let sparkLayer = null;
+    function star(x, y, r) {
+      const k = r * 0.34;
+      return `M${x} ${(y - r).toFixed(1)} L${(x + k).toFixed(1)} ${(y - k).toFixed(1)} L${(x + r).toFixed(1)} ${y} L${(x + k).toFixed(1)} ${(y + k).toFixed(1)} L${x} ${(y + r).toFixed(1)} L${(x - k).toFixed(1)} ${(y + k).toFixed(1)} L${(x - r).toFixed(1)} ${y} L${(x - k).toFixed(1)} ${(y - k).toFixed(1)} Z`;
+    }
+    function select(ab) {
+      if (sparkLayer) { sparkLayer.remove(); sparkLayer = null; }
+      let sel = null;
+      shapes.forEach(p => { const on = p.dataset.abbr === ab; p.classList.toggle('cv-choro-sel', on); if (on) sel = p; });
+      if (!sel) return;
+      sel.parentNode.appendChild(sel);                 // bring selection to the front
+      if (reduced()) return;
+      try {
+        const bb = sel.getBBox(), r = Math.max(4, bb.width * 0.05);
+        sparkLayer = mk('g', { class: 'cv-spark-layer' });
+        for (let i = 0; i < 8; i++) {
+          const sx = bb.x + (0.15 + 0.7 * Math.random()) * bb.width, sy = bb.y + (0.15 + 0.7 * Math.random()) * bb.height;
+          const rr = r * (0.6 + Math.random() * 0.8);
+          const st = mk('path', { d: star(sx, sy, rr), class: 'cv-spark', fill: i % 2 ? '#fff6da' : '#ffcf6b' });
+          st.style.animationDelay = (Math.random() * 1.3).toFixed(2) + 's';
+          sparkLayer.appendChild(st);
+        }
+        s.appendChild(sparkLayer);
+      } catch (e) { /* getBBox may fail if detached */ }
+    }
+    return { node: s, reveal, shapes, select };
   }
 
   /* ---------------------------------------------------------- *
@@ -865,6 +926,9 @@
 .cv-rowlab{fill:${v('--ink')};font-size:13px;font-weight:500}
 .cv-rowlab.hi{fill:${v('--accent')};font-weight:700}
 .cv-barval{font-size:13px;font-weight:700}
+.cv-colval{font-size:10px;font-weight:700}
+.cv-bub-lab{font-size:11.5px;font-weight:700}
+.cv-bub-val{font-size:10.5px;font-weight:600}
 .cv-end{font-size:13px;font-weight:700}
 .cv-anno-t{fill:${v('--ink')};font-size:13px;font-weight:700}
 .cv-anno-sub{fill:${v('--muted')};font-size:11.5px;font-weight:500}

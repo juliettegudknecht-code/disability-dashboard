@@ -33,23 +33,52 @@
   const fundUS = (window.MOE && window.MOE.US) ? window.MOE.US.f611 + window.MOE.US.f619 : null;
   const exUS = window.LEAEXIT && window.LEAEXIT.US;   // [grad%, drop%, base], SY 2023-24, reporting LEAs
 
+  /* ---- tiny inline graphs for the cards ---- */
+  function spark(vals, color) {
+    vals = (vals || []).filter(v => v != null);
+    if (vals.length < 2) return '';
+    color = color || '#2f8f57';
+    const w = 150, h = 38, pad = 3;
+    const min = Math.min.apply(null, vals), max = Math.max.apply(null, vals), rng = (max - min) || 1;
+    const xy = vals.map((v, i) => [pad + i / (vals.length - 1) * (w - 2 * pad), h - pad - (v - min) / rng * (h - 2 * pad)]);
+    const line = xy.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+    const area = 'M' + pad + ' ' + (h - pad) + ' L' + xy.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L') + ' L' + (w - pad) + ' ' + (h - pad) + ' Z';
+    const last = xy[xy.length - 1];
+    return '<svg class="qs-spark" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">'
+      + '<path d="' + area + '" fill="' + color + '" fill-opacity="0.13"/>'
+      + '<path d="' + line + '" fill="none" stroke="' + color + '" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/>'
+      + '<circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="2.4" fill="#103d2c"/></svg>';
+  }
+  function miniBars(vals, color) {
+    if (!vals || !vals.length) return '';
+    color = color || '#2f8f57';
+    const w = 150, h = 38, n = vals.length, gap = 3, bw = (w - (n - 1) * gap) / n;
+    const max = Math.max.apply(null, vals) || 1;
+    const bars = vals.map((v, i) => { const bh = Math.max(2, v / max * (h - 3)); return '<rect x="' + (i * (bw + gap)).toFixed(1) + '" y="' + (h - bh).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + bh.toFixed(1) + '" rx="1.5" fill="' + color + '" fill-opacity="' + (0.5 + 0.5 * v / max).toFixed(2) + '"/>'; }).join('');
+    return '<svg class="qs-spark" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' + bars + '</svg>';
+  }
+  const SPARK = {
+    served: spark(I.ALL), enroll: spark(I.ENROLL_PCT), autism: spark(I.DIS['Autism']),
+    incl: spark(I.D.inclShare), cats: miniBars(Object.keys(I.INCL).map(k => I.INCL[k][1]).sort((a, b) => b - a)),
+  };
+
   /* ---- the curated list ---- */
   const STATS = [
-    { c: 'Headline', q: 'How many children and students does IDEA serve?', v: nf(totalServed), copy: String(totalServed),
+    { c: 'Headline', q: 'How many children and students does IDEA serve?', v: nf(totalServed), copy: String(totalServed), g: SPARK.served,
       n: 'Served under IDEA, Part&nbsp;B, ages 3 through 21, School Year 2024–25.', s: 'IDEA Part B Child Count, SY 2024–25.', go: 'rise', t: 'total served child count part b how many students children overall national' },
     { c: 'Headline', q: 'How many infants and toddlers are in early intervention?', v: nf(I.PARTC.total), copy: String(I.PARTC.total),
       n: 'Served under IDEA, Part&nbsp;C, birth through age 2, School Year 2024–25.', s: 'IDEA Part C Child Count, SY 2024–25.', go: 'partc', t: 'part c infants toddlers early intervention birth to 2 babies' },
-    { c: 'Headline', q: 'What share of public-school enrollment is served?', v: enrollPct.toFixed(1) + '%', copy: enrollPct.toFixed(1) + '%',
+    { c: 'Headline', q: 'What share of public-school enrollment is served?', v: enrollPct.toFixed(1) + '%', copy: enrollPct.toFixed(1) + '%', g: SPARK.enroll,
       n: 'Students served as a percent of public-school enrollment (latest published, 2022–23).', s: 'IDEA Part B Child Count with NCES enrollment.', go: 'rise', t: 'percent enrollment share rate prevalence of all kids' },
-    { c: 'Headline', q: 'How much has the count grown since 2000–01?', v: '+' + growth.toFixed(0) + '%', copy: '+' + growth.toFixed(0) + '%',
+    { c: 'Headline', q: 'How much has the count grown since 2000–01?', v: '+' + growth.toFixed(0) + '%', copy: '+' + growth.toFixed(0) + '%', g: SPARK.served,
       n: 'Change in the number served, ages 3–21, from 2000–01 to 2024–25.', s: 'IDEA Part B Child Count.', go: 'rise', t: 'growth change trend over time increase since 2000 history' },
-    { c: 'Disability', q: 'How many students are served under autism?', v: nf(aut.total), copy: String(aut.total),
+    { c: 'Disability', q: 'How many students are served under autism?', v: nf(aut.total), copy: String(aut.total), g: SPARK.autism,
       n: 'Reported under autism as the primary disability, ages 3–21, 2024–25 (' + autShare.toFixed(1) + '% of all served).', s: 'IDEA Part B Child Count, SY 2024–25.', go: 'who', t: 'autism asd autistic count number served how many' },
-    { c: 'Disability', q: 'What is the most common disability category?', v: 'Specific learning disability', copy: 'Specific learning disability (' + sldShare.toFixed(1) + '%)',
+    { c: 'Disability', q: 'What is the most common disability category?', v: 'Specific learning disability', copy: 'Specific learning disability (' + sldShare.toFixed(1) + '%)', g: SPARK.cats,
       n: sldShare.toFixed(1) + '% of school-age students served, the largest of the categories, 2024–25.', s: 'IDEA Part B Child Count, SY 2024–25.', go: 'cats', t: 'most common prevalent category sld specific learning disability largest top' },
     { c: 'Disability', q: 'How many disability categories are there?', v: String(Object.keys(I.DIS).length), copy: String(Object.keys(I.DIS).length),
       n: 'Primary disability categories reported under IDEA, Part&nbsp;B.', s: 'IDEA Part B Child Count.', go: 'cats', t: 'how many categories disability types list count' },
-    { c: 'Classrooms', q: 'How many are in a regular classroom most of the day?', v: inclShare.toFixed(1) + '%', copy: inclShare.toFixed(1) + '%',
+    { c: 'Classrooms', q: 'How many are in a regular classroom most of the day?', v: inclShare.toFixed(1) + '%', copy: inclShare.toFixed(1) + '%', g: SPARK.incl,
       n: 'Educated inside the regular class 80% or more of the day, school-age, 2024–25.', s: 'IDEA Part B Educational Environments, SY 2024–25.', go: 'env', t: 'inclusion regular class 80 percent least restrictive environment lre classroom mainstream' },
     { c: 'Outcomes', q: 'What is the graduation rate (regular diploma)?', v: (exUS ? exUS[0].toFixed(1) : I.ARC.exit.gradDiplomaPct.toFixed(1)) + '%', copy: (exUS ? exUS[0].toFixed(1) : I.ARC.exit.gradDiplomaPct.toFixed(1)) + '%',
       n: 'Of students ages 14–21 who exited school, the share who graduated with a regular high school diploma' + (exUS ? ' (2023–24)' : ' (2022–23)') + '.', s: 'IDEA Part B Exiting Collection.', go: 'exiting', t: 'graduation rate graduated diploma exiting outcomes finished school' },
@@ -116,14 +145,15 @@
     border-radius:6px; padding:3px 7px; opacity:0; transform:translateY(-3px); transition:opacity .15s,transform .15s; pointer-events:none; }
   .qs-item.copied .qs-copied{ opacity:1; transform:none; }
   .qs-none{ grid-column:1/-1; padding:24px 8px; text-align:center; color:var(--faint); font-size:14px; }
-  .qs-hint{ margin-top:12px; font-size:11px; color:var(--faint); text-align:center; }`;
+  .qs-hint{ margin-top:12px; font-size:11px; color:var(--faint); text-align:center; }
+  .qs-spark{ display:block; width:100%; height:34px; margin:8px 0 4px; overflow:visible; }`;
   document.head.appendChild(css);
 
   /* ---- the topbar button ---- */
   const tools = document.querySelector('.tb-tools');
   const btn = document.createElement('button');
   btn.id = 'qs-btn'; btn.type = 'button'; btn.setAttribute('aria-label', 'Quick statistics finder');
-  btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V11M9 19V5M14 19v-6M19 19V9"/></svg><span class="qs-lab">Quick stats</span>';
+  btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="7.5"/><path d="m21 21-4.35-4.35"/><path d="M7.6 12.4v-1.6M10.5 12.4V8.6M13.4 12.4v-2.7"/></svg><span class="qs-lab">Quick stats</span>';
   if (tools) tools.insertBefore(btn, tools.firstChild); else document.body.appendChild(btn);
 
   /* ---- popup ---- */
@@ -166,6 +196,7 @@
       <span class="qs-copied">Copied</span>
       <div class="qs-q">${s.q}</div>
       <div class="qs-v">${s.v}</div>
+      ${s.g || ''}
       <div class="qs-n">${s.n}</div>
       <div class="qs-foot"><span class="qs-src">${s.s}</span>${s.go ? '<span class="qs-go">View in story →</span>' : ''}</div>
     </button>`).join('');
