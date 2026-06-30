@@ -13675,6 +13675,52 @@ if(Chart.overrides&&Chart.overrides.doughnut){Chart.overrides.doughnut.animation
 if(Chart.overrides&&Chart.overrides.pie){Chart.overrides.pie.animation={animateRotate:true,animateScale:true,duration:850,easing:'easeOutQuart'};}
 const modernGraphPlugin={id:'modernGraph',beforeDraw:function(chart){var ca=chart.chartArea;if(!ca)return;var ctx=chart.ctx,dark=document.body.classList.contains('dark'),hc=document.body.classList.contains('hc');ctx.save();ctx.fillStyle=hc?'transparent':(dark?'rgba(255,255,255,.025)':'rgba(22,54,92,.025)');ctx.fillRect(ca.left,ca.top,ca.right-ca.left,ca.bottom-ca.top);ctx.strokeStyle=hc?(dark?'rgba(255,255,255,.35)':'rgba(0,0,0,.35)'):(dark?'rgba(255,255,255,.09)':'rgba(22,54,92,.10)');ctx.lineWidth=1;ctx.strokeRect(ca.left,ca.top,ca.right-ca.left,ca.bottom-ca.top);ctx.restore();},afterDatasetsDraw:function(chart){if(document.body.classList.contains('hc'))return;var ctx=chart.ctx;chart.data.datasets.forEach(function(ds,di){var meta=chart.getDatasetMeta(di);if(!meta||meta.hidden||!meta.data||!meta.data.length)return;var type=ds.type||chart.config.type;if(type!=='line')return;var idx=ds.data.length-1;while(idx>=0&&(ds.data[idx]==null||isNaN(ds.data[idx])))idx--;if(idx<0||!meta.data[idx])return;var p=meta.data[idx].getProps(['x','y'],true),col=ds.borderColor||'#005ea2';ctx.save();ctx.shadowColor=col;ctx.shadowBlur=10;ctx.fillStyle='#fff';ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(p.x,p.y,4.5,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();});}};
 try{Chart.register(modernGraphPlugin);}catch(e){}
+/* ===== Modern chart theme: bring the National Trends "tinted, cool, modern"
+   line look to every line chart in the tool. For each solid line series it
+   swaps the flat area tint for a soft vertical GRADIENT (rich at the top,
+   fading to nothing at the axis), smooths the curve, and drops the hard dot
+   markers on dense trend lines so they read like the homepage figures.
+   Guards keep it safe: dashed benchmarks/trend-fit lines are never filled,
+   multi-series charts are not auto-filled (only series that already opted into
+   a fill get the gradient upgrade), and charts that set their own backgroundColor
+   keep their intent. High-contrast mode is left flat for legibility. ===== */
+const modernChartTheme={id:'modernChartTheme',beforeUpdate:function(chart){
+  try{
+    if(document.body.classList.contains('hc'))return;
+    var dss=(chart.data&&chart.data.datasets)||[];
+    function isLine(ds){return (ds.type||chart.config.type)==='line';}
+    /* a "solid" line = a real data series (not a dashed benchmark or trend-fit overlay) */
+    var solidLines=dss.filter(function(ds){return isLine(ds)&&!ds.borderDash&&!ds._trend;});
+    var singleSeries=solidLines.length===1;
+    function gradFor(base){return function(c){
+      var ch=c.chart,area=ch.chartArea;
+      if(!area||!ch.ctx)return shade(base,.12);
+      var g=ch.ctx.createLinearGradient(0,area.top,0,area.bottom);
+      g.addColorStop(0,shade(base,.28));g.addColorStop(.5,shade(base,.11));g.addColorStop(1,shade(base,.015));
+      return g;
+    };}
+    dss.forEach(function(ds){
+      if(!isLine(ds))return;
+      if(ds.tension==null)ds.tension=.3;                 /* smooth, modern curve */
+      var n=(ds.data&&ds.data.length)||0;
+      var dashed=!!ds.borderDash||!!ds._trend;
+      /* dense trend lines: drop the busy point dots, keep a hover dot */
+      if(n>12 && !ds._keepPoints && (ds.pointRadius==null||ds.pointRadius>0)){
+        ds.pointRadius=0;
+        if(ds.pointHoverRadius==null)ds.pointHoverRadius=5;
+      }
+      if(dashed)return;                                  /* never fill benchmark/trend lines */
+      var base=ds.borderColor; if(typeof base!=='string')return;
+      var alreadyFills=(ds.fill===true||ds.fill==='start'||ds.fill==='origin'||ds.fill==='end');
+      var canAutoFill=(singleSeries && ds.backgroundColor==null && (ds.fill==null||ds.fill===false));
+      if(!alreadyFills && !canAutoFill)return;
+      ds.fill=(ds.fill===true||ds.fill==='origin')?ds.fill:'start';
+      ds._modernBase=base;
+      ds.backgroundColor=gradFor(base);                  /* gradient tint instead of flat shade */
+    });
+  }catch(e){}
+}};
+try{Chart.register(modernChartTheme);}catch(e){}
 /* Fairy tint: recolour every Chart.js dataset into the pink band while fairy mode
    is on. Stashes originals so toggling fairy mode off restores the real palette.
    Runs before each update so it covers charts built before the mode was on. */
@@ -21374,6 +21420,114 @@ body.dark #ufBand .uf-line{stroke:#5fb98c}
 body.dark #ufBand .uf-ldot,body.dark #ufBand .uf-db-b{fill:#5fb98c}
 body.dark #ufBand .uf-bandhead{color:#7fcfa3;border-bottom-color:#7fcfa3}
 </style>
+<style id="ufStyle2">
+/* === National Trends homepage restyled to match the new USAFacts-style figures (2026-06-29) === */
+.view[data-view="trends"],#trendsOverview,#ufBand{
+ --uf-cream:#f6f5ef;--uf-cream-d:#13251d;--uf-cardborder:#e6e5da;--uf-cardborder-d:#27412f;--uf-radius:8px;
+ --uf-ink:#1a1a1a;--uf-ink-d:#f3f3ee;--uf-sub:#6b6b6b;--uf-sub-d:#aab0a8;--uf-src:#8a8a82;--uf-src-d:#8e978c;
+ --uf-forest:#1e4d3d;--uf-forest-d:#5fb98c;--uf-medium:#4e9f5b;--uf-lime:#84c13e;
+ --uf-blue:#2a4cad;--uf-purple:#8e44c9;--uf-up:#1e4d3d;--uf-up-d:#5fb98c;--uf-decline:#9a8f6a;--uf-decline-d:#b9ad84;
+ --uf-grid:#e2e1d6;--uf-grid-d:#2c3a31;--uf-band:#1e4d3d;--uf-band-d:#7fcfa3;
+ --uf-hover:rgba(30,77,61,.06);--uf-hover-d:rgba(127,207,163,.10);--uf-tipbg:#1a2a22;--uf-tipfg:#f3f3ee;
+}
+/* cards -> cream/flat */
+.view[data-view="trends"] .card,#trendsOverview .card{background:var(--uf-cream)!important;border:1px solid var(--uf-cardborder)!important;border-top:1px solid var(--uf-cardborder)!important;box-shadow:none!important;border-radius:var(--uf-radius)!important;position:relative;}
+body.dark .view[data-view="trends"] .card,body.dark #trendsOverview .card{background:var(--uf-cream-d)!important;border-color:var(--uf-cardborder-d)!important;}
+/* cards that the older "professional pass" forces white by id -> cream (beat by id specificity + later source) */
+.view[data-view="trends"] #home-bubbles-card,.view[data-view="trends"] #trend-main,.view[data-view="trends"] #trend-sparks,.view[data-view="trends"] #trend-change-card{background:var(--uf-cream)!important;border-color:var(--uf-cardborder)!important;}
+body.dark .view[data-view="trends"] #home-bubbles-card,body.dark .view[data-view="trends"] #trend-main,body.dark .view[data-view="trends"] #trend-sparks,body.dark .view[data-view="trends"] #trend-change-card{background:var(--uf-cream-d)!important;border-color:var(--uf-cardborder-d)!important;}
+/* figure titles -> left, bold */
+.view[data-view="trends"] .card h3{text-align:left!important;max-width:none!important;margin-left:0!important;margin-right:0!important;margin-top:0!important;margin-bottom:3px!important;font-weight:800!important;font-size:1.02rem!important;line-height:1.22!important;letter-spacing:-.01em!important;color:var(--uf-ink)!important;}
+.view[data-view="trends"] #trend-main h3{font-size:1.06rem!important;}
+body.dark .view[data-view="trends"] .card h3{color:var(--uf-ink-d)!important;}
+.view[data-view="trends"] .card .ey,.view[data-view="trends"] .card .whatmeans,.view[data-view="trends"] .card>.note,.view[data-view="trends"] .viewlead,.view[data-view="trends"] .card .tbl-srcfold,.view[data-view="trends"] .card .tbl-srcfold-body{text-align:left!important;margin-left:0!important;margin-right:0!important;}
+.view[data-view="trends"] .card .ey{letter-spacing:.05em!important;color:var(--uf-sub)!important;}
+.view[data-view="trends"] .card .note,.view[data-view="trends"] .card .whatmeans>summary{color:var(--uf-sub)!important;font-size:.78rem!important;line-height:1.35!important;}
+.view[data-view="trends"] .card .tbl-srcfold-body{color:var(--uf-src)!important;font-size:.7rem!important;}
+/* section title */
+#trends.section-title{font-size:1.2rem!important;margin:10px 2px 6px!important;border-bottom:2px solid var(--uf-forest)!important;padding-bottom:6px!important;}
+.view>.section-title#trends:first-of-type{font-size:1.2rem!important;line-height:1.22!important;}
+body.dark #trends.section-title{border-bottom-color:var(--uf-band-d)!important;}
+/* subtab "Sections" nav */
+.view[data-view="trends"] .view-subtab-nav{margin:8px 0 12px!important;padding:6px!important;gap:6px!important;background:var(--uf-cream)!important;border:1px solid var(--uf-cardborder)!important;border-left:3px solid var(--uf-forest)!important;border-radius:var(--uf-radius)!important;backdrop-filter:none!important;}
+.view[data-view="trends"] .view-subtab-nav .vst-label{color:var(--uf-sub)!important;font-size:.7rem!important;letter-spacing:.06em!important;}
+.view[data-view="trends"] .view-subtab-nav .vst-btn{border-radius:6px!important;padding:5px 11px!important;font-size:.8rem!important;border:1px solid var(--uf-cardborder)!important;background:#fff!important;color:var(--uf-ink)!important;}
+.view[data-view="trends"] .view-subtab-nav .vst-btn.vst-active{background:var(--uf-forest)!important;border-color:var(--uf-forest)!important;color:#fff!important;}
+body.dark .view[data-view="trends"] .view-subtab-nav{background:var(--uf-cream-d)!important;border-color:var(--uf-cardborder-d)!important;border-left-color:var(--uf-band-d)!important;}
+body.dark .view[data-view="trends"] .view-subtab-nav .vst-btn{background:#0e1d16!important;color:var(--uf-ink-d)!important;border-color:var(--uf-cardborder-d)!important;}
+body.dark .view[data-view="trends"] .view-subtab-nav .vst-btn.vst-active{background:var(--uf-band-d)!important;color:#0c1712!important;}
+/* cardtools chips (existing + new figures) */
+.view[data-view="trends"] .cardtools,#ufBand .cardtools{top:10px!important;right:10px!important;gap:4px!important;}
+.view[data-view="trends"] .cardtools button,#ufBand .cardtools button{min-height:24px!important;padding:3px 8px!important;font-size:.64rem!important;font-weight:800!important;border:1px solid var(--uf-cardborder)!important;background:#fff!important;color:var(--uf-sub)!important;border-radius:5px!important;}
+.view[data-view="trends"] .cardtools button:hover,#ufBand .cardtools button:hover{border-color:var(--uf-forest)!important;color:var(--uf-forest)!important;}
+body.dark .view[data-view="trends"] .cardtools button,body.dark #ufBand .cardtools button{background:#0e1d16!important;color:var(--uf-sub-d)!important;border-color:var(--uf-cardborder-d)!important;}
+/* toggles / pills -> green active */
+.view[data-view="trends"] .tbl-toggle button.on,.view[data-view="trends"] .hxm-toggle button.on{background:var(--uf-forest)!important;color:#fff!important;border-color:var(--uf-forest)!important;}
+.view[data-view="trends"] .trend-line-toggle input{accent-color:var(--uf-forest)!important;}
+.view[data-view="trends"] .trend-chip.on{background:var(--uf-hover)!important;border-color:var(--uf-forest)!important;}
+body.dark .view[data-view="trends"] .trend-chip.on{background:var(--uf-hover-d)!important;border-color:var(--uf-band-d)!important;}
+/* KPI strip */
+.view[data-view="trends"] #kpis .kpi{background:var(--uf-cream)!important;border:1px solid var(--uf-cardborder)!important;border-top:1px solid var(--uf-cardborder)!important;border-radius:var(--uf-radius)!important;box-shadow:none!important;}
+.view[data-view="trends"] #kpis .kpi .v{color:var(--uf-forest)!important;letter-spacing:-.01em!important;}
+.view[data-view="trends"] #kpis .kpi .l{color:var(--uf-sub)!important;}
+body.dark .view[data-view="trends"] #kpis .kpi{background:var(--uf-cream-d)!important;border-color:var(--uf-cardborder-d)!important;}
+body.dark .view[data-view="trends"] #kpis .kpi .v{color:var(--uf-forest-d)!important;}
+/* launchpad cards */
+.view[data-view="trends"] .home-launchpad .launchcard{background:var(--uf-cream)!important;border:1px solid var(--uf-cardborder)!important;box-shadow:none!important;border-radius:var(--uf-radius)!important;}
+.view[data-view="trends"] .home-launchpad .launchcard:hover{border-color:var(--uf-forest)!important;}
+body.dark .view[data-view="trends"] .home-launchpad .launchcard{background:var(--uf-cream-d)!important;border-color:var(--uf-cardborder-d)!important;}
+/* rhythm (tighter) */
+.view[data-view="trends"] .trend-home-section{margin-top:12px!important;}
+.view[data-view="trends"] .grid{gap:12px!important;}
+
+/* ---- interactivity: floating tooltip + row hover ---- */
+#ufTip{position:fixed;z-index:9999;pointer-events:none;opacity:0;transform:translateY(2px);background:var(--uf-tipbg);color:var(--uf-tipfg);font-weight:600;font-size:11.5px;line-height:1.4;padding:7px 9px;border-radius:6px;max-width:260px;box-shadow:0 4px 14px rgba(0,0,0,.22);}
+#ufTip.on{opacity:1;transform:translateY(0);}
+#ufTip b{font-weight:800}#ufTip .d{color:#bcd8c6}
+body:not(.no-anim):not(.reduce) #ufTip{transition:opacity .12s ease,transform .12s ease;}
+#ufBand .uf-row{cursor:pointer}
+#ufBand .uf-rowhit{fill:transparent}
+#ufBand .uf-row.hl .uf-rowhit{fill:var(--uf-hover)}
+body.dark #ufBand .uf-row.hl .uf-rowhit{fill:var(--uf-hover-d)}
+#ufBand .uf-row.hl .uf-rowlbl{fill:var(--uf-ink);font-weight:800}
+body.dark #ufBand .uf-row.hl .uf-rowlbl{fill:var(--uf-ink-d)}
+#ufBand .uf-row:focus{outline:none}
+#ufBand .uf-row:focus-visible .uf-rowhit{fill:var(--uf-hover)}
+#ufBand .uf-lhit{fill:transparent;cursor:pointer}
+#ufBand .uf-lmark{fill:#1e4d3d;opacity:0;pointer-events:none}
+body.dark #ufBand .uf-lmark{fill:#5fb98c}
+#ufBand .uf-lmark.on{opacity:1}
+/* percent-change labels (dumbbell) */
+#ufBand .uf-pc{font-weight:800;font-size:10px}
+#ufBand .uf-pc.up{fill:var(--uf-up)}
+#ufBand .uf-pc.dn{fill:var(--uf-decline)}
+body.dark #ufBand .uf-pc.up{fill:var(--uf-up-d)}
+body.dark #ufBand .uf-pc.dn{fill:var(--uf-decline-d)}
+/* dumbbell sort toggle */
+#ufBand .uf-sorttoggle{display:inline-flex;border:1px solid var(--uf-cardborder);border-radius:6px;overflow:hidden;margin:0 0 8px}
+#ufBand .uf-sorttoggle button{font-weight:700;font-size:.72rem;padding:5px 11px;border:0;background:#fff;color:var(--uf-sub);cursor:pointer;font-family:inherit}
+#ufBand .uf-sorttoggle button+button{border-left:1px solid var(--uf-cardborder)}
+#ufBand .uf-sorttoggle button.on{background:var(--uf-forest);color:#fff}
+body.dark #ufBand .uf-sorttoggle button{background:#0e1d16;color:var(--uf-sub-d)}
+body.dark #ufBand .uf-sorttoggle button.on{background:var(--uf-band-d);color:#0c1712}
+
+/* ---- animations (all gated behind reduced-motion) ---- */
+@keyframes ufFadeRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes ufLineDraw{to{stroke-dashoffset:0}}
+#ufBand .uf-card{opacity:1}
+body:not(.no-anim):not(.reduce) #ufBand .uf-card.uf-anim{animation:ufFadeRise .42s ease both}
+body:not(.no-anim):not(.reduce) #ufBand .uf-line.uf-draw{animation:ufLineDraw 1.05s ease-out forwards}
+#ufBand .uf-db-line,#ufBand .uf-sx-m{transform-box:fill-box;transform-origin:left center}
+body:not(.no-anim):not(.reduce) #ufBand .uf-db-line{transform:scaleX(0);transition:transform .55s ease}
+body:not(.no-anim):not(.reduce) #ufBand .uf-db-line.uf-in{transform:scaleX(1)}
+body:not(.no-anim):not(.reduce) #ufBand .uf-db-b{opacity:0;transition:opacity .4s ease .2s}
+body:not(.no-anim):not(.reduce) #ufBand .uf-db-b.uf-in{opacity:1}
+body:not(.no-anim):not(.reduce) #ufBand .uf-sx-m{transform:scaleX(0);transition:transform .55s ease}
+body:not(.no-anim):not(.reduce) #ufBand .uf-sx-m.uf-in{transform:scaleX(1)}
+body:not(.no-anim):not(.reduce) #ufBand .uf-row .uf-rowhit{transition:fill .12s ease}
+body:not(.no-anim):not(.reduce) #ufBand .uf-db-a,body:not(.no-anim):not(.reduce) #ufBand .uf-db-b{transition:r .12s ease}
+@media (prefers-reduced-motion:reduce){#ufBand .uf-card,#ufBand .uf-line,#ufBand .uf-db-line,#ufBand .uf-db-b,#ufBand .uf-sx-m{animation:none!important;transition:none!important;transform:none!important;opacity:1!important;stroke-dashoffset:0!important}}
+</style>
 <script>
 /* USAFacts-style figures injected into the National Trends homepage. Pure SVG, no
    added libraries. Reuses the embedded data: YEARS, ALL, DIS, DEMO. Self-contained. */
@@ -21389,7 +21543,7 @@ body.dark #ufBand .uf-bandhead{color:#7fcfa3;border-bottom-color:#7fcfa3}
  /* ---------- 1) Annotated 50-year national line ---------- */
  function lineSVG(){
   var YM={'1976-77':1976,'1980-81':1980,'1990-91':1990,'2000-01':2000,'2008-09':2008,'2009-10':2009,'2010-11':2010,'2011-12':2011,'2012-13':2012,'2013-14':2013,'2014-15':2014,'2015-16':2015,'2016-17':2016,'2017-18':2017,'2018-19':2018,'2019-20':2019,'2020-21':2020,'2021-22':2021,'2022-23':2022,'2023-24':2023,'2024-25':2024};
-  var pts=[]; YEARS.forEach(function(y,i){ if(ALL[i]!=null&&YM[y]!=null) pts.push([YM[y],ALL[i]]); });
+  var pts=[]; YEARS.forEach(function(y,i){ if(ALL[i]!=null&&YM[y]!=null) pts.push([YM[y],ALL[i],y]); });
   var W=740,H=340,mL=40,mR=14,mT=18,mB=28, x0=1976,x1=2024,y1=9000;
   var PX=function(yr){return mL+(yr-x0)/(x1-x0)*(W-mL-mR);};
   var PY=function(v){return H-mB-(v/y1)*(H-mT-mB);};
@@ -21419,31 +21573,42 @@ body.dark #ufBand .uf-bandhead{color:#7fcfa3;border-bottom-color:#7fcfa3}
   g+='<circle class="uf-ldot" cx="'+PX(2020).toFixed(1)+'" cy="'+PY(7214).toFixed(1)+'" r="3"/>';
   g+='<circle class="uf-ldot" cx="'+PX(2024).toFixed(1)+'" cy="'+PY(8194).toFixed(1)+'" r="3.6"/>';
   g+='<text class="uf-anno" x="'+(PX(1976)+5).toFixed(1)+'" y="'+(PY(3694)-8).toFixed(1)+'">3.7M in 1976-77</text>';
+  // interactive hover targets + one movable marker (on top)
+  g+='<circle class="uf-lmark" cx="-99" cy="-99" r="4"/>';
+  pts.forEach(function(p){ g+='<circle class="uf-lhit" data-lbl="'+p[2]+'" data-v="'+(p[1]*1000)+'" cx="'+PX(p[0]).toFixed(1)+'" cy="'+PY(p[1]).toFixed(1)+'" r="12"/>'; });
   return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Line chart: children and students served under IDEA Part B grew from 3.7 million in 1976-77 to 8.2 million in 2024-25.">'
    +'<defs><linearGradient id="ufLineGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e4d3d"/><stop offset="1" stop-color="#1e4d3d" stop-opacity="0"/></linearGradient></defs>'+g+'</svg>';
  }
 
  /* ---------- 2) Dumbbell: child count by category, 2000-01 vs 2024-25 ---------- */
+ var _ufDbSort='count';   /* 'count' | 'change' */
  function dumbbellSVG(){
   var iA=YEARS.indexOf('2000-01'), iB=YEARS.indexOf('2024-25');
   var rows=Object.keys(DIS).map(function(k){return {k:k,a:DIS[k][iA],b:DIS[k][iB]};})
-   .filter(function(r){return r.a!=null&&r.b!=null;})
-   .sort(function(p,q){return q.b-p.b;});
-  var W=760,mL=192,mR=18,mT=14,mB=26,rowH=24, H=mT+mB+rows.length*rowH;
+   .filter(function(r){return r.a!=null&&r.b!=null;});
+  rows.forEach(function(r){ r.pc=(r.a>0)?((r.b-r.a)/r.a*100):null; });
+  rows.sort(_ufDbSort==='change'
+   ? function(p,q){return (q.pc==null?-1e9:q.pc)-(p.pc==null?-1e9:p.pc);}
+   : function(p,q){return q.b-p.b;});
+  var W=760,mL=192,mR=88,mT=14,mB=26,rowH=24, H=mT+mB+rows.length*rowH;
   var maxV=0; rows.forEach(function(r){ maxV=Math.max(maxV,r.a,r.b); });
   var xMax=Math.ceil(maxV/500)*500||500;
   var PX=function(v){return mL+(v/xMax)*(W-mL-mR);};
-  var g='';
+  var g='', lblX=W-mR+8;
   for(var t=0;t<=xMax;t+=500){ var x=PX(t);
    g+='<line class="uf-grid" x1="'+x.toFixed(1)+'" y1="'+mT+'" x2="'+x.toFixed(1)+'" y2="'+(H-mB)+'"/>';
    g+='<text class="uf-axl" x="'+x.toFixed(1)+'" y="'+(H-mB+13)+'" text-anchor="middle">'+(t===0?'0':(t/1000)+'M')+'</text>'; }
   rows.forEach(function(r,i){ var y=mT+i*rowH+rowH/2, xa=PX(r.a), xb=PX(r.b);
+   g+='<g class="uf-row" data-cat="'+r.k+'">';
+   g+='<rect class="uf-rowhit" x="0" y="'+(mT+i*rowH).toFixed(1)+'" width="'+W+'" height="'+rowH+'"/>';
    g+='<text class="uf-rowlbl" x="'+(mL-10)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+r.k+'</text>';
    g+='<line class="uf-db-line" x1="'+xa.toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+xb.toFixed(1)+'" y2="'+y.toFixed(1)+'"/>';
-   g+='<circle class="uf-db-a" cx="'+xa.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="5"><title>'+r.k+', 2000-01: '+fmtAbs(r.a*1000)+'</title></circle>';
-   g+='<circle class="uf-db-b" cx="'+xb.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="5"><title>'+r.k+', 2024-25: '+fmtAbs(r.b*1000)+'</title></circle>';
+   g+='<circle class="uf-db-a" cx="'+xa.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="5"/>';
+   g+='<circle class="uf-db-b" cx="'+xb.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="5"/>';
+   g+='<text class="uf-pc '+(r.pc>=0?'up':'dn')+'" x="'+lblX+'" y="'+(y+3.4).toFixed(1)+'" text-anchor="start">'+ufPct(r.pc)+'</text>';
+   g+='</g>';
   });
-  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Dumbbell chart comparing the number of children and students served by primary disability category in 2000-01 and 2024-25.">'+g+'</svg>';
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Dumbbell chart comparing the number of children and students served by primary disability category in 2000-01 and 2024-25, with percent change.">'+g+'</svg>';
  }
 
  /* ---------- 3) Reported-sex split, by category, 2024-25 ---------- */
@@ -21457,11 +21622,14 @@ body.dark #ufBand .uf-bandhead{color:#7fcfa3;border-bottom-color:#7fcfa3}
   var g='';
   rows.forEach(function(k,i){ var d=cur[k], tot=d.male+d.female, mp=d.male/tot;
    var y=mT+i*rowH, by=y+5, bh=rowH-12, emph=(k==='All Disabilities'); var mw=mp*barW;
+   g+='<g class="uf-row" data-cat="'+k+'">';
+   g+='<rect class="uf-rowhit" x="0" y="'+y+'" width="'+W+'" height="'+rowH+'"/>';
    g+='<text class="uf-rowlbl'+(emph?' uf-emph':'')+'" x="'+(mL-10)+'" y="'+(by+bh/2+3.2).toFixed(1)+'" text-anchor="end">'+k+'</text>';
+   g+='<rect class="uf-sx-f" x="'+mL+'" y="'+by+'" width="'+barW.toFixed(1)+'" height="'+bh+'"/>';
    g+='<rect class="uf-sx-m" x="'+mL+'" y="'+by+'" width="'+mw.toFixed(1)+'" height="'+bh+'"/>';
-   g+='<rect class="uf-sx-f" x="'+(mL+mw).toFixed(1)+'" y="'+by+'" width="'+(barW-mw).toFixed(1)+'" height="'+bh+'"/>';
    g+='<text class="uf-sx-lbl" x="'+(mL+6)+'" y="'+(by+bh/2+3.2).toFixed(1)+'">'+Math.round(mp*100)+'%</text>';
    g+='<text class="uf-sx-lbl" x="'+(mL+barW-6)+'" y="'+(by+bh/2+3.2).toFixed(1)+'" text-anchor="end">'+Math.round((1-mp)*100)+'%</text>';
+   g+='</g>';
   });
   return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Bar chart: male and female share of children and students served by primary disability category, 2024-25. Male students are the majority in every category.">'+g+'</svg>';
  }
@@ -21471,6 +21639,96 @@ body.dark #ufBand .uf-bandhead{color:#7fcfa3;border-bottom-color:#7fcfa3}
    +'<div class="uf-figwrap">'+inner+'</div><div class="uf-src">Source: '+src+'</div></div>';
  }
  function legend(items){ return '<div class="uf-legend">'+items.map(function(it){return '<span class="uf-lg"><i class="'+it[0]+'"></i>'+it[1]+'</span>';}).join('')+'</div>'; }
+
+ /* ---------- percent-change formatter (real minus sign for declines) ---------- */
+ function ufPct(p){ if(p==null||!isFinite(p))return '–'; var s=(p>=0?'+':'−'); return s+Math.round(Math.abs(p)).toLocaleString('en-US')+'%'; }
+
+ /* ---------- floating cursor tooltip ---------- */
+ var _tip;
+ function ufTip(){ if(!_tip){_tip=document.createElement('div');_tip.id='ufTip';document.body.appendChild(_tip);} return _tip; }
+ function ufTipShow(html,x,y){ var t=ufTip(); t.innerHTML=html; t.classList.add('on'); var w=t.offsetWidth,h=t.offsetHeight,px=x+14,py=y+14; if(px+w>window.innerWidth-8)px=x-w-14; if(py+h>window.innerHeight-8)py=y-h-14; t.style.left=Math.max(6,px)+'px'; t.style.top=Math.max(6,py)+'px'; }
+ function ufTipHide(){ if(_tip)_tip.classList.remove('on'); }
+
+ /* ---------- tooltip content builders ---------- */
+ function dumbbellTipHtml(cat){ var iA=YEARS.indexOf('2000-01'),iB=YEARS.indexOf('2024-25'),s=DIS[cat]; if(!s)return '<b>'+cat+'</b>'; var a=s[iA],b=s[iB]; if(a==null||b==null)return '<b>'+cat+'</b>'; var pc=(a>0)?((b-a)/a*100):null,dch=(b-a)*1000; return '<b>'+cat+'</b><br><span class="d">2000–01:</span> '+fmtAbs(a*1000)+'<br><span class="d">2024–25:</span> '+fmtAbs(b*1000)+'<br><span class="d">Change:</span> '+(dch>=0?'+':'−')+fmtAbs(Math.abs(dch))+' ('+ufPct(pc)+')'; }
+ function sexTipHtml(cat){ var d=DEMO.cur[cat]; if(!d||d.male==null)return '<b>'+cat+'</b>'; var t=d.male+d.female; return '<b>'+cat+'</b><br><span class="d">Male:</span> '+d.male.toLocaleString('en-US')+' ('+Math.round(d.male/t*100)+'%)<br><span class="d">Female:</span> '+d.female.toLocaleString('en-US')+' ('+Math.round(d.female/t*100)+'%)'; }
+
+ /* ---------- interactivity wiring (delegated; survives re-render of children) ---------- */
+ function ufMarkRows(wrap){ [].forEach.call(wrap.querySelectorAll('.uf-row[data-cat]'),function(g){ if(g._m)return; g._m=1; g.setAttribute('tabindex','0'); g.setAttribute('role','button'); g.setAttribute('aria-label',g.getAttribute('data-cat')+' — open category detail'); }); }
+ function wireFigureRows(wrap, tipFn){ if(!wrap)return; ufMarkRows(wrap); if(wrap._ufWired)return; wrap._ufWired=1;
+  function rowFrom(e){ var g=e.target.closest?e.target.closest('.uf-row'):null; return (g&&wrap.contains(g))?g:null; }
+  wrap.addEventListener('pointermove',function(e){ var g=rowFrom(e);
+   [].forEach.call(wrap.querySelectorAll('.uf-row.hl'),function(x){ if(x!==g)x.classList.remove('hl'); });
+   if(g){ g.classList.add('hl'); ufTipShow(tipFn(g.getAttribute('data-cat')),e.clientX,e.clientY); } else ufTipHide();
+  });
+  wrap.addEventListener('pointerleave',function(){ [].forEach.call(wrap.querySelectorAll('.uf-row.hl'),function(x){x.classList.remove('hl');}); ufTipHide(); });
+  wrap.addEventListener('click',function(e){ var g=rowFrom(e); if(!g)return; var c=g.getAttribute('data-cat'); if(c&&typeof openDisabilityModal==='function'){ try{ openDisabilityModal(c); }catch(_){} } });
+  wrap.addEventListener('keydown',function(e){ var g=rowFrom(e); if(!g)return; if(e.key==='Enter'||e.key===' '){ e.preventDefault(); var c=g.getAttribute('data-cat'); if(c&&typeof openDisabilityModal==='function'){ try{ openDisabilityModal(c); }catch(_){} } } });
+ }
+ function wireLineHover(wrap){ if(!wrap||wrap._ufWired)return; wrap._ufWired=1; var mark=wrap.querySelector('.uf-lmark');
+  wrap.addEventListener('pointermove',function(e){ var h=e.target.closest?e.target.closest('.uf-lhit'):null;
+   if(h&&wrap.contains(h)){ if(mark){ mark.setAttribute('cx',h.getAttribute('cx')); mark.setAttribute('cy',h.getAttribute('cy')); mark.classList.add('on'); }
+    ufTipShow('<b>'+h.getAttribute('data-lbl')+'</b><br>'+fmtAbs(+h.getAttribute('data-v'))+' served',e.clientX,e.clientY); }
+   else { if(mark)mark.classList.remove('on'); ufTipHide(); }
+  });
+  wrap.addEventListener('pointerleave',function(){ if(mark)mark.classList.remove('on'); ufTipHide(); });
+ }
+
+ /* ---------- dumbbell sort toggle (count vs percent change) ---------- */
+ function bindDumbbellSort(card){ var tg=card.querySelector('.uf-sorttoggle'); if(!tg||tg._b)return; tg._b=1;
+  tg.addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return;
+   _ufDbSort=b.getAttribute('data-sort');
+   [].forEach.call(tg.querySelectorAll('button'),function(x){ var on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',on?'true':'false'); });
+   var fw=card.querySelector('.uf-figwrap'), oldSvg=fw.querySelector('svg'), tmp=document.createElement('div'); tmp.innerHTML=dumbbellSVG(); var nsvg=tmp.querySelector('svg');
+   if(oldSvg&&nsvg&&oldSvg.parentNode)oldSvg.parentNode.replaceChild(nsvg,oldSvg);
+   wireFigureRows(fw,dumbbellTipHtml); ufAnimateDumbbell(fw);
+  });
+ }
+
+ /* ---------- PNG export: rasterize the SVG with baked light-mode styles ---------- */
+ var UF_SVG_CSS='.uf-grid{stroke:#e2e1d6;stroke-width:1}.uf-axl{fill:#8a8a82;font:500 9.5px sans-serif}'
+  +'.uf-rowlbl{fill:#33332e;font:600 10px sans-serif}.uf-rowlbl.uf-emph{font-weight:800;fill:#1a1a1a}'
+  +'.uf-line{fill:none;stroke:#1e4d3d;stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}'
+  +'.uf-ldot{fill:#1e4d3d}.uf-anno{fill:#33332e;font:600 9.6px sans-serif}'
+  +'.uf-anno-line{stroke:#9a9a90;stroke-width:1;fill:none}.uf-anno-dot{fill:#1e4d3d}'
+  +'.uf-db-line{stroke:#5a5a52;stroke-width:2}.uf-db-a{fill:#84c13e}.uf-db-b{fill:#1e4d3d}'
+  +'.uf-sx-f{fill:#8e44c9}.uf-sx-m{fill:#2a4cad}.uf-sx-lbl{fill:#fff;font:700 9.6px sans-serif}'
+  +'.uf-pc{font:800 10px sans-serif}.uf-pc.up{fill:#1e4d3d}.uf-pc.dn{fill:#9a8f6a}';
+ function ufFigurePNG(svg,title,note,filename){ if(!svg)return;
+  try{
+   var rect=svg.getBoundingClientRect(), vb=(svg.getAttribute('viewBox')||'0 0 760 360').split(/\s+/);
+   var w=Math.round(rect.width)||(+vb[2]||760), h=Math.round(rect.height)||(+vb[3]||360);
+   if(w<2)w=+vb[2]||760; if(h<2)h=+vb[3]||360;
+   var clone=svg.cloneNode(true); clone.setAttribute('xmlns','http://www.w3.org/2000/svg'); clone.setAttribute('width',w); clone.setAttribute('height',h);
+   if(!clone.getAttribute('viewBox'))clone.setAttribute('viewBox','0 0 '+w+' '+h);
+   var st=document.createElementNS('http://www.w3.org/2000/svg','style'); st.textContent=UF_SVG_CSS; clone.insertBefore(st,clone.firstChild);
+   [].forEach.call(clone.querySelectorAll('.uf-rowhit,.uf-lhit,.uf-lmark'),function(n){ if(n.parentNode)n.parentNode.removeChild(n); });
+   var str=new XMLSerializer().serializeToString(clone), S=2.5, img=new Image();
+   img.onload=function(){ var c=document.createElement('canvas'); c.width=Math.round(w*S); c.height=Math.round(h*S); var cx=c.getContext('2d'); cx.fillStyle='#ffffff'; cx.fillRect(0,0,c.width,c.height); cx.drawImage(img,0,0,c.width,c.height); try{ _captionedPNG(c,title,note,filename+'.png',(typeof SRC_NOTE!=='undefined'?SRC_NOTE:'')); }catch(e){} };
+   img.onerror=function(){};
+   img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(str);
+  }catch(e){}
+ }
+
+ /* ---------- CSV builders (reuse the app's _gfxCSV brand/source header) ---------- */
+ function lineCSV(){ var rows=[['Children and students served under IDEA, Part B, ages 3 through 21'],['School year','Number served']]; YEARS.forEach(function(y,i){ if(ALL[i]!=null)rows.push([y,ALL[i]*1000]); }); _gfxCSV(rows,'idea618_national_trend'); }
+ function dumbbellCSV(){ var iA=YEARS.indexOf('2000-01'),iB=YEARS.indexOf('2024-25'); var rows=[['Children and students served by primary disability category'],['Primary disability category','2000-01','2024-25','Percent change']]; Object.keys(DIS).forEach(function(k){ var a=DIS[k][iA],b=DIS[k][iB]; if(a==null||b==null)return; var pc=(a>0)?((b-a)/a*100):null; rows.push([k,a*1000,b*1000,pc==null?'':ufPct(pc)]); }); _gfxCSV(rows,'idea618_category_growth'); }
+ function sexCSV(){ var cur=DEMO.cur,rows=[['Reported sex by primary disability category, School Year 2024-25'],['Primary disability category','Male','Female','Male %','Female %']]; Object.keys(cur).forEach(function(k){ var d=cur[k]; if(!d||d.male==null||d.female==null)return; var t=d.male+d.female; rows.push([k,d.male,d.female,Math.round(d.male/t*100)+'%',Math.round(d.female/t*100)+'%']); }); _gfxCSV(rows,'idea618_sex_split'); }
+
+ /* ---------- entrance animations (reduced-motion aware) ---------- */
+ function ufReduced(){ try{ return document.body.classList.contains('no-anim')||document.body.classList.contains('reduce')||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches); }catch(e){ return false; } }
+ function ufAnimateLine(wrap){ if(ufReduced())return; var p=wrap.querySelector('.uf-line'); if(!p)return; var len=2000; try{len=p.getTotalLength()||2000;}catch(e){} p.style.strokeDasharray=len; p.style.strokeDashoffset=len; void p.getBoundingClientRect(); p.classList.add('uf-draw'); }
+ function ufAnimateDumbbell(wrap){ if(ufReduced())return; var els=wrap.querySelectorAll('.uf-db-line,.uf-db-b'); [].forEach.call(els,function(el){el.classList.remove('uf-in');}); requestAnimationFrame(function(){ [].forEach.call(els,function(el){el.classList.add('uf-in');}); }); }
+ function ufAnimateSex(wrap){ if(ufReduced())return; var els=wrap.querySelectorAll('.uf-sx-m'); [].forEach.call(els,function(el){el.classList.remove('uf-in');}); requestAnimationFrame(function(){ [].forEach.call(els,function(el){el.classList.add('uf-in');}); }); }
+ function ufObserve(){ var band=document.getElementById('ufBand'); if(!band||band._obs)return; band._obs=1; var cards=[].slice.call(band.querySelectorAll('.uf-card'));
+  function playFor(c){ var wrap=c.querySelector('.uf-figwrap'); if(!wrap)return; if(wrap.querySelector('.uf-line'))ufAnimateLine(wrap); else if(wrap.querySelector('.uf-db-line'))ufAnimateDumbbell(wrap); else if(wrap.querySelector('.uf-sx-m'))ufAnimateSex(wrap); }
+  if(ufReduced()||!('IntersectionObserver' in window))return;
+  var io=new IntersectionObserver(function(ents){ ents.forEach(function(en){ if(!en.isIntersecting)return; var c=en.target; if(c._played)return; c._played=1; c.classList.add('uf-anim'); playFor(c); io.unobserve(c); }); },{threshold:.2});
+  cards.forEach(function(c){ io.observe(c); });
+ }
+
+ /* ---------- recolor the homepage diverging "change" bars to green/khaki ---------- */
+ function _ufRecolorChange(){ try{ var c=(window.Chart&&Chart.getChart)?Chart.getChart('trendChangeChart'):null; if(!c)return; var ds=c.data.datasets&&c.data.datasets[0]; if(!ds)return; ds.backgroundColor=ds.data.map(function(v){return v>=0?'#2f7d52':'#bfb487';}); ds.borderColor=ds.data.map(function(v){return v>=0?'#1e4d3d':'#9a8f6a';}); c.update('none'); }catch(e){} }
 
  function buildBand(){
   var SRC='U.S. Department of Education, Office of Special Education Programs, “IDEA Part B Child Count and Educational Environments Collection,” ';
@@ -21493,11 +21751,135 @@ body.dark #ufBand .uf-bandhead{color:#7fcfa3;border-bottom-color:#7fcfa3}
   try{
    var ov=document.getElementById('trendsOverview'); if(!ov||document.getElementById('ufBand'))return;
    if(!ready())return;
-   ov.appendChild(buildBand());
+   var sec=buildBand(); ov.appendChild(sec);
+   var cards=sec.querySelectorAll('.uf-card');
+   if(cards[0]){ wireLineHover(cards[0].querySelector('.uf-figwrap')); _addCardTools(cards[0],function(){ ufFigurePNG(cards[0].querySelector('svg'),'Students served under IDEA has grown to 8.2 million','Children and students with disabilities served under IDEA, Part B, ages 3 through 21, by school year.','idea618_national_trend'); },lineCSV); }
+   if(cards[1]){ var w1=cards[1].querySelector('.uf-figwrap');
+    var tg=document.createElement('div'); tg.className='uf-sorttoggle'; tg.setAttribute('role','group'); tg.setAttribute('aria-label','Sort the chart');
+    tg.innerHTML='<button type="button" data-sort="count" class="on" aria-pressed="true">By 2024-25 count</button><button type="button" data-sort="change" aria-pressed="false">By percent change</button>';
+    w1.parentNode.insertBefore(tg, w1);
+    wireFigureRows(w1,dumbbellTipHtml); bindDumbbellSort(cards[1]);
+    _addCardTools(cards[1],function(){ ufFigurePNG(cards[1].querySelector('svg'),'Number served by primary disability category, 2000-01 and 2024-25','Dumbbell with percent change, in the current sort order.','idea618_category_growth'); },dumbbellCSV); }
+   if(cards[2]){ wireFigureRows(cards[2].querySelector('.uf-figwrap'),sexTipHtml); _addCardTools(cards[2],function(){ ufFigurePNG(cards[2].querySelector('svg'),'Share served under IDEA, Part B by reported sex, 2024-25','Male and female share by primary disability category.','idea618_sex_split'); },sexCSV); }
+   ufObserve();
   }catch(e){}
  }
  if(typeof buildTrendsOverview==='function'){ var _o=buildTrendsOverview; buildTrendsOverview=function(){ var r=_o.apply(this,arguments); try{inject();}catch(e){} return r; }; }
+ if(typeof renderTrendChange==='function'){ var _rtc=renderTrendChange; renderTrendChange=function(){ var r=_rtc.apply(this,arguments); try{_ufRecolorChange();}catch(e){} return r; }; try{ window.renderTrendChange=renderTrendChange; }catch(e){} }
  try{ inject(); }catch(e){}
+ try{ _ufRecolorChange(); }catch(e){}
+})();
+</script>
+
+<style id="usafacts-motion-css">
+/* ===== USAFacts-style motion layer: count-up figures + fade-up reveals =====
+   Adds data-journalism entrance motion across every view. Fully reduced-motion
+   aware, disabled during PNG/PDF export (body.printing/.print), and backed by a
+   JS safety timeout so a figure can never stay hidden if an observer misfires. */
+.ufx-reveal{ transition:opacity .6s ease, transform .72s cubic-bezier(.22,1,.36,1); will-change:opacity,transform; }
+body:not(.no-anim):not(.reduce):not(.printing):not(.print) .ufx-reveal:not(.ufx-in){ opacity:0; transform:translateY(16px); }
+body:not(.no-anim):not(.reduce) .ufx-reveal.ufx-in{ opacity:1; transform:none; }
+.ufx-count{ font-variant-numeric:tabular-nums; }
+@media (prefers-reduced-motion: reduce){
+  .ufx-reveal{ opacity:1 !important; transform:none !important; transition:none !important; }
+}
+</style>
+<script id="usafacts-motion-js">
+(function(){
+  function reduced(){ try{ return document.body.classList.contains('no-anim')||document.body.classList.contains('reduce')||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches); }catch(e){ return false; } }
+  function exporting(){ try{ return document.body.classList.contains('printing')||document.body.classList.contains('print'); }catch(e){ return false; } }
+
+  /* ---------- count-up for big stat figures ---------- */
+  function parseStat(txt){
+    if(txt==null) return null;
+    var m=(''+txt).match(/^\s*([^\d+\-]*?)\s*([+\-]?\d[\d,]*(?:\.\d+)?)\s*(%?[^\d]*?)\s*$/);
+    if(!m) return null;
+    var prefix=m[1]||'', raw=m[2], suffix=m[3]||'';
+    var plus=raw.charAt(0)==='+', neg=raw.charAt(0)==='-';
+    var clean=raw.replace(/^[+\-]/,'');
+    var hasComma=clean.indexOf(',')>=0;
+    var dec=(clean.split('.')[1]||'').length;
+    var val=parseFloat(clean.replace(/,/g,''));
+    if(!isFinite(val)) return null;
+    return { prefix:prefix, suffix:suffix, plus:plus, neg:neg, hasComma:hasComma, dec:dec, val:val, full:(''+txt).trim() };
+  }
+  function fmtStat(p,v){
+    var s=Math.abs(v).toLocaleString('en-US',{ minimumFractionDigits:p.dec, maximumFractionDigits:p.dec });
+    if(!p.hasComma) s=s.replace(/,/g,'');
+    return p.prefix + (p.neg?'-':(p.plus?'+':'')) + s + p.suffix;
+  }
+  function countUp(el){
+    if(el._cv) return; el._cv=1;
+    if(el.children && el.children.length) return; /* composite stat (e.g. a % in its own span): never flatten its markup */
+    var p=parseStat(el.textContent);
+    if(!p || p.val===0) return;                 /* nothing meaningful to animate */
+    if(reduced()||exporting()) return;          /* leave the final value in place */
+    el.classList.add('ufx-count');
+    var dur=Math.max(750, Math.min(1500, 700 + Math.log10(Math.max(10,Math.abs(p.val)))*180));
+    var t0=null;
+    function tick(now){
+      if(t0==null)t0=now;
+      var t=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-t,3);
+      el.textContent=fmtStat(p, p.val*e);
+      if(t<1){ requestAnimationFrame(tick); } else { el.textContent=p.full; }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  var revealIO=null, countIO=null;
+  if('IntersectionObserver' in window){
+    revealIO=new IntersectionObserver(function(ents){
+      /* stagger items that enter together so a group of cards cascades in */
+      var k=0;
+      ents.forEach(function(en){
+        if(!en.isIntersecting) return;
+        var el=en.target, d=Math.min(k,6)*70;
+        if(d){ el.style.transitionDelay=d+'ms'; setTimeout(function(){ el.style.transitionDelay=''; }, 1000+d); }
+        el.classList.add('ufx-in');
+        revealIO.unobserve(el);
+        k++;
+      });
+    },{ threshold:.1, rootMargin:'0px 0px -7% 0px' });
+    countIO=new IntersectionObserver(function(ents){
+      ents.forEach(function(en){ if(en.isIntersecting){ countUp(en.target); countIO.unobserve(en.target); } });
+    },{ threshold:.55 });
+  }
+
+  function wireReveal(el){
+    if(el._rv) return; el._rv=1;
+    el.classList.add('ufx-reveal');
+    if(revealIO){ revealIO.observe(el); /* safety: never leave content hidden */ setTimeout(function(){ el.classList.add('ufx-in'); }, 1500); }
+    else el.classList.add('ufx-in');
+  }
+  function wireCount(el){
+    if(el._cw) return; el._cw=1;
+    if(countIO) countIO.observe(el); else countUp(el);
+    setTimeout(function(){ if(!el._cv) countUp(el); }, 1600);   /* safety fallback */
+  }
+
+  var REVEAL_SEL='.card.fig, .card.insightpanel, .kpis, .snapshot-stats, .state-insight-grid, .rankbanner, .home-launchpad, .insightpanel, .pick-empty, .tables-empty, #ufBand .uf-card';
+  /* standalone big figures across every view (NOT table cells, which would be chaos) */
+  var COUNT_SEL='.kpis .kpi .v, .exp-kpis .k .v, .snap-num, .snapshot-stats .snap-frac, .cmp2-stat .sv, .rk-num, .srval, .mapstat .v';
+  function scan(){
+    try{ var r=document.querySelectorAll(REVEAL_SEL); for(var i=0;i<r.length;i++){ try{ wireReveal(r[i]); }catch(e){} } }catch(e){}
+    try{ var c=document.querySelectorAll(COUNT_SEL); for(var j=0;j<c.length;j++){ try{ wireCount(c[j]); }catch(e){} } }catch(e){}
+  }
+  function boot(){
+    scan();
+    /* React reconciles some figures (e.g. KPI values behind a late-rendering pie)
+       a beat or two after first paint, which swaps the element instances and drops
+       our wiring. Re-scan on a short self-stopping interval so the settled nodes
+       always get caught. */
+    var tries=0, iv=setInterval(function(){ scan(); if(++tries>24) clearInterval(iv); }, 400);
+    try{
+      var root=document.querySelector('.wrap')||document.body, raf=0;
+      var mo=new MutationObserver(function(muts){
+        for(var k=0;k<muts.length;k++){ if(muts[k].addedNodes&&muts[k].addedNodes.length){ if(raf)cancelAnimationFrame(raf); raf=requestAnimationFrame(scan); return; } }
+      });
+      mo.observe(root,{ childList:true, subtree:true });
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
 })();
 </script>
 </body>
