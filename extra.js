@@ -72,7 +72,7 @@
         size: 172, stroke: 30,
         segments: DET.levels.map(l => ({ name: l.label, value: l[part], color: l.color })),
         onClick: seg => openDetModal(seg.name),
-        centerValue: total - DET.levels[0][part], centerFmt: v => Math.round(v), centerSub: 'do not meet requirements',
+        centerValue: (total - DET.levels[0][part]) / total * 100, centerFmt: v => Math.round(v) + '%', centerSub: 'do not meet',
       });
       cb.appendChild(d.node); wrap.appendChild(cap); wrap.appendChild(cb);
       return { wrap, reveal: d.reveal };
@@ -150,19 +150,17 @@
       <div id="m-idsub" class="chartbox"></div>
       <p class="m-src">IDEA Part B Child Count and Educational Environments Collection, School Years 2000–01 through 2024–25.</p>`);
     const host = document.getElementById('m-idsub');
-    const comb = aut.map((v, i) => (v || 0) + (idd[i] || 0));
     const yFmt = v => v >= 1000 ? (v / 1000).toFixed(1) + 'M' : Math.round(v) + 'k';
     const ch = C.lineChart({
       labels, xs, xTicks: [2000, 2012, 2024],
       series: [
-        { values: comb, color: P.greenL, width: 1.6, dash: '6 4', endLabel: 'Combined' },
         { values: aut, color: P.navy, width: 2.6, highlight: true, endLabel: 'Autism' },
         { values: idd, color: P.green, width: 2, endLabel: 'Intellectual disability' },
-      ], yMin: 0, yMax: 1800, yTicks: 3, yFmt, height: 240, width: 430, padL: 44,
+      ], yMin: 0, yMax: 1400, yTicks: 3, yFmt, height: 240, width: 430, padL: 44,
     });
     host.appendChild(ch.node); ch.reveal();
     const lg = document.getElementById('m-idsubLegend');
-    if (lg) [['Autism', P.navy], ['Intellectual disability', P.green], ['Combined', P.greenL]].forEach(([t, c]) => { const k = document.createElement('span'); k.className = 'k'; const sw = document.createElement('span'); sw.className = 'sw'; sw.style.background = c; k.appendChild(sw); k.appendChild(document.createTextNode(t)); lg.appendChild(k); });
+    if (lg) [['Autism', P.navy], ['Intellectual disability', P.green]].forEach(([t, c]) => { const k = document.createElement('span'); k.className = 'k'; const sw = document.createElement('span'); sw.className = 'sw'; sw.style.background = c; k.appendChild(sw); k.appendChild(document.createTextNode(t)); lg.appendChild(k); });
   }
   window.IDEAExtra = { openIdSubModal };
   (function () { const b = document.getElementById('idsubBtn'); if (b) b.addEventListener('click', openIdSubModal); })();

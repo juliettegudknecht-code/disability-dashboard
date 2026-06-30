@@ -153,9 +153,11 @@
     (opts.vmarkers || []).forEach(m => {
       const mx = xs ? xVal(m.year) : x(m.frac);
       const cv = valAt(m.year), cy = cv == null ? padT + 10 : y(cv);
+      const labY = padT + 8 + (m.row || 0) * 30;        // labels sit in a clear band at the top, staggered by row
       const g = mk('g', { class: 'cv-vmark' });
+      g.appendChild(mk('line', { x1: mx, y1: cy - 5, x2: mx, y2: labY + 20, stroke: m.color || P.navy, 'stroke-width': 1, 'stroke-dasharray': '2 3', opacity: .45 }));
       g.appendChild(mk('circle', { cx: mx, cy, r: 4, fill: m.color || P.navy, stroke: P.cream, 'stroke-width': 2 }));
-      (m.label || []).forEach((ln, i) => g.appendChild(mk('text', { x: mx, y: cy + 18 + i * 13, 'text-anchor': 'middle', class: i ? 'cv-vmark-sub' : 'cv-vmark-t', text: ln })));
+      (m.label || []).forEach((ln, i) => g.appendChild(mk('text', { x: mx, y: labY + i * 13, 'text-anchor': 'middle', class: i ? 'cv-vmark-sub' : 'cv-vmark-t', text: ln })));
       g.style.opacity = 0; s.appendChild(g); markers.push(g);
     });
 
@@ -817,7 +819,15 @@
     const s = svgRoot(vb[2], vb[3], 'cv-choro');
     s.setAttribute('viewBox', M.viewBox);
     const vals = opts.values, stops = opts.stops, min = opts.min, max = opts.max;
-    const colorFor = v => v == null ? (opts.emptyFill || P.line) : lerpStops(stops, Math.max(0, Math.min(1, (v - min) / (max - min || 1))));
+    // dotted pattern for n/a (greyed) states, so "no reliable value" is obvious
+    const naId = 'choroNA' + Math.floor(Math.random() * 1e7);
+    const defs = mk('defs');
+    const pat = mk('pattern', { id: naId, width: 6, height: 6, patternUnits: 'userSpaceOnUse' });
+    pat.appendChild(mk('rect', { width: 6, height: 6, fill: opts.emptyFill || '#d7d7cf' }));
+    pat.appendChild(mk('circle', { cx: 1.5, cy: 1.5, r: 1.15, fill: '#8f8f84' }));
+    pat.appendChild(mk('circle', { cx: 4.5, cy: 4.5, r: 1.15, fill: '#8f8f84' }));
+    defs.appendChild(pat); s.appendChild(defs);
+    const colorFor = v => v == null ? `url(#${naId})` : lerpStops(stops, Math.max(0, Math.min(1, (v - min) / (max - min || 1))));
     const shapes = [];
     Object.keys(M.paths).forEach(ab => {
       const v = vals[ab];

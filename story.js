@@ -28,6 +28,13 @@
     host.insertAdjacentHTML('beforeend', html);
   }
 
+  /* demographics by disability category (national, ages 3-21) from SEA.demoCat,
+     falling back to the two profiles in data.js if SEA isn't loaded */
+  const demoOf = p => (window.SEA && window.SEA.demoCat && window.SEA.demoCat[p]) || I.DEMO[p];
+  const DEMO_PROFILES = (window.SEA && window.SEA.demoCat)
+    ? ['All Disabilities'].concat(Object.keys(window.SEA.demoCat).filter(k => k !== 'All Disabilities').sort((a, b) => window.SEA.demoCat[b].total - window.SEA.demoCat[a].total))
+    : Object.keys(I.DEMO);
+
   /* shared "in view" observer */
   const jobs = new WeakMap();
   const io = new IntersectionObserver((ents) => {
@@ -112,6 +119,7 @@
     const served = r[5], pe = r[6], growth = (r[5] - r[2]) / r[2] * 100;
     const rank = I.STATES.slice().sort((a, b) => b[5] - a[5]).findIndex(x => x[1] === ab) + 1;
     const ex = (X.EXIT_STATE || {})[ab], dt = detLevel(r[0]), dc = (X.DISC_STATE || {})[ab];
+    const se = (window.SEA && window.SEA.exit) ? window.SEA.exit[ab] : null;
     const CATX = window.CATDATA, vec = CATX && CATX.state[ab];
     let topCat = '', topVal = 0, autCount = 0, stTot = 0, penr = null;
     if (vec) { stTot = vec.reduce((a, b) => a + b, 0); const ti = vec.indexOf(Math.max(...vec)); topCat = CATX.cats[ti]; topVal = vec[ti]; autCount = vec[CATX.cats.indexOf('Autism')] || 0; }
@@ -126,6 +134,7 @@
         ${vec ? `<div><span class="mv">${I.nf(autCount)}</span><span class="ml">served under the primary disability category of autism (${(autCount / stTot * 100).toFixed(1)}% of the state)</span></div>` : ''}
         ${ex && ex.gradPct != null ? `<div><span class="mv">${ex.gradPct.toFixed(1)}%</span><span class="ml">graduated with a regular diploma, of those who exited school (2023\u201324)</span></div>` : ''}
         ${ex && ex.dropPct != null ? `<div><span class="mv" style="color:var(--accent)">${ex.dropPct.toFixed(1)}%</span><span class="ml">dropped out, of those who exited school (2023\u201324)</span></div>` : ''}
+        ${se && se.alt != null ? `<div><span class="mv"${se.alt > 0 ? ' style="color:var(--accent)"' : ''}>${I.nf(se.alt)}</span><span class="ml">graduated with an alternate diploma (${se.altPct != null ? se.altPct.toFixed(1) + '% of those who exited' : 'none'}, 2023\u201324)${se.alt === 0 ? '; this State awards none' : ''}</span></div>` : ''}
         ${dc && dc.g10 != null ? `<div><span class="mv">${I.nf(dc.g10)}</span><span class="ml">students with disciplinary removals over 10 days (2023\u201324)</span></div>` : ''}
       </div>
       ${dt.b ? `<div class="m-det"><div class="figure-sub" style="margin:16px 0 8px">2026 IDEA determination</div>
@@ -243,15 +252,15 @@
   const DISC_RACE_MAP = { White: 'White', Hispanic: 'Hispanic/Latino', Black: 'Black or African American', Asian: 'Asian', AIAN: 'American Indian or Alaska Native', NHPI: 'Native Hawaiian or Other Pacific Islander' };
   function openRaceModal(key, profile) {
     profile = profile || 'All Disabilities';
-    const d = I.DEMO[profile]; if (!d || d.race[key] == null) return;
+    const d = demoOf(profile); if (!d || d.race[key] == null) return;
     const cnt = d.race[key], share = cnt / d.total * 100;
     const discTot = X.DISC_NAT && X.DISC_NAT.rem;
     const drRow = (X.DISC_RACE || []).find(r => r[0] === DISC_RACE_MAP[key]);
     const remShare = (profile === 'All Disabilities' && drRow && discTot) ? drRow[1] / discTot * 100 : null;
-    openModal(`<div class="m-kicker">Race and ethnicity · ${profile === 'Autism' ? 'autism' : 'all disabilities'}</div><h3 class="m-title">${I.RACE_LBL[key]}</h3>
+    openModal(`<div class="m-kicker">Race and ethnicity · ${profile === 'All Disabilities' ? 'all disabilities' : profile.toLowerCase()}</div><h3 class="m-title">${I.RACE_LBL[key]}</h3>
       <div class="m-grid">
         <div><span class="mv">${I.nf(cnt)}</span><span class="ml">students served (2024–25)</span></div>
-        <div><span class="mv">${share.toFixed(1)}%</span><span class="ml">of ${profile === 'Autism' ? 'students served under the primary disability category of autism' : 'all students served'}</span></div>
+        <div><span class="mv">${share.toFixed(1)}%</span><span class="ml">of ${profile === 'All Disabilities' ? 'all students served' : 'students served under the primary disability category of ' + profile.toLowerCase()}</span></div>
         ${remShare != null ? `<div><span class="mv" style="color:var(--accent)">${remShare.toFixed(1)}%</span><span class="ml">of all disciplinary removals (2023–24)</span></div>` : ''}
       </div>
       ${remShare != null ? `<p class="m-dek" style="margin-top:14px;font-size:13.5px">Students in this group make up ${share.toFixed(1)} percent of those served but ${remShare.toFixed(1)} percent of disciplinary removals, ${remShare > share + 0.5 ? 'a larger share of removals than of enrollment' : remShare < share - 0.5 ? 'a smaller share of removals than of enrollment' : 'about the same share in both'}.</p>` : ''}
@@ -287,25 +296,25 @@
 
   /* sex + age detail (drilldown from the Who exhibit) */
   function openSexModal(profile) {
-    const d = I.DEMO[profile], tot = d.male + d.female, mp = d.male / tot * 100, fp = d.female / tot * 100;
-    openModal(`<div class="m-kicker">By sex · ${profile === 'Autism' ? 'autism' : 'all disabilities'}</div><h3 class="m-title">Students served, by sex</h3>
+    const d = demoOf(profile), tot = d.male + d.female, mp = d.male / tot * 100, fp = d.female / tot * 100;
+    openModal(`<div class="m-kicker">By sex · ${profile === 'All Disabilities' ? 'all disabilities' : profile.toLowerCase()}</div><h3 class="m-title">Students served, by sex</h3>
       <div class="m-grid">
         <div><span class="mv">${I.nf(d.male)}</span><span class="ml">male (${mp.toFixed(1)}%)</span></div>
         <div><span class="mv">${I.nf(d.female)}</span><span class="ml">female (${fp.toFixed(1)}%)</span></div>
       </div>
-      <p class="m-dek" style="margin-top:14px;font-size:13.5px">About ${mp.toFixed(0)} percent of ${profile === 'Autism' ? 'students served under the primary disability category of autism' : 'all students served'} were reported male in School Year 2024–25.</p>
+      <p class="m-dek" style="margin-top:14px;font-size:13.5px">About ${mp.toFixed(0)} percent of ${profile === 'All Disabilities' ? 'all students served' : 'students served under the primary disability category of ' + profile.toLowerCase()} were reported male in School Year 2024–25.</p>
       <p class="m-src">IDEA Part B Child Count and Educational Environments Collection, School Year 2024–25. Sex shares exclude a small number of records reported without sex.</p>`);
   }
   function openAgeModal(age, count, profile) {
-    const d = I.DEMO[profile], ages = Object.keys(d.ages).map(Number).sort((a, b) => a - b);
+    const d = demoOf(profile), ages = Object.keys(d.ages).map(Number).sort((a, b) => a - b);
     const total = ages.reduce((s, a) => s + d.ages[a], 0), share = count / total * 100;
     const counts = ages.map(a => d.ages[a]), peak = Math.max(...counts), peakAge = ages[counts.indexOf(peak)];
-    openModal(`<div class="m-kicker">By age · ${profile === 'Autism' ? 'autism' : 'all disabilities'}</div><h3 class="m-title">Age ${age}</h3>
+    openModal(`<div class="m-kicker">By age · ${profile === 'All Disabilities' ? 'all disabilities' : profile.toLowerCase()}</div><h3 class="m-title">Age ${age}</h3>
       <div class="m-grid">
         <div><span class="mv">${I.nf(count)}</span><span class="ml">served at age ${age} (2024–25)</span></div>
         <div><span class="mv">${share.toFixed(1)}%</span><span class="ml">of those served, ages 3–21</span></div>
       </div>
-      <p class="m-dek" style="margin-top:14px;font-size:13.5px">Among ${profile === 'Autism' ? 'students served under the primary disability category of autism' : 'all students served'}, the single year of age with the most students is age ${peakAge}.</p>
+      <p class="m-dek" style="margin-top:14px;font-size:13.5px">Among ${profile === 'All Disabilities' ? 'all students served' : 'students served under the primary disability category of ' + profile.toLowerCase()}, the single year of age with the most students is age ${peakAge}.</p>
       <p class="m-src">IDEA Part B Child Count and Educational Environments Collection, School Year 2024–25.</p>`);
   }
 
@@ -429,7 +438,7 @@
     ];
     mount('chart-env', C.stackedArea({
       labels: I.ENV_LBL, xs: yrs, xTicks: [2012, 2015, 2018, 2021, 2024],
-      series, yMax: 100, yTicks: 4, yFmt: v => v.toFixed(0) + '%', height: 340,
+      series, yMax: 100, yTicks: 4, yFmt: v => v.toFixed(0) + '%', height: 430,
       onClick: ser => openEnvModal(ser.name),
     }));
     legend('envLegend', series.map(x => [x.name, x.color]), name => openEnvModal(name));
@@ -471,7 +480,7 @@
       else onView(box, () => { seen[key] = true; chart.reveal(); });
     }
     function buildAll() {
-      const d = I.DEMO[profile], tot = d.male + d.female;
+      const d = demoOf(profile), tot = d.male + d.female;
       const mp = d.male / tot * 100, gp = d.female / tot * 100;
       play(sexBox, C.pictograph({ total: 10, a: Math.round(mp / 10), cols: 10, cell: 38, aColor: P.blue, bColor: P.purple }), 'sex');
       document.getElementById('whoSexSub').textContent =
@@ -479,19 +488,18 @@
       const races = Object.keys(d.race).map(k => ({ k, v: d.race[k] })).sort((a, b) => b.v - a.v);
       play(raceBox, C.barsH({
         onClick: it => openRaceModal(it.key, profile),
-        labelW: 200, barH: 19, gap: 9, padR: 58,
+        labelW: 200, barH: 19, gap: 9, padR: 62,
         items: races.map((r) => ({ label: I.RACE_LBL[r.k], value: r.v, color: P.green, key: r.k })),
-        xMax: profile === 'Autism' ? 500000 : 3700000, valueFmt: fmtCount,
+        xMax: Math.max(...races.map(r => r.v)) * 1.12, valueFmt: fmtCount,
       }), 'race');
       const ages = Object.keys(d.ages).map(Number).sort((a, b) => a - b);
-      const counts = ages.map(a => d.ages[a]), pmax = Math.max(...counts), pAge = ages[counts.indexOf(pmax)];
-      const ageColors = ages.map(a => a <= 5 ? P.greenL : P.greenD);   // 3-5 preschool vs 6-21 school age
-      legend('ageLegend', [['Preschool, ages 3–5 (Part B)', P.greenL], ['School age, ages 6–21 (Part B)', P.greenD]]);
+      const counts = ages.map(a => d.ages[a]);
+      const ageColors = ages.map(a => a <= 4 ? P.greenL : P.greenD);   // 3–4 early childhood vs 5 (kindergarten)–21 school age
+      legend('ageLegend', [['Early childhood, ages 3–4 (Part B)', P.greenL], ['School age, ages 5 (kindergarten)–21 (Part B)', P.greenD]]);
       play(ageBox, C.columns({
         labels: ages.map(String), values: counts, colors: ageColors,
-        yMax: profile === 'Autism' ? 120000 : 700000, yTicks: 3, yFmt: v => v === 0 ? '0' : (v / 1000).toFixed(0) + 'k',
-        xEvery: 2, padL: 44, height: 300, onClick: d => openAgeModal(+d.label, d.value, profile),
-        peakLabel: (pmax >= 1000 ? (pmax / 1000).toFixed(0) + 'k' : pmax) + ' at age ' + pAge,
+        yMax: Math.max(...counts) * 1.2, yTicks: 3, yFmt: v => v === 0 ? '0' : (v / 1000).toFixed(0) + 'k',
+        xEvery: 2, padL: 44, height: 300, onClick: d2 => openAgeModal(+d2.label, d2.value, profile),
       }), 'age');
     }
     buildAll();
@@ -501,16 +509,15 @@
     sexBox.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fireSex(); } });
     hint('chart-sex', 'Tap the figure for the male and female split');
     hint('chart-age', 'Tap any age column for detail');
-    document.getElementById('whoProfile').addEventListener('click', e => {
-      const b = e.target.closest('button'); if (!b) return;
-      interacted = true;
-      profile = b.dataset.p;
-      document.querySelectorAll('#whoProfile button').forEach(x => { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); });
-      b.classList.add('on'); b.setAttribute('aria-pressed', 'true');
-      buildAll();
-    });
+    (function () {
+      const sel = document.getElementById('whoProfile');
+      if (!sel) return;
+      DEMO_PROFILES.forEach(p => sel.add(new Option(p === 'All Disabilities' ? 'All disabilities' : p, p)));
+      sel.value = profile;
+      sel.addEventListener('change', () => { interacted = true; profile = sel.value; buildAll(); });
+    })();
     expbar('chart-sex', 'idea-demographics', () => {
-      const d = I.DEMO[profile], rows = [[profile + ' \u2014 School Year 2024-25'], [], ['Sex', 'Count'], ['Male', d.male], ['Female', d.female], [], ['Race/ethnicity', 'Count']];
+      const d = demoOf(profile), rows = [[profile + ' \u2014 School Year 2024-25'], [], ['Sex', 'Count'], ['Male', d.male], ['Female', d.female], [], ['Race/ethnicity', 'Count']];
       Object.keys(d.race).forEach(k => rows.push([I.RACE_LBL[k], d.race[k]]));
       rows.push([], ['Age', 'Count']);
       Object.keys(d.ages).forEach(a => rows.push([a, d.ages[a]]));

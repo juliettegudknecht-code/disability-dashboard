@@ -209,8 +209,19 @@
       pct: { val: r => r[6], fmt: v => v == null ? 'n/a' : v.toFixed(1) + '%', title: 'Percentage of students served under IDEA, Part B, of public school enrollment, by State: School year 2022–23', src: 'IDEA Part B Child Count and Educational Environments Collection, with NCES public-school enrollment. School Year 2022–23 (50 states and the District of Columbia).' },
       served: { val: r => r[5], fmt: v => v == null ? 'n/a' : v >= 1e3 ? Math.round(v / 1e3) + 'k' : String(v), title: 'Number of children and students ages 3 through 21 served under IDEA, Part B, by State: School year 2024–25', src: 'IDEA Part B Child Count and Educational Environments Collection, School Year 2024–25.' },
       fund: { val: r => moneyOf(r[0]), fmt: fmtMoney, title: 'Reported IDEA, Part B funding (Sections 611 and 619), by State: School year 2021–22', src: 'IDEA Part B Maintenance of Effort (MOE) Reduction and CEIS Collection, School Year 2021–22 (FFY 2021 allocations include American Rescue Plan funds). Totals reflect only reporting LEAs.' },
+      fundper: { val: r => {                                            // avg reported funding per student, averaged across the State's districts
+        const list = LEAALL[r[1]] || [], byN = (MOE && MOE.byNces) || {}; let sum = 0, n = 0, matched = 0;
+        list.forEach(x => { const served = x[2], f = byN[normNces(x[1])];
+          if (f > 0 && served > 0) matched++;                           // LEA present in BOTH the funding + child-count files
+          if (served >= 50 && f > 0) { sum += f / served; n++; }        // tiny programs skew the ratio, so exclude < 50 served
+        });
+        // grey out (return null) when a State is too suppressed to trust: under a quarter of its LEAs match across files
+        if (!list.length || matched / list.length < 0.25 || n < 3) return null;
+        return sum / n;
+      }, fmt: v => v == null ? 'n/a' : '$' + Math.round(v).toLocaleString('en-US'), title: 'Average reported IDEA, Part B funding per student served, averaged across a State’s districts', src: 'IDEA Part B MOE Reduction and CEIS Collection (reported funding, SY 2021–22, includes ARP) divided by students served (SY 2024–25), per reporting district with at least 50 students, then averaged across the State. States are greyed out (not shaded) when fewer than a quarter of their districts match across the funding and child-count files, so a reliable average cannot be formed.' },
+      altdip: { val: r => { const e = (window.SEA && window.SEA.exit) || {}; const s = e[r[1]]; return s ? (s.altPct || 0) : null; }, fmt: v => v == null ? 'n/a' : v.toFixed(1) + '%', title: 'Students who graduated with an alternate diploma, as a percent of those who exited school, by State: School year 2023–24', src: 'IDEA Part B Exiting Collection, School Year 2023–24 (All Disabilities; share of students ages 14–21 who exited school). Most States report none; only a few award alternate diplomas.' },
     };
-    let metric = 'pct';
+    let metric = 'fundper';
     let choro = null;
 
     function setCrumb(items) {
@@ -218,15 +229,16 @@
       crumbEl.querySelectorAll('.crumb-link').forEach(b => b.addEventListener('click', () => items[+b.dataset.i][1]()));
     }
     function renderMap() {
-      const M = METRICS[metric], vals = {}, list = [];
-      I.STATES.forEach(r => { const v = M.val(r); vals[r[1]] = v; if (v != null) list.push(v); });
+      const M = METRICS[metric], vals = {}, list = [], greyed = [];
+      I.STATES.forEach(r => { const v = M.val(r); vals[r[1]] = v; if (v != null) list.push(v); else greyed.push(r[0]); });
       const min = Math.min(...list), max = Math.max(...list);
-      choro = C.choropleth({ values: vals, min, max, stops, fmt: M.fmt, nameOf: a => nameOf[a] || a, onClick: ab => drillState(ab) });
+      choro = C.choropleth({ values: vals, min, max, stops, emptyFill: '#c9c8c0', fmt: M.fmt, nameOf: a => nameOf[a] || a, onClick: ab => drillState(ab) });
       box.innerHTML = ''; box.appendChild(choro.node); choro.reveal();
       titleEl.textContent = M.title;
       rampEl.style.background = `linear-gradient(90deg, ${stops.map(s => s.color + ' ' + (s.t * 100) + '%').join(', ')})`;
       loEl.textContent = M.fmt(min); hiEl.textContent = M.fmt(max);
-      srcEl.innerHTML = '<span class="src-k">Source</span> U.S. Department of Education, OSEP, ' + M.src;
+      const greyNote = greyed.length ? ` <span style="display:inline-block;margin-top:6px"><span class="src-k" style="background:#c9c8c0;color:#444;border-radius:4px;padding:1px 6px;margin-right:6px;text-transform:none;letter-spacing:0">Greyed out (${greyed.length})</span>${greyed.join(', ')} — too suppressed or too few matching districts to shade reliably.</span>` : '';
+      srcEl.innerHTML = '<span class="src-k">Source</span> U.S. Department of Education, OSEP, ' + M.src + greyNote;
       box.querySelectorAll('path[data-abbr]').forEach(p => {
         p.addEventListener('mousemove', e => { const ab = p.dataset.abbr; tip.innerHTML = `<b>${nameOf[ab]}</b><br><span class="v">${M.fmt(vals[ab])}</span>`; tip.style.left = Math.min(window.innerWidth - 220, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; tip.classList.add('show'); });
         p.addEventListener('mouseleave', () => tip.classList.remove('show'));
@@ -235,7 +247,7 @@
     function showUS() {
       choro && choro.select(null);
       setCrumb([['United States', null]]);
-      drillEl.innerHTML = `<div class="figure-sub" style="margin:8px 0 4px">National reported IDEA, Part B funding (Sections 611 and 619), 2021–22 — reporting LEAs</div><div id="drillFlow" class="chartbox"></div><p class="map-hint2">Tap any state on the map to drill into its districts and funding.</p>`;
+      drillEl.innerHTML = `<div class="figure-title" style="margin:8px 0 2px">Where the money goes, nationwide</div><div class="figure-sub" style="margin:0 0 4px">Reported IDEA, Part&nbsp;B funding (Sections 611 and 619), School Year 2021–22, summed across every reporting district.</div><div id="drillFlow" class="chartbox"></div><p class="map-hint2">Tap any state on the map to drill into its districts and funding.</p>`;
       drillEl.classList.add('show');
       renderFlow($('drillFlow'), MOE && MOE.US, 'United States, reporting LEAs');
     }
@@ -257,7 +269,9 @@
       if (dt.b) html += `<div class="figure-sub" style="margin:16px 0 6px">2026 IDEA determination</div><div class="det-pills"><span class="det-pill ${detClass(dt.b)}">Part&nbsp;B: ${dt.b}</span>${dt.c ? `<span class="det-pill ${detClass(dt.c)}">Part&nbsp;C: ${dt.c}</span>` : ''}</div>`;
       html += `<div class="figure-sub" style="margin:18px 0 4px">Reported IDEA, Part B funding (Sections 611 and 619), 2021–22</div><div id="drillFlow" class="chartbox"></div>`;
       const nDist = (LEAALL[ab] || []).length;
-      html += `<div class="figure-sub" style="margin:18px 0 8px">All ${I.nf(nDist)} districts and programs in ${r[0]}, by students served (2024–25)</div><div id="drillDist" class="dist-list"></div>`;
+      html += `<div class="figure-sub" style="margin:18px 0 8px">All ${I.nf(nDist)} districts and programs in ${r[0]}, by students served (2024–25)</div>
+        <input id="drillDistSearch" class="ex-search" type="search" placeholder="Search ${r[0]} districts" style="margin-bottom:10px;width:100%;max-width:360px">
+        <div id="drillDist" class="dist-list"></div>`;
       drillEl.innerHTML = html; drillEl.classList.add('show');
       renderFlow($('drillFlow'), MOE && MOE.states[r[0]], r[0] + ', all reporting districts');
       renderDistList($('drillDist'), ab, r);
@@ -268,14 +282,22 @@
       if (!host) return;
       const list = LEAALL[ab], fundByNces = fundMapFor(r[0]);
       if (!list || !list.length) { host.innerHTML = '<div class="map-empty">No district-level data is reported for this state.</div>'; return; }
-      host.innerHTML = list.map((x, i) => {
+      const rowHTML = (x, i) => {
         const nm = x[0], tot = x[2], f = fundByNces[normNces(x[1])];
         const served = tot == null ? 'count suppressed' : I.nf(tot) + ' served';
         const ex = LEAEXIT[normNces(x[1])];                              // per-district exiting (2023-24)
         const gradTxt = (ex && ex[0] != null && ex[2] >= 20) ? ' · ' + Math.round(ex[0]) + '% grad' : '';
         return `<button class="dist-row" data-i="${i}"><span class="nm">${nm}</span><span class="meta">${served}${f ? ' · ' + fmtMoney(f[2]) + ' funding' : ''}${gradTxt}</span></button>`;
-      }).join('');
-      host.querySelectorAll('.dist-row[data-i]').forEach(b => b.addEventListener('click', () => drillDistrict(ab, r, +b.dataset.i, fundByNces)));
+      };
+      function paint(q) {
+        const ql = (q || '').trim().toLowerCase();
+        const idx = list.map((x, i) => i).filter(i => !ql || list[i][0].toLowerCase().includes(ql));
+        host.innerHTML = idx.length ? idx.map(i => rowHTML(list[i], i)).join('') : '<div class="map-empty">No districts match that search.</div>';
+        host.querySelectorAll('.dist-row[data-i]').forEach(b => b.addEventListener('click', () => drillDistrict(ab, r, +b.dataset.i, fundByNces)));
+      }
+      paint('');
+      const si = document.getElementById('drillDistSearch');
+      if (si) si.addEventListener('input', () => paint(si.value));
     }
     function drillDistrict(ab, r, i, fundByNces) {
       const x = LEAALL[ab][i], nm = x[0], nces = x[1], tot = x[2], sa = x[3], aut = x[4], f = fundByNces[normNces(nces)];

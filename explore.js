@@ -59,20 +59,26 @@
         <div class="snap-cell"><div class="k">Growth since 2000&ndash;01</div><div class="v accent">${growth >= 0 ? '+' : ''}${growth.toFixed(0)}%</div><div class="sub">2000&ndash;01 to 2024&ndash;25</div></div>
         <div class="snap-cell"><div class="k">National rank by number served</div><div class="v">#${rank}</div><div class="sub">of 51 states and DC</div></div>
       </div>${extra}${detBlock}
-      <div class="snap-compare"><div class="figure-title">${r[0]}: child count trend</div>
+      <div class="snap-compare"><div class="figure-title">Child count trend: ${r[0]} and the United States, side by side</div>
         <div class="figure-sub">Students served, ages 3&ndash;21, selected school years.</div>
-        <div id="snapTrend" class="chartbox"></div></div>
+        <div class="split cols2" style="margin-top:10px">
+          <div><div class="figure-sub" style="margin:0 0 4px;font-weight:700;color:var(--ink)">${r[0]}</div><div id="snapTrend" class="chartbox"></div></div>
+          <div><div class="figure-sub" style="margin:0 0 4px;font-weight:700;color:var(--ink)">United States</div><div id="snapTrendUS" class="chartbox"></div></div>
+        </div></div>
       ${(CAT && CAT.state[r[1]]) ? `<div class="snap-compare"><div class="figure-title">${r[0]}: students served by disability category</div>
         <div class="figure-sub">All 13 primary categories, ages 3&ndash;21, School&nbsp;Year 2024&ndash;25. Tap a bar for the category profile.</div>
         <div id="snapCats" class="chartbox"></div></div>` : ''}`;
-      const vals = [r[2], r[3], r[4], r[5]];
-      const trend = C.lineChart({
-        labels: ['2000\u201301', '2010\u201311', '2022\u201323', '2024\u201325'], xs: [2000, 2010, 2022, 2024], xTicks: [2000, 2010, 2022, 2024],
-        series: [{ values: vals, color: P.greenD, area: true, areaOpacity: .12, highlight: true, endLabel: I.nf(r[5]) }],
-        yMin: 0, yMax: Math.max(...vals) * 1.15, yTicks: 3, yFmt: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : Math.round(v),
-        height: 300, width: 740, padL: 50,
+      const yrLab = ['2000\u201301', '2010\u201311', '2022\u201323', '2024\u201325'], yrXs = [2000, 2010, 2022, 2024];
+      const mkTrend = (vals, color, endLab) => C.lineChart({
+        labels: yrLab, xs: yrXs, xTicks: [2000, 2010, 2024],
+        series: [{ values: vals, color, area: true, areaOpacity: .12, highlight: true, endLabel: endLab }],
+        yMin: 0, yMax: Math.max(...vals) * 1.15, yTicks: 3, yFmt: v => v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1000 ? (v / 1000).toFixed(0) + 'k' : Math.round(v),
+        height: 250, width: 360, padL: 48,
       });
-      $('#snapTrend').appendChild(trend.node); trend.reveal();
+      const sVals = [r[2], r[3], r[4], r[5]];
+      const st = mkTrend(sVals, P.greenD, I.nf(r[5])); $('#snapTrend').appendChild(st.node); st.reveal();
+      const usVals = [I.ALL[3], I.ALL[6], I.ALL[18], I.ALL[20]].map(v => v * 1000);   // national totals, same years
+      const us = mkTrend(usVals, P.navy, (usVals[3] / 1e6).toFixed(1) + 'M'); $('#snapTrendUS').appendChild(us.node); us.reveal();
       if (CAT && CAT.state[r[1]]) { const vec = CAT.state[r[1]]; catBars($('#snapCats'), vec, vec.reduce((a, b) => a + b, 0), true); }
     }
     sel.addEventListener('change', render); render();

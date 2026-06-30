@@ -138,6 +138,7 @@ p { margin: 0; }
 
 /* ---- controls ---------------------------------------------- */
 .fig-controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-bottom: 6px; }
+.who-pick { display: flex; flex-direction: column; gap: 6px; }
 .chk-toggle { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; user-select: none; }
 .chk-toggle input { width: 15px; height: 15px; accent-color: var(--green-d); cursor: pointer; }
 .chk-toggle:hover { color: var(--ink); }
@@ -180,7 +181,10 @@ p { margin: 0; }
   font-size: 12.5px; color: #91a4b3; line-height: 1.65; max-width: 88ch; }
 
 /* ---- explore section (state / SEA / LEA) ------------------- */
-.explore { margin-top: clamp(28px, 4vh, 44px); }
+.explore { margin-top: clamp(16px, 2.4vh, 26px); }
+.explore-lead { font-family: var(--font-display); font-weight: 700; font-size: 12.5px; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--faint); margin: 0 0 16px; display: flex; align-items: center; gap: 14px; }
+.explore-lead::before, .explore-lead::after { content: ''; height: 1px; background: var(--line); flex: 1; }
 .extabs { display: inline-flex; gap: 4px; background: var(--card); border: 1px solid var(--line);
   border-radius: 10px; padding: 4px; margin-bottom: 26px; flex-wrap: wrap; }
 .extab { font: inherit; font-size: 13.5px; font-weight: 600; border: none; background: none; color: var(--muted);
@@ -237,11 +241,12 @@ table.sea .nm { font-weight: 600; color: var(--ink); }
   border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); border-radius: 4px; padding: 1px 6px; }
 
 /* ---- scroll reveal (gated on JS so exports/no-JS stay visible) */
-html.js .reveal { opacity: 0; transform: translateY(12px);
-  transition: opacity .7s ease, transform .7s cubic-bezier(.22,.61,.36,1); }
-html.js .reveal.in { opacity: 1; transform: none; }
+/* upcoming content sits faintly grayed-out until you scroll onto it, then brightens to full color */
+html.js .reveal { opacity: .18; transform: translateY(14px); filter: grayscale(.82);
+  transition: opacity .75s ease, transform .75s cubic-bezier(.22,.61,.36,1), filter .75s ease; }
+html.js .reveal.in { opacity: 1; transform: none; filter: none; }
 .reveal.d1 { transition-delay: .07s; } .reveal.d2 { transition-delay: .14s; } .reveal.d3 { transition-delay: .21s; }
-@media (prefers-reduced-motion: reduce) { html.js .reveal { opacity: 1 !important; transform: none !important; } }
+@media (prefers-reduced-motion: reduce) { html.js .reveal { opacity: 1 !important; transform: none !important; filter: none !important; } }
 
 /* ---- vanilla Tweaks panel ---------------------------------- */
 #tweaks { position: fixed; right: 16px; bottom: 16px; z-index: 2147483646; width: 264px;

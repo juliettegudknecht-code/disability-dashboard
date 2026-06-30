@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=18">
+<link rel="stylesheet" href="styles.css?v=23">
 <!-- ============ SOFT PASSWORD GATE ============ -->
 <script>
   /* Light access gate (client-side only, not real security). Lock before render. */
@@ -57,7 +57,7 @@
   <canvas id="pwCanvas" aria-hidden="true"></canvas>
   <div class="pw-card">
     <svg class="pw-mark" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0c2236"/><rect x="16" y="32" width="8" height="16" rx="1.5" fill="#7fb0d8"/><rect x="28" y="24" width="8" height="24" rx="1.5" fill="#ffffff"/><rect x="40" y="16" width="8" height="32" rx="1.5" fill="#86c195"/></svg>
-    <h1>IDEA Section&nbsp;618 Data Collections Tool</h1>
+    <h1>IDEA Section&nbsp;618 Data Collections Hub</h1>
     <p>This preview is password protected.</p>
     <form id="pwForm" autocomplete="off">
       <input id="pwInput" type="password" placeholder="Enter password" aria-label="Password" autocomplete="off">
@@ -69,14 +69,15 @@
   </div>
 </div>
 <script>
-  /* show the date/time this page was last loaded/refreshed on the gate */
+  /* show when this page was last edited (the file's last-modified time) on the gate */
   (function () {
     try {
       var el = document.getElementById('pwTime'); if (!el) return;
-      var d = new Date();
+      var lm = document.lastModified, d = lm ? new Date(lm) : new Date();
+      if (isNaN(d)) d = new Date();
       var day = d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
       var time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-      el.textContent = 'Last refreshed ' + day + ' at ' + time;
+      el.textContent = 'Last edited ' + day + ' at ' + time;
     } catch (e) {}
   })();
 </script>
@@ -230,7 +231,7 @@
 <!-- ============ EXHIBIT 1 · CHILD COUNT OVER TIME ============ -->
 <section class="section" id="rise">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">The number of children and students served under IDEA has risen for nearly five decades.</h2>
+    <h2 class="scene-h reveal d1">For nearly five decades, the number of children and students served has kept climbing.</h2>
     <p class="scene-dek reveal d2">In School Year 1976&ndash;77, the first year of reporting, about 3.7&nbsp;million children
       ages 3 through 21 were served under IDEA, Part&nbsp;B. By 2024&ndash;25 the count was about 8.2&nbsp;million. Measured
       against public-school enrollment, the share served rose from roughly 8 percent to about 15 percent.</p>
@@ -291,7 +292,7 @@
 <!-- ============ EXHIBIT 4 · ENVIRONMENTS OVER TIME ============ -->
 <section class="section" id="env">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">A growing majority spend most of the school day in a regular classroom.</h2>
+    <h2 class="scene-h reveal d1">More and more students spend most of the school day in a regular classroom, right alongside their classmates.</h2>
     <p class="scene-dek reveal d2">From SY 2019&ndash;20 to SY 2023&ndash;24, the share of school-age students served under IDEA, Part&nbsp;B,
       educated inside the regular class 80 percent or more of the day rose from 64.8 percent to 67.8 percent, while the most
       restrictive settings kept shrinking.</p>
@@ -324,15 +325,14 @@
 <!-- ============ EXHIBIT 6 · WHO IS SERVED ============ -->
 <section class="section" id="who">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">About two-thirds of students served are male, and the share is higher for autism.</h2>
-    <p class="scene-dek reveal d2">Use the toggle to compare all disabilities with autism across sex, race and ethnicity, and
-      single year of age.</p>
+    <h2 class="scene-h reveal d1">About two-thirds of students served are male, and the picture shifts by disability.</h2>
+    <p class="scene-dek reveal d2">Choose any disability category to see who is served under it, by sex, race and ethnicity, and
+      single year of age. Across all disabilities, about two-thirds of students served are male; that share runs higher
+      for some categories and closer to even for others.</p>
     <div class="figure reveal d2">
       <div class="fig-controls">
-        <div class="seg" id="whoProfile" role="group" aria-label="Choose a group">
-          <button data-p="All Disabilities" class="on" aria-pressed="true">All disabilities</button>
-          <button data-p="Autism" aria-pressed="false">Autism</button>
-        </div>
+        <label class="who-pick"><span class="src-k">Disability category</span>
+          <select id="whoProfile" class="ex-select" aria-label="Choose a disability category"></select></label>
       </div>
       <div class="split">
         <div>
@@ -380,7 +380,7 @@
 <!-- ============ EXHIBIT 9 · EXITING ============ -->
 <section class="section" id="exiting">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">Graduation has risen and dropping out has fallen among students who exit services.</h2>
+    <h2 class="scene-h reveal d1">More students who leave are graduating with a diploma, and fewer are dropping out.</h2>
     <p class="scene-dek reveal d2">In School Year 2022&ndash;23, 75.8 percent of students ages 14 through 21 who exited services
       under IDEA, Part&nbsp;B, and school graduated with a regular high school diploma, up from 66.1 percent in 2014&ndash;15.
       Over the same period, the share who dropped out fell from 18.4 percent to 13.9 percent.</p>
@@ -426,16 +426,17 @@
 <!-- ============ EXPLORE ============ -->
 <section class="section" id="explore">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">Explore the data: states, districts, and funding.</h2>
-    <p class="scene-dek reveal d2">Two ways in. Start with the interactive map, or jump straight to the lookup tables below to pull up any state, school district, or collection.</p>
+    <h2 class="scene-h reveal d1">Explore states, districts, and funding.</h2>
+    <p class="scene-dek reveal d2">Tap the map to drill from a state down into its districts and the dollars behind them. Prefer a table? Use the tabs lower down to pull up any state, district, or collection.</p>
 
     <div class="figure reveal d2" id="umap">
-      <div class="exhibit-label">1 · Interactive map</div>
       <div class="umap-controls">
         <label><span class="src-k">Shade states by</span><select id="umapMetric" class="ex-select">
+          <option value="fundper">Avg funding per student, by district (2021&ndash;22 / 2024&ndash;25)</option>
           <option value="pct">Percent of public-school enrollment (2022&ndash;23)</option>
           <option value="served">Students served, ages 3&ndash;21 (2024&ndash;25)</option>
           <option value="fund">IDEA Part&nbsp;B funding, Sections 611+619 (2021&ndash;22)</option>
+          <option value="altdip">Alternate-diploma graduates (2023&ndash;24)</option>
         </select></label>
         <nav id="umapCrumb" class="umap-crumb" aria-label="Map drilldown"></nav>
       </div>
@@ -448,7 +449,7 @@
     </div>
 
     <div class="explore reveal d2">
-      <div class="exhibit-label">2 · Look up a state, district, or collection</div>
+      <div class="explore-lead">Or look it up directly</div>
       <div class="extabs" role="tablist" aria-label="Explore views">
         <button class="extab on" data-tab="state" role="tab" aria-selected="true">State snapshot</button>
         <button class="extab" data-tab="sea" role="tab" aria-selected="false">All states</button>
@@ -526,7 +527,7 @@
 <!-- ============ CLOSING ============ -->
 <section class="section closing" id="about">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">Most figures here are counts reported by states under IDEA Section&nbsp;618.</h2>
+    <h2 class="scene-h reveal d1">These are real counts, not estimates, reported by states every year.</h2>
     <p class="scene-dek reveal d2">Under Section&nbsp;618, states report annual counts on the children and students with disabilities
       they serve: child count and educational environments, discipline, exiting, personnel, assessment, and the Part&nbsp;C
       early intervention collections. A few figures draw on related federal sources, including the U.S. Census Bureau&rsquo;s
@@ -549,20 +550,21 @@
 
 <div class="maptip" id="maptip"></div>
 
-<script src="data.js?v=18"></script>
-<script src="enrich.js?v=18"></script>
-<script src="moe.js?v=18"></script>
-<script src="usmap.js?v=18"></script>
-<script src="det.js?v=18"></script>
-<script src="lea.js?v=18"></script>
-<script src="leaexit.js?v=18"></script>
-<script src="catdata.js?v=18"></script>
-<script src="charts.js?v=18"></script>
-<script src="story.js?v=18"></script>
-<script src="explore.js?v=18"></script>
-<script src="extra.js?v=18"></script>
-<script src="interactive.js?v=18"></script>
-<script src="builder.js?v=18"></script>
-<script src="quickstats.js?v=18"></script>
+<script src="data.js?v=23"></script>
+<script src="enrich.js?v=23"></script>
+<script src="moe.js?v=23"></script>
+<script src="usmap.js?v=23"></script>
+<script src="det.js?v=23"></script>
+<script src="lea.js?v=23"></script>
+<script src="leaexit.js?v=23"></script>
+<script src="catdata.js?v=23"></script>
+<script src="sea.js?v=23"></script>
+<script src="charts.js?v=23"></script>
+<script src="story.js?v=23"></script>
+<script src="explore.js?v=23"></script>
+<script src="extra.js?v=23"></script>
+<script src="interactive.js?v=23"></script>
+<script src="builder.js?v=23"></script>
+<script src="quickstats.js?v=23"></script>
 </body>
 </html>
