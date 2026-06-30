@@ -7,6 +7,10 @@
 (function () {
   const I = window.IDEA, X = window.IDEA_X || {}, C = window.Charts, P = I.PAL;
   if (!I || !C) return;
+  const S = window.IDEAStory || {};
+  const abbrByName = {}; I.STATES.forEach(r => abbrByName[r[0]] = r[1]);
+  const drillCat = it => S.openCatModal && S.openCatModal(it.label || it.name);
+  const drillState = it => { const ab = typeof it === 'string' ? it : (abbrByName[it.label] || it.label); S.openStateModal && S.openStateModal(ab); };
   const cats = Object.keys(I.DIS);
   const COLORS = [P.greenD, P.navy, P.green, P.greenL, P.accent, P.purple, P.blue, '#b08a3e', P.gray];
   const TYPE_LABEL = { line: 'Line', area: 'Area', columns: 'Columns', bars: 'Bars', donut: 'Donut', dumbbell: 'Dumbbell', bubbles: 'Bubbles', funnel: 'Funnel', map: 'Map', heatmap: 'Heatmap' };
@@ -85,11 +89,12 @@
         const items = cats.map(c => ({ k: c, v: (I.DIS[c][last] || 0) * 1000 })).filter(d => d.v > 0).sort((a, b) => b.v - a.v);
         const col = d => d.k === sel.focus ? P.navy : P.green;
         const fmt = v => v >= 1e6 ? (v / 1e6).toFixed(2) + 'M' : Math.round(v / 1e3) + 'k';
+        const oc = (d, i) => S.openCatModal && S.openCatModal(items[i].k);
         let ch;
-        if (type === 'donut') ch = C.donut({ size: 320, stroke: 46, segments: items.map((d, i) => ({ name: d.k, value: d.v, color: d.k === sel.focus ? P.navy : COLORS[(i + 2) % COLORS.length] })), centerValue: items.reduce((s, d) => s + d.v, 0), centerFmt: v => (v / 1e6).toFixed(1) + 'M', centerSub: 'served, ages 3–21' });
-        else if (type === 'bubbles') ch = C.bubbles({ items: items.map(d => ({ label: d.k.split(' ').slice(0, 2).join(' '), value: d.v, color: col(d), highlight: d.k === sel.focus })), valueFmt: fmt });
-        else if (type === 'columns') ch = C.columns({ labels: items.map(d => d.k.split(' ')[0]), values: items.map(d => d.v), yFmt: fmt, xEvery: 1, height: 340, highlight: items.findIndex(d => d.k === sel.focus) });
-        else ch = C.barsH({ items: items.map(d => ({ label: d.k, value: d.v, color: col(d), highlight: d.k === sel.focus })), labelW: 232, barH: 18, gap: 9, padR: 64, valueFmt: fmt });
+        if (type === 'donut') ch = C.donut({ size: 320, stroke: 46, onClick: oc, segments: items.map((d, i) => ({ name: d.k, value: d.v, color: d.k === sel.focus ? P.navy : COLORS[(i + 2) % COLORS.length] })), centerValue: items.reduce((s, d) => s + d.v, 0), centerFmt: v => (v / 1e6).toFixed(1) + 'M', centerSub: 'served, ages 3–21' });
+        else if (type === 'bubbles') ch = C.bubbles({ onClick: oc, items: items.map(d => ({ label: d.k.split(' ').slice(0, 2).join(' '), value: d.v, color: col(d), highlight: d.k === sel.focus })), valueFmt: fmt });
+        else if (type === 'columns') ch = C.columns({ labels: items.map(d => d.k.split(' ')[0]), values: items.map(d => d.v), yFmt: fmt, xEvery: 1, height: 340, onClick: oc, highlight: items.findIndex(d => d.k === sel.focus) });
+        else ch = C.barsH({ onClick: oc, items: items.map(d => ({ label: d.k, value: d.v, color: col(d), highlight: d.k === sel.focus })), labelW: 232, barH: 18, gap: 9, padR: 64, valueFmt: fmt });
         return {
           node: ch.node, reveal: ch.reveal,
           title: 'Number of children and students ages 3 through 21 served under IDEA, Part B, by disability category: School year 2024–25',
@@ -130,10 +135,11 @@
       render(sel, type) {
         const items = I.ARC.inclByCat.slice().sort((a, b) => b[1] - a[1]);
         const col = k => k === 'All disabilities' ? P.accent : P.green;
+        const oc = (d, i) => { const k = items[i][0]; if (k !== 'All disabilities' && S.openCatModal) S.openCatModal(k); };
         let ch;
-        if (type === 'bubbles') ch = C.bubbles({ items: items.map(([k, v]) => ({ label: k.split(' ').slice(0, 2).join(' '), value: v, color: col(k), highlight: k === 'All disabilities' })), valueFmt: v => v.toFixed(0) + '%' });
-        else if (type === 'columns') ch = C.columns({ labels: items.map(d => d[0].split(' ')[0]), values: items.map(d => d[1]), yMax: 100, yFmt: v => v + '%', xEvery: 1, height: 340 });
-        else ch = C.barsH({ items: items.map(([k, v]) => ({ label: k, value: v, color: col(k), highlight: k === 'All disabilities' })), labelW: 236, barH: 18, gap: 9, padR: 54, xMax: 100, valueFmt: v => v.toFixed(1) + '%' });
+        if (type === 'bubbles') ch = C.bubbles({ onClick: oc, items: items.map(([k, v]) => ({ label: k.split(' ').slice(0, 2).join(' '), value: v, color: col(k), highlight: k === 'All disabilities' })), valueFmt: v => v.toFixed(0) + '%' });
+        else if (type === 'columns') ch = C.columns({ labels: items.map(d => d[0].split(' ')[0]), values: items.map(d => d[1]), yMax: 100, yFmt: v => v + '%', xEvery: 1, height: 340, onClick: oc });
+        else ch = C.barsH({ onClick: oc, items: items.map(([k, v]) => ({ label: k, value: v, color: col(k), highlight: k === 'All disabilities' })), labelW: 236, barH: 18, gap: 9, padR: 54, xMax: 100, valueFmt: v => v.toFixed(1) + '%' });
         return {
           node: ch.node, reveal: ch.reveal,
           title: 'Percentage of students ages 5 (school age) through 21 served under IDEA, Part B, inside the regular class 80 percent or more of the day, by disability category: Fall 2023',
@@ -150,11 +156,12 @@
       render(sel, type) {
         const d = I.DEMO[sel.profile], races = Object.keys(d.race).map(k => ({ k, v: d.race[k] })).sort((a, b) => b.v - a.v);
         const fmt = v => v >= 1e6 ? (v / 1e6).toFixed(2) + 'M' : Math.round(v / 1e3) + 'k';
+        const oc = (x, i) => S.openRaceModal && S.openRaceModal(races[i].k, sel.profile);
         let ch;
-        if (type === 'donut') ch = C.donut({ size: 320, stroke: 46, segments: races.map((r, i) => ({ name: I.RACE_LBL[r.k], value: r.v, color: COLORS[i % COLORS.length] })), centerValue: d.total, centerFmt: v => (v / 1e6).toFixed(1) + 'M', centerSub: 'served' });
-        else if (type === 'bubbles') ch = C.bubbles({ items: races.map((r, i) => ({ label: I.RACE_LBL[r.k], value: r.v, color: i === 0 ? P.greenD : P.green })), valueFmt: fmt });
-        else if (type === 'columns') ch = C.columns({ labels: races.map(r => r.k), values: races.map(r => r.v), yFmt: fmt, xEvery: 1, height: 340 });
-        else ch = C.barsH({ items: races.map((r, i) => ({ label: I.RACE_LBL[r.k], value: r.v, color: i === 0 ? P.greenD : P.green })), labelW: 210, barH: 20, gap: 10, padR: 58, valueFmt: fmt });
+        if (type === 'donut') ch = C.donut({ size: 320, stroke: 46, onClick: oc, segments: races.map((r, i) => ({ name: I.RACE_LBL[r.k], value: r.v, color: COLORS[i % COLORS.length] })), centerValue: d.total, centerFmt: v => (v / 1e6).toFixed(1) + 'M', centerSub: 'served' });
+        else if (type === 'bubbles') ch = C.bubbles({ onClick: oc, items: races.map((r) => ({ label: I.RACE_LBL[r.k], value: r.v, color: P.green })), valueFmt: fmt });
+        else if (type === 'columns') ch = C.columns({ labels: races.map(r => r.k), values: races.map(r => r.v), yFmt: fmt, xEvery: 1, height: 340, onClick: oc });
+        else ch = C.barsH({ onClick: oc, items: races.map((r) => ({ label: I.RACE_LBL[r.k], value: r.v, color: P.green })), labelW: 210, barH: 20, gap: 10, padR: 58, valueFmt: fmt });
         return {
           node: ch.node, reveal: ch.reveal,
           title: 'Number of children and students ages 3 through 21 served under IDEA, Part B, by race/ethnicity' + (sel.profile === 'Autism' ? ', reported under autism' : '') + ': School year 2024–25',
@@ -173,7 +180,7 @@
         const yFmt = v => v >= 1e3 ? (v / 1e3).toFixed(0) + 'k' : Math.round(v);
         let ch;
         if (type === 'line') ch = C.lineChart({ labels: ages.map(String), xs: ages, xTicks: ages.filter((_, i) => i % 3 === 0), series: [{ values: vals, color: P.greenD, area: true, areaOpacity: .14, highlight: true }], yMin: 0, yTicks: 3, yFmt, height: 340 });
-        else ch = C.columns({ labels: ages.map(String), values: vals, yFmt, xEvery: 2, height: 340 });
+        else ch = C.columns({ labels: ages.map(String), values: vals, yFmt, xEvery: 2, height: 340, onClick: (x, i) => S.openAgeModal && S.openAgeModal(ages[i], vals[i], sel.profile) });
         return {
           node: ch.node, reveal: ch.reveal,
           title: 'Number of children and students ages 3 through 21 served under IDEA, Part B, by single year of age' + (sel.profile === 'Autism' ? ', reported under autism' : '') + ': School year 2024–25',
@@ -200,7 +207,7 @@
           const v = {}; I.STATES.forEach(r => v[r[1]] = metricVal(r));
           const arr = Object.values(v), min = Math.min(...arr), max = Math.max(...arr);
           const stops = [{ t: 0, color: '#eaf0e9' }, { t: .5, color: '#5aa377' }, { t: 1, color: '#0f3d2c' }];
-          ch = window.USMAP ? C.choropleth({ values: v, min, max, stops, fmt, nameOf: a => (I.STATES.find(r => r[1] === a) || [a])[0] }) : C.tileMap({ values: v, min, max, stops, fmt, nameOf: a => (I.STATES.find(r => r[1] === a) || [a])[0] });
+          ch = window.USMAP ? C.choropleth({ values: v, min, max, stops, fmt, nameOf: a => (I.STATES.find(r => r[1] === a) || [a])[0], onClick: ab => drillState(ab) }) : C.tileMap({ values: v, min, max, stops, fmt, nameOf: a => (I.STATES.find(r => r[1] === a) || [a])[0] });
         } else if (type === 'heatmap') {
           const ranked = I.STATES.slice().sort((a, b) => metricVal(b) - metricVal(a));
           const n = sel.topn === 'all' ? 51 : +sel.topn, rows = ranked.slice(0, n);
@@ -208,8 +215,9 @@
         } else {
           const ranked = I.STATES.slice().sort((a, b) => metricVal(b) - metricVal(a));
           const n = sel.topn === 'all' ? 51 : +sel.topn, rows = ranked.slice(0, n);
-          if (type === 'columns') ch = C.columns({ labels: rows.map(r => r[1]), values: rows.map(metricVal), yFmt: fmt, xEvery: 1, height: 360 });
-          else ch = C.barsH({ items: rows.map((r, i) => ({ label: r[0], value: metricVal(r), color: i === 0 ? P.greenD : P.green })), labelW: 150, barH: 18, gap: 8, padR: 64, valueFmt: fmt });
+          const ocs = (x, i) => drillState(rows[i][1]);
+          if (type === 'columns') ch = C.columns({ labels: rows.map(r => r[1]), values: rows.map(metricVal), yFmt: fmt, xEvery: 1, height: 360, onClick: ocs });
+          else ch = C.barsH({ onClick: ocs, items: rows.map((r, i) => ({ label: r[0], value: metricVal(r), color: i === 0 ? P.greenD : P.green })), labelW: 150, barH: 18, gap: 8, padR: 64, valueFmt: fmt });
         }
         return {
           node: ch.node, reveal: ch.reveal,
@@ -227,10 +235,11 @@
         const rows = (X.EXIT_DIS || []).slice();
         const get = r => sel.metric === 'grad' ? r[1] : r[2];
         const sorted = rows.sort((a, b) => get(b) - get(a));
+        const oc = (x, i) => S.openCatModal && S.openCatModal(sorted[i][0]);
         let ch;
-        if (type === 'dumbbell') ch = C.dumbbell({ items: sorted.map(r => ({ label: r[0], a: r[2], b: r[1], highlight: r[0] === 'Autism' })), labelW: 232, rowH: 30, ticks: 4, xMin: 0, xMax: 100, aColor: P.accent, bColor: P.greenD, valueFmt: v => v.toFixed(0) + '%' });
-        else if (type === 'columns') ch = C.columns({ labels: sorted.map(r => r[0].split(' ')[0]), values: sorted.map(get), yMax: 100, yFmt: v => v + '%', xEvery: 1, height: 340 });
-        else ch = C.barsH({ items: sorted.map(r => ({ label: r[0], value: get(r), color: P.green })), labelW: 232, barH: 16, gap: 8, padR: 54, xMax: 100, valueFmt: v => v.toFixed(1) + '%' });
+        if (type === 'dumbbell') ch = C.dumbbell({ onClick: oc, items: sorted.map(r => ({ label: r[0], a: r[2], b: r[1] })), labelW: 232, rowH: 30, ticks: 4, xMin: 0, xMax: 100, aColor: P.accent, bColor: P.greenD, valueFmt: v => v.toFixed(0) + '%' });
+        else if (type === 'columns') ch = C.columns({ labels: sorted.map(r => r[0].split(' ')[0]), values: sorted.map(get), yMax: 100, yFmt: v => v + '%', xEvery: 1, height: 340, onClick: oc });
+        else ch = C.barsH({ onClick: oc, items: sorted.map(r => ({ label: r[0], value: get(r), color: P.green })), labelW: 232, barH: 16, gap: 8, padR: 54, xMax: 100, valueFmt: v => v.toFixed(1) + '%' });
         return {
           node: ch.node, reveal: ch.reveal,
           title: (type === 'dumbbell' ? 'Dropout (clay) and graduation (green)' : sel.metric === 'grad' ? 'Graduated with a regular high school diploma' : 'Dropped out') + ', by disability category',
@@ -252,9 +261,10 @@
         }).filter(d => d[sel.metric] != null).sort((a, b) => b[sel.metric] - a[sel.metric]);
         const fmt = sel.metric === 'per100' ? (v => v.toFixed(0)) : (v => v >= 1e3 ? Math.round(v / 1e3) + 'k' : Math.round(v));
         const col = d => d.label === 'Emotional disturbance' ? P.navy : P.green;
+        const oc = (x, i) => S.openCatModal && S.openCatModal(items[i].label);
         let ch;
-        if (type === 'columns') ch = C.columns({ labels: items.map(d => d.label.split(' ')[0]), values: items.map(d => d[sel.metric]), yFmt: fmt, xEvery: 1, height: 340 });
-        else ch = C.barsH({ items: items.map(d => ({ label: d.label, value: d[sel.metric], color: col(d), highlight: d.label === 'Emotional disturbance' })), labelW: 232, barH: 16, gap: 8, padR: 60, valueFmt: fmt });
+        if (type === 'columns') ch = C.columns({ labels: items.map(d => d.label.split(' ')[0]), values: items.map(d => d[sel.metric]), yFmt: fmt, xEvery: 1, height: 340, onClick: oc });
+        else ch = C.barsH({ onClick: oc, items: items.map(d => ({ label: d.label, value: d[sel.metric], color: col(d), highlight: d.label === 'Emotional disturbance' })), labelW: 232, barH: 16, gap: 8, padR: 60, valueFmt: fmt });
         return {
           node: ch.node, reveal: ch.reveal,
           title: sel.metric === 'per100' ? 'Disciplinary removals per 100 students served, by disability' : 'Total disciplinary removals, by disability',
@@ -269,15 +279,16 @@
       id: 'partc', label: 'Part C early-intervention settings', types: ['donut', 'bars', 'columns'],
       render(sel, type) {
         const segs = I.ARC.partcSettings, cols = { 'Home': P.greenD, 'Community-based setting': P.green, 'Other setting': P.greenL };
+        const oc = (x, i) => S.openPartcModal && S.openPartcModal(segs[i][0], segs[i][1]);
         let ch;
-        if (type === 'columns') ch = C.columns({ labels: segs.map(s => s[0].split(' ')[0]), values: segs.map(s => s[1]), yMax: 100, yFmt: v => v + '%', xEvery: 1, height: 320 });
-        else if (type === 'bars') ch = C.barsH({ items: segs.map(s => ({ label: s[0], value: s[1], color: cols[s[0]] || P.green })), labelW: 180, barH: 24, gap: 14, padR: 56, xMax: 100, valueFmt: v => v.toFixed(1) + '%' });
-        else ch = C.donut({ size: 320, stroke: 48, segments: segs.map(s => ({ name: s[0], value: s[1], color: cols[s[0]] || P.green })), centerValue: I.ARC.partcTotal, centerFmt: v => Math.round(v / 1e3) + 'K', centerSub: 'infants & toddlers' });
+        if (type === 'columns') ch = C.columns({ labels: segs.map(s => s[0].split(' ')[0]), values: segs.map(s => s[1]), yMax: 100, yFmt: v => v + '%', xEvery: 1, height: 320, onClick: oc });
+        else if (type === 'bars') ch = C.barsH({ onClick: oc, items: segs.map(s => ({ label: s[0], value: s[1], color: cols[s[0]] || P.green })), labelW: 180, barH: 24, gap: 14, padR: 56, xMax: 100, valueFmt: v => v.toFixed(1) + '%' });
+        else ch = C.donut({ size: 320, stroke: 48, onClick: oc, segments: segs.map(s => ({ name: s[0], value: s[1], color: cols[s[0]] || P.green })), centerValue: I.ARC.partcTotal, centerFmt: v => Math.round(v / 1e3) + 'K', centerSub: 'infants & toddlers' });
         return {
           node: ch.node, reveal: ch.reveal,
-          title: 'Percentage of infants and toddlers birth through age 2 served under IDEA, Part C, by primary early intervention services setting: Fall 2023',
-          sub: 'Percent of infants and toddlers served under IDEA, Part C, fall 2023.',
-          source: 'U.S. Department of Education, OSEP, IDEA Part C Child Count and Settings Collection.',
+          title: 'Percentage of infants and toddlers birth through age 2 served under IDEA, Part C, by primary early intervention services setting: School year 2024–25',
+          sub: 'Percent of infants and toddlers served under IDEA, Part C, SY 2024–25.',
+          source: 'U.S. Department of Education, OSEP, IDEA Part C Child Count and Settings Collection, School Year 2024–25.',
           csv: [['Primary setting', 'Percent'], ...segs],
         };
       },

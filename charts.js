@@ -806,6 +806,55 @@
   }
 
   /* ---------------------------------------------------------- *
+   * SCATTER (x vs y dots, optional log axes, hover + click)    *
+   * ---------------------------------------------------------- */
+  function scatter(opts) {
+    const w = opts.width || 760, h = opts.height || 440, padL = opts.padL ?? 66, padR = 16, padT = 16, padB = 52;
+    const plotW = w - padL - padR, plotH = h - padT - padB;
+    const pts = opts.points.filter(p => p.x > 0 && p.y > 0);
+    const logX = opts.logX, logY = opts.logY;
+    const xsv = pts.map(p => p.x), ysv = pts.map(p => p.y);
+    const xMin = opts.xMin != null ? opts.xMin : (logX ? Math.min(...xsv) : 0), xMax = opts.xMax != null ? opts.xMax : Math.max(...xsv);
+    const yMin = opts.yMin != null ? opts.yMin : (logY ? Math.min(...ysv) : 0), yMax = opts.yMax != null ? opts.yMax : Math.max(...ysv);
+    const L = Math.log10, lo = (v, mn) => L(Math.max(v, mn));
+    const X = logX ? (v => padL + (lo(v, xMin) - L(xMin)) / (L(xMax) - L(xMin)) * plotW) : (v => padL + (v - xMin) / (xMax - xMin) * plotW);
+    const Y = logY ? (v => padT + plotH - (lo(v, yMin) - L(yMin)) / (L(yMax) - L(yMin)) * plotH) : (v => padT + plotH - (v - yMin) / (yMax - yMin) * plotH);
+    const s = svgRoot(w, h, 'cv-scatter');
+    const xFmt = opts.xFmt || (v => v), yFmt = opts.yFmt || (v => v);
+    const logTicks = (mn, mx) => { const out = []; for (let p = Math.floor(L(mn)); p <= Math.ceil(L(mx)); p++) out.push(Math.pow(10, p)); return out.filter(v => v >= mn * 0.9 && v <= mx * 1.1); };
+    const xticks = logX ? logTicks(xMin, xMax) : Array.from({ length: 5 }, (_, i) => xMin + (xMax - xMin) * i / 4);
+    const yticks = logY ? logTicks(yMin, yMax) : Array.from({ length: 5 }, (_, i) => yMin + (yMax - yMin) * i / 4);
+    yticks.forEach(v => { const yy = Y(v); s.appendChild(mk('line', { x1: padL, x2: w - padR, y1: yy, y2: yy, stroke: P.line })); s.appendChild(mk('text', { x: padL - 8, y: yy + 3.5, 'text-anchor': 'end', class: 'cv-axt', text: yFmt(v) })); });
+    xticks.forEach(v => { const xx = X(v); s.appendChild(mk('line', { x1: xx, x2: xx, y1: padT, y2: padT + plotH, stroke: P.line })); s.appendChild(mk('text', { x: xx, y: h - padB + 16, 'text-anchor': 'middle', class: 'cv-axt', text: xFmt(v) })); });
+    if (opts.xAxisLabel) s.appendChild(mk('text', { x: padL + plotW / 2, y: h - 6, 'text-anchor': 'middle', class: 'cv-axt-bold', text: opts.xAxisLabel }));
+    if (opts.yAxisLabel) s.appendChild(mk('text', { x: 14, y: padT + plotH / 2, 'text-anchor': 'middle', class: 'cv-axt-bold', transform: `rotate(-90 14 ${padT + plotH / 2})`, text: opts.yAxisLabel }));
+    const g = mk('g', { class: 'cv-dots' }); g.style.opacity = 0;
+    const px = [], py = [];
+    pts.forEach((p, i) => {
+      const cx = X(p.x), cy = Y(p.y); px.push(cx); py.push(cy);
+      const c = mk('circle', { cx, cy, r: p.r || opts.r || 3.5, fill: p.color || P.green, 'fill-opacity': p.highlight ? 1 : (opts.dotOpacity ?? .5), stroke: p.highlight ? P.cream : 'none', 'stroke-width': 1 });
+      c.dataset.i = i; g.appendChild(c);
+    });
+    s.appendChild(g);
+    // nearest-point hover + click via one listener
+    const pt = s.createSVGPoint();
+    const nearest = e => {
+      pt.x = e.clientX; pt.y = e.clientY; const loc = pt.matrixTransform(s.getScreenCTM().inverse());
+      let bi = -1, bd = 14 * 14;
+      for (let i = 0; i < px.length; i++) { const dx = px[i] - loc.x, dy = py[i] - loc.y, d = dx * dx + dy * dy; if (d < bd) { bd = d; bi = i; } }
+      return bi;
+    };
+    if (opts.onHover) {
+      s.addEventListener('mousemove', e => { const i = nearest(e); if (i >= 0) opts.onHover(pts[i], e.clientX, e.clientY); else opts.onLeave && opts.onLeave(); });
+      s.addEventListener('mouseleave', () => opts.onLeave && opts.onLeave());
+    }
+    if (opts.onClick) { s.style.cursor = 'pointer'; s.addEventListener('click', e => { const i = nearest(e); if (i >= 0) opts.onClick(pts[i], i); }); }
+    let played = false;
+    function reveal() { if (played) return; played = true; g.style.transition = reduced() ? 'none' : 'opacity .7s ease'; requestAnimationFrame(() => { g.style.opacity = 1; }); }
+    return { node: s, reveal };
+  }
+
+  /* ---------------------------------------------------------- *
    * EXPORT (PNG raster of an SVG + CSV download)               *
    * ---------------------------------------------------------- */
   function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
@@ -891,5 +940,5 @@
     figureEl.appendChild(bar);
   }
 
-  window.Charts = { lineChart, barsH, stackedArea, columns, pictograph, dumbbell, donut, tileMap, heatmap, bubbles, funnel, moneyFlow, choropleth, countUp, colorFor: lerpStops, exportPNG, exportCSVFile, addExportBar };
+  window.Charts = { lineChart, barsH, stackedArea, columns, pictograph, dumbbell, donut, tileMap, heatmap, bubbles, funnel, moneyFlow, choropleth, scatter, countUp, colorFor: lerpStops, exportPNG, exportCSVFile, addExportBar };
 })();

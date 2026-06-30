@@ -19,7 +19,7 @@
   if (sel && out) {
     sel.add(new Option('Choose a state', ''));
     I.STATES.forEach((r, i) => sel.add(new Option(r[0], i)));
-    sel.value = '';
+    sel.value = String(I.STATES.reduce((bi, r, i, a) => r[5] > a[bi][5] ? i : bi, 0)); // open on the largest state
     const ranked = I.STATES.slice().sort((a, b) => b[5] - a[5]);
     function render() {
       if (sel.value === '') { out.innerHTML = '<div class="focus-empty">Choose a state above to see its snapshot.</div>'; return; }
@@ -104,6 +104,8 @@
   const lsel = $('#leaStateSel'), lout = $('#leaOut');
   if (lsel && lout) {
     const LEAX = X.LEA || {};
+    const LEAEXIT = (window.LEAEXIT && window.LEAEXIT.byNces) || {};
+    const normN = n => { const z = String(n).replace(/\D/g, ''); return z ? String(parseInt(z, 10)) : ''; };
     I.STATES.forEach((r, i) => lsel.add(new Option(r[0], i)));
     const def = I.STATES.findIndex(r => r[1] === 'CA'); lsel.value = def < 0 ? 0 : def;
     function renderLea() {
@@ -124,6 +126,11 @@
         const [nm, nces, tot, sa, ec, aut] = x, bits = [];
         if (sa != null) bits.push(`${I.nf(sa)} school age`);
         if (aut != null && aut > 0) bits.push(`${I.nf(aut)} autism`);
+        const ex = LEAEXIT[normN(nces)];                        // per-district exiting (2023-24)
+        if (ex && ex[2] >= 20) {
+          if (ex[0] != null) bits.push(`${Math.round(ex[0])}% graduated`);
+          if (ex[1] != null) bits.push(`${Math.round(ex[1])}% dropped out`);
+        }
         return `<div class="lea-row">
           <span class="nm">${nm}<small>NCES&nbsp;${nces}${bits.length ? ' &middot; ' + bits.join(' &middot; ') : ''}</small></span>
           <span class="v">${I.nf(tot)}<small> served</small></span></div>`;
@@ -148,7 +155,7 @@
       const exBox = $('#moreExit');
       if (exBox && X.EXIT_DIS) {
         const items = X.EXIT_DIS.slice().sort((a, b) => b[1] - a[1]).map(([d, g]) => ({
-          label: d, value: g, highlight: d === 'Autism', color: d === 'Autism' ? P.green : P.greenD,
+          label: d, value: g, color: P.green,
         }));
         const ch = C.barsH({ items, labelW: 232, barH: 17, gap: 9, padR: 54, xMax: 100, valueFmt: v => v.toFixed(1) + '%' });
         exBox.appendChild(ch.node); ch.reveal();

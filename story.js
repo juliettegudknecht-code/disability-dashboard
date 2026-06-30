@@ -113,8 +113,28 @@
         <div class="det-pills"><span class="det-pill ${detClass(dt.b)}">Part&nbsp;B: ${dt.b}</span>${dt.c ? `<span class="det-pill ${detClass(dt.c)}">Part&nbsp;C: ${dt.c}</span>` : ''}</div></div>` : ''}
       <p class="m-src">IDEA Part B Child Count, Exiting, and Discipline Collections${dt.b ? '; 2026 Determination Letters on State Implementation of IDEA' : ''}.</p>`);
   }
+  // "Other disabilities combined" (and any non-DIS grouping) expands into its constituent categories
+  const NAMED_CATS = new Set(['Specific learning disability', 'Speech or language impairment', 'Other health impairment', 'Autism', 'Intellectual disability', 'Emotional disturbance']);
+  function openOtherCatsModal(label) {
+    const last = I.YEARS.length - 1;
+    const totalLast = Object.keys(I.DIS).reduce((s, k) => s + (I.DIS[k][last] || 0), 0) * 1000;
+    const others = Object.keys(I.DIS).filter(k => !NAMED_CATS.has(k))
+      .map(k => ({ k, v: (I.DIS[k][last] || 0) * 1000 })).filter(d => d.v > 0).sort((a, b) => b.v - a.v);
+    const sumOther = others.reduce((s, d) => s + d.v, 0);
+    openModal(`<div class="m-kicker">Disability categories</div><h3 class="m-title">${label}</h3>
+      <p class="m-dek">This is every primary disability category outside the most common ones. Together they served about ${I.nf(Math.round(sumOther))} children and students, or ${(sumOther / totalLast * 100).toFixed(1)} percent of all served, in School Year 2024–25. Tap any category for its detail.</p>
+      <div id="m-othercats" class="chartbox"></div>
+      <p class="m-src">IDEA Part B Child Count and Educational Environments Collection, School Year 2024–25.</p>`);
+    const host = document.getElementById('m-othercats');
+    if (host) {
+      const ch = C.barsH({ onClick: (d, i) => openCatModal(others[i].k),
+        items: others.map(d => ({ label: d.k, value: d.v, color: P.green })),
+        labelW: 196, barH: 17, gap: 9, padR: 64, valueFmt: v => v >= 1e6 ? (v / 1e6).toFixed(2) + 'M' : Math.round(v / 1e3) + 'k' });
+      host.appendChild(ch.node); ch.reveal();
+    }
+  }
   function openCatModal(cat) {
-    if (!I.DIS[cat]) { openModal(`<div class="m-kicker">Disability category</div><h3 class="m-title">${cat}</h3><p class="m-dek">This grouping combines several smaller categories. Pick an individual category to see its detail.</p>`); return; }
+    if (!I.DIS[cat]) { openOtherCatsModal(cat); return; }
     const last = I.YEARS.length - 1, series = I.DIS[cat];
     const count = series[last] * 1000;
     const totalLast = Object.keys(I.DIS).reduce((sx, k) => sx + (I.DIS[k][last] || 0), 0);
@@ -206,10 +226,10 @@
     openModal(`<div class="m-kicker">Part C early intervention</div><h3 class="m-title">${name}</h3>
       <p class="m-dek">${PARTC_BLURB[name] || ''}</p>
       <div class="m-grid">
-        <div><span class="mv">${pctVal}%</span><span class="ml">of infants and toddlers served (fall 2023)</span></div>
+        <div><span class="mv">${pctVal}%</span><span class="ml">of infants and toddlers served (2024&ndash;25)</span></div>
         <div><span class="mv">${I.nf(Math.round(total * pctVal / 100))}</span><span class="ml">children, of about ${I.nf(total)} served</span></div>
       </div>
-      <p class="m-src">IDEA Part C Child Count and Settings Collection.</p>`);
+      <p class="m-src">IDEA Part C Child Count and Settings Collection, School Year 2024&ndash;25.</p>`);
   }
 
   /* exiting detail */
@@ -306,32 +326,37 @@
   /* ========================================================== *
    * EXHIBIT 2 · CATEGORIES (fall 2023 share)                   *
    * ========================================================== */
-  mount('chart-cats', C.barsH({
-    onClick: d => openCatModal(d.label),
-    labelW: 234, barH: 22, gap: 12, padR: 58,
-    items: A.catShare.map(([k, v]) => ({
-      label: k, value: v,
-      color: k === 'Other disabilities combined' ? P.gray : P.green,
-    })),
-    xMax: 40, valueFmt: v => v.toFixed(1) + '%',
-  }));
-  expbar('chart-cats', 'idea-categories-fall-2023', [['Disability category', 'Percent of school-age served (fall 2023)'], ...A.catShare]);
-  hint('chart-cats', 'Tap any category bar to open its profile');
+  (function () {
+    // every primary disability category shown individually (no "Other disabilities combined"
+    // bucket), as a share of all school-age students served, School Year 2024-25.
+    const tot = Object.keys(I.INCL).reduce((s, k) => s + I.INCL[k][1], 0);
+    const items = Object.keys(I.INCL).map(k => ({ k, v: I.INCL[k][1] / tot * 100 })).sort((a, b) => b.v - a.v);
+    mount('chart-cats', C.barsH({
+      onClick: d => openCatModal(d.label),
+      labelW: 234, barH: 17, gap: 9, padR: 58,
+      items: items.map(d => ({ label: d.k, value: d.v, color: P.green })),
+      xMax: 40, valueFmt: v => v.toFixed(1) + '%',
+    }));
+    expbar('chart-cats', 'idea-categories-2024-25', [['Disability category', 'Percent of school-age students served (2024-25)'], ...items.map(d => [d.k, +d.v.toFixed(1)])]);
+    hint('chart-cats', 'Tap any category bar to open its profile');
+  })();
 
   /* ========================================================== *
    * EXHIBIT 3 · AUTISM TREND                                    *
    * ========================================================== */
   (function () {
     const start = 3, labels = I.YEARS.slice(start), xs = startYears.slice(start);
-    const others = ['Specific learning disability', 'Speech or language impairment', 'Other health impairment', 'Intellectual disability', 'Emotional disturbance', 'Developmental delay'];
-    const series = others.map(k => ({ values: I.DIS[k].slice(start).map(v => v == null ? null : v / 1000), color: P.gray, width: 1.6 }));
-    series.push({ values: I.DIS['Autism'].slice(start).map(v => v == null ? null : v / 1000), color: P.navy, width: 3.4, highlight: true, endLabel: 'Autism' });
+    const sv = k => I.DIS[k].slice(start).map(v => v == null ? null : v / 1000);
+    const grayCats = ['Specific learning disability', 'Speech or language impairment', 'Intellectual disability', 'Emotional disturbance', 'Developmental delay'];
+    const series = grayCats.map(k => ({ values: sv(k), color: P.gray, width: 1.6 }));
+    series.push({ values: sv('Other health impairment'), color: P.green, width: 2.8, highlight: true });
+    series.push({ values: sv('Autism'), color: P.navy, width: 2.8, highlight: true });
     mount('chart-autism', C.lineChart({
       labels, xs, xTicks: [2000, 2008, 2012, 2016, 2020, 2024],
       series, yMin: 0, yMax: 3, yTicks: 3, yFmt: v => v.toFixed(0) + 'M',
     }));
-    legend('autismLegend', [['Autism', P.navy, true], ['Other IDEA primary disability categories', P.gray, true]], t => { if (t === 'Autism') openCatModal('Autism'); });
-    hint('chart-autism', 'Tap the Autism key for its detail');
+    legend('autismLegend', [['Autism', P.navy, true], ['Other health impairment', P.green, true], ['Other categories', P.gray, true]], t => { if (t === 'Autism') openCatModal('Autism'); else if (/health/i.test(t)) openCatModal('Other health impairment'); });
+    hint('chart-autism', 'Tap a highlighted key for its detail');
     expbar('chart-autism', 'idea-categories-by-year', () => {
       const cats = Object.keys(I.DIS);
       const rows = [['School year'].concat(cats)];
@@ -409,7 +434,7 @@
       play(raceBox, C.barsH({
         onClick: it => openRaceModal(it.key, profile),
         labelW: 200, barH: 19, gap: 9, padR: 58,
-        items: races.map((r, i) => ({ label: I.RACE_LBL[r.k], value: r.v, color: i === 0 ? P.greenD : P.green, key: r.k })),
+        items: races.map((r) => ({ label: I.RACE_LBL[r.k], value: r.v, color: P.green, key: r.k })),
         xMax: profile === 'Autism' ? 500000 : 3700000, valueFmt: fmtCount,
       }), 'race');
       const ages = Object.keys(d.ages).map(Number).sort((a, b) => a - b);
@@ -446,43 +471,7 @@
     hint('chart-race', 'Tap a race or ethnicity bar for detail');
   })();
 
-  /* ========================================================== *
-   * EXHIBIT 7 · STATE TILE MAP                                  *
-   * ========================================================== */
-  (function () {
-    const pct = {}, name = {}, cnt = {};
-    I.STATES.forEach(r => { pct[r[1]] = r[6]; name[r[1]] = r[0]; cnt[r[1]] = r[5]; });
-    const vals = Object.values(pct), min = Math.floor(Math.min(...vals)), max = Math.ceil(Math.max(...vals));
-    const stops = [{ t: 0, color: '#eaf0e9' }, { t: .5, color: '#5aa377' }, { t: 1, color: '#0f3d2c' }];
-    const map = window.USMAP
-      ? C.choropleth({ values: pct, min, max, stops, fmt: v => v != null ? v.toFixed(1) + '%' : 'n/a', nameOf: a => name[a] || a, onClick: ab => openStateModal(ab) })
-      : C.tileMap({ values: pct, min, max, stops, fmt: v => v.toFixed(1) + '%', nameOf: a => name[a] });
-    const box = mount('chart-map', map);
-    document.getElementById('mapRamp').style.background = `linear-gradient(90deg, ${stops.map(s => s.color + ' ' + (s.t * 100) + '%').join(', ')})`;
-    document.getElementById('mapLo').textContent = min + '%';
-    document.getElementById('mapHi').textContent = max + '%';
-    const mapSel = document.getElementById('mapStateSel');
-    if (mapSel) {
-      I.STATES.slice().sort((a, b) => a[0].localeCompare(b[0])).forEach(r => mapSel.add(new Option(r[0], r[1])));
-      mapSel.addEventListener('change', () => { if (mapSel.value) { openStateModal(mapSel.value); mapSel.value = ''; } });
-    }
-    const tip = document.getElementById('maptip');
-    const show = (ab, x, y) => {
-      tip.innerHTML = `<b>${name[ab]}</b><br>${pct[ab].toFixed(1)}% <span style="color:var(--faint)">of enrollment</span><br><span class="v">${I.nf(cnt[ab])}</span> students served`;
-      tip.style.left = Math.min(window.innerWidth - 240, x + 14) + 'px'; tip.style.top = (y + 14) + 'px'; tip.classList.add('show');
-    };
-    const hide = () => tip.classList.remove('show');
-    const tileSel = '.tile, path[data-abbr]';
-    box.addEventListener('mousemove', e => { const g = e.target.closest(tileSel); g ? show(g.dataset.abbr, e.clientX, e.clientY) : hide(); });
-    box.addEventListener('mouseleave', hide);
-    box.querySelectorAll(tileSel).forEach(g => {
-      if (g.classList.contains('tile')) g.addEventListener('click', () => openStateModal(g.dataset.abbr));
-      g.addEventListener('focus', () => { const r = g.getBoundingClientRect(); show(g.dataset.abbr, r.left, r.bottom); });
-      g.addEventListener('blur', hide);
-    });
-    expbar('chart-map', 'idea-by-state-2022-23', [['State', 'Abbr', 'Percent of enrollment (2022-23)', 'Served (2024-25)'], ...I.STATES.map(r => [r[0], r[1], r[6], r[5]])]);
-    hint('chart-map', 'Tap any state for its snapshot');
-  })();
+  /* (The state map is now the unified drill-down map in interactive.js.) */
 
   /* ========================================================== *
    * EXHIBIT 8 · PART C DONUT                                    *
@@ -507,7 +496,7 @@
       row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fire(); } });
       lg.appendChild(row);
     });
-    expbar('chart-partc', 'idea-partc-settings-fall-2023', [['Primary early intervention setting', 'Percent (fall 2023)'], ...A.partcSettings]);
+    expbar('chart-partc', 'idea-partc-settings-2024-25', [['Primary early intervention setting', 'Percent (2024-25)'], ...A.partcSettings]);
     hint('chart-partc', 'Tap a slice or a setting for detail');
   })();
 
@@ -598,6 +587,6 @@
   /* shared helpers + drilldowns, for builder.js and extra.js */
   window.IDEAStory = {
     onView, mount, legend, hint, expbar, swatch,
-    openModal, openStateModal, openCatModal, openEnvModal, openRaceModal, openPartcModal, openExitModal,
+    openModal, openStateModal, openCatModal, openEnvModal, openRaceModal, openPartcModal, openExitModal, openSexModal, openAgeModal,
   };
 })();

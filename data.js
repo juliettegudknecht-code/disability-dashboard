@@ -141,7 +141,7 @@ const ARC = {
   schoolAgeTotal: 7236548,      // students ages 5 (school age) through 21, fall 2023
   ages6to21: 6900750,           // ages 6 through 21, fall 2023 (50 states + DC + BIE)
   earlyChildhoodTotal: 583341,  // children ages 3 through 5, fall 2023
-  partcTotal: 462847,           // infants & toddlers birth through age 2, fall 2023
+  partcTotal: 458920,           // infants & toddlers birth through age 2, School Year 2024-25
 
   // share of school-age students served, by category, fall 2023 (Exhibit 21)
   catShare: [
@@ -175,7 +175,7 @@ const ARC = {
   env2023: { in80: 67.8, in40: 15.1, in0: 12.4, other: 4.7 },
   envTrend: { fromYear: '2019', from: 64.8, toYear: '2023', to: 67.8 },
 
-  partcSettings: [['Home', 89.3], ['Community-based setting', 7.2], ['Other setting', 3.5]],
+  partcSettings: [['Home', 88.7], ['Community-based setting', 7.8], ['Other setting', 3.5]],  // SY 2024-25 (Home 406,921 / Community 35,999 / Other 16,000 of 458,920)
 
   exit: { year: '2022\u201323', prevYear: '2014\u201315',
     gradDiplomaPct: 75.8, dropoutPct: 13.9, gradPrev: 66.1, dropoutPrev: 18.4,

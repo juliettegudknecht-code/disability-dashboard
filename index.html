@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=15">
 <!-- ============ SOFT PASSWORD GATE ============ -->
 <script>
   /* Light access gate (client-side only, not real security). Lock before render. */
@@ -23,7 +23,8 @@
     align-items: center; justify-content: center; padding: 24px; visibility: visible !important;
     background: radial-gradient(120% 120% at 50% 0%, #15466a 0%, #10324a 55%, #0c2236 100%);
     font-family: 'Public Sans', system-ui, sans-serif; }
-  #pwGate .pw-card { width: min(420px, 100%); text-align: center; color: #eaf2f8; }
+  #pwGate .pw-card { position: relative; z-index: 2; width: min(420px, 100%); text-align: center; color: #eaf2f8; }
+  #pwGate #pwCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; display: block; }
   #pwGate .pw-mark { width: 56px; height: 56px; margin: 0 auto 22px; }
   #pwGate h1 { font-family: 'Archivo', system-ui, sans-serif; font-weight: 800; font-size: 23px;
     line-height: 1.18; letter-spacing: -.02em; color: #fff; margin: 0 0 8px; }
@@ -52,6 +53,7 @@
 </head>
 <body>
 <div id="pwGate" aria-hidden="false">
+  <canvas id="pwCanvas" aria-hidden="true"></canvas>
   <div class="pw-card">
     <svg class="pw-mark" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0c2236"/><rect x="16" y="32" width="8" height="16" rx="1.5" fill="#7fb0d8"/><rect x="28" y="24" width="8" height="24" rx="1.5" fill="#ffffff"/><rect x="40" y="16" width="8" height="32" rx="1.5" fill="#86c195"/></svg>
     <h1>IDEA Section&nbsp;618 Data Collections Tool</h1>
@@ -64,6 +66,65 @@
     <div class="pw-tip">The gate shows on every load. Refresh anytime with <kbd>Ctrl</kbd>+<kbd>R</kbd> (<kbd>&#8984;</kbd>+<kbd>R</kbd> on Mac).</div>
   </div>
 </div>
+<script>
+  /* Animated "second brain" background for the gate: drifting green/blue glow
+     blobs + a translucent particle network, layered over the navy gradient.
+     Self-terminates when the gate is removed (unlocked); honors reduced motion. */
+  (function () {
+    var gate = document.getElementById('pwGate'), cv = document.getElementById('pwCanvas');
+    if (!gate || !cv || !cv.getContext) return;
+    var ctx = cv.getContext('2d');
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var W = 0, H = 0, DPR = 1, pts = [], blobs = [], raf = 0, t = 0;
+    var NODE_COLORS = ['#9fd3ad', '#4fae74', '#8fc1e6', '#3f78c2'];
+    function size() {
+      DPR = Math.min(2, window.devicePixelRatio || 1);
+      W = gate.clientWidth || window.innerWidth; H = gate.clientHeight || window.innerHeight;
+      cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      var big = Math.max(W, H);
+      blobs = [
+        { x: W * 0.24, y: H * 0.30, r: big * 0.46, c: 'rgba(47,143,87,0.34)', ph: 0.0, sp: 0.011, ax: W * 0.10, ay: H * 0.09 },
+        { x: W * 0.80, y: H * 0.66, r: big * 0.44, c: 'rgba(42,95,176,0.32)', ph: 2.1, sp: 0.013, ax: W * 0.11, ay: H * 0.08 },
+        { x: W * 0.58, y: H * 0.16, r: big * 0.32, c: 'rgba(124,192,138,0.26)', ph: 4.0, sp: 0.016, ax: W * 0.08, ay: H * 0.07 }
+      ];
+      var target = reduce ? 0 : Math.max(28, Math.min(80, Math.round(W * H / 16000)));
+      while (pts.length < target) pts.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - 0.5) * 0.34, vy: (Math.random() - 0.5) * 0.34, r: 1 + Math.random() * 1.9, c: NODE_COLORS[(Math.random() * NODE_COLORS.length) | 0] });
+      pts.length = target;
+    }
+    function drawBlobs(moving) {
+      ctx.globalCompositeOperation = 'lighter';
+      for (var b, i = 0; i < blobs.length; i++) {
+        b = blobs[i];
+        var cx = b.x + (moving ? Math.cos(t * b.sp + b.ph) * b.ax : 0);
+        var cy = b.y + (moving ? Math.sin(t * b.sp * 0.9 + b.ph) * b.ay : 0);
+        var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, b.r);
+        g.addColorStop(0, b.c); g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, b.r, 0, 6.2832); ctx.fill();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    function frame() {
+      if (!document.getElementById('pwGate')) { cancelAnimationFrame(raf); return; }
+      t++; ctx.clearRect(0, 0, W, H);
+      drawBlobs(true);
+      var i, j, p, q;
+      for (i = 0; i < pts.length; i++) {
+        p = pts[i]; p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > W) p.vx *= -1; if (p.y < 0 || p.y > H) p.vy *= -1;
+        for (j = i + 1; j < pts.length; j++) {
+          q = pts[j]; var dx = p.x - q.x, dy = p.y - q.y, d = dx * dx + dy * dy;
+          if (d < 15000) { var a = (1 - d / 15000) * 0.45; ctx.strokeStyle = 'rgba(150,206,178,' + a.toFixed(3) + ')'; ctx.lineWidth = 0.7; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke(); }
+        }
+      }
+      ctx.globalAlpha = 0.85;
+      for (i = 0; i < pts.length; i++) { p = pts[i]; ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill(); }
+      ctx.globalAlpha = 1;
+      raf = requestAnimationFrame(frame);
+    }
+    size(); window.addEventListener('resize', function () { if (document.getElementById('pwGate')) size(); });
+    if (reduce) drawBlobs(false); else raf = requestAnimationFrame(frame);
+  })();
+</script>
 <script>
   (function () {
     var KEY = 'idea618story_ok';
@@ -108,8 +169,8 @@
       <a href="#env">Classrooms</a>
       <a href="#who">Who</a>
       <a href="#det">Determinations</a>
-      <a href="#moneyflow">Funding</a>
-      <a href="#explore">States &amp; explore</a>
+      <a href="#alloc">Funding</a>
+      <a href="#explore">States &amp; districts</a>
     </nav>
     <div class="tb-tools">
       <button id="searchToggle" class="tb-icon" aria-label="Search the story" aria-expanded="false">
@@ -177,15 +238,16 @@
 <!-- ============ EXHIBIT 2 · CATEGORIES ============ -->
 <section class="section" id="cats">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">Specific learning disability is the most prevalent category. Autism is now the fourth.</h2>
-    <p class="scene-dek reveal d2">In SY 2023&ndash;24, the most prevalent disability category of school-age students served under IDEA,
-      Part&nbsp;B, was specific learning disability (33.8 percent). The next most common were speech or language impairment
-      (17.9 percent), other health impairment (16.5 percent), and autism (13.8 percent).</p>
+    <h2 class="scene-h reveal d1">Specific learning disability is by far the most prevalent category.</h2>
+    <p class="scene-dek reveal d2">In SY 2024&ndash;25, the most prevalent disability category of school-age students served under IDEA,
+      Part&nbsp;B, was specific learning disability (33.5 percent). The next most common were speech or language impairment
+      (17.4 percent), other health impairment (16.4 percent), and autism (14.8 percent). Every category is shown on its own
+      below, down to the smallest.</p>
     <div class="figure reveal d2">
-      <div class="figure-title">Percentage of students ages 5 (school age) through 21 served under IDEA, Part&nbsp;B, by disability category: Fall 2023</div>
-      <div class="figure-sub">Percent of all school-age students served, SY 2023&ndash;24.</div>
+      <div class="figure-title">Percentage of students ages 5 (school age) through 21 served under IDEA, Part&nbsp;B, by disability category: School year 2024&ndash;25</div>
+      <div class="figure-sub">Percent of all school-age students served, SY 2024&ndash;25.</div>
       <div class="chartbox" id="chart-cats"></div>
-      <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Year 2023&ndash;24. Excludes Iowa and New Mexico, for which data were not available.</div>
+      <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Year 2024&ndash;25.</div>
     </div>
   </div>
 </section>
@@ -193,10 +255,10 @@
 <!-- ============ EXHIBIT 3 · AUTISM TREND ============ -->
 <section class="section" id="autism">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">Autism has grown faster than any other category.</h2>
-    <p class="scene-dek reveal d2">When autism was first reported as its own category in School Year 2000&ndash;01, about 93,000
-      students were served under it. By 2024&ndash;25 the count exceeded 1.2&nbsp;million. Over the same period, most other
-      categories held steady or declined.</p>
+    <h2 class="scene-h reveal d1">Other health impairment and autism have grown the fastest among the categories.</h2>
+    <p class="scene-dek reveal d2">Since School Year 2000&ndash;01, several categories have grown while others held steady or declined.
+      Other health impairment and autism each grew to about 1.2&nbsp;million by 2024&ndash;25, and developmental delay roughly
+      tripled, while intellectual disability fell and specific learning disability edged down.</p>
     <div class="figure reveal d2">
       <div class="legend" id="autismLegend"></div>
       <div class="figure-title">Number of children and students ages 3 through 21 served under IDEA, Part&nbsp;B, by year and disability category: School year 2000&ndash;01 through 2024&ndash;25</div>
@@ -283,15 +345,15 @@
 <section class="section" id="partc">
   <div class="wrap">
     <h2 class="scene-h reveal d1">Nearly 9 in 10 infants and toddlers receive early intervention in the home.</h2>
-    <p class="scene-dek reveal d2">In SY 2023&ndash;24, of the 462,847 infants and toddlers served under IDEA, Part&nbsp;C, 89.3 percent
+    <p class="scene-dek reveal d2">In SY 2024&ndash;25, of the 458,920 infants and toddlers served under IDEA, Part&nbsp;C, 88.7 percent
       received their early intervention services primarily in the home. A community-based setting was the primary setting for
-      7.2 percent.</p>
+      7.8 percent.</p>
     <div class="split two reveal d2">
       <div>
         <div class="figure" style="margin-top:0">
-          <div class="figure-title">Percentage of infants and toddlers birth through age 2 served under IDEA, Part&nbsp;C, by primary early intervention services setting: Fall 2023</div>
+          <div class="figure-title">Percentage of infants and toddlers birth through age 2 served under IDEA, Part&nbsp;C, by primary early intervention services setting: School year 2024&ndash;25</div>
           <div class="chartbox" id="chart-partc" style="max-width:320px;margin-top:14px"></div>
-          <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;C Child Count and Settings Collection, School Year 2023&ndash;24.</div>
+          <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;C Child Count and Settings Collection, School Year 2024&ndash;25.</div>
         </div>
       </div>
       <div id="partcLegend"></div>
@@ -345,38 +407,26 @@
   </div>
 </section>
 
-<!-- ============ EXHIBIT 13 · MONEY FLOW (MOE / CEIS) ============ -->
-<section class="section" id="moneyflow">
-  <div class="wrap">
-    <h2 class="scene-h reveal d1">Follow the money: where a state&rsquo;s reported IDEA, Part&nbsp;B allocation goes.</h2>
-    <p class="scene-dek reveal d2">In the Maintenance of Effort and Coordinated Early Intervening Services (CEIS) collection, each district reports its Section&nbsp;611 (school-age) and Section&nbsp;619 (preschool) allocation. A share may be set aside for CEIS; the rest pays for special education and related services. Pick a state or one of its largest districts to see the reported allocation flow.</p>
-    <div class="figure reveal d2">
-      <div class="focus-controls">
-        <label><span class="src-k">State</span><select id="moeState" class="ex-select"></select></label>
-        <label><span class="src-k">District</span><select id="moeDistrict" class="ex-select"></select></label>
-      </div>
-      <div class="figure-title">Reported Section&nbsp;611 and 619 allocation, and where it goes</div>
-      <div class="figure-sub" id="moeCap">Reported Section&nbsp;611 and 619 allocations, School Year 2021&ndash;22.</div>
-      <div class="chartbox" id="chart-moe" style="max-width:780px"></div>
-      <div class="source"><span class="src-k">Source</span> U.S. Department of Education, OSEP, IDEA Part&nbsp;B LEA Maintenance of Effort (MOE) Reduction and Coordinated Early Intervening Services (CEIS) Collection, School Year 2021&ndash;22. Figures are the allocation reported for the selected district or state; totals reflect only reporting LEAs, not the full national appropriation.</div>
-    </div>
-  </div>
-</section>
-
 <!-- ============ EXPLORE ============ -->
 <section class="section" id="explore">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">States and districts: explore the data in greater depth.</h2>
-    <p class="scene-dek reveal d2">Start with the map. The share of public-school students served under IDEA, Part&nbsp;B, ranged from about 12 percent in Hawaii to about 21 percent in Pennsylvania in School Year 2022&ndash;23. Then go deeper: one state's profile, every state side by side, the school-district (LEA) level, and the other Section&nbsp;618 collections.</p>
-    <div class="figure reveal d2">
-      <div class="map-controls"><label><span class="src-k">Choose a state</span><select id="mapStateSel" class="ex-select"><option value="">Choose a state</option></select></label></div>
-      <div class="figure-title">Percentage of students served under IDEA, Part&nbsp;B, as a percentage of public school enrollment, by State: School year 2022&ndash;23</div>
-      <div class="figure-sub">Darker shading indicates a larger share served. Tap a state on the map, or choose one from the menu, for its snapshot.</div>
-      <div class="chartbox" id="chart-map" style="max-width:720px"></div>
-      <div class="map-scale">
-        <span id="mapLo">12%</span><span class="ramp" id="mapRamp"></span><span id="mapHi">21%</span>
+    <h2 class="scene-h reveal d1">States, districts, and funding: explore one map.</h2>
+    <p class="scene-dek reveal d2">Shade the map by what you want to see, then tap a state to drill into its districts (LEAs) and its reported IDEA, Part&nbsp;B funding. Tap a district to go deeper.</p>
+    <div class="figure reveal d2" id="umap">
+      <div class="umap-controls">
+        <label><span class="src-k">Shade states by</span><select id="umapMetric" class="ex-select">
+          <option value="pct">Percent of public-school enrollment (2022&ndash;23)</option>
+          <option value="served">Students served, ages 3&ndash;21 (2024&ndash;25)</option>
+          <option value="fund">IDEA Part&nbsp;B funding, Sections 611+619 (2021&ndash;22)</option>
+        </select></label>
+        <nav id="umapCrumb" class="umap-crumb" aria-label="Map drilldown"></nav>
       </div>
-      <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Child Count and Educational Environments Collection, with NCES public-school enrollment. School Year 2022&ndash;23 (50 states and the District of Columbia).</div>
+      <div class="figure-title" id="umapTitle"></div>
+      <div class="figure-sub" id="umapSub">Darker shading means a larger value. Tap a state to drill in.</div>
+      <div class="chartbox" id="chart-map" style="max-width:720px"></div>
+      <div class="map-scale"><span id="mapLo"></span><span class="ramp" id="mapRamp"></span><span id="mapHi"></span></div>
+      <div id="mapDrill" class="map-drill"></div>
+      <div class="source" id="umapSource"></div>
     </div>
     <div class="explore reveal d2">
       <div class="extabs" role="tablist" aria-label="Explore views">
@@ -386,9 +436,9 @@
         <button class="extab" data-tab="more" role="tab" aria-selected="false">Other collections</button>
       </div>
       <div class="expanel" data-panel="state">
-        <div class="ex-controls"><span class="src-k">State</span><select id="exStateSel" class="ex-select" aria-label="Choose a state"></select></div>
+        <div class="ex-controls"><label class="src-k" for="exStateSel">Choose a state</label><select id="exStateSel" class="ex-select" aria-label="Choose a state"></select></div>
         <div id="exStateOut"></div>
-        <div class="source"><span class="src-k">Source</span> IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Years 2000&ndash;01 through 2024&ndash;25; NCES enrollment (percent of enrollment, School Year 2022&ndash;23); IDEA Part&nbsp;B Exiting Collection and Discipline Collection, School Year 2023&ndash;24.</div>
+        <div class="source"><span class="src-k">Source</span> IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Years 2000&ndash;01 through 2024&ndash;25; NCES public-school enrollment (2022&ndash;23); IDEA Part&nbsp;B Exiting Collection, School Year 2023&ndash;24; 2026 Determination Letters on State Implementation of IDEA.</div>
       </div>
       <div class="expanel" data-panel="sea" hidden>
         <div class="ex-controls"><input id="seaSearch" class="ex-search" type="search" placeholder="Search a state"><span class="src-k">Click a column to sort</span></div>
@@ -396,15 +446,14 @@
         <div class="source"><span class="src-k">Source</span> IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Years 2000&ndash;01 through 2024&ndash;25; IDEA Part&nbsp;B Exiting Collection, School Year 2023&ndash;24 (graduation and dropout, as a percent of students ages 14&ndash;21 who exited school).</div>
       </div>
       <div class="expanel" data-panel="lea" hidden>
-        <div class="ex-controls"><span class="src-k">State</span><select id="leaStateSel" class="ex-select" aria-label="Choose a state"></select></div>
-        <div class="lea-note"><span>ℹ</span><span>Districts are ranked by the number of students served, ages&nbsp;3 through&nbsp;21. Counts for the smallest districts are suppressed to protect student privacy, so the districts shown may not sum to the state total; the remainder is grouped as &ldquo;all other districts.&rdquo;</span></div>
+        <div class="ex-controls"><label class="src-k" for="leaStateSel">Choose a state</label><select id="leaStateSel" class="ex-select" aria-label="Choose a state"></select></div>
         <div id="leaOut"></div>
-        <div class="source"><span class="src-k">Source</span> U.S. Department of Education, Office of Special Education Programs, IDEA Part&nbsp;B Child Count and Educational Environments Collection, local educational agency (LEA) child counts by disability category, School Year 2024&ndash;25.</div>
+        <div class="source"><span class="src-k">Source</span> IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Year 2024&ndash;25 (local educational agencies that reported a child count). District counts may not sum to the State total because small cells are suppressed.</div>
       </div>
       <div class="expanel" data-panel="more" hidden>
         <div class="figure" style="margin-top:0">
           <div class="figure-title">Graduation and dropout among students who exited school, by disability</div>
-          <div class="figure-sub">Graduated with a regular high school diploma, as a percent of students ages 14&ndash;21 who exited school, School Year 2023&ndash;24. Autism shown in green.</div>
+          <div class="figure-sub">Graduated with a regular high school diploma, as a percent of students ages 14&ndash;21 who exited school, School Year 2023&ndash;24.</div>
           <div class="chartbox" id="moreExit"></div>
           <div class="source"><span class="src-k">Source</span> U.S. Department of Education, Office of Special Education Programs, IDEA Part&nbsp;B Exiting Collection, School Year 2023&ndash;24 (national totals, including the additional reporting entities).</div>
         </div>
@@ -428,6 +477,28 @@
           <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Personnel Collection, School Year 2023&ndash;24 (full-time-equivalent staff; national totals, including the additional reporting entities).</div>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ALLOCATIONS vs SERVED (scatter) ============ -->
+<section class="section" id="alloc">
+  <div class="wrap">
+    <h2 class="scene-h reveal d1">Funding lines up with students served, district by district.</h2>
+    <p class="scene-dek reveal d2">Each dot is a single school district: students served on one axis, reported IDEA, Part&nbsp;B funding on the other, colored by the State&rsquo;s IDEA determination. Switch between every district in the country and the districts of one State. Both axes use a log scale, since the values run from the smallest programs to the largest districts. Hover for the name; tap a dot to open it.</p>
+    <div class="figure reveal d2">
+      <div class="umap-controls">
+        <label><span class="src-k">View</span><select id="scatterView" class="ex-select">
+          <option value="all">All districts (national)</option>
+          <option value="state">One state&rsquo;s districts</option>
+        </select></label>
+        <label id="scatterStateWrap" hidden><span class="src-k">State</span><select id="scatterState" class="ex-select"></select></label>
+      </div>
+      <div class="figure-title" id="scatterTitle"></div>
+      <div class="figure-sub" id="scatterSub"></div>
+      <div class="legend" id="scatterLegend"></div>
+      <div class="chartbox" id="chart-scatter" style="max-width:760px"></div>
+      <div class="source" id="scatterSource"></div>
     </div>
   </div>
 </section>
@@ -458,16 +529,19 @@
 
 <div class="maptip" id="maptip"></div>
 
-<script src="data.js"></script>
-<script src="enrich.js"></script>
-<script src="moe.js"></script>
-<script src="usmap.js"></script>
-<script src="det.js"></script>
-<script src="charts.js"></script>
-<script src="story.js"></script>
-<script src="explore.js"></script>
-<script src="extra.js"></script>
-<script src="interactive.js"></script>
-<script src="builder.js"></script>
+<script src="data.js?v=15"></script>
+<script src="enrich.js?v=15"></script>
+<script src="moe.js?v=15"></script>
+<script src="usmap.js?v=15"></script>
+<script src="det.js?v=15"></script>
+<script src="lea.js?v=15"></script>
+<script src="leaexit.js?v=15"></script>
+<script src="charts.js?v=15"></script>
+<script src="story.js?v=15"></script>
+<script src="explore.js?v=15"></script>
+<script src="extra.js?v=15"></script>
+<script src="interactive.js?v=15"></script>
+<script src="builder.js?v=15"></script>
+<script src="quickstats.js?v=15"></script>
 </body>
 </html>
