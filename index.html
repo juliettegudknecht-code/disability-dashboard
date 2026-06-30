@@ -12855,12 +12855,17 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
   <div class="card fig trend-focus-card" id="trend-main" data-drill-group="trends" data-drill-panel="national">
 	    <h3>Children and Students with Disabilities Served Under IDEA, Part&nbsp;B, Ages 3 Through 21, School Years 1976&ndash;77 Through 2024&ndash;25</h3>
 	    <details class="whatmeans"><summary>What this means</summary><div class="note wm-body" data-nf="skip">National total over time. Add primary disability categories below to compare each category with the overall trend.</div></details>
-    <div class="canvas-box tall"><canvas id="trendChart"></canvas></div>
-    <div class="tbl-toggle trend-unit-toggle" id="trendUnitToggle" role="group" aria-label="Show the trend as counts or as a percent of enrollment">
-	      <button type="button" data-unit="count" class="on" aria-pressed="true">Count</button>
-	      <button type="button" data-unit="rate" aria-pressed="false">% enrollment</button>
+    <div class="trend-controls">
+      <div class="trend-ctrl-group">
+        <span class="trend-ctrl-lbl">Show as</span>
+        <div class="tbl-toggle trend-unit-toggle" id="trendUnitToggle" role="group" aria-label="Show the trend as counts or as a percent of enrollment">
+          <button type="button" data-unit="count" class="on" aria-pressed="true">Number of students</button>
+          <button type="button" data-unit="rate" aria-pressed="false">% of enrollment</button>
+        </div>
+      </div>
+      <label class="trend-line-toggle"><input type="checkbox" id="trendLineToggle"> <span>Trend line</span></label>
     </div>
-    <label class="trend-line-toggle" style="display:inline-flex;align-items:center;gap:7px;font-size:.84rem;font-weight:600;color:var(--ink);margin:9px 0 0;cursor:pointer"><input type="checkbox" id="trendLineToggle" style="width:16px;height:16px;cursor:pointer"> Show linear trend line</label>
+    <div class="canvas-box tall"><canvas id="trendChart"></canvas></div>
     <div class="trend-series-control" id="trendPills"></div>
     <div class="trend-focus-summary" id="trendFocusSummary" aria-live="polite"></div>
     <details class="tbl-srcfold"><summary>Source</summary><div class="tbl-srcfold-body">U.S. Department of Education, National Center for Education Statistics, Digest of Education Statistics 2023, Table&nbsp;204.30; and Office of Special Education Programs, “IDEA Part&nbsp;B Child Count and Educational Environments Collection,” School Years 1976–77 through 2024–25.</div></details>
@@ -13472,6 +13477,10 @@ body.no-anim .welcome-overlay,body.reduce .welcome-overlay,body.no-anim .welcome
 <script>(function(){
   try{var u=document.getElementById('sfUpdated');var d=document.lastModified?new Date(document.lastModified):null;if(u&&d&&!isNaN(d))u.textContent='Last updated '+d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})+' at '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}catch(e){}
   function on(id,fn){var b=document.getElementById(id);if(b)b.addEventListener('click',fn);}
+  /* Move the big "Sources, data notes & suppression key" disclosure OUT of the main
+     content (where it sat at the bottom of every view) and INTO the site footer, so it
+     lives only in the footer. The footer's "Sources & data notes" button still opens it. */
+  try{ var _sf=document.querySelector('.site-footer'), _src=document.querySelector('.sources-fold'), _base=_sf&&_sf.querySelector('.sf-base'); if(_sf&&_src){ _src.classList.add('in-footer'); _sf.insertBefore(_src, _base||null); } }catch(e){}
   [].slice.call(document.querySelectorAll('.site-footer [data-goto]')).forEach(function(b){b.addEventListener('click',function(){try{showView(b.getAttribute('data-goto'));window.scrollTo(0,0);}catch(e){}});});
   on('sfBuild',function(){var f=document.getElementById('chartBuilderFab');if(f)f.click();});
   on('sfSources',function(){var s=document.querySelector('.sources-fold');if(s){s.open=true;try{s.scrollIntoView({behavior:document.body.classList.contains('reduce')?'auto':'smooth',block:'start'});}catch(e){s.scrollIntoView();}}});
@@ -18182,18 +18191,23 @@ var fairyMusic=(function(){
     if(v==='states'){ p.state=(typeof focusState!=='undefined'?focusState:'')||''; var ms=document.getElementById('metricSel'); p.metric=ms?ms.value:''; }
     if(v==='trends'||v==='home'){ p.trendSel=(typeof trendSelected!=='undefined'&&trendSelected)?trendSelected.slice():null; p.trendUnit=(typeof trendUnit!=='undefined'?trendUnit:'count'); }
     if(v==='lea'){ p.leaState=(typeof LEA_STATE!=='undefined'?LEA_STATE:'')||''; p.leaDist=(typeof LEA_SEL!=='undefined'&&LEA_SEL&&LEA_SEL.name)?LEA_SEL.name:''; }
+    if(v==='tables'){ p.tColls=(typeof tablesCollections!=='undefined'?tablesCollections.slice():[]); p.tPrimary=(typeof tablesPrimary!=='undefined'?tablesPrimary:''); p.tMode=(typeof tablesMode!=='undefined'?tablesMode:'count'); p.tBy=(typeof tablesCompareBy!=='undefined'?tablesCompareBy:'state'); p.tCat=(typeof tablesCat!=='undefined'?tablesCat:'all'); p.tCatPrimary=(typeof tablesCatPrimary!=='undefined'?tablesCatPrimary:''); }
     p.label=label(p); p.sub=subLabel(p);
     return p;
   }
+  function _tblCollNames(p){ return (p.tColls||[]).map(function(k){ return (typeof COLL_META!=='undefined'&&COLL_META[k])?COLL_META[k].name:k; }); }
+  function _tblWho(p){ return (p.tBy==='category') ? (p.tCatPrimary||'by category') : ((!p.tPrimary||p.tPrimary==='__USALL__'||p.tPrimary==='__US__')?'United States':p.tPrimary); }
   function label(p){
     var base=VIEW_NAMES[p.view]||p.view;
     if(p.view==='states'&&p.state) return p.state;
     if(p.view==='lea') return p.leaDist || (p.leaState?p.leaState+' districts':'LEA Explorer');
+    if(p.view==='tables'){ var names=_tblCollNames(p); if(!names.length) return 'SEA Tables'; return names.length<=2?names.join(' + '):(names.length+' collections'); }
     return base;
   }
   function subLabel(p){
     if(p.view==='states') return 'State Snapshot';
     if(p.view==='lea'){ if(p.leaDist) return (p.leaState?p.leaState+' · ':'')+'School district (LEA Explorer)'; if(p.leaState) return 'All districts · LEA Explorer'; return 'LEA Explorer'; }
+    if(p.view==='tables'){ var bits=['SEA Tables']; if((p.tColls||[]).length){ bits.push(_tblWho(p)); bits.push(p.tBy==='category'?'by category':'by State'); bits.push(p.tMode==='percent'?'percent':'counts'); } return bits.join(' · '); }
     if((p.view==='trends'||p.view==='home')){
       var bits=[]; if(p.trendUnit==='rate')bits.push('% of enrollment'); else bits.push('Number of students');
       if(p.trendSel&&p.trendSel.length)bits.push(p.trendSel.length+(p.trendSel.length===1?' category':' categories'));
@@ -18212,6 +18226,17 @@ var fairyMusic=(function(){
         if(typeof trendUnit!=='undefined')trendUnit=p.trendUnit||'count';
         document.querySelectorAll('#trendUnitToggle button[data-unit]').forEach(function(x){var on=x.dataset.unit===trendUnit;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on?'true':'false');});
         buildPills(); renderTrend(); if(typeof renderTrendShare==='function')renderTrendShare();
+      }catch(e){}
+    }
+    if(p.view==='tables'){
+      try{
+        if(Array.isArray(p.tColls)&&typeof tablesCollections!=='undefined') tablesCollections=p.tColls.slice();
+        if(p.tMode&&typeof tablesMode!=='undefined') tablesMode=p.tMode;
+        if(p.tBy&&typeof tablesCompareBy!=='undefined') tablesCompareBy=p.tBy;
+        if(p.tPrimary&&typeof tablesPrimary!=='undefined') tablesPrimary=p.tPrimary;
+        if(p.tCat&&typeof tablesCat!=='undefined') tablesCat=p.tCat;
+        if(p.tCatPrimary&&typeof tablesCatPrimary!=='undefined') tablesCatPrimary=p.tCatPrimary;
+        if(typeof renderTablesView==='function') renderTablesView();
       }catch(e){}
     }
     if(p.view==='lea'&&p.leaState){
@@ -20592,27 +20617,31 @@ body.dark .lea-exit-card .lea-exit-grad b{ color:#9fd3ad; }
 .lea-exit-card .lea-exit-subh{ margin:18px 0 10px; font-size:.92rem; color:var(--navy); font-weight:800; }
 body.dark .lea-exit-card .lea-exit-subh{ color:#9fc3ec; }
 
-/* ---- interactive SVG exit funnel ---- */
-.lea-funnel-svg{ margin:6px 0 2px; }
-.lea-funnel-svg svg{ display:block; width:100%; max-width:480px; margin:0 auto; overflow:visible; }
-.lfn-seg{ cursor:default; transform-box:fill-box; transform-origin:center; transition:transform .2s cubic-bezier(.34,1.4,.5,1); }
-.lfn-path{ stroke:rgba(255,255,255,.55); stroke-width:1.5; filter:drop-shadow(0 6px 13px rgba(16,42,67,.20)); transition:filter .2s ease; }
-body:not(.no-anim):not(.reduce) .lfn-seg:hover,body:not(.no-anim):not(.reduce) .lfn-seg:focus-visible{ transform:scale(1.035); }
-.lfn-seg:hover .lfn-path,.lfn-seg:focus-visible .lfn-path{ filter:drop-shadow(0 12px 24px rgba(16,42,67,.36)) brightness(1.07); }
+/* ---- creative organic SVG exit funnel ---- */
+.lea-funnel-svg{ margin:8px 0 2px; }
+.lea-funnel-svg svg{ display:block; width:100%; max-width:430px; margin:0 auto; overflow:visible; }
+.lfn-seg{ cursor:default; transform-box:fill-box; transform-origin:center; transition:transform .22s cubic-bezier(.34,1.4,.5,1); }
+.lfn-path{ stroke:rgba(255,255,255,.6); stroke-width:1.5; filter:drop-shadow(0 7px 15px rgba(16,42,67,.22)); transition:filter .2s ease; }
+body:not(.no-anim):not(.reduce) .lfn-seg:hover,body:not(.no-anim):not(.reduce) .lfn-seg:focus-visible{ transform:scale(1.04); }
+.lfn-seg:hover .lfn-path,.lfn-seg:focus-visible .lfn-path{ filter:drop-shadow(0 13px 26px rgba(16,42,67,.38)) brightness(1.08); }
 .lfn-seg:focus-visible{ outline:none; }
-.lfn-seg:focus-visible .lfn-path{ stroke:#edcf36; stroke-width:2.5; }
-.lfn-num{ fill:#fff; font-weight:900; font-size:22px; font-variant-numeric:tabular-nums; }
-.lfn-pct{ fill:rgba(255,255,255,.94); font-weight:700; font-size:11.5px; }
-@keyframes lfnGrow{ from{ opacity:0; transform:translateY(-7px) scaleX(.9); } to{ opacity:1; transform:none; } }
-body:not(.no-anim):not(.reduce) .lfn-seg{ animation:lfnGrow .5s cubic-bezier(.22,1,.36,1) backwards; }
-.lfn-legend{ display:flex; flex-direction:column; gap:7px; margin:13px auto 2px; max-width:480px; }
-.lfn-leg-row{ display:grid; grid-template-columns:13px 1fr auto auto; align-items:center; gap:10px; font-size:.82rem; }
-.lfn-leg-dot{ width:12px; height:12px; border-radius:3px; }
-.lfn-leg-name{ color:var(--ink); font-weight:600; }
-.lfn-leg-val{ font-weight:800; color:var(--navy); font-variant-numeric:tabular-nums; }
-body.dark .lfn-leg-val{ color:#9fc3ec; }
-.lfn-leg-drop{ font-size:.72rem; color:var(--muted); white-space:nowrap; }
-@media (max-width:520px){ .lfn-leg-row{ grid-template-columns:13px 1fr auto; } .lfn-leg-drop{ grid-column:2 / -1; text-align:right; } }
+.lfn-seg:focus-visible .lfn-path{ stroke:#edcf36; stroke-width:2.6; }
+.lfn-num{ fill:#fff; font-weight:900; font-size:23px; font-variant-numeric:tabular-nums; text-anchor:middle; text-shadow:0 1px 3px rgba(8,20,33,.35); }
+.lfn-pct{ fill:rgba(255,255,255,.95); font-weight:800; font-size:12px; text-anchor:middle; }
+@keyframes lfnPour{ from{ opacity:0; transform:translateY(-9px) scaleX(.82); } to{ opacity:1; transform:none; } }
+body:not(.no-anim):not(.reduce) .lfn-seg{ animation:lfnPour .55s cubic-bezier(.22,1,.36,1) backwards; }
+/* narrative flow legend (tier → where the drop-off went → next tier) */
+.lfn-flow{ display:flex; flex-direction:column; margin:14px auto 2px; max-width:480px; }
+.lfn-flow-tier{ display:grid; grid-template-columns:13px 1fr auto auto; align-items:center; gap:10px; font-size:.84rem; padding:5px 0; }
+.lfn-flow-dot{ width:13px; height:13px; border-radius:4px; flex:none; }
+.lfn-flow-name{ color:var(--ink); font-weight:700; }
+.lfn-flow-val{ font-weight:800; color:var(--navy); font-variant-numeric:tabular-nums; }
+body.dark .lfn-flow-tier .lfn-flow-val{ color:#9fc3ec; }
+.lfn-flow-pct{ font-size:.72rem; color:var(--muted); white-space:nowrap; }
+.lfn-flow-drop{ display:flex; gap:9px; align-items:flex-start; margin:1px 0 1px 6px; padding:6px 0 6px 14px; border-left:2px dashed var(--line); font-size:.77rem; line-height:1.5; color:var(--muted); }
+.lfn-flow-drop b{ color:var(--ink); font-weight:800; }
+.lfn-flow-arrow{ color:#b8860b; font-size:1.05rem; line-height:1.1; flex:none; }
+@media (max-width:520px){ .lfn-flow-tier{ grid-template-columns:13px 1fr auto; } .lfn-flow-pct{ grid-column:2 / -1; } }
 
 /* ---- graduation-rate comparison ---- */
 .lea-exit-compare{ display:flex; flex-direction:column; gap:8px; margin:2px 0 4px; }
@@ -20718,6 +20747,20 @@ body.dark .dm-compare-sel{ background:#16242f; color:#dbe8f6; border-color:#2c3a
 }
 body.hc .dm-modal{ border-width:2px; }
 
+/* ---- sources disclosure, relocated into the site footer ---- */
+.site-footer .sources-fold.in-footer{ max-width:1320px; margin:22px auto 0; padding-top:18px; border-top:1px solid var(--line); }
+.site-footer .sources-fold.in-footer>summary{ font-size:.84rem; font-weight:800; color:var(--navy); }
+body.dark .site-footer .sources-fold.in-footer>summary{ color:#9fc3ec; }
+
+/* ---- trend chart: consolidated control bar above the chart ---- */
+.view[data-view="trends"] .trend-controls{ display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:10px 18px; margin:2px auto 12px; }
+.view[data-view="trends"] .trend-ctrl-group{ display:inline-flex; align-items:center; gap:9px; }
+.view[data-view="trends"] .trend-ctrl-lbl{ font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+.view[data-view="trends"] .trend-line-toggle{ display:inline-flex; align-items:center; gap:7px; cursor:pointer; font-size:.82rem; font-weight:700; color:var(--ink); padding:6px 14px; border:1px solid var(--line); border-radius:999px; background:var(--card); transition:border-color .14s, background .14s; }
+.view[data-view="trends"] .trend-line-toggle:hover{ border-color:var(--primary); }
+.view[data-view="trends"] .trend-line-toggle input{ width:15px; height:15px; cursor:pointer; accent-color:#1f6f9c; }
+body.dark .view[data-view="trends"] .trend-line-toggle{ background:#16202c; border-color:#2f3a48; color:#dbe8f6; }
+
 /* ---- "click a bubble" lightbulb hint on the home bubble chart ---- */
 .bubble-hint{ display:flex; align-items:center; justify-content:center; gap:8px; margin:4px auto 2px; max-width:560px; font-size:.84rem; font-weight:600; color:var(--navy); }
 .bubble-hint .bh-ic{ width:18px; height:18px; flex:none; color:#e0a325; }
@@ -20809,9 +20852,10 @@ body.dark .bubble-hint .bh-ic{ color:#edcf36; }
  ];
 
  function _lighten(hex){ var c=(''+hex).replace('#',''); if(c.length<6) return hex; function m(x){return Math.round(x+(255-x)*0.26);} return 'rgb('+m(parseInt(c.substr(0,2),16))+','+m(parseInt(c.substr(2,2),16))+','+m(parseInt(c.substr(4,2),16))+')'; }
- /* A real, interactive funnel: tapering SVG trapezoids (wide top -> narrow bottom),
-    each with a gradient fill, a hover/focus lift, and a staggered grow-in. A side
-    legend carries the names and the step-down percentages. */
+ /* A creative, organic exit funnel: a single smoothly-curved vessel (cubic-bezier
+    sides, vertical tangents so the bands flow into one another), gradient-filled
+    bands, a hover/focus lift, a poured grow-in, and a narrative "flow" legend that
+    interleaves each tier with where the students who fell away actually went. */
  function _exitFunnelHTML(ex){
   if(!(ex.totSpEd>0)) return '';
   /* Clamp each tier so a child never exceeds its parent (per-cell suppression can
@@ -20820,34 +20864,47 @@ body.dark .bubble-hint .bh-ic{ color:#edcf36; }
   var t1=(ex.totSchool!=null)?Math.min(ex.totSchool,t0):null;
   var t2=(ex.gradReg!=null)?Math.min(ex.gradReg,(t1!=null?t1:t0)):null;
   var tiers=[
-   {name:'Exited special education',value:t0,color:'#13496b'},
+   {name:'Exited special education',value:t0,color:'#0f3a5a'},
    {name:'Left school',value:t1,color:'#1f6f9c'},
    {name:'Graduated with a regular diploma',value:t2,color:'#2e8540'}
   ].filter(function(t){ return t.value!=null; });
   var top=tiers[0].value||1, n=tiers.length;
-  var W=460, cx=W/2, padTop=8, segH=66, gap=6, maxW=W-44;
-  var H=padTop+n*segH+(n-1)*gap+6;
-  var pr=tiers.map(function(t){ return Math.max(0.18, t.value/top); });
-  var widthAt=function(i){ return (i<pr.length?pr[i]:pr[n-1]*0.6)*maxW; };
-  var defs='<defs>'+tiers.map(function(t,i){ return '<linearGradient id="lfgrad'+i+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+_lighten(t.color)+'"/><stop offset="1" stop-color="'+t.color+'"/></linearGradient>'; }).join('')+'</defs>';
+  var W=440, cx=W/2, padTop=10, segH=80, maxW=W-34;
+  var H=padTop+n*segH+8;
+  var pr=tiers.map(function(t){ return Math.max(0.15, t.value/top); });
+  var wAt=function(i){ return (i<n?pr[i]:pr[n-1]*0.5)*maxW; };
+  var defs='<defs>';
+  tiers.forEach(function(t,i){ defs+='<linearGradient id="lfg'+i+'" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0" stop-color="'+_lighten(t.color)+'"/><stop offset="1" stop-color="'+t.color+'"/></linearGradient>'; });
+  defs+='</defs>';
   var segs='';
   tiers.forEach(function(t,i){
-   var y=padTop+i*(segH+gap), topW=widthAt(i), botW=(i<n-1)?widthAt(i+1):pr[i]*maxW*0.6;
-   var x0=cx-topW/2, x1=cx+topW/2, x2=cx+botW/2, x3=cx-botW/2;
-   var d='M'+x0.toFixed(1)+' '+y+' L'+x1.toFixed(1)+' '+y+' L'+x2.toFixed(1)+' '+(y+segH)+' L'+x3.toFixed(1)+' '+(y+segH)+' Z';
+   var y=padTop+i*segH, topW=wAt(i), botW=wAt(i+1), hc=segH*0.5;
+   var xLt=cx-topW/2, xRt=cx+topW/2, xLb=cx-botW/2, xRb=cx+botW/2, my=y+segH;
+   /* top edge, curved right side (vertical tangents), bottom edge, curved left side */
+   var d='M'+xLt.toFixed(1)+' '+y.toFixed(1)+
+    ' L'+xRt.toFixed(1)+' '+y.toFixed(1)+
+    ' C'+xRt.toFixed(1)+' '+(y+hc).toFixed(1)+' '+xRb.toFixed(1)+' '+(y+hc).toFixed(1)+' '+xRb.toFixed(1)+' '+my.toFixed(1)+
+    ' L'+xLb.toFixed(1)+' '+my.toFixed(1)+
+    ' C'+xLb.toFixed(1)+' '+(y+hc).toFixed(1)+' '+xLt.toFixed(1)+' '+(y+hc).toFixed(1)+' '+xLt.toFixed(1)+' '+y.toFixed(1)+' Z';
    var pctTop=Math.round(t.value/top*100);
-   segs+='<g class="lfn-seg" tabindex="0" role="img" aria-label="'+t.name+': '+_f(t.value)+' students, '+pctTop+' percent of all who exited" style="animation-delay:'+(i*0.12).toFixed(2)+'s">'+
+   segs+='<g class="lfn-seg" tabindex="0" role="img" aria-label="'+t.name+': '+_f(t.value)+' students, '+pctTop+' percent of all who exited" style="animation-delay:'+(i*0.13).toFixed(2)+'s">'+
     '<title>'+t.name+': '+_f(t.value)+' ('+pctTop+'%)</title>'+
-    '<path class="lfn-path" d="'+d+'" fill="url(#lfgrad'+i+')"/>'+
-    '<text class="lfn-num" x="'+cx+'" y="'+(y+segH/2-3).toFixed(1)+'" text-anchor="middle">'+_f(t.value)+'</text>'+
-    '<text class="lfn-pct" x="'+cx+'" y="'+(y+segH/2+15).toFixed(1)+'" text-anchor="middle">'+pctTop+'% of all who exited</text>'+
+    '<path class="lfn-path" d="'+d+'" fill="url(#lfg'+i+')"/>'+
+    '<text class="lfn-num" x="'+cx+'" y="'+(y+segH/2-3).toFixed(1)+'">'+_f(t.value)+'</text>'+
+    '<text class="lfn-pct" x="'+cx+'" y="'+(y+segH/2+15).toFixed(1)+'">'+pctTop+'%</text>'+
    '</g>';
   });
-  var legend='<div class="lfn-legend">'+tiers.map(function(t,i){
-   var prev=i>0?tiers[i-1].value:null, pp=(i>0&&prev>0)?Math.round(t.value/prev*100):null;
-   return '<div class="lfn-leg-row"><span class="lfn-leg-dot" style="background:'+t.color+'"></span><span class="lfn-leg-name">'+t.name+'</span><span class="lfn-leg-val">'+_f(t.value)+'</span><span class="lfn-leg-drop">'+(pp!=null?pp+'% of the step above':'all who exited')+'</span></div>';
-  }).join('')+'</div>';
-  return '<div class="lea-funnel-svg"><svg viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Funnel of how students exited special education.">'+defs+segs+'</svg></div>'+legend;
+  var svg='<div class="lea-funnel-svg"><svg viewBox="0 0 '+W+' '+H+'" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Funnel of how students exited special education.">'+defs+segs+'</svg></div>';
+  /* narrative flow: tier, then where the drop-off went, then the next tier */
+  var DROP=['stayed in school (moved within the State, or transferred to regular education)','left school another way (reached the maximum age, received a certificate, dropped out, or died)'];
+  var flow='<div class="lfn-flow">';
+  tiers.forEach(function(t,i){
+   var pctTop=Math.round(t.value/top*100);
+   flow+='<div class="lfn-flow-tier"><span class="lfn-flow-dot" style="background:'+t.color+'"></span><span class="lfn-flow-name">'+t.name+'</span><span class="lfn-flow-val">'+_f(t.value)+'</span><span class="lfn-flow-pct">'+pctTop+'% of all exiters</span></div>';
+   if(i<n-1){ var drop=t.value-tiers[i+1].value; if(drop>0) flow+='<div class="lfn-flow-drop"><span class="lfn-flow-arrow" aria-hidden="true">&#8627;</span><span><b>'+_f(drop)+'</b> '+(DROP[i]||'did not continue to the next step')+'</span></div>'; }
+  });
+  flow+='</div>';
+  return svg+flow;
  }
 
  function _exitReasonsHTML(ex){
