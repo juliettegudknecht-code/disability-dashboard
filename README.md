@@ -2,4 +2,4 @@
 
 A single-page data story on the children and students served under IDEA Section 618.
 
-Open `index.html`. Password gate: `datastory` to view.
+Open `index.html`.
