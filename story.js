@@ -16,6 +16,18 @@
     pct1: v => v.toFixed(1) + '%',
   };
 
+  /* collapsible "about suppressed data" note, keyed to a dataset in CATDATA.suppress */
+  const SUPP = (window.CATDATA && window.CATDATA.suppress) || {};
+  function suppNoteHTML(key) {
+    const s = SUPP[key]; if (!s || !s.note) return '';
+    return `<details class="supp-note"><summary><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>About suppressed values</summary><p>${s.note}</p></details>`;
+  }
+  function suppNote(hostId, key) {
+    const host = typeof hostId === 'string' ? document.getElementById(hostId) : hostId;
+    const html = suppNoteHTML(key); if (!host || !html) return;
+    host.insertAdjacentHTML('beforeend', html);
+  }
+
   /* shared "in view" observer */
   const jobs = new WeakMap();
   const io = new IntersectionObserver((ents) => {
@@ -99,16 +111,22 @@
     const r = I.STATES.find(x => x[1] === ab); if (!r) return;
     const served = r[5], pe = r[6], growth = (r[5] - r[2]) / r[2] * 100;
     const rank = I.STATES.slice().sort((a, b) => b[5] - a[5]).findIndex(x => x[1] === ab) + 1;
-    const ex = (X.EXIT_STATE || {})[ab], dt = detLevel(r[0]);
+    const ex = (X.EXIT_STATE || {})[ab], dt = detLevel(r[0]), dc = (X.DISC_STATE || {})[ab];
     const CATX = window.CATDATA, vec = CATX && CATX.state[ab];
+    let topCat = '', topVal = 0, autCount = 0, stTot = 0, penr = null;
+    if (vec) { stTot = vec.reduce((a, b) => a + b, 0); const ti = vec.indexOf(Math.max(...vec)); topCat = CATX.cats[ti]; topVal = vec[ti]; autCount = vec[CATX.cats.indexOf('Autism')] || 0; }
+    const penrRank = I.STATES.slice().sort((a, b) => b[6] - a[6]).findIndex(x => x[1] === ab) + 1;
     openModal(`<div class="m-kicker">State snapshot</div><h3 class="m-title">${r[0]}</h3>
       <div class="m-grid">
         <div><span class="mv">${I.nf(served)}</span><span class="ml">students served, ages 3\u201321 (2024\u201325)</span></div>
-        <div><span class="mv">${pe.toFixed(1)}%</span><span class="ml">of public-school enrollment (2022\u201323)</span></div>
+        <div><span class="mv">${pe.toFixed(1)}%</span><span class="ml">of public-school enrollment (2022\u201323), #${penrRank} nationally</span></div>
         <div><span class="mv" style="color:var(--accent)">${growth >= 0 ? '+' : ''}${growth.toFixed(0)}%</span><span class="ml">change since 2000\u201301</span></div>
         <div><span class="mv">#${rank}</span><span class="ml">national rank by number served</span></div>
+        ${vec ? `<div><span class="mv">${(topVal / stTot * 100).toFixed(0)}%</span><span class="ml">served under ${topCat.toLowerCase()}, the most common category here</span></div>` : ''}
+        ${vec ? `<div><span class="mv">${I.nf(autCount)}</span><span class="ml">served under the primary disability category of autism (${(autCount / stTot * 100).toFixed(1)}% of the state)</span></div>` : ''}
         ${ex && ex.gradPct != null ? `<div><span class="mv">${ex.gradPct.toFixed(1)}%</span><span class="ml">graduated with a regular diploma, of those who exited school (2023\u201324)</span></div>` : ''}
         ${ex && ex.dropPct != null ? `<div><span class="mv" style="color:var(--accent)">${ex.dropPct.toFixed(1)}%</span><span class="ml">dropped out, of those who exited school (2023\u201324)</span></div>` : ''}
+        ${dc && dc.g10 != null ? `<div><span class="mv">${I.nf(dc.g10)}</span><span class="ml">students with disciplinary removals over 10 days (2023\u201324)</span></div>` : ''}
       </div>
       ${dt.b ? `<div class="m-det"><div class="figure-sub" style="margin:16px 0 8px">2026 IDEA determination</div>
         <div class="det-pills"><span class="det-pill ${detClass(dt.b)}">Part&nbsp;B: ${dt.b}</span>${dt.c ? `<span class="det-pill ${detClass(dt.c)}">Part&nbsp;C: ${dt.c}</span>` : ''}</div></div>` : ''}
@@ -528,6 +546,7 @@
     });
     expbar('chart-partc', 'idea-partc-settings-2024-25', [['Primary early intervention setting', 'Percent (2024-25)'], ...A.partcSettings]);
     hint('chart-partc', 'Tap a slice or a setting for detail');
+    suppNote(document.getElementById('chart-partc').closest('.figure'), 'partc');
   })();
 
   /* ========================================================== *
@@ -616,7 +635,7 @@
 
   /* shared helpers + drilldowns, for builder.js and extra.js */
   window.IDEAStory = {
-    onView, mount, legend, hint, expbar, swatch,
+    onView, mount, legend, hint, expbar, swatch, suppNote, suppNoteHTML,
     openModal, openStateModal, openCatModal, openEnvModal, openRaceModal, openPartcModal, openExitModal, openSexModal, openAgeModal,
   };
 })();

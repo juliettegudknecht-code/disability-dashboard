@@ -64,8 +64,8 @@ p { margin: 0; }
 .hero { padding: clamp(26px, 3.6vh, 48px) 0 clamp(20px, 2.6vh, 34px); }
 .eyebrow { font-weight: 700; font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
   color: var(--navy); margin-bottom: 18px; }
-.hero h1 { line-height: 1.03; letter-spacing: -.035em; max-width: 20ch; text-wrap: balance; }
-.hero h1 .hero-main { display: block; font-size: clamp(30px, 4.7vw, 56px); line-height: 1.0; }
+.hero h1 { line-height: 1.05; letter-spacing: -.018em; max-width: 34ch; text-wrap: balance; }
+.hero h1 .hero-main { display: block; font-size: clamp(30px, 4.7vw, 56px); line-height: 1.04; letter-spacing: -.02em; }
 .hero h1 .hero-tagline { display: block; margin-top: 12px; font-size: clamp(16px, 2vw, 25px);
   font-weight: 700; line-height: 1.16; letter-spacing: -.02em; color: var(--muted); }
 .hero h1 .hero-tagline .u-green { color: var(--green-d); }
@@ -313,12 +313,12 @@ html.js .reveal.in { opacity: 1; transform: none; }
 .cv-choro path { cursor: pointer; outline: none; transition: filter .12s; }
 .cv-choro path:hover, .cv-choro path:focus-visible { filter: brightness(1.08); stroke: var(--ink) !important; stroke-width: 1.6 !important; }
 /* selected state: glowing orange-gold + twinkling sparkles */
-.cv-choro path.cv-choro-sel { fill: #e8a13a !important; stroke: #fff3cf !important; stroke-width: 2.4 !important; animation: choroGold 1.3s ease-in-out infinite; }
+.cv-choro path.cv-choro-sel { fill: #dba23f !important; stroke: #fbe7c2 !important; stroke-width: 2.1 !important; animation: choroGold 2s ease-in-out infinite; }
 .cv-choro path.cv-choro-sel:hover { filter: none; }
-@keyframes choroGold { 0%,100% { filter: drop-shadow(0 0 2px rgba(232,161,58,.55)); } 50% { filter: drop-shadow(0 0 11px rgba(255,205,90,.97)); } }
+@keyframes choroGold { 0%,100% { filter: drop-shadow(0 0 1px rgba(219,162,63,.4)); } 50% { filter: drop-shadow(0 0 5px rgba(232,180,90,.6)); } }
 .cv-spark-layer { pointer-events: none; }
 .cv-spark { transform-box: fill-box; transform-origin: center; animation: choroTwinkle 1.4s ease-in-out infinite; }
-@keyframes choroTwinkle { 0%,100% { opacity: 0; transform: scale(.3) rotate(0deg); } 50% { opacity: 1; transform: scale(1) rotate(45deg); } }
+@keyframes choroTwinkle { 0%,100% { opacity: 0; transform: scale(.3) rotate(0deg); } 50% { opacity: .7; transform: scale(.85) rotate(45deg); } }
 @media (prefers-reduced-motion: reduce) { .cv-choro path.cv-choro-sel { animation: none; } .cv-spark { display: none; } }
 
 /* "tap to explore" hint under interactive figures */
@@ -326,6 +326,17 @@ html.js .reveal.in { opacity: 1; transform: none; }
   color: var(--green-d); font-weight: 600; background: color-mix(in srgb, var(--green-l) 18%, var(--card));
   border: 1px solid color-mix(in srgb, var(--green) 28%, transparent); border-radius: 999px; padding: 4px 11px; }
 .fig-hint svg { opacity: .85; flex: none; }
+
+/* collapsible "about suppressed values" note */
+.supp-note { margin-top: 12px; font-size: 12px; color: var(--muted); max-width: 80ch; }
+.supp-note > summary { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; list-style: none; font-weight: 600;
+  color: var(--green-d); background: color-mix(in srgb, var(--green-l) 14%, var(--card)); border: 1px solid color-mix(in srgb, var(--green) 26%, transparent);
+  border-radius: 999px; padding: 4px 12px; width: max-content; transition: background .14s; }
+.supp-note > summary::-webkit-details-marker { display: none; }
+.supp-note > summary:hover { background: color-mix(in srgb, var(--green-l) 24%, var(--card)); }
+.supp-note > summary svg { flex: none; opacity: .85; }
+.supp-note[open] > summary { margin-bottom: 8px; }
+.supp-note p { margin: 0; padding: 0 4px; line-height: 1.55; color: var(--muted); }
 
 /* clickable legend keys */
 .legend .k.click { cursor: pointer; border-radius: 6px; padding: 2px 6px; margin: -2px -2px; transition: background .14s, opacity .14s; outline: none; user-select: none; }

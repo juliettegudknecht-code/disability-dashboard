@@ -80,10 +80,10 @@
       n: 'Primary disability categories reported under IDEA, Part&nbsp;B.', s: 'IDEA Part B Child Count.', go: 'cats', t: 'how many categories disability types list count' },
     { c: 'Classrooms', q: 'How many are in a regular classroom most of the day?', v: inclShare.toFixed(1) + '%', copy: inclShare.toFixed(1) + '%', g: SPARK.incl,
       n: 'Educated inside the regular class 80% or more of the day, school-age, 2024–25.', s: 'IDEA Part B Educational Environments, SY 2024–25.', go: 'env', t: 'inclusion regular class 80 percent least restrictive environment lre classroom mainstream' },
-    { c: 'Outcomes', q: 'What is the graduation rate (regular diploma)?', v: (exUS ? exUS[0].toFixed(1) : I.ARC.exit.gradDiplomaPct.toFixed(1)) + '%', copy: (exUS ? exUS[0].toFixed(1) : I.ARC.exit.gradDiplomaPct.toFixed(1)) + '%',
-      n: 'Of students ages 14–21 who exited school, the share who graduated with a regular high school diploma' + (exUS ? ' (2023–24)' : ' (2022–23)') + '.', s: 'IDEA Part B Exiting Collection.', go: 'exiting', t: 'graduation rate graduated diploma exiting outcomes finished school' },
-    { c: 'Outcomes', q: 'What is the dropout rate?', v: (exUS ? exUS[1].toFixed(1) : I.ARC.exit.dropoutPct.toFixed(1)) + '%', copy: (exUS ? exUS[1].toFixed(1) : I.ARC.exit.dropoutPct.toFixed(1)) + '%',
-      n: 'Of students ages 14–21 who exited school, the share who dropped out' + (exUS ? ' (2023–24)' : ' (2022–23)') + '.', s: 'IDEA Part B Exiting Collection.', go: 'exiting', t: 'dropout rate dropped out left school exiting outcomes' },
+    { c: 'Outcomes', q: 'What is the graduation rate (regular diploma)?', v: I.ARC.exit.gradDiplomaPct.toFixed(1) + '%', copy: I.ARC.exit.gradDiplomaPct.toFixed(1) + '%',
+      n: 'Of students ages 14–21 who exited school, the share who graduated with a regular high school diploma (2022–23).', s: 'IDEA Part B Exiting Collection (national, state-reported totals).', go: 'exiting', t: 'graduation rate graduated diploma exiting outcomes finished school' },
+    { c: 'Outcomes', q: 'What is the dropout rate?', v: I.ARC.exit.dropoutPct.toFixed(1) + '%', copy: I.ARC.exit.dropoutPct.toFixed(1) + '%',
+      n: 'Of students ages 14–21 who exited school, the share who dropped out (2022–23).', s: 'IDEA Part B Exiting Collection (national, state-reported totals).', go: 'exiting', t: 'dropout rate dropped out left school exiting outcomes' },
     { c: 'Who', q: 'What share of students served are male?', v: maleShare.toFixed(1) + '%', copy: maleShare.toFixed(1) + '%',
       n: 'Reported male, of all students served, 2024–25. About two-thirds.', s: 'IDEA Part B Child Count, SY 2024–25.', go: 'who', t: 'male female sex boys girls gender share split' },
     { c: 'States', q: 'Which state serves the most students?', v: largest[0], copy: largest[0] + ' (' + nf(largest[5]) + ')',
@@ -100,11 +100,42 @@
   if (leaCount) STATS.push({ c: 'States', q: 'How many school districts report data?', v: nf(leaCount), copy: String(leaCount),
     n: 'Local educational agencies (school districts and programs) that reported a child count, 2024–25.', s: 'IDEA Part B Child Count, SY 2024–25.', go: 'explore', t: 'districts leas how many school districts report local educational agencies count' });
 
-  const CATS = ['Headline', 'Disability', 'Classrooms', 'Who', 'Outcomes', 'States', 'Determinations', 'Part C', 'Funding'];
+  /* IDEA disability category definitions (paraphrased from 34 CFR 300.8; the EdFacts
+     file specifications use these categories). Answers "what counts as <category>?" */
+  const DEFS = [
+    ['Autism', 'A developmental disability significantly affecting verbal and nonverbal communication and social interaction, generally evident before age 3, that adversely affects educational performance.'],
+    ['Specific learning disability', 'A disorder in one or more of the basic psychological processes involved in understanding or using language, which may show up as trouble listening, thinking, speaking, reading, writing, spelling, or doing math. Includes conditions such as dyslexia. Excludes problems primarily due to other disabilities or environmental factors.'],
+    ['Speech or language impairment', 'A communication disorder such as stuttering, impaired articulation, a language impairment, or a voice impairment that adversely affects educational performance.'],
+    ['Other health impairment', 'Limited strength, vitality, or alertness (including heightened alertness to the environment) due to chronic or acute health problems such as ADHD, asthma, diabetes, epilepsy, or a heart condition, that adversely affects educational performance.'],
+    ['Developmental delay', 'For children ages 3 through 9 (at the State’s discretion), a delay in physical, cognitive, communication, social or emotional, or adaptive development, as measured by appropriate instruments.'],
+    ['Intellectual disability', 'Significantly subaverage general intellectual functioning, existing alongside deficits in adaptive behavior and manifested during the developmental period, that adversely affects educational performance.'],
+    ['Emotional disturbance', 'A condition exhibiting, over a long time and to a marked degree, one or more of: an inability to learn not explained by other factors; trouble building relationships; inappropriate behavior or feelings; a pervasive mood of unhappiness; or physical symptoms or fears tied to school. Adversely affects educational performance.'],
+    ['Multiple disabilities', 'Concomitant impairments (such as intellectual disability with orthopedic impairment) whose combination causes severe educational needs that cannot be met in a program for only one impairment. Does not include deaf-blindness.'],
+    ['Hearing impairment', 'An impairment in hearing, whether permanent or fluctuating, that adversely affects educational performance, including deafness (a hearing impairment so severe that the child is impaired in processing language through hearing, with or without amplification).'],
+    ['Orthopedic impairment', 'A severe orthopedic impairment that adversely affects educational performance, from causes such as a congenital anomaly, disease, or conditions like cerebral palsy or amputation.'],
+    ['Traumatic brain injury', 'An acquired injury to the brain caused by an external physical force, resulting in total or partial functional disability or psychosocial impairment that adversely affects educational performance.'],
+    ['Visual impairment', 'An impairment in vision that, even with correction, adversely affects educational performance, including both partial sight and blindness.'],
+    ['Deaf-blindness', 'Concomitant hearing and visual impairments whose combination causes such severe communication and developmental needs that the child cannot be served in programs solely for deafness or blindness.'],
+  ];
+  DEFS.forEach(([cat, def]) => STATS.push({ c: 'Definitions', q: 'What counts as ' + cat.toLowerCase() + '?', v: cat, copy: cat + ' — ' + def, g: '', n: def, s: 'IDEA regulations, 34 CFR 300.8; EdFacts file specifications, SY 2024–25.', t: cat + ' definition meaning what is criteria eligibility category disability', def: true }));
+
+  // a stat is Part C if it is about infants/toddlers or early intervention; otherwise Part B
+  const partOf = s => (s.c === 'Part C' || /\bPart C\b|infants and toddlers|early intervention/i.test((s.q || '') + ' ' + (s.n || ''))) ? 'C' : 'B';
+  STATS.forEach(s => { s.part = partOf(s); });
+
+  const CATS = ['Headline', 'Disability', 'Definitions', 'Classrooms', 'Who', 'Outcomes', 'States', 'Determinations', 'Part C', 'Funding'];
 
   /* ---- styles ---- */
   const css = document.createElement('style');
   css.textContent = `
+  .qs-parts{ display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 2px; }
+  .qs-part-btn{ font:inherit; font-size:12px; font-weight:700; cursor:pointer; border:1px solid var(--line); background:var(--cream); color:var(--muted); padding:6px 13px; border-radius:999px; transition:all .14s; }
+  .qs-part-btn.on{ background:var(--navy); color:#fff; border-color:var(--navy); }
+  .qs-part{ position:absolute; top:12px; right:13px; font-size:9px; font-weight:800; letter-spacing:.05em; padding:2px 7px; border-radius:999px; text-transform:uppercase; }
+  .qs-part-B{ background:color-mix(in srgb,var(--green) 16%,var(--card)); color:var(--green-d); }
+  .qs-part-C{ background:color-mix(in srgb,var(--blue) 17%,var(--card)); color:var(--blue); }
+  .qs-item .qs-q{ padding-right:48px; }
+  .qs-def .qs-v{ font-size:18px; line-height:1.15; }
   #qs-btn{ display:inline-flex; align-items:center; gap:7px; font:inherit; font-size:13px; font-weight:700; color:var(--green-d);
     background:var(--card); border:1px solid var(--line); border-radius:8px; padding:8px 12px; cursor:pointer; white-space:nowrap; transition:all .14s; }
   #qs-btn:hover{ border-color:var(--green); background:color-mix(in srgb,var(--green-l) 12%,var(--card)); }
@@ -157,17 +188,22 @@
   if (tools) tools.insertBefore(btn, tools.firstChild); else document.body.appendChild(btn);
 
   /* ---- popup ---- */
-  let bg = null, listEl = null, input = null, activeCat = 'All';
+  let bg = null, listEl = null, input = null, activeCat = 'All', activePart = 'All';
   function build() {
     bg = document.createElement('div'); bg.className = 'qs-bg';
     bg.innerHTML = `<div class="qs-card" role="dialog" aria-modal="true" aria-label="Quick statistics finder">
       <button class="qs-x" aria-label="Close">×</button>
       <div class="m-kicker">Quick statistics finder</div>
       <h3 class="m-title" style="margin-bottom:4px">The numbers people ask for, in one place</h3>
-      <p class="m-dek" style="font-size:13.5px">Search a question or a keyword. Click any card to copy the figure.</p>
+      <p class="m-dek" style="font-size:13.5px">Search a question or a keyword, or filter by IDEA part. Click any card to copy it.</p>
       <div class="qs-search">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
-        <input id="qs-input" type="search" placeholder="e.g. autism, graduation rate, funding, biggest state" aria-label="Search quick statistics" autocomplete="off">
+        <input id="qs-input" type="search" placeholder="e.g. autism, graduation rate, what counts as autism, biggest state" aria-label="Search quick statistics" autocomplete="off">
+      </div>
+      <div class="qs-parts" id="qs-parts" role="group" aria-label="Filter by IDEA part">
+        <button class="qs-part-btn on" data-part="All" type="button">All parts</button>
+        <button class="qs-part-btn" data-part="B" type="button">Part B (ages 3–21)</button>
+        <button class="qs-part-btn" data-part="C" type="button">Part C (birth–2)</button>
       </div>
       <div class="qs-chips" id="qs-chips"></div>
       <div class="qs-list" id="qs-list"></div>
@@ -175,6 +211,10 @@
     </div>`;
     document.body.appendChild(bg);
     input = bg.querySelector('#qs-input'); listEl = bg.querySelector('#qs-list');
+    const parts = bg.querySelector('#qs-parts');
+    parts.querySelectorAll('.qs-part-btn').forEach(b => b.addEventListener('click', () => {
+      activePart = b.dataset.part; parts.querySelectorAll('.qs-part-btn').forEach(x => x.classList.remove('on')); b.classList.add('on'); render();
+    }));
     const chips = bg.querySelector('#qs-chips');
     ['All', ...CATS].forEach(c => {
       const b = document.createElement('button'); b.className = 'qs-chip' + (c === 'All' ? ' on' : ''); b.textContent = c; b.type = 'button';
@@ -189,11 +229,12 @@
   }
   function render() {
     const q = (input.value || '').trim().toLowerCase();
-    const hits = STATS.filter(s => (activeCat === 'All' || s.c === activeCat) &&
+    const hits = STATS.filter(s => (activeCat === 'All' || s.c === activeCat) && (activePart === 'All' || s.part === activePart) &&
       (!q || (s.q + ' ' + s.t + ' ' + s.v + ' ' + s.c).toLowerCase().includes(q)));
     if (!hits.length) { listEl.innerHTML = '<div class="qs-none">No matching statistic. Try a broader word like “autism”, “state”, or “funding”.</div>'; return; }
-    listEl.innerHTML = hits.map((s, i) => `<button class="qs-item" data-i="${STATS.indexOf(s)}">
+    listEl.innerHTML = hits.map((s, i) => `<button class="qs-item${s.def ? ' qs-def' : ''}" data-i="${STATS.indexOf(s)}">
       <span class="qs-copied">Copied</span>
+      <span class="qs-part qs-part-${s.part}">Part ${s.part}</span>
       <div class="qs-q">${s.q}</div>
       <div class="qs-v">${s.v}</div>
       ${s.g || ''}

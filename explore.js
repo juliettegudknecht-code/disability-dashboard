@@ -156,7 +156,8 @@
       if (otherN > 0 && other > 0) rows.push(`<div class="lea-row">
           <span class="nm" style="color:var(--muted)">All other districts<small>${I.nf(otherN)} additional districts and programs</small></span>
           <span class="v" style="color:var(--faint)">${I.nf(other)}<small> served</small></span></div>`);
-      lout.innerHTML = summary + `<div class="lea-list">${rows.join('')}</div>`;
+      const SN = window.IDEAStory || {};
+      lout.innerHTML = summary + `<div class="lea-list">${rows.join('')}</div>` + (SN.suppNoteHTML ? SN.suppNoteHTML('childcount') + SN.suppNoteHTML('exiting') : '');
     }
     lsel.addEventListener('change', renderLea); renderLea();
   }

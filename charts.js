@@ -851,9 +851,9 @@
       sel.parentNode.appendChild(sel);                 // bring selection to the front
       if (reduced()) return;
       try {
-        const bb = sel.getBBox(), r = Math.max(4, bb.width * 0.05);
+        const bb = sel.getBBox(), r = Math.max(3, bb.width * 0.04);
         sparkLayer = mk('g', { class: 'cv-spark-layer' });
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 5; i++) {
           const sx = bb.x + (0.15 + 0.7 * Math.random()) * bb.width, sy = bb.y + (0.15 + 0.7 * Math.random()) * bb.height;
           const rr = r * (0.6 + Math.random() * 0.8);
           const st = mk('path', { d: star(sx, sy, rr), class: 'cv-spark', fill: i % 2 ? '#fff6da' : '#ffcf6b' });

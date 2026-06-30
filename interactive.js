@@ -291,7 +291,7 @@
           ${exShow && exd[1] != null ? `<div class="snap-cell"><div class="k">Dropped out</div><div class="v accent">${exd[1].toFixed(1)}%</div><div class="sub">of those who exited, 2023–24</div></div>` : ''}
         </div>`;
       const cvec = CAT && CAT.lea[normNces(nces)];
-      if (cvec) html += `<div class="figure-sub" style="margin:18px 0 6px">Students served by disability category, 2024–25</div><div id="drillCats" class="chartbox"></div>`;
+      if (cvec) html += `<div class="figure-sub" style="margin:18px 0 6px">Students served by disability category, 2024–25</div><div id="drillCats" class="chartbox"></div>${S.suppNoteHTML ? S.suppNoteHTML('childcount') : ''}`;
       if (f) html += `<div class="figure-sub" style="margin:18px 0 4px">Reported IDEA, Part B funding (Sections 611 and 619), 2021–22</div><div id="drillFlow2" class="chartbox"></div>`;
       else html += `<p class="map-empty" style="margin-top:16px">No 2021–22 funding is reported for this district.</p>`;
       if (exShow) html += `<p class="source" style="margin-top:14px"><span class="src-k">Exiting source</span> U.S. Department of Education, OSEP, EDFacts, IDEA Part&nbsp;B Exiting LEA Collection, School Year 2023–24. Graduation and dropout are shares of students who exited school; districts with very few exiters are omitted.</p>`;
