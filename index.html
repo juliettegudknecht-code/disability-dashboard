@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=54">
+<link rel="stylesheet" href="styles.css?v=55">
 <!-- ============ SOFT PASSWORD GATE ============ -->
 <script>
   /* Light access gate (client-side only, not real security). Lock before render. */
@@ -430,13 +430,13 @@
 <section class="section" id="det">
   <div class="wrap">
     <h2 class="scene-h reveal d1">About <span class="hl-num">2/3</span> of states need assistance or intervention under Part&nbsp;B.</h2>
-    <p class="scene-dek reveal d2">Each year the Department issues a determination on how well each state carries out IDEA, based on its results and compliance. In the 2025 determinations, 20 of 60 states and reporting entities met the requirements under Part&nbsp;B; 38 needed assistance and 2 needed intervention. The Part&nbsp;C determinations, for early intervention, were somewhat stronger: 31 of 56 met requirements.</p>
+    <p class="scene-dek reveal d2">Each year the Department issues a determination on how well each state carries out IDEA, based on its results and compliance. In the latest (2026) determinations, 21 of 60 states and reporting entities met the requirements under Part&nbsp;B, while 6 needed intervention; a year earlier, in 2025, 20 met and only 2 needed intervention. Toggle the two years below. The Part&nbsp;C determinations, for early intervention, were somewhat stronger.</p>
     <div class="figure reveal d2">
       <div class="legend" id="detLegend"></div>
-      <div class="figure-title">States and reporting entities at each IDEA determination level, by part: 2025</div>
-      <div class="figure-sub">Part&nbsp;B covers ages 3 through 21; Part&nbsp;C covers birth through age 2. Based on each state's Federal Fiscal Year 2023 SPP/APR.</div>
+      <div class="figure-title">States and reporting entities at each IDEA determination level, by part and year</div>
+      <div class="figure-sub">Part&nbsp;B covers ages 3 through 21; Part&nbsp;C covers birth through age 2. The 2025 round is based on each state's Federal Fiscal Year 2023 SPP/APR; the 2026 round, on FFY&nbsp;2024.</div>
       <div class="chartbox" id="chart-det"></div>
-      <div class="source"><span class="src-k">Source</span> U.S. Department of Education, OSEP, 2025 Determination Letters on State Implementation of IDEA (issued June 20, 2025, based on Federal Fiscal Year 2023 State Performance Plan and Annual Performance Report submissions).</div>
+      <div class="source"><span class="src-k">Source</span> U.S. Department of Education, OSEP, 2025 and 2026 Determination Letters on State Implementation of IDEA (issued June 20, 2025 and June 18, 2026, based on Federal Fiscal Year 2023 and 2024 State Performance Plan and Annual Performance Report submissions).</div>
     </div>
   </div>
 </section>
@@ -458,8 +458,14 @@
 <!-- ============ EXPLORE ============ -->
 <section class="section" id="explore">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">Explore states, districts, and funding.</h2>
-    <p class="scene-dek reveal d2">Tap the map to drill from a state down into its districts and the dollars behind them. Prefer a table? Look up any state or district below.</p>
+    <h2 class="scene-h reveal d1">Every state has its own IDEA snapshot.</h2>
+    <p class="scene-dek reveal d2">Choose a state for its full profile: students served, graduation and dropout, discipline, its 2025 and 2026 IDEA determinations, OSEP monitoring findings, and personnel. Or tap the map to drill into its districts and the dollars behind them.</p>
+    <div class="state-promo reveal d2">
+      <div class="state-promo-txt"><b>Looking for one state?</b> Jump straight to its snapshot: students served, outcomes, its determinations, monitoring findings, and staff, all in one place.</div>
+      <button id="statePromoBtn" class="promo-btn" type="button">Open a state snapshot
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
 
     <div class="figure reveal d2" id="umap">
       <div class="umap-controls">
@@ -486,13 +492,14 @@
       <div class="more-grid">
         <div class="figure" style="margin-top:0">
           <div class="figure-title">Graduation and dropout among students who exited school, by disability</div>
-          <div class="figure-sub">Graduated with a regular high school diploma, as a percent of students ages 14&ndash;21 who exited school, School Year 2023&ndash;24.</div>
+          <div class="figure-sub">Each bar stacks the share who graduated with a regular high school diploma and the share who dropped out, of students ages 14&ndash;21 who exited school, School&nbsp;Year 2023&ndash;24. The rest exited for other reasons.</div>
+          <div class="legend" id="moreExitLegend"></div>
           <div class="chartbox" id="moreExit"></div>
           <div class="source"><span class="src-k">Source</span> U.S. Department of Education, Office of Special Education Programs, IDEA Part&nbsp;B Exiting Collection, School Year 2023&ndash;24 (national totals, including the additional reporting entities).</div>
         </div>
         <div class="figure" style="margin-top:0">
           <div class="figure-title">Disciplinary removals per 100 students served, by disability</div>
-          <div class="figure-sub">Total disciplinary removals divided by the child count, by primary disability category, School Year 2023&ndash;24. Emotional disturbance shown in navy; autism in orange.</div>
+          <div class="figure-sub">Total disciplinary removals divided by the child count, by primary disability category, School Year 2023&ndash;24. Emotional disturbance shown in navy.</div>
           <div class="chartbox" id="moreDiscDis"></div>
           <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Discipline Collection and Child Count, School Year 2023&ndash;24. Each disciplinary removal is counted separately, so a student may be counted more than once.</div>
         </div>
@@ -590,24 +597,24 @@
 
 <div class="maptip" id="maptip"></div>
 
-<script src="data.js?v=54"></script>
-<script src="enrich.js?v=54"></script>
-<script src="moe.js?v=54"></script>
-<script src="usmap.js?v=54"></script>
-<script src="det.js?v=54"></script>
-<script src="dms.js?v=54"></script>
-<script src="lea.js?v=54"></script>
-<script src="leaexit.js?v=54"></script>
-<script src="catdata.js?v=54"></script>
-<script src="sea.js?v=54"></script>
-<script src="charts.js?v=54"></script>
-<script src="story.js?v=54"></script>
-<script src="explore.js?v=54"></script>
-<script src="extra.js?v=54"></script>
-<script src="interactive.js?v=54"></script>
-<script src="builder.js?v=54"></script>
-<script src="quickstats.js?v=54"></script>
-<script src="type.js?v=54"></script>
-<script src="access.js?v=54"></script>
+<script src="data.js?v=55"></script>
+<script src="enrich.js?v=55"></script>
+<script src="moe.js?v=55"></script>
+<script src="usmap.js?v=55"></script>
+<script src="det.js?v=55"></script>
+<script src="dms.js?v=55"></script>
+<script src="lea.js?v=55"></script>
+<script src="leaexit.js?v=55"></script>
+<script src="catdata.js?v=55"></script>
+<script src="sea.js?v=55"></script>
+<script src="charts.js?v=55"></script>
+<script src="story.js?v=55"></script>
+<script src="explore.js?v=55"></script>
+<script src="extra.js?v=55"></script>
+<script src="interactive.js?v=55"></script>
+<script src="builder.js?v=55"></script>
+<script src="quickstats.js?v=55"></script>
+<script src="type.js?v=55"></script>
+<script src="access.js?v=55"></script>
 </body>
 </html>

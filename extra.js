@@ -33,22 +33,24 @@
     m.actual = last[2]; m.actualYear = last[0];
   });
 
-  // 2025 IDEA determinations (FFY 2023 SPP/APR), counts of states + entities.
-  const DET = {
-    totalB: 60, totalC: 56,
-    levels: [
-      { key: 'meets', label: 'Meets requirements', color: '#2f8f57', partB: 20, partC: 31 },
-      { key: 'na1', label: 'Needs assistance, one year', color: '#c9a23a', partB: 4, partC: 5 },
-      { key: 'na2', label: 'Needs assistance, two or more years', color: '#cf6b35', partB: 34, partC: 16 },
-      { key: 'int', label: 'Needs intervention', color: '#8f2d2d', partB: 2, partC: 4 },
-    ],
-    blurb: {
-      'Meets requirements': 'The state meets the requirements and purposes of IDEA. This is the strongest of the four determination levels.',
-      'Needs assistance, one year': 'The state needs assistance in implementing IDEA for the first year. The Department offers technical assistance.',
-      'Needs assistance, two or more years': 'The state has needed assistance for two or more consecutive years. The Department must then take one or more enforcement actions, such as requiring the state to access technical assistance, designating it a high-risk grantee, or directing the use of state set-aside funds to the areas needing assistance.',
-      'Needs intervention': 'The state needs intervention in implementing IDEA. This is the most serious determination short of substantial intervention; three or more consecutive years at this level triggers required enforcement actions.',
-    },
+  // IDEA determinations, two most recent rounds, counted live from the per-entity maps in det.js.
+  const DET_LEVELS = [
+    { key: 'meets', label: 'Meets requirements', color: '#2f8f57', re: /^Meets/ },
+    { key: 'na1', label: 'Needs assistance, one year', color: '#c9a23a', re: /one year/ },
+    { key: 'na2', label: 'Needs assistance, two or more years', color: '#cf6b35', re: /two or more/ },
+    { key: 'int', label: 'Needs intervention', color: '#8f2d2d', re: /intervention/ },
+  ];
+  const DET_MAPS = { '2026': window.DET2026 || { partB: {}, partC: {} }, '2025': window.DET2025 || { partB: {}, partC: {} } };
+  const DET_BASIS = { '2026': 'Federal Fiscal Year 2024', '2025': 'Federal Fiscal Year 2023' };
+  const DET_BLURB = {
+    'Meets requirements': 'The state meets the requirements and purposes of IDEA. This is the strongest of the four determination levels.',
+    'Needs assistance, one year': 'The state needs assistance in implementing IDEA for the first year. The Department offers technical assistance.',
+    'Needs assistance, two or more years': 'The state has needed assistance for two or more consecutive years. The Department must then take one or more enforcement actions, such as requiring the state to access technical assistance, designating it a high-risk grantee, or directing the use of state set-aside funds to the areas needing assistance.',
+    'Needs intervention': 'The state needs intervention in implementing IDEA. This is the most serious determination short of substantial intervention; three or more consecutive years at this level triggers required enforcement actions.',
   };
+  const detCountBy = (obj, re) => Object.values(obj).filter(v => re.test(v)).length;
+  function detLevelsFor(year) { const m = DET_MAPS[year]; return DET_LEVELS.map(l => ({ key: l.key, label: l.label, color: l.color, partB: detCountBy(m.partB, l.re), partC: detCountBy(m.partC, l.re) })); }
+  const detTotals = year => ({ B: Object.keys(DET_MAPS[year].partB).length, C: Object.keys(DET_MAPS[year].partC).length });
 
   // U.S. population context, Census ACS 2024 vs IDEA SY 2024-25.
   const ACS = {
@@ -56,62 +58,74 @@
     served_5_17: 7234809, pop_5_17: 54564265, oneIn: 7.5, pct: 13.3, ideaMale: 64.7, usMale: 49.5,
   };
 
-  window.IDEA2 = { GPRA, DET, ACS };
+  // keep the shape quickstats expects (latest = 2026), plus per-year access
+  window.IDEA2 = { GPRA, DET: { levels: detLevelsFor('2026'), totalB: detTotals('2026').B, totalC: detTotals('2026').C, levelsFor: detLevelsFor, totals: detTotals, blurb: DET_BLURB }, ACS };
 
   /* (Federal performance targets / GPRA exhibit removed by request.) */
 
-  /* ---- exhibit B · 2026 determinations ---------------------- */
+  /* ---- exhibit B · IDEA determinations, 2025 and 2026 ---------------------- */
   (function () {
     const box = document.getElementById('chart-det'); if (!box) return;
-    const make = (part, total) => {
-      const wrap = document.createElement('div'); wrap.className = 'det-donut';
-      const cap = document.createElement('div'); cap.className = 'det-cap';
-      cap.innerHTML = `<b>${part === 'partB' ? 'Part B' : 'Part C'}</b><span>${part === 'partB' ? 'ages 3–21' : 'birth–age 2'} · ${total} entities</span>`;
-      const cb = document.createElement('div'); cb.className = 'chartbox'; cb.style.maxWidth = '176px';
-      const d = C.donut({
-        size: 172, stroke: 30,
-        segments: DET.levels.map(l => ({ name: l.label, value: l[part], color: l.color })),
-        onClick: seg => openDetModal(seg.name),
-        centerValue: (total - DET.levels[0][part]) / total * 100, centerFmt: v => Math.round(v) + '%', centerSub: 'do not meet',
-      });
-      cb.appendChild(d.node); wrap.appendChild(cap); wrap.appendChild(cb);
-      return { wrap, reveal: d.reveal };
-    };
-    const a = make('partB', DET.totalB), b = make('partC', DET.totalC);
-    const row = document.createElement('div'); row.className = 'det-row';
-    row.appendChild(a.wrap); row.appendChild(b.wrap); box.appendChild(row);
-    S.onView(box, () => { a.reveal(); b.reveal(); });
-    // scorecard: each level with a colored check (meets) or alert (does not meet) + counts
+    let year = '2026', shown = false;
+    const seg = document.createElement('div'); seg.className = 'seg det-yeartoggle'; seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Determination year');
+    seg.innerHTML = ['2026', '2025'].map((y, i) => `<button type="button" data-year="${y}" class="${i === 0 ? 'on' : ''}" aria-pressed="${i === 0}">${y} determinations</button>`).join('');
+    const holder = document.createElement('div');
+    box.appendChild(seg); box.appendChild(holder);
     const CHECK = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
     const ALERT = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>';
-    const sc = document.createElement('div'); sc.className = 'det-score';
-    sc.innerHTML = `<div class="det-score-head"><span></span><span>Part&nbsp;B</span><span>Part&nbsp;C</span></div>` + DET.levels.map(l => `<button class="det-score-row" data-level="${l.label}" style="--c:${l.color}">
-        <span class="det-score-lab"><span class="det-ic">${l.key === 'meets' ? CHECK : ALERT}</span>${l.label}</span>
-        <span class="det-score-n">${l.partB}</span>
-        <span class="det-score-n">${l.partC}</span>
-      </button>`).join('');
-    box.appendChild(sc);
-    sc.querySelectorAll('.det-score-row').forEach(b2 => b2.addEventListener('click', () => openDetModal(b2.dataset.level)));
-    S.legend('detLegend', DET.levels.map(l => [l.label, l.color]), name => openDetModal(name));
-    S.hint('chart-det', 'Tap a slice, a key, or a row for what each level means');
-    S.expbar && S.expbar('chart-det', 'idea-determinations-2025', [['Determination level', 'Part B (n=60)', 'Part C (n=56)'], ...DET.levels.map(l => [l.label, l.partB, l.partC])]);
+    function build() {
+      const LV = detLevelsFor(year), T = detTotals(year);
+      holder.innerHTML = '';
+      const make = (part, total) => {
+        const wrap = document.createElement('div'); wrap.className = 'det-donut';
+        const cap = document.createElement('div'); cap.className = 'det-cap';
+        cap.innerHTML = `<b>${part === 'partB' ? 'Part B' : 'Part C'}</b><span>${part === 'partB' ? 'ages 3–21' : 'birth–age 2'} · ${total} entities</span>`;
+        const cb = document.createElement('div'); cb.className = 'chartbox'; cb.style.maxWidth = '176px';
+        const d = C.donut({ size: 172, stroke: 30,
+          segments: LV.map(l => ({ name: l.label, value: l[part], color: l.color })),
+          onClick: seg2 => openDetModal(seg2.name, year),
+          centerValue: (total - LV[0][part]) / total * 100, centerFmt: v => Math.round(v) + '%', centerSub: 'do not meet' });
+        cb.appendChild(d.node); wrap.appendChild(cap); wrap.appendChild(cb);
+        return { wrap, reveal: d.reveal };
+      };
+      const a = make('partB', T.B), b = make('partC', T.C);
+      const row = document.createElement('div'); row.className = 'det-row';
+      row.appendChild(a.wrap); row.appendChild(b.wrap); holder.appendChild(row);
+      const sc = document.createElement('div'); sc.className = 'det-score';
+      sc.innerHTML = `<div class="det-score-head"><span></span><span>Part&nbsp;B</span><span>Part&nbsp;C</span></div>` + LV.map(l => `<button class="det-score-row" data-level="${l.label}" style="--c:${l.color}">
+          <span class="det-score-lab"><span class="det-ic">${l.key === 'meets' ? CHECK : ALERT}</span>${l.label}</span>
+          <span class="det-score-n">${l.partB}</span>
+          <span class="det-score-n">${l.partC}</span>
+        </button>`).join('');
+      holder.appendChild(sc);
+      sc.querySelectorAll('.det-score-row').forEach(b2 => b2.addEventListener('click', () => openDetModal(b2.dataset.level, year)));
+      S.legend('detLegend', LV.map(l => [l.label, l.color]), name => openDetModal(name, year));
+      S.expbar && S.expbar('chart-det', 'idea-determinations-' + year, [['Determination level', `Part B (n=${T.B})`, `Part C (n=${T.C})`], ...LV.map(l => [l.label, l.partB, l.partC])]);
+      requestAnimationFrame(() => { a.reveal(); b.reveal(); });
+    }
+    seg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; year = b.dataset.year;
+      seg.querySelectorAll('button').forEach(x => { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); });
+      b.classList.add('on'); b.setAttribute('aria-pressed', 'true'); build(); });
+    S.onView(box, () => { if (!shown) { shown = true; build(); } });
+    S.hint('chart-det', 'Toggle 2025 or 2026, and tap a slice, a key, or a row for what each level means');
   })();
 
-  function openDetModal(name) {
-    const l = DET.levels.find(x => x.label === name); if (!l) return;
-    const D = window.DET2025 || { partB: {}, partC: {} };
+  function openDetModal(name, year) {
+    year = year || '2026';
+    const LV = detLevelsFor(year), l = LV.find(x => x.label === name); if (!l) return;
+    const D = DET_MAPS[year], T = detTotals(year);
     const re = l.key === 'meets' ? /^Meets/ : l.key === 'na1' ? /one year/ : l.key === 'na2' ? /two or more/ : /intervention/;
     const listFor = part => Object.keys(D[part]).filter(s => re.test(D[part][s])).sort();
     const chips = arr => arr.length ? `<div class="det-statelist">${arr.map(s => `<span>${s}</span>`).join('')}</div>` : '<p class="m-dek" style="font-size:13px;margin:0">None.</p>';
-    S.openModal(`<div class="m-kicker">2025 IDEA determination</div><h3 class="m-title">${l.label}</h3>
-      <p class="m-dek">${DET.blurb[l.label] || ''}</p>
+    S.openModal(`<div class="m-kicker">${year} IDEA determination</div><h3 class="m-title">${l.label}</h3>
+      <p class="m-dek">${DET_BLURB[l.label] || ''}</p>
       <div class="m-grid">
-        <div><span class="mv">${l.partB}</span><span class="ml">Part B states and entities (of ${DET.totalB})</span></div>
-        <div><span class="mv">${l.partC}</span><span class="ml">Part C states and entities (of ${DET.totalC})</span></div>
+        <div><span class="mv">${l.partB}</span><span class="ml">Part B states and entities (of ${T.B})</span></div>
+        <div><span class="mv">${l.partC}</span><span class="ml">Part C states and entities (of ${T.C})</span></div>
       </div>
       <div class="figure-sub" style="margin:18px 0 7px">Part&nbsp;B: states and entities at this level</div>${chips(listFor('partB'))}
       <div class="figure-sub" style="margin:16px 0 7px">Part&nbsp;C: states and entities at this level</div>${chips(listFor('partC'))}
-      <p class="m-src">U.S. Department of Education, Office of Special Education Programs, 2025 Determination Letters on State Implementation of IDEA (based on Federal Fiscal Year 2023 SPP/APR).</p>`);
+      <p class="m-src">U.S. Department of Education, Office of Special Education Programs, ${year} Determination Letters on State Implementation of IDEA (based on ${DET_BASIS[year]} SPP/APR).</p>`);
   }
 
   /* ---- exhibit C · population context (ACS) ----------------- */
@@ -124,7 +138,7 @@
     const pic = C.pictograph({ total: 8, a: 1, cols: 8, cell: 44, aColor: P.greenD, bColor: P.sage });
     picWrap.appendChild(pic.node);
     const cap = document.createElement('div'); cap.className = 'figure-sub'; cap.style.cssText = 'margin:10px 0 26px;max-width:62ch';
-    cap.innerHTML = 'About <b style="color:var(--green-d)">1 in 7.5</b> (13.3%) of the roughly 54.6&nbsp;million U.S. children ages 5&ndash;17 are served under IDEA, Part&nbsp;B &mdash; near the <b style="color:var(--green-d)">1 shaded green</b> of every 8 shown here.';
+    cap.innerHTML = 'That is about 13.3% of the roughly 54.6&nbsp;million U.S. children ages 5&ndash;17, close to the <b style="color:var(--green-d)">1 shaded green</b> of every 8 shown here.';
     const sub2 = document.createElement('div'); sub2.className = 'figure-title'; sub2.style.cssText = 'margin:0 0 2px'; sub2.textContent = 'The share served dips through the teen years';
     const sub2b = document.createElement('div'); sub2b.className = 'figure-sub'; sub2b.style.cssText = 'margin:0 0 10px'; sub2b.textContent = 'Percent of U.S. children served under IDEA, Part B, by age band, 2024–25.';
     const barsWrap = document.createElement('div'); barsWrap.className = 'chartbox';

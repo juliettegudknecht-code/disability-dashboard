@@ -183,8 +183,8 @@
     }
 
     const MONEY_BLURB = {
-      'Section 611 — school-age (3–21)': 'Section 611 is the larger Part B grant to states. It funds special education and related services for school-age children, ages 3 through 21.',
-      'Section 619 — preschool (3–5)': 'Section 619 is a smaller, separate Part B grant. It funds special education and related services for preschool children, ages 3 through 5.',
+      'Section 611, school-age (3–21)': 'Section 611 is the larger Part B grant to states. It funds special education and related services for school-age children, ages 3 through 21.',
+      'Section 619, preschool (3–5)': 'Section 619 is a smaller, separate Part B grant. It funds special education and related services for preschool children, ages 3 through 5.',
       'Special education & related services': 'The share of the reported allocation that pays for special education and related services, after any amount set aside for Coordinated Early Intervening Services (CEIS).',
       'Reserved for CEIS': 'Coordinated Early Intervening Services (CEIS): funds a district may set aside, sometimes required because of significant disproportionality, for students not yet identified as needing special education.',
       'Total reported IDEA, Part B funding': 'The Sections 611 and 619 grant funds reported by districts for School Year 2021–22 (FFY 2021, including American Rescue Plan supplemental funds). This is the amount that funnels down into the uses below.',
@@ -241,7 +241,7 @@
       titleEl.textContent = M.title;
       rampEl.style.background = `linear-gradient(90deg, ${stops.map(s => s.color + ' ' + (s.t * 100) + '%').join(', ')})`;
       loEl.textContent = M.fmt(min); hiEl.textContent = M.fmt(max);
-      const greyNote = greyed.length ? ` <span style="display:inline-block;margin-top:6px"><span class="src-k" style="background:#c9c8c0;color:#444;border-radius:4px;padding:1px 6px;margin-right:6px;text-transform:none;letter-spacing:0">Greyed out (${greyed.length})</span>${greyed.join(', ')} — too suppressed or too few matching districts to shade reliably.</span>` : '';
+      const greyNote = greyed.length ? ` <span style="display:inline-block;margin-top:6px"><span class="src-k" style="background:#c9c8c0;color:#444;border-radius:4px;padding:1px 6px;margin-right:6px;text-transform:none;letter-spacing:0">Greyed out (${greyed.length})</span>${greyed.join(', ')}: too suppressed or too few matching districts to shade reliably.</span>` : '';
       srcEl.innerHTML = '<span class="src-k">Source</span> U.S. Department of Education, OSEP, ' + M.src + greyNote;
       box.querySelectorAll('path[data-abbr]').forEach(p => {
         p.addEventListener('mousemove', e => { const ab = p.dataset.abbr; tip.innerHTML = `<b>${nameOf[ab]}</b><br><span class="v">${M.fmt(vals[ab])}</span>`; tip.style.left = Math.min(window.innerWidth - 220, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; tip.classList.add('show'); });
@@ -470,7 +470,7 @@
       input = document.getElementById('searchInput'), close = document.getElementById('searchClose'), out = document.getElementById('searchResults');
     if (!toggle || !bar || !input || !out) return;
     const SECTIONS = [
-      ['Trends — children served over time', 'rise'], ['Disability categories', 'cats'], ['Autism over time', 'autism'],
+      ['Trends: children served over time', 'rise'], ['Disability categories', 'cats'], ['Autism over time', 'autism'],
       ['Autism and intellectual disability', 'autism'], ['Classrooms (educational environments)', 'env'],
       ['Time in regular class, by disability', 'envcat'], ['Who is served (sex, race, age)', 'who'],
       ['States and districts map', 'explore'], ['Funding vs students served', 'alloc'], ['Part C early intervention', 'partc'], ['Exiting (graduation and dropout)', 'exiting'],

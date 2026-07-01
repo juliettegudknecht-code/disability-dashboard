@@ -168,9 +168,12 @@
           dot.style.opacity = 0; s.appendChild(dot); dots.push({ el: dot, x: last[0] });
         }
         if (ser.endLabel) {
-          const tx = mk('text', { x: last[0] - 6, y: last[1] - 9 + (ser.endLabelDy || 0), 'text-anchor': 'end',
-            class: 'cv-end', fill: ser.color, text: ser.endLabel });
-          tx.style.opacity = 0; s.appendChild(tx); dots.push({ el: tx, x: last[0] });
+          const lines = Array.isArray(ser.endLabel) ? ser.endLabel : [ser.endLabel];
+          lines.forEach((ln, li) => {
+            const tx = mk('text', { x: last[0] - 6, y: last[1] - 9 + (ser.endLabelDy || 0) + li * 15, 'text-anchor': 'end',
+              class: li ? 'cv-end cv-end-sub' : 'cv-end', fill: ser.color, text: ln });
+            tx.style.opacity = 0; s.appendChild(tx); dots.push({ el: tx, x: last[0] });
+          });
         }
       }
     });
@@ -322,6 +325,55 @@
         requestAnimationFrame(() => { a.bar.style.width = a.fullW; });
         setTimeout(() => { a.val.style.opacity = 1; countUp(a.val, a.value, fmt, 1300); },
           delay + (reduced() ? 0 : 520));
+      });
+    }
+    return { node: s, reveal };
+  }
+
+  /* ---------------------------------------------------------- *
+   * STACKED HORIZONTAL BARS (segments per row, grow in turn)   *
+   * ---------------------------------------------------------- */
+  function stackedBarsH(opts) {
+    const items = opts.items;                 // [{ label, highlight, parts:[{value,color,name}] }]
+    const w = opts.width || 820, labelW = opts.labelW ?? 232;
+    const barH = opts.barH ?? 22, gap = opts.gap ?? 13, padT = 6, padB = 4;
+    const rowH = barH + gap, h = padT + items.length * rowH + padB;
+    const xMax = opts.xMax || 100, plotW = w - labelW - (opts.padR ?? 172);
+    const scale = v => (v / xMax) * plotW;
+    const fmt = opts.valueFmt || (v => Math.round(v));
+    const s = svgRoot(w, h, 'cv-sbars');
+    const defs = mk('defs'); s.appendChild(defs);
+    const anim = [];
+    items.forEach((d, i) => {
+      const yTop = padT + i * rowH, cy = yTop + barH / 2;
+      const row = mk('g', { class: 'cv-row' + (opts.onClick ? ' click' : '') });
+      row.appendChild(mk('text', { x: labelW - 12, y: cy + 4, 'text-anchor': 'end', class: d.highlight ? 'cv-rowlab hi' : 'cv-rowlab', text: d.label }));
+      row.appendChild(mk('rect', { x: labelW, y: yTop, width: plotW, height: barH, rx: 3, fill: P.line, 'fill-opacity': .45 }));
+      let acc = 0; const segRects = [];
+      d.parts.forEach(p => {
+        const rect = mk('rect', { x: labelW + scale(acc), y: yTop, width: 0, height: barH, fill: sheenGrad(defs, p.color) });
+        row.appendChild(rect); segRects.push({ rect, w: scale(p.value) });
+        acc += p.value;
+      });
+      const val = mk('text', { x: labelW + scale(acc) + 10, y: cy + 4, 'text-anchor': 'start', class: 'cv-barval', fill: P.ink, text: '' });
+      val.style.opacity = 0; row.appendChild(val);
+      if (opts.onClick) {
+        row.appendChild(mk('rect', { x: 0, y: yTop, width: w, height: barH, fill: 'transparent' }));
+        row.setAttribute('tabindex', '0'); row.setAttribute('role', 'button');
+        const fire = () => opts.onClick(d, i);
+        row.addEventListener('click', fire);
+        row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fire(); } });
+      }
+      s.appendChild(row);
+      anim.push({ segRects, val, endText: opts.endLabel ? opts.endLabel(d) : d.parts.map(p => fmt(p.value)).join('  ') });
+    });
+    let played = false;
+    function reveal() {
+      if (played) return; played = true;
+      anim.forEach((a, i) => {
+        const delay = reduced() ? 0 : i * 100;
+        a.segRects.forEach((sr, si) => { sr.rect.style.transition = `width 1s cubic-bezier(.22,.61,.36,1) ${delay + si * 260}ms`; requestAnimationFrame(() => { sr.rect.setAttribute('width', sr.w); }); });
+        setTimeout(() => { a.val.style.opacity = 1; a.val.textContent = a.endText; }, delay + (reduced() ? 0 : 640));
       });
     }
     return { node: s, reveal };
@@ -1089,5 +1141,5 @@
     figureEl.appendChild(bar);
   }
 
-  window.Charts = { lineChart, barsH, stackedArea, columns, pictograph, dumbbell, donut, tileMap, heatmap, bubbles, funnel, moneyFlow, choropleth, scatter, countUp, colorFor: lerpStops, exportPNG, exportCSVFile, addExportBar };
+  window.Charts = { lineChart, barsH, stackedBarsH, stackedArea, columns, pictograph, dumbbell, donut, tileMap, heatmap, bubbles, funnel, moneyFlow, choropleth, scatter, countUp, colorFor: lerpStops, exportPNG, exportCSVFile, addExportBar };
 })();

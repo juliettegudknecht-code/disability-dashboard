@@ -162,7 +162,7 @@
       <button class="a11y-x" aria-label="Close accessibility settings">×</button>
       <div class="m-kicker">Accessibility</div>
       <h3 class="m-title" id="a11y-title" style="margin-bottom:4px">Set this page up for how you read</h3>
-      <p class="m-dek" style="font-size:13.5px">These controls are here to make the data usable however you need it — for low vision, dyslexia, ADHD, sensory sensitivity, or keyboard use. Your choices are saved on this device.</p>
+      <p class="m-dek" style="font-size:13.5px">These controls are here to make the data usable however you need it, whether that is for low vision, dyslexia, ADHD, sensory sensitivity, or keyboard use. Your choices are saved on this device.</p>
       ${groupsHtml}
       <div class="a11y-foot">
         <span class="a11y-note">Your system’s reduced-motion setting is always honored.</span>

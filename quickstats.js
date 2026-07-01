@@ -89,9 +89,9 @@
     { c: 'States', q: 'Which state serves the most students?', v: largest[0], copy: largest[0] + ' (' + nf(largest[5]) + ')',
       n: nf(largest[5]) + ' served, ages 3–21, 2024–25, the most of any state.', s: 'IDEA Part B Child Count, SY 2024–25.', go: 'explore', t: 'largest state most students california biggest by state rank' },
     { c: 'Determinations', q: 'How many states meet Part B requirements?', v: metB != null ? metB + ' of ' + totB : 'n/a', copy: metB + ' of ' + totB,
-      n: 'States and reporting entities that met requirements under Part&nbsp;B, 2025 determinations.', s: '2025 Determination Letters on State Implementation of IDEA (based on FFY 2023 SPP/APR).', go: 'det', t: 'determinations meets requirements states 2025 compliance results' },
+      n: 'States and reporting entities that met the requirements under Part&nbsp;B in the 2026 determinations (20 met in the 2025 round).', s: '2025 and 2026 Determination Letters on State Implementation of IDEA (FFY 2023 and FFY 2024 SPP/APR).', go: 'det', t: 'determinations meets requirements states 2025 2026 compliance results' },
     { c: 'Determinations', q: 'How many states need intervention (Part B)?', v: intB != null ? String(intB) : 'n/a', copy: String(intB),
-      n: 'States and entities at "needs intervention," the most serious Part&nbsp;B level short of substantial, 2025.', s: '2025 Determination Letters on State Implementation of IDEA (based on FFY 2023 SPP/APR).', go: 'det', t: 'needs intervention determinations worst lowest level states 2025' },
+      n: 'States and entities at "needs intervention," the most serious Part&nbsp;B level short of substantial, in the 2026 determinations (only 2 in the 2025 round).', s: '2025 and 2026 Determination Letters on State Implementation of IDEA (FFY 2023 and FFY 2024 SPP/APR).', go: 'det', t: 'needs intervention determinations worst lowest level states 2025 2026' },
     { c: 'Part C', q: 'Where do most infants & toddlers get services?', v: 'Home (' + I.ARC.partcSettings[0][1].toFixed(1) + '%)', copy: 'Home (' + I.ARC.partcSettings[0][1].toFixed(1) + '%)',
       n: 'Primary early-intervention setting for ' + I.ARC.partcSettings[0][1].toFixed(1) + '% of infants and toddlers under Part&nbsp;C.', s: 'IDEA Part C Settings Collection.', go: 'partc', t: 'part c setting home community based where services early intervention location' },
     { c: 'Funding', q: 'What is the reported Part B funding?', v: money(fundUS), copy: money(fundUS),
@@ -99,6 +99,20 @@
   ];
   if (leaCount) STATS.push({ c: 'States', q: 'How many school districts report data?', v: nf(leaCount), copy: String(leaCount),
     n: 'Local educational agencies (school districts and programs) that reported a child count, 2024–25.', s: 'IDEA Part B Child Count, SY 2024–25.', go: 'explore', t: 'districts leas how many school districts report local educational agencies count' });
+
+  /* ---- staff, discipline, and dispute-resolution figures (from the 47th ARC + Personnel) ---- */
+  const pers = X.PERSONNEL || {};
+  const teachPct = pers.teachers ? pers.teachers.pct.toFixed(1) + '%' : '91.2%';
+  STATS.push(
+    { c: 'Personnel', q: 'What share of special education teachers are fully certified?', v: teachPct, copy: teachPct,
+      n: 'Special education teachers fully certified or qualified' + (pers.teachers ? ', of about ' + nf(Math.round(pers.teachers.total)) + ' full-time equivalents' : '') + '. Nationally about 91.2% (fall 2022).', s: 'IDEA Part B Personnel Collection; 47th Annual Report to Congress (Exhibit 43).', go: 'explore', t: 'personnel teachers certified qualified staff workforce fully certified special education teacher shortage' },
+    { c: 'Personnel', q: 'What share of related-services staff are fully certified?', v: '97%', copy: '97%',
+      n: 'Related-services staff (speech-language pathologists, psychologists, therapists, and others) fully certified, about 253,386 full-time equivalents (fall 2022).', s: '47th Annual Report to Congress on IDEA (Exhibit 45).', go: 'explore', t: 'related services staff speech psychologist therapist certified personnel' },
+    { c: 'Outcomes', q: 'How many students had a long suspension or expulsion?', v: nf(65104), copy: '65,104',
+      n: 'Students ages 3–21 with out-of-school suspensions or expulsions of more than 10 days (2022–23), about 85 per 10,000 served.', s: '47th Annual Report to Congress on IDEA (Exhibit 46).', go: 'explore', t: 'discipline suspension expulsion removal out of school more than 10 days' },
+    { c: 'Outcomes', q: 'How often are due process complaints filed?', v: '45 per 10,000', copy: '45 per 10,000 served',
+      n: 'Due process complaints filed in 2022–23, per 10,000 children and students ages 3–21 served under Part B, alongside 11 written complaints and 16 mediation requests per 10,000.', s: '47th Annual Report to Congress on IDEA (dispute resolution).', go: 'det', t: 'dispute resolution due process complaints mediation hearings requests' }
+  );
 
   /* IDEA disability category definitions (paraphrased from 34 CFR 300.8; the EdFacts
      file specifications use these categories). Answers "what counts as <category>?" */
@@ -117,13 +131,13 @@
     ['Visual impairment', 'An impairment in vision that, even with correction, adversely affects educational performance, including both partial sight and blindness.'],
     ['Deaf-blindness', 'Concomitant hearing and visual impairments whose combination causes such severe communication and developmental needs that the child cannot be served in programs solely for deafness or blindness.'],
   ];
-  DEFS.forEach(([cat, def]) => STATS.push({ c: 'Definitions', q: 'What counts as ' + cat.toLowerCase() + '?', v: cat, copy: cat + ' — ' + def, g: '', n: def, s: 'IDEA regulations, 34 CFR 300.8; EdFacts file specifications, SY 2024–25.', t: cat + ' definition meaning what is criteria eligibility category disability', def: true }));
+  DEFS.forEach(([cat, def]) => STATS.push({ c: 'Definitions', q: 'What counts as ' + cat.toLowerCase() + '?', v: cat, copy: cat + ': ' + def, g: '', n: def, s: 'IDEA regulations, 34 CFR 300.8; EdFacts file specifications, SY 2024–25.', t: cat + ' definition meaning what is criteria eligibility category disability', def: true }));
 
   // a stat is Part C if it is about infants/toddlers or early intervention; otherwise Part B
   const partOf = s => (s.c === 'Part C' || /\bPart C\b|infants and toddlers|early intervention/i.test((s.q || '') + ' ' + (s.n || ''))) ? 'C' : 'B';
   STATS.forEach(s => { s.part = partOf(s); });
 
-  const CATS = ['Headline', 'Disability', 'Definitions', 'Classrooms', 'Who', 'Outcomes', 'States', 'Determinations', 'Part C', 'Funding'];
+  const CATS = ['Headline', 'Disability', 'Definitions', 'Classrooms', 'Who', 'Outcomes', 'Personnel', 'States', 'Determinations', 'Part C', 'Funding'];
 
   /* ---- styles ---- */
   const css = document.createElement('style');

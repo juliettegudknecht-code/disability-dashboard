@@ -169,6 +169,7 @@ html.js .reveal.in .hl-num { opacity: 1; transform: none;
 @keyframes barGlow { 0%,100% { filter: drop-shadow(0 0 1px var(--glow)); } 50% { filter: drop-shadow(0 0 1px var(--glow)) drop-shadow(0 0 4px var(--glow)); } }
 @media (prefers-reduced-motion: reduce) { .cv-bar.glow { animation: none; } }
 .cv-end { font-size: 13px; font-weight: 700; paint-order: stroke; stroke: var(--cream); stroke-width: 3.4px; stroke-linejoin: round; }
+.cv-end.cv-end-sub { font-size: 10.5px; font-weight: 600; opacity: .92; }
 .cv-anno-t { fill: var(--ink); font-size: 13px; font-weight: 700; }
 .cv-anno-sub { fill: var(--muted); font-size: 11.5px; font-weight: 500; }
 .cv-vmark-t { fill: var(--ink); font-size: 12px; font-weight: 700; }
@@ -768,8 +769,13 @@ html.reduce-motion .cv-enddot { animation: none; }
 /* sections within the snapshot — plain, not boxed */
 .snap-block { margin-top: 30px; }
 .snap-sublab { font-size: 12px; font-weight: 700; color: var(--ink); margin: 0 0 4px; }
-.snap-det { margin: 11px 0 0; font-size: 13.5px; color: var(--muted); }
+.snap-det { margin: 9px 0 0; font-size: 13.5px; color: var(--muted); }
 .snap-det .snap-dot { margin: 0 9px; color: var(--faint); }
+.snap-detyr { display: inline-block; min-width: 42px; font-family: var(--font-display); font-weight: 800; color: var(--ink); margin-right: 8px; }
+.snap-sub2 { margin: 16px 0 6px; font-size: 12px; font-weight: 700; color: var(--ink); }
+.snap-findings { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 7px; }
+.snap-findings li { font-size: 12.5px; color: var(--muted); line-height: 1.5; max-width: 82ch; }
+.snap-findings li::marker { color: var(--green); }
 .det-word { font-weight: 700; background: none !important; border: none !important; padding: 0 !important; border-radius: 0 !important; }
 .det-word.det-meets { color: #1f6b3f; } .det-word.det-na1 { color: #8a6c12; }
 .det-word.det-na2 { color: var(--accent); } .det-word.det-int { color: #8f2d2d; }
@@ -806,6 +812,18 @@ html.reduce-motion #exStateOut .snap-stats, html.reduce-motion #exStateOut .snap
 /* remove decorative dashes/ticks next to labels (kept plain) */
 .m-kicker::before { display: none; }
 .exhibit-label::after { display: none; }
+
+/* state-snapshot promo callout (advertises the per-state profiles) */
+.state-promo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 22px;
+  margin: 20px 0 4px; padding: 16px 20px; border-radius: 14px;
+  background: color-mix(in srgb, var(--green-l) 14%, var(--card));
+  border: 1px solid color-mix(in srgb, var(--green) 26%, transparent); }
+.state-promo-txt { font-size: 13.5px; color: var(--muted); line-height: 1.5; max-width: 66ch; }
+.state-promo-txt b { color: var(--ink); font-weight: 700; }
+.promo-btn { flex: none; display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 13.5px; font-weight: 700;
+  color: #fff; background: var(--green-d); border: none; border-radius: 9px; padding: 11px 17px; cursor: pointer; transition: transform .12s, background .15s; }
+.promo-btn:hover { background: #0c3324; transform: translateY(-1px); }
+.promo-btn svg { flex: none; }
 
 /* hover lift on detail-modal stat cells (subtle) */
 .m-grid > div { transition: border-color .16s, box-shadow .16s, transform .16s; }

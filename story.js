@@ -183,7 +183,6 @@
         <div><span class="mv" style="color:var(--accent)">${growth >= 0 ? '+' : ''}${growth.toFixed(0)}%</span><span class="ml">change since 2000\u201301</span></div>
         <div><span class="mv">#${rank}</span><span class="ml">national rank by number served</span></div>
         ${vec ? `<div><span class="mv">${(topVal / stTot * 100).toFixed(0)}%</span><span class="ml">served under ${topCat.toLowerCase()}, the most common category here</span></div>` : ''}
-        ${vec ? `<div><span class="mv">${I.nf(autCount)}</span><span class="ml">served under the primary disability category of autism (${(autCount / stTot * 100).toFixed(1)}% of the state)</span></div>` : ''}
         ${ex && ex.gradPct != null ? `<div><span class="mv">${ex.gradPct.toFixed(1)}%</span><span class="ml">graduated with a regular diploma, of those who exited school (2023\u201324)</span></div>` : ''}
         ${ex && ex.dropPct != null ? `<div><span class="mv" style="color:var(--accent)">${ex.dropPct.toFixed(1)}%</span><span class="ml">dropped out, of those who exited school (2023\u201324)</span></div>` : ''}
         ${se && se.alt != null ? `<div><span class="mv"${se.alt > 0 ? ' style="color:var(--accent)"' : ''}>${I.nf(se.alt)}</span><span class="ml">graduated with an alternate diploma (${se.altPct != null ? se.altPct.toFixed(1) + '% of those who exited' : 'none'}, 2023\u201324)${se.alt === 0 ? '; this State awards none' : ''}</span></div>` : ''}
@@ -274,28 +273,33 @@
     'Less than 40% of day': { keys: ['Inside regular class less than 40% of the day'], blurb: 'Students inside the regular classroom less than 40 percent of the day, receiving most instruction in a separate special-education classroom.' },
     'Other settings': { keys: ['Separate School', 'Residential Facility', 'Parentally Placed in Private Schools', 'Homebound / Hospital', 'Correctional Facilities'], blurb: 'Students served outside regular school buildings: separate day schools, residential facilities, parentally placed private schools, homebound or hospital settings, and correctional facilities.' },
   };
-  function openEnvModal(name) {
+  function openEnvModal(name, cell) {
     const b = ENV_BUCKETS[name]; if (!b) return;
     const tot = I.D.envTotal;
     const sumAt = i => b.keys.reduce((s, k) => s + I.ENV[k][i], 0);
     const share = I.ENV_LBL.map((_, i) => +(sumAt(i) / tot[i] * 100).toFixed(1));
     const last = share.length - 1, cntLast = sumAt(last) * 1000;
     const chg = +(share[last] - share[0]).toFixed(1);
-    openModal(`<div class="m-kicker">Educational environment</div><h3 class="m-title">${name}</h3>
+    const ci = cell ? I.ENV_LBL.indexOf(cell.year) : -1;
+    const lead = (cell && ci >= 0)
+      ? `<div><span class="mv">${cell.val}%</span><span class="ml">of school-age students served in ${cell.year}, the cell you tapped</span></div>`
+      : `<div><span class="mv">${share[last]}%</span><span class="ml">of school-age students served (2024–25)</span></div>`;
+    openModal(`<div class="m-kicker">Educational environment${cell ? ' · ' + cell.year : ''}</div><h3 class="m-title">${name}</h3>
       <p class="m-dek">${b.blurb}</p>
       <div class="m-grid">
-        <div><span class="mv">${share[last]}%</span><span class="ml">of school-age students served (2024–25)</span></div>
+        ${lead}
         <div><span class="mv">${I.nf(Math.round(cntLast))}</span><span class="ml">students in this setting (2024–25)</span></div>
         <div><span class="mv" style="color:var(--accent)">${chg >= 0 ? '+' : ''}${chg} pts</span><span class="ml">change in share since 2012–13</span></div>
       </div>
-      <div class="figure-sub" style="margin:16px 0 4px">Share over time</div>
+      <div class="figure-sub" style="margin:16px 0 4px">Share over time${cell && ci >= 0 ? ', with ' + cell.year + ' marked' : ''}</div>
       <div id="m-envtrend" class="chartbox"></div>
       <p class="m-src">IDEA Part B Child Count and Educational Environments Collection, School Years 2012–13 through 2024–25.</p>`);
     const host = document.getElementById('m-envtrend');
     if (host) {
       const t = C.lineChart({ labels: I.ENV_LBL, xs: I.ENV_LBL.map(y => +y.slice(0, 4)), xTicks: [2012, 2016, 2020, 2024],
         series: [{ values: share, color: P.greenD, area: true, areaOpacity: .12, highlight: true, endLabel: share[last] + '%' }],
-        yMin: 0, yMax: Math.max(...share) * 1.25, yTicks: 3, yFmt: v => v.toFixed(0) + '%', height: 200, width: 430, padL: 42 });
+        yMin: 0, yMax: Math.max(...share) * 1.25, yTicks: 3, yFmt: v => v.toFixed(0) + '%', height: 200, width: 430, padL: 42,
+        annotations: (cell && ci >= 0 && ci !== last) ? [{ atIndex: ci, value: share[ci], text: [cell.year, cell.val + '%'], dx: 6, dy: -16, color: P.navy }] : [] });
       host.appendChild(t.node); t.reveal();
     }
   }
@@ -396,7 +400,7 @@
     const yi = MARK_YEAR_IDX[y], served = yi != null ? I.ALL[yi] * 1000 : null, sy = yi != null ? I.YEARS[yi] : null;
     openModal(`<div class="m-kicker">IDEA milestone · ${d.kicker}</div><h3 class="m-title">${d.title}</h3>
       <p class="m-dek">${d.detail}</p>
-      ${served != null ? `<div class="m-grid"><div><span class="mv">${I.nf(served)}</span><span class="ml">children and students ages 3–21 served under IDEA, Part B, in ${sy}</span></div></div>` : ''}
+      ${served != null ? `<div class="figure-sub" style="margin:16px 0 6px">Count of students with disabilities served under IDEA, Part B, in School Year ${sy}</div><div class="m-grid"><div><span class="mv">${I.nf(served)}</span><span class="ml">children and students ages 3 through 21</span></div></div>` : ''}
       <p class="m-src">IDEA legislative history; U.S. Department of Education, 47th Annual Report to Congress on the Implementation of IDEA (2025).</p>`);
   }
 
@@ -433,7 +437,7 @@
     if (unit === 'rate') {
       const idx = I.ENROLL_PCT.map((v, i) => v == null ? null : i).filter(v => v != null);
       const baseXs = idx.map(i => startYears[i]), vals = idx.map(i => I.ENROLL_PCT[i]), lastY = baseXs[baseXs.length - 1];
-      const series = [{ values: vals.slice(), color: P.greenD, area: true, areaOpacity: .22, highlight: true, endDotR: 6, endLabel: '15.2% in 2022–23' }];
+      const series = [{ values: vals.slice(), color: P.greenD, area: true, areaOpacity: .22, highlight: true, endDotR: 6, endLabel: ['15.2% of enrollment', 'Latest available · SY 2022–23'] }];
       let xs = baseXs, labs = idx.map(i => I.YEARS[i]), xt = [1980, 1990, 2000, 2010, 2020], yMax = 16, proj = null;
       if (riseTrend) {
         const fut = [lastY + 2, lastY + 4, lastY + 6], fc = forecastDamped(vals.slice(-14), 6);
@@ -453,7 +457,7 @@
       if (proj != null) sub = 'Dashed blue is a damped-trend forecast: on recent momentum the share would reach about ' + proj.toFixed(1) + '% by ' + futLab(lastY + 6) + '.';
     } else {
       const vals = I.ALL.map(v => v / 1000), lastY = startYears[startYears.length - 1];
-      const series = [{ values: vals.slice(), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endDotR: 6, endLabel: '8.2M in 2024–25' }];
+      const series = [{ values: vals.slice(), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endDotR: 6, endLabel: ['8.2M served under IDEA', 'Latest available · SY 2024–25'] }];
       let xs = startYears, labs = I.YEARS, xt = [1980, 1990, 2000, 2010, 2020, 2024], proj = null, yMaxC = 9;
       if (riseTrend) {
         const fut = [lastY + 2, lastY + 4, lastY + 6], fc = forecastDamped(vals.slice(-15), 6);
@@ -478,7 +482,7 @@
     if (riseShown) chart.reveal(); else onView(riseBox, () => { riseShown = true; chart.reveal(); });
   }
   buildRise('count');
-  hint('chart-rise', 'Tap a marked year — 1975, 1990, 1997, 2004 — for the law behind it');
+  hint('chart-rise', 'Tap a marked year (1975, 1990, 1997, 2004) for the law behind it');
   (function () {
     const chk = document.getElementById('riseLabelsChk');
     if (chk) chk.addEventListener('change', () => { riseLabels = chk.checked; riseShown = true; buildRise(riseUnit); });
@@ -520,9 +524,9 @@
       const ch = C.barsH({
         onClick: d => openCatModal(d.label),
         labelW: 234, barH: 17, gap: 9, padR: change ? 74 : 58,
-        items: items.map((d, i) => { const star = i === 0 && topSLD;
-          return { label: d.k, value: d.v, highlight: star, glow: star,
-            color: star ? P.accent : (change ? (d.v >= 0 ? P.green : P.accent) : C.colorFor(catRamp, Math.min(1, d.v / maxV))) }; }),
+        items: items.map((d, i) => { const star = i === 0 && topSLD, autHi = change && d.k === 'Autism';
+          return { label: d.k, value: d.v, highlight: star || autHi, glow: star || autHi,
+            color: autHi ? P.navy : (star ? P.accent : (change ? (d.v >= 0 ? P.green : P.accent) : C.colorFor(catRamp, Math.min(1, d.v / maxV)))) }; }),
         xMax: change ? maxV * 1.14 : 40, valueFmt: change ? (v => (v >= 0 ? '+' : '') + v.toFixed(0) + '%') : (v => v.toFixed(1) + '%'),
       });
       catsBox.innerHTML = ''; catsBox.appendChild(ch.node);
@@ -606,8 +610,9 @@
         labelW: 176, cellH: 34, colEvery: 1,
         stops: [{ t: 0, color: '#eef4f0' }, { t: .5, color: P.green }, { t: 1, color: P.greenD }],
         showValues: true, valueFmt: v => v.toFixed(0) + '%',
-        onClick: d => openEnvModal(series[d.r] ? series[d.r].name : d.row),
+        onClick: d => openEnvModal(series[d.r] ? series[d.r].name : d.row, { year: I.ENV_LBL[d.c], val: d.value }),
       }));
+      hint('chart-envheat', 'Tap any cell for that setting and year');
     }
   })();
 
