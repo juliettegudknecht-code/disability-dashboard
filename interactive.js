@@ -272,13 +272,21 @@
       const usEx = (window.LEAEXIT && window.LEAEXIT.US) || [];
       const cvec = CAT && CAT.lea[normNces(nces)];
       const nkey = normNces(nces);
-      const ccArr = (CAT && CAT.leaSupp && CAT.leaSupp[nkey]) || [0, 0];
-      const exArr = (CAT && CAT.leaExitSupp && CAT.leaExitSupp[nkey]) || [0, 0];
+      const ccArr = (CAT && CAT.leaSupp && CAT.leaSupp[nkey]) || [0, 0, '', ''];
+      const exArr = (CAT && CAT.leaExitSupp && CAT.leaExitSupp[nkey]) || ['', ''];
       const ccSmall = ccArr[0] || 0, ccQual = ccArr[1] || 0, ccSupp = ccSmall + ccQual;
-      const exSmall = exArr[0] || 0, exQual = exArr[1] || 0, exSupp = exSmall + exQual;
-      // why a value was suppressed, from the source codes: -8 small cell size, -9 data quality
+      // decode which categories / exit outcomes were suppressed, by reason code
+      const CATL = (CAT && CAT.suppCatLabels) || [], CATC = (CAT && CAT.suppCatChars) || '0123456789ABC', EXL = (CAT && CAT.suppExitLabels) || [];
+      const decCats = str => (str || '').split('').map(ch => CATL[CATC.indexOf(ch)]).filter(Boolean);
+      const decExit = str => (str || '').split('').map(ch => EXL[+ch]).filter(Boolean);
+      const ccSmallCats = decCats(ccArr[2]), ccQualCats = decCats(ccArr[3]);
+      const exSmallOut = decExit(exArr[0]), exQualOut = decExit(exArr[1]);
+      const exSmall = exSmallOut.length, exQual = exQualOut.length, exSupp = exSmall + exQual;
+      // short reason for the visible N/A note; whichList names exactly which items, grouped by code
       const whyShort = (s, q) => [s ? `${s} for small cell size` : '', q ? `${q} for data quality` : ''].filter(Boolean).join(', ');
-      const whyLong = (s, q) => [s ? `${s} because the cell was too small to publish without risking student privacy (code -8)` : '', q ? `${q} because the value was flagged for data quality (code -9)` : ''].filter(Boolean).join(', and ');
+      const whichList = (smallArr, qualArr) =>
+        (smallArr.length ? `Suppressed for small cell size (code -8): ${smallArr.join(', ')}. ` : '')
+        + (qualArr.length ? `Flagged for data quality (code -9): ${qualArr.join(', ')}. ` : '');
       // MOE/CEIS variables OSEP suppressed for data quality, by state (2021-22 collection)
       const MOE_SUPP = { 'Arizona': 'the MOE reduction amount', 'California': 'the MOE reduction amount', 'Florida': 'the MOE reduction amount', 'Louisiana': 'the MOE reduction amount', 'Minnesota': 'the required CEIS amounts', 'North Carolina': 'the MOE reduction amount', 'Rhode Island': 'the required CEIS amounts' };
       const SUPP_ICON = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>';
@@ -291,12 +299,12 @@
       const ccHide = showCat && (!cvec || ccSupp >= 13);
       const ccNote = showCat ? suppDetail('About suppressed category counts',
         (ccSupp
-          ? `For ${nm}, OSEP suppressed ${ccSupp} disability-category child count${ccSupp > 1 ? 's' : ''}: ${whyLong(ccSmall, ccQual)}. Early childhood and school age are counted separately, and suppressed counts are treated as zero, so any breakdown can undercount the district&rsquo;s true totals. `
+          ? `For ${nm}, OSEP suppressed ${ccSupp} of the 26 disability-category counts (13 categories, counted separately for early childhood and school age). ${whichList(ccSmallCats, ccQualCats)}Suppressed counts are treated as zero, so any breakdown can undercount the district&rsquo;s true totals. `
           : `OSEP did not suppress any of ${nm}&rsquo;s disability-category counts, so the zeros shown are actual zeros. `)
         + `At the district level, OSEP suppresses any category count too small to report, which is why the state and national totals in this story come from OSEP&rsquo;s published, unsuppressed state tables rather than sums of districts.`) : '';
       const exNote = exShow ? suppDetail('About suppressed exiting counts',
         (exSupp
-          ? `For ${nm}, OSEP suppressed ${exSupp} of the eight exit-outcome counts: ${whyLong(exSmall, exQual)}. The counts cover exit reasons such as died, moved, reached maximum age, or received a certificate. `
+          ? `For ${nm}, OSEP suppressed ${exSupp} of the eight exit-outcome counts. ${whichList(exSmallOut, exQualOut)}These are counts of all students who exited; the district-level exiting collection is not broken out by disability category. `
           : `None of ${nm}&rsquo;s exit-outcome counts were suppressed. `)
         + `Districts with very few students exiting are omitted from this collection altogether.`) : '';
       const moeNote = f ? suppDetail('About the MOE and CEIS funding figures',
