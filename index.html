@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=41">
+<link rel="stylesheet" href="styles.css?v=45">
 <!-- ============ SOFT PASSWORD GATE ============ -->
 <script>
   /* Light access gate (client-side only, not real security). Lock before render. */
@@ -180,12 +180,12 @@
 <header class="topbar">
   <div class="wrap topbar-in">
     <nav id="topnav" aria-label="Jump to section">
-      <a href="#rise">Trends</a>
-      <a href="#env">Classrooms</a>
-      <a href="#who">Who</a>
-      <a href="#det">Determinations</a>
-      <a href="#alloc">Funding</a>
-      <a href="#explore">States &amp; districts</a>
+      <a href="#rise" data-label="Trends">Trends</a>
+      <a href="#env" data-label="Classrooms">Classrooms</a>
+      <a href="#who" data-label="Who">Who</a>
+      <a href="#det" data-label="Determinations">Determinations</a>
+      <a href="#alloc" data-label="Funding">Funding</a>
+      <a href="#explore" data-label="States &amp; districts">States &amp; districts</a>
     </nav>
     <div class="tb-tools">
       <button id="searchToggle" class="tb-icon" aria-label="Search the story" aria-expanded="false">
@@ -242,6 +242,7 @@
           <button data-unit="rate" aria-pressed="false">Percent of enrollment</button>
         </div>
         <label class="chk-toggle"><input type="checkbox" id="riseLabelsChk" checked> Show labels</label>
+        <label class="chk-toggle"><input type="checkbox" id="riseTrendChk"> Trend line</label>
       </div>
       <div class="figure-title" id="riseTitle">Children and students with disabilities served under IDEA, Part&nbsp;B, ages 3 through 21</div>
       <div class="figure-sub" id="riseSub">By school year, in millions.</div>
@@ -570,22 +571,22 @@
 
 <div class="maptip" id="maptip"></div>
 
-<script src="data.js?v=41"></script>
-<script src="enrich.js?v=41"></script>
-<script src="moe.js?v=41"></script>
-<script src="usmap.js?v=41"></script>
-<script src="det.js?v=41"></script>
-<script src="lea.js?v=41"></script>
-<script src="leaexit.js?v=41"></script>
-<script src="catdata.js?v=41"></script>
-<script src="sea.js?v=41"></script>
-<script src="charts.js?v=41"></script>
-<script src="story.js?v=41"></script>
-<script src="explore.js?v=41"></script>
-<script src="extra.js?v=41"></script>
-<script src="interactive.js?v=41"></script>
-<script src="builder.js?v=41"></script>
-<script src="quickstats.js?v=41"></script>
-<script src="type.js?v=41"></script>
+<script src="data.js?v=45"></script>
+<script src="enrich.js?v=45"></script>
+<script src="moe.js?v=45"></script>
+<script src="usmap.js?v=45"></script>
+<script src="det.js?v=45"></script>
+<script src="lea.js?v=45"></script>
+<script src="leaexit.js?v=45"></script>
+<script src="catdata.js?v=45"></script>
+<script src="sea.js?v=45"></script>
+<script src="charts.js?v=45"></script>
+<script src="story.js?v=45"></script>
+<script src="explore.js?v=45"></script>
+<script src="extra.js?v=45"></script>
+<script src="interactive.js?v=45"></script>
+<script src="builder.js?v=45"></script>
+<script src="quickstats.js?v=45"></script>
+<script src="type.js?v=45"></script>
 </body>
 </html>

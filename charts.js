@@ -258,8 +258,9 @@
         class: d.highlight ? 'cv-rowlab hi' : 'cv-rowlab', text: d.label }));
       row.appendChild(mk('rect', { x: labelW, y: yTop, width: plotW, height: barH, rx: 3, fill: P.line, 'fill-opacity': .5 }));
       const fullW = Math.max(2, scale(d.value));
-      const bar = mk('rect', { x: labelW, y: yTop, width: 0, height: barH, rx: 3, class: 'cv-bar',
+      const bar = mk('rect', { x: labelW, y: yTop, width: 0, height: barH, rx: 3, class: 'cv-bar' + (d.glow ? ' glow' : ''),
         fill: d.color || (d.highlight ? P.accent : P.green) });
+      if (d.glow) bar.style.setProperty('--glow', d.color || P.accent);
       row.appendChild(bar);
       const inside = false;   // always place the value label outside the bar, in ink (no white-on-bar)
       const val = mk('text', { x: labelW + fullW + 10, y: cy + 4,

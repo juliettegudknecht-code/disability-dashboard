@@ -222,8 +222,8 @@
           const cc = I.DIS[d] && I.DIS[d][yi] != null ? I.DIS[d][yi] * 1000 : null;
           return cc ? { label: d, value: +(rem / cc * 100).toFixed(1) } : null;
         }).filter(Boolean).sort((a, b) => b.value - a.value).map(o => ({
-          label: o.label, value: o.value, highlight: o.label === 'Emotional disturbance',
-          color: o.label === 'Emotional disturbance' ? P.navy : (o.label === 'Autism' ? P.greenD : P.green),
+          label: o.label, value: o.value, highlight: o.label === 'Emotional disturbance' || o.label === 'Autism',
+          color: o.label === 'Emotional disturbance' ? P.navy : (o.label === 'Autism' ? P.accent : P.green),
         }));
         const ch = C.barsH({ items, labelW: 232, barH: 17, gap: 9, padR: 60, xMax: 120, valueFmt: v => v.toFixed(0) });
         ddBox.appendChild(ch.node); ch.reveal();

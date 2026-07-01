@@ -67,6 +67,22 @@ summary:focus-visible, [tabindex]:focus-visible {
 .tb-tools { flex: none; }
 @media (max-width: 720px) { .topbar nav { gap: 2px; } .topbar nav a { font-size: 12.5px; padding: 6px 9px; } }
 @media (max-width: 540px) { .brand { font-size: 13px; } .topbar nav a { padding: 6px 7px; } }
+/* desktop: section nav becomes a compact left-edge dot rail with hover labels; tools stay top-right */
+@media (min-width: 1280px) {
+  #topnav { position: fixed; left: 22px; top: 132px; flex: none; z-index: 60;
+    flex-direction: column; align-items: flex-start; gap: 16px; overflow: visible; }
+  #topnav a { position: relative; width: 11px; height: 11px; padding: 0; border-radius: 50%; font-size: 0; letter-spacing: 0;
+    background: color-mix(in srgb, var(--muted) 42%, transparent); transition: background .16s, transform .16s; }
+  #topnav a::after { content: attr(data-label); position: absolute; left: 22px; top: 50%; transform: translateY(-50%) translateX(-4px);
+    white-space: nowrap; font-family: var(--font-body), sans-serif; font-size: 12.5px; font-weight: 600; letter-spacing: .01em;
+    color: var(--muted); background: color-mix(in srgb, var(--cream) 92%, transparent); border: 1px solid var(--line);
+    padding: 4px 9px; border-radius: 7px; opacity: 0; pointer-events: none; box-shadow: 0 6px 18px rgba(16,30,25,.12);
+    transition: opacity .16s, transform .16s; }
+  #topnav a:hover, #topnav a:focus-visible { background: var(--green); transform: scale(1.25); }
+  #topnav a:hover::after, #topnav a:focus-visible::after { opacity: 1; transform: translateY(-50%) translateX(0); }
+  #topnav a.active { background: var(--green-d); transform: scale(1.32); }
+  .topbar-in { justify-content: flex-end; }
+}
 
 /* ---- hero -------------------------------------------------- */
 .hero { padding: clamp(26px, 3.6vh, 48px) 0 clamp(20px, 2.6vh, 34px); }
@@ -88,6 +104,12 @@ summary:focus-visible, [tabindex]:focus-visible {
 .hstat .num { font-weight: 800; font-size: clamp(22px, 2.5vw, 31px); line-height: 1;
   letter-spacing: -.03em; color: var(--green-d); font-variant-numeric: tabular-nums; }
 .hstat .lab { margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.38; }
+/* slot-machine digit reels for the hero counters */
+.slotroll { display: inline-flex; align-items: flex-end; line-height: 1; }
+.slot-d { display: inline-block; height: 1em; line-height: 1; overflow: hidden; vertical-align: bottom; }
+.slot-strip { display: flex; flex-direction: column; will-change: transform; }
+.slot-u { display: block; height: 1em; line-height: 1; text-align: center; }
+.slot-sep { display: inline-block; }
 .scroll-cue { margin-top: 30px; display: inline-flex; align-items: center; gap: 9px;
   font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
 .scroll-cue .dn { width: 16px; height: 16px; animation: bob 1.8s ease-in-out infinite; }
@@ -143,6 +165,9 @@ html.js .reveal.in .hl-num { opacity: 1; transform: none;
 .cv-rowlab { fill: var(--ink); font-size: 13px; font-weight: 500; }
 .cv-rowlab.hi { fill: var(--navy); font-weight: 700; }
 .cv-barval { font-size: 13px; font-weight: 700; }
+.cv-bar.glow { filter: drop-shadow(0 0 2px var(--glow)) drop-shadow(0 0 6px var(--glow)); animation: barGlow 2.4s ease-in-out infinite; }
+@keyframes barGlow { 0%,100% { filter: drop-shadow(0 0 1px var(--glow)) drop-shadow(0 0 4px var(--glow)); } 50% { filter: drop-shadow(0 0 3px var(--glow)) drop-shadow(0 0 10px var(--glow)); } }
+@media (prefers-reduced-motion: reduce) { .cv-bar.glow { animation: none; } }
 .cv-end { font-size: 13px; font-weight: 700; paint-order: stroke; stroke: var(--cream); stroke-width: 3.4px; stroke-linejoin: round; }
 .cv-anno-t { fill: var(--ink); font-size: 13px; font-weight: 700; }
 .cv-anno-sub { fill: var(--muted); font-size: 11.5px; font-weight: 500; }
@@ -607,14 +632,13 @@ html.js .reveal.in { opacity: 1; transform: none; filter: none; }
 .cv-axt-bold { fill: var(--muted); font-size: 11.5px; font-weight: 700; }
 .cv-scatter { cursor: crosshair; }
 
-/* funding-vs-served scatter: drag to rotate the whole point cloud in 3D (one GPU layer,
-   cheap even at ~14k dots). It does not move on its own; double-click resets it flat. */
-#chart-scatter { perspective: 1200px; }
+/* funding-vs-served scatter: drag to rotate ONLY the point cloud in 3D (the axes/frame
+   stay put). It does not move on its own; double-click resets the points flat. */
 #chart-scatter.grabbable { cursor: grab; }
 #chart-scatter.dragging { cursor: grabbing; }
-#chart-scatter .cv-scatter { transform-origin: 50% 56%; backface-visibility: hidden; will-change: transform;
+#chart-scatter .cv-dots { transform-box: fill-box; transform-origin: center; will-change: transform;
   transition: transform .5s cubic-bezier(.22,.61,.36,1); }
-#chart-scatter.dragging .cv-scatter { transition: none; cursor: grabbing; }
+#chart-scatter.dragging .cv-dots { transition: none; }
 
 /* ---- popup polish: Focus popup matches the detail modal ---- */
 .focuspop { background: rgba(11,22,18,.5); -webkit-backdrop-filter: blur(7px) saturate(118%); backdrop-filter: blur(7px) saturate(118%); }

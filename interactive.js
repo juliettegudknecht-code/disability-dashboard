@@ -436,7 +436,7 @@
     (function () {
       box.classList.add('grabbable');
       let rx = 0, ry = 0, drag = false, moved = 0, sx = 0, sy = 0;
-      const apply = () => { const svg = box.querySelector('.cv-scatter'); if (svg) svg.style.transform = `rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg)`; };
+      const apply = () => { const g = box.querySelector('.cv-dots'); if (g) g.style.transform = `perspective(1200px) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg)`; };
       box.addEventListener('pointerdown', e => { if (e.pointerType === 'touch') return; drag = true; moved = 0; sx = e.clientX; sy = e.clientY; box.classList.add('dragging'); try { box.setPointerCapture(e.pointerId); } catch (_) {} });
       box.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - sx, dy = e.clientY - sy; moved += Math.abs(dx) + Math.abs(dy); ry = Math.max(-58, Math.min(58, ry + dx * 0.45)); rx = Math.max(-46, Math.min(46, rx - dy * 0.45)); sx = e.clientX; sy = e.clientY; apply(); });
       const end = () => { drag = false; box.classList.remove('dragging'); };

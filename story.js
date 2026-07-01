@@ -47,9 +47,33 @@
   const onView = (node, fn) => { if (node) { jobs.set(node, fn); io.observe(node); } };
 
   document.querySelectorAll('.reveal').forEach(el => onView(el, () => el.classList.add('in')));
+  // slot-machine roll: each digit spins through 0–9 and locks on its target, left to right
+  function slotRoll(el, to, fmt, dur) {
+    const finalStr = fmt(to);
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = finalStr; return; }
+    el.textContent = ''; el.classList.add('slotroll');
+    const reels = [];
+    finalStr.split('').forEach(ch => {
+      if (/[0-9]/.test(ch)) {
+        const target = +ch, d = document.createElement('span'); d.className = 'slot-d';
+        const strip = document.createElement('span'); strip.className = 'slot-strip';
+        const seq = [];
+        for (let l = 0; l < 2; l++) for (let k = 0; k <= 9; k++) seq.push(k);
+        for (let k = 0; k <= target; k++) seq.push(k);
+        seq.forEach(k => { const u = document.createElement('span'); u.className = 'slot-u'; u.textContent = k; strip.appendChild(u); });
+        d.appendChild(strip); el.appendChild(d); reels.push({ strip, count: seq.length });
+      } else {
+        const sep = document.createElement('span'); sep.className = 'slot-sep'; sep.textContent = ch; el.appendChild(sep);
+      }
+    });
+    reels.forEach((r, i) => {
+      r.strip.style.transition = `transform ${dur}ms cubic-bezier(.16,.9,.28,1) ${i * 80}ms`;
+      requestAnimationFrame(() => { r.strip.style.transform = `translateY(${-(r.count - 1)}em)`; });
+    });
+  }
   document.querySelectorAll('[data-count]').forEach(el => {
     const to = parseFloat(el.dataset.count), fmt = FMT[el.dataset.fmt] || FMT.int;
-    onView(el, () => C.countUp(el, to, fmt, 1300));
+    onView(el, () => slotRoll(el, to, fmt, 1500));
   });
 
   const mount = (id, chart) => {
@@ -329,33 +353,47 @@
    * EXHIBIT 1 · CHILD COUNT OVER TIME (count / % toggle)       *
    * ========================================================== */
   const riseBox = document.getElementById('chart-rise');
-  let riseShown = false, riseUnit = 'count', riseLabels = true;
+  const linreg = (xs, ys) => {   // least-squares slope + intercept -> a predictor
+    const p = xs.map((x, i) => [x, ys[i]]).filter(q => q[1] != null), n = p.length;
+    const sx = p.reduce((s, q) => s + q[0], 0), sy = p.reduce((s, q) => s + q[1], 0);
+    const sxx = p.reduce((s, q) => s + q[0] * q[0], 0), sxy = p.reduce((s, q) => s + q[0] * q[1], 0);
+    const b = (n * sxy - sx * sy) / (n * sxx - sx * sx || 1);
+    return x => (sy - b * sx) / n + b * x;
+  };
+  let riseShown = false, riseUnit = 'count', riseLabels = true, riseTrend = false;
   function buildRise(unit) {
     riseUnit = unit;
     riseBox.innerHTML = '';
     const marks = riseLabels ? IDEA_MARKS : [];
-    let chart;
+    const growth = (v) => { const a = v.find(x => x != null), b = [...v].reverse().find(x => x != null); return (b - a) / a * 100; };
+    let chart, sub;
     if (unit === 'rate') {
       const idx = I.ENROLL_PCT.map((v, i) => v == null ? null : i).filter(v => v != null);
+      const xs = idx.map(i => startYears[i]), vals = idx.map(i => I.ENROLL_PCT[i]);
+      const series = [{ values: vals, color: P.greenD, area: true, areaOpacity: .12, highlight: true, endDotR: 6, endLabel: '15.2% in 2022–23' }];
+      if (riseTrend) { const reg = linreg(xs, vals); series.push({ values: xs.map(reg), color: P.blue, width: 1.8, dash: '6 5' }); }
       chart = C.lineChart({
-        labels: idx.map(i => I.YEARS[i]), xs: idx.map(i => startYears[i]),
-        xTicks: [1980, 1990, 2000, 2010, 2020],
-        series: [{ values: idx.map(i => I.ENROLL_PCT[i]), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endArrow: true, endLabel: '15.2% in 2022–23' }],
+        labels: idx.map(i => I.YEARS[i]), xs, xTicks: [1980, 1990, 2000, 2010, 2020], series,
         yMin: 0, yMax: 16, yTicks: 4, yFmt: v => v.toFixed(0) + '%', vmarkers: marks, drawDur: 3400, drawEase: 'linear',
-        annotations: riseLabels ? [{ atIndex: 0, value: I.ENROLL_PCT[0], text: ['First federal special education law, 1975', '8.3% of enrollment, 1976–77'], dx: 10, dy: -100, anchor: 'start', color: P.navy }] : [],
+        annotations: riseLabels ? [{ atIndex: 0, value: I.ENROLL_PCT[0], text: ['First federal special education law, 1975', '8.3% of enrollment, 1976–77'], dx: 10, dy: -148, anchor: 'start', color: P.navy }] : [],
       });
       document.getElementById('riseTitle').textContent = 'Percentage of children and students ages 3 through 21 served under IDEA, Part B, of public school enrollment, by year: School year 1976–77 through 2022–23';
-      document.getElementById('riseSub').textContent = 'Served as a percent of public-school enrollment, by school year.';
+      sub = 'Served as a percent of public-school enrollment, by school year.';
+      if (riseTrend) { const g = growth(vals); sub += ' Dashed line: linear trend. The share rose about ' + (g >= 0 ? '+' : '') + g.toFixed(0) + '% since 1976–77.'; }
     } else {
+      const vals = I.ALL.map(v => v / 1000);
+      const series = [{ values: vals, color: P.greenD, area: true, areaOpacity: .12, highlight: true, endDotR: 6, endLabel: '8.2M in 2024–25' }];
+      if (riseTrend) { const reg = linreg(startYears, vals); series.push({ values: startYears.map(reg), color: P.blue, width: 1.8, dash: '6 5' }); }
       chart = C.lineChart({
-        labels: I.YEARS, xs: startYears, xTicks: [1980, 1990, 2000, 2010, 2020, 2024],
-        series: [{ values: I.ALL.map(v => v / 1000), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endArrow: true, endLabel: '8.2M in 2024–25' }],
+        labels: I.YEARS, xs: startYears, xTicks: [1980, 1990, 2000, 2010, 2020, 2024], series,
         yMin: 0, yMax: 9, yTicks: 3, yFmt: v => v.toFixed(0) + 'M', vmarkers: marks, drawDur: 3400, drawEase: 'linear',
         annotations: riseLabels ? [{ atIndex: 0, value: I.ALL[0] / 1000, text: ['First federal special education law, 1975', '3.7M served, 1976–77'], dx: 10, dy: -105, anchor: 'start', color: P.navy }] : [],
       });
       document.getElementById('riseTitle').textContent = 'Number of children and students ages 3 through 21 served under IDEA, Part B, by year: School year 1976–77 through 2024–25';
-      document.getElementById('riseSub').textContent = 'Children and students served under IDEA, Part B, ages 3 through 21, in millions, by school year.';
+      sub = 'Children and students served under IDEA, Part B, ages 3 through 21, in millions, by school year.';
+      if (riseTrend) { const g = growth(vals); sub += ' Dashed line: linear trend. The count grew about ' + (g >= 0 ? '+' : '') + g.toFixed(0) + '% since 1976–77.'; }
     }
+    document.getElementById('riseSub').textContent = sub;
     riseBox.appendChild(chart.node);
     if (riseShown) chart.reveal(); else onView(riseBox, () => { riseShown = true; chart.reveal(); });
   }
@@ -363,6 +401,8 @@
   (function () {
     const chk = document.getElementById('riseLabelsChk');
     if (chk) chk.addEventListener('change', () => { riseLabels = chk.checked; riseShown = true; buildRise(riseUnit); });
+    const tchk = document.getElementById('riseTrendChk');
+    if (tchk) tchk.addEventListener('change', () => { riseTrend = tchk.checked; riseShown = true; buildRise(riseUnit); });
   })();
   document.getElementById('riseToggle').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
@@ -386,10 +426,15 @@
     const tot = Object.keys(I.INCL).reduce((s, k) => s + I.INCL[k][1], 0);
     const items = Object.keys(I.INCL).map(k => ({ k, v: I.INCL[k][1] / tot * 100 })).sort((a, b) => b.v - a.v);
     const catRamp = [{ t: 0, color: P.greenL }, { t: .55, color: P.green }, { t: 1, color: P.blue }];
+    const topCatIsSLD = /specific learning/i.test(items[0].k);   // only glow it if it really is #1
     mount('chart-cats', C.barsH({
       onClick: d => openCatModal(d.label),
       labelW: 234, barH: 17, gap: 9, padR: 58,
-      items: items.map(d => ({ label: d.k, value: d.v, color: C.colorFor(catRamp, Math.min(1, d.v / items[0].v)) })),
+      items: items.map((d, i) => {
+        const star = i === 0 && topCatIsSLD;
+        return { label: d.k, value: d.v, highlight: star, glow: star,
+          color: star ? P.accent : C.colorFor(catRamp, Math.min(1, d.v / items[0].v)) };
+      }),
       xMax: 40, valueFmt: v => v.toFixed(1) + '%',
     }));
     expbar('chart-cats', 'idea-categories-2024-25', [['Disability category', 'Percent of school-age students served (2024-25)'], ...items.map(d => [d.k, +d.v.toFixed(1)])]);
@@ -406,12 +451,12 @@
     const grayCats = Object.keys(I.DIS).filter(k => k !== 'Autism' && k !== 'Other health impairment');
     const series = grayCats.map(k => ({ values: sv(k), color: P.gray, width: 1.4 }));
     series.push({ values: sv('Other health impairment'), color: P.green, width: 2.8, highlight: true, endLabel: 'Other health impairment', endLabelDy: -17 });
-    series.push({ values: sv('Autism'), color: P.navy, width: 2.8, highlight: true, endLabel: 'Autism', endLabelDy: 27 });
+    series.push({ values: sv('Autism'), color: P.accent, width: 2.8, highlight: true, endLabel: 'Autism', endLabelDy: 27 });
     mount('chart-autism', C.lineChart({
       labels, xs, xTicks: [2000, 2008, 2012, 2016, 2020, 2024],
       series, yMin: 0, yMax: 3, yTicks: 3, yFmt: v => v.toFixed(0) + 'M',
     }));
-    legend('autismLegend', [['Autism', P.navy, true], ['Other health impairment', P.green, true], ['Other categories', P.gray, true]], t => { if (t === 'Autism') openCatModal('Autism'); else if (/health/i.test(t)) openCatModal('Other health impairment'); });
+    legend('autismLegend', [['Autism', P.accent, true], ['Other health impairment', P.green, true], ['Other categories', P.gray, true]], t => { if (t === 'Autism') openCatModal('Autism'); else if (/health/i.test(t)) openCatModal('Other health impairment'); });
     hint('chart-autism', 'Tap a highlighted key for its detail');
     expbar('chart-autism', 'idea-categories-by-year', () => {
       const cats = Object.keys(I.DIS);
