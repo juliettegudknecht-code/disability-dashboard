@@ -101,7 +101,6 @@
       holder.appendChild(sc);
       sc.querySelectorAll('.det-score-row').forEach(b2 => b2.addEventListener('click', () => openDetModal(b2.dataset.level, year)));
       S.legend('detLegend', LV.map(l => [l.label, l.color]), name => openDetModal(name, year));
-      S.expbar && S.expbar('chart-det', 'idea-determinations-' + year, [['Determination level', `Part B (n=${T.B})`, `Part C (n=${T.C})`], ...LV.map(l => [l.label, l.partB, l.partC])]);
       requestAnimationFrame(() => { a.reveal(); b.reveal(); });
     }
     seg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; year = b.dataset.year;
@@ -109,6 +108,35 @@
       b.classList.add('on'); b.setAttribute('aria-pressed', 'true'); build(); });
     S.onView(box, () => { if (!shown) { shown = true; build(); } });
     S.hint('chart-det', 'Toggle 2025 or 2026, and tap a slice, a key, or a row for what each level means');
+    // export: a composed PNG of BOTH donuts (labelled), not just the first one
+    function exportDetPNG() {
+      const NS = 'http://www.w3.org/2000/svg';
+      if (!shown) { shown = true; build(); }
+      const donuts = [...holder.querySelectorAll('svg.cv')], T = detTotals(year);
+      const title = 'States and reporting entities at each IDEA determination level, by part: ' + year;
+      const source = 'U.S. Department of Education, OSEP, ' + year + ' Determination Letters on State Implementation of IDEA (based on ' + DET_BASIS[year] + ' SPP/APR).';
+      if (donuts.length < 2) { if (donuts[0]) C.exportPNG(donuts[0], 'idea-determinations-' + year, { title, source }); return; }
+      const size = 172, gap = 76, top = 30, W = 2 * size + gap, H = size + top + 8;
+      const out = document.createElementNS(NS, 'svg'); out.setAttribute('viewBox', '0 0 ' + W + ' ' + H); out.setAttribute('class', 'cv'); out.setAttribute('width', String(W)); out.setAttribute('height', String(H));
+      const labels = ['Part B · ' + T.B + ' entities', 'Part C · ' + T.C + ' entities'];
+      donuts.forEach((dn, i) => {
+        const g = document.createElementNS(NS, 'g'); g.setAttribute('transform', 'translate(' + (i * (size + gap)) + ', ' + top + ')');
+        [...dn.childNodes].forEach(n => g.appendChild(n.cloneNode(true)));
+        out.appendChild(g);
+        const t = document.createElementNS(NS, 'text'); t.setAttribute('x', String(i * (size + gap) + size / 2)); t.setAttribute('y', '18'); t.setAttribute('text-anchor', 'middle'); t.setAttribute('fill', '#10324a'); t.setAttribute('font-weight', '700'); t.setAttribute('font-size', '13'); t.textContent = labels[i]; out.appendChild(t);
+      });
+      out.style.position = 'absolute'; out.style.left = '-9999px'; document.body.appendChild(out);
+      C.exportPNG(out, 'idea-determinations-' + year, { title, source });
+      setTimeout(() => out.remove(), 200);
+    }
+    (function () {
+      const fig = box.closest('.figure'); if (!fig || fig.querySelector('.fig-export')) return;
+      const bar = document.createElement('div'); bar.className = 'fig-export';
+      const png = document.createElement('button'); png.type = 'button'; png.textContent = 'PNG'; png.title = 'Download both donuts as a PNG image'; png.onclick = exportDetPNG;
+      const csv = document.createElement('button'); csv.type = 'button'; csv.textContent = 'CSV'; csv.title = 'Download the data as CSV';
+      csv.onclick = () => { const LV = detLevelsFor(year), T = detTotals(year); C.exportCSVFile('idea-determinations-' + year, [['Determination level (' + year + ')', 'Part B (n=' + T.B + ')', 'Part C (n=' + T.C + ')'], ...LV.map(l => [l.label, l.partB, l.partC])]); };
+      bar.appendChild(png); bar.appendChild(csv); fig.appendChild(bar);
+    })();
   })();
 
   function openDetModal(name, year) {
@@ -134,12 +162,12 @@
     const box = document.getElementById('chart-acs'); if (!box) return;
     // a clear "1 in 7.5": a big ratio callout over a row of ~8 figures, one shaded
     const ratio = document.createElement('div'); ratio.style.cssText = 'font-family:var(--font-display);font-weight:800;letter-spacing:-.02em;line-height:1.05;margin:2px 0 16px';
-    ratio.innerHTML = '<span style="font-size:clamp(32px,4.4vw,50px);color:var(--accent)">1 in 7.5</span><span style="font-size:clamp(13px,1.3vw,16px);color:var(--muted);font-weight:600;margin-left:11px">children ages 5&ndash;17 are served under IDEA, Part&nbsp;B</span>';
+    ratio.innerHTML = '<span style="font-size:clamp(32px,4.4vw,50px);color:var(--accent)">13.3%</span><span style="font-size:clamp(13px,1.3vw,16px);color:var(--muted);font-weight:600;margin-left:11px">of children ages 5&ndash;17 are served under IDEA, Part&nbsp;B</span>';
     const picWrap = document.createElement('div'); picWrap.className = 'chartbox';
     const pic = C.pictograph({ total: 8, a: 1, cols: 8, cell: 44, aColor: P.greenD, bColor: P.sage });
     picWrap.appendChild(pic.node);
     const cap = document.createElement('div'); cap.className = 'figure-sub'; cap.style.cssText = 'margin:10px 0 26px;max-width:62ch';
-    cap.innerHTML = 'That is about 13.3% of the roughly 54.6&nbsp;million U.S. children ages 5&ndash;17, close to the <b style="color:var(--green-d)">1 shaded green</b> of every 8 shown here.';
+    cap.innerHTML = 'Of the roughly 54.6&nbsp;million U.S. children ages 5&ndash;17, the <b style="color:var(--green-d)">1 shaded green</b> of every 8 shown here is about the share served under IDEA, Part&nbsp;B.';
     const sub2 = document.createElement('div'); sub2.className = 'figure-title'; sub2.style.cssText = 'margin:0 0 2px'; sub2.textContent = 'The share served dips through the teen years';
     const sub2b = document.createElement('div'); sub2b.className = 'figure-sub'; sub2b.style.cssText = 'margin:0 0 10px'; sub2b.textContent = 'Percent of U.S. children served under IDEA, Part B, by age band, 2024–25.';
     const barsWrap = document.createElement('div'); barsWrap.className = 'chartbox';

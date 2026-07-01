@@ -1129,10 +1129,13 @@
   function addExportBar(figureEl, name, getCsv) {
     if (!figureEl || figureEl.querySelector('.fig-export')) return;
     const bar = document.createElement('div'); bar.className = 'fig-export';
-    const png = document.createElement('button'); png.type = 'button'; png.textContent = 'PNG'; png.title = 'Download chart as PNG image';
-    bar.appendChild(png);
     const grab = sel => { const e = figureEl.querySelector(sel); return e ? (e.textContent || '').replace(/^\s*source\s*/i, '').replace(/\s+/g, ' ').trim() : ''; };
-    png.onclick = () => exportPNG(figureEl.querySelector('svg.cv'), name, { title: grab('.figure-title'), source: grab('.source') });
+    // only offer PNG when there is a chart SVG to rasterize (avoids a dead button on HTML-only figures)
+    if (figureEl.querySelector('svg.cv')) {
+      const png = document.createElement('button'); png.type = 'button'; png.textContent = 'PNG'; png.title = 'Download chart as PNG image';
+      bar.appendChild(png);
+      png.onclick = () => exportPNG(figureEl.querySelector('svg.cv'), name, { title: grab('.figure-title'), source: grab('.source') });
+    }
     if (getCsv) {
       const csv = document.createElement('button'); csv.type = 'button'; csv.textContent = 'CSV'; csv.title = 'Download the data as CSV';
       bar.appendChild(csv);
