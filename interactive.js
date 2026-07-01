@@ -236,7 +236,7 @@
       const M = METRICS[metric], vals = {}, list = [], greyed = [];
       I.STATES.forEach(r => { const v = M.val(r); vals[r[1]] = v; if (v != null) list.push(v); else greyed.push(r[0]); });
       const min = Math.min(...list), max = Math.max(...list);
-      choro = C.choropleth({ values: vals, min, max, stops, emptyFill: '#c9c8c0', fmt: M.fmt, nameOf: a => nameOf[a] || a, onClick: ab => drillState(ab) });
+      choro = C.choropleth({ values: vals, min, max, stops, emptyFill: '#c9c8c0', fmt: M.fmt, nameOf: a => nameOf[a] || a, onClick: ab => routeState(ab) });
       box.innerHTML = ''; box.appendChild(choro.node); choro.reveal();
       titleEl.textContent = M.title;
       rampEl.style.background = `linear-gradient(90deg, ${stops.map(s => s.color + ' ' + (s.t * 100) + '%').join(', ')})`;
@@ -251,9 +251,47 @@
     function showUS() {
       choro && choro.select(null);
       setCrumb([['United States', null]]);
-      drillEl.innerHTML = `<div class="figure-title" style="margin:8px 0 2px">Where the money goes, nationwide</div><div class="figure-sub" style="margin:0 0 4px">Reported IDEA, Part&nbsp;B funding (Sections 611 and 619), School Year 2021–22, summed across every reporting district.</div><div id="drillFlow" class="chartbox"></div><p class="map-hint2">Tap any state on the map to drill into its districts and funding.</p>`;
+      drillEl.innerHTML = `<div class="figure-title" style="margin:8px 0 2px">Where the money goes, nationwide</div><div class="figure-sub" style="margin:0 0 4px">Reported IDEA, Part&nbsp;B funding (Sections 611 and 619), School Year 2021–22, summed across every reporting district.</div><div id="drillFlow" class="chartbox"></div><p class="map-hint2">Tap any state on the map to open its full snapshot below, with its funding and districts.</p>`;
       drillEl.classList.add('show');
       renderFlow($('drillFlow'), MOE && MOE.US, 'United States, reporting LEAs');
+    }
+    // clicking a state now routes to the one unified state view (the snapshot below)
+    function routeState(ab) {
+      choro && choro.select(ab);
+      if (window.IDEAExplore && window.IDEAExplore.showState) window.IDEAExplore.showState(ab);
+      else drillState(ab);
+    }
+    // one shared district view (a modal), used from the snapshot, the map, and search
+    function openDistrictModal(ab, i) {
+      const r = byAbbr[ab]; if (!r) return;
+      const list = LEAALL[ab] || [], x = list[i]; if (!x) return;
+      const nm = x[0], nces = x[1], tot = x[2], sa = x[3];
+      const fundByNces = fundMapFor(r[0]), f = fundByNces[normNces(nces)];
+      const exd = LEAEXIT[normNces(nces)], exShow = exd && exd[2] >= 20;
+      const stEx = (window.IDEA_X && window.IDEA_X.EXIT_STATE && window.IDEA_X.EXIT_STATE[ab]) || {};
+      const usEx = (window.LEAEXIT && window.LEAEXIT.US) || [];
+      const cvec = CAT && CAT.lea[normNces(nces)];
+      const cmp = (v, st, nat) => { const b = [];
+        if (st != null) b.push((v - st >= 0 ? '+' : '') + (v - st).toFixed(1) + ' pts vs ' + r[0] + ' avg (' + st.toFixed(1) + '%)');
+        if (nat != null) b.push((v - nat >= 0 ? '+' : '') + (v - nat).toFixed(1) + ' pts vs U.S. avg (' + nat.toFixed(1) + '%)');
+        return b.length ? '<span class="lea-cmp">' + b.join(' · ') + '</span>' : ''; };
+      const src = ['U.S. Department of Education, OSEP.'];
+      if (exShow) src.push('Graduation and dropout are from the EDFacts IDEA Part B Exiting LEA Collection, School Year 2023–24 (shares of students ages 14–21 who exited school; districts with very few exiters are omitted).');
+      if (f) src.push('Funding is from the IDEA Part B MOE Reduction and CEIS Collection, School Year 2021–22 (Sections 611 and 619 reported allocations, including ARP funds).');
+      S.openModal(`<div class="m-kicker">School district · ${r[0]}</div><h3 class="m-title">${nm}</h3>
+        <p class="m-dek" style="font-size:12.5px;color:var(--faint)">NCES ${nces}</p>
+        <div class="m-grid">
+          <div><span class="mv">${tot == null ? 'n/a' : I.nf(tot)}</span><span class="ml">students served, ages 3–21 (2024–25)</span></div>
+          ${sa != null ? `<div><span class="mv">${I.nf(sa)}</span><span class="ml">school age (5–21)</span></div>` : ''}
+          ${f ? `<div><span class="mv">${fmtMoney(f[2])}</span><span class="ml">reported IDEA, Part B funding (2021–22)</span></div>` : ''}
+          ${exShow && exd[0] != null ? `<div><span class="mv">${exd[0].toFixed(1)}%</span><span class="ml">graduated with a regular diploma, of those who exited (2023–24)</span>${cmp(exd[0], stEx.gradPct, usEx[0])}</div>` : ''}
+          ${exShow && exd[1] != null ? `<div><span class="mv" style="color:var(--accent)">${exd[1].toFixed(1)}%</span><span class="ml">dropped out, of those who exited (2023–24)</span>${cmp(exd[1], stEx.dropPct, usEx[1])}</div>` : ''}
+        </div>
+        ${f ? `<div class="figure-sub" style="margin:16px 0 4px">Where the funding goes</div><div id="dmodFlow" class="chartbox"></div>` : ''}
+        ${cvec ? `<div class="figure-sub" style="margin:16px 0 6px">Students served by disability category (2024–25)</div><div id="dmodCats" class="chartbox"></div>${S.suppNoteHTML ? S.suppNoteHTML('childcount') : ''}` : ''}
+        <p class="m-src">${src.join(' ')}</p>`);
+      if (f) renderFlow(document.getElementById('dmodFlow'), { f611: f[3], f619: f[4], ceisReq: f[5], ceisVol: 0 }, nm);
+      if (cvec) renderCatBars(document.getElementById('dmodCats'), cvec);
     }
     function drillState(ab) {
       const r = byAbbr[ab]; if (!r) return;
@@ -340,13 +378,13 @@
     });
     // exposed so the top search can jump straight into a state or district on the map
     window.IDEAUMAP = {
-      toState: function (ab) { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); drillState(ab); },
+      toState: function (ab) { routeState(ab); },
       toDistrict: function (ab, nces) {
-        box.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        const r = byAbbr[ab]; if (!r) return;
         const list = LEAALL[ab] || [], i = list.findIndex(x => normNces(x[1]) === normNces(nces));
-        if (i >= 0) drillDistrict(ab, r, i, fundMapFor(r[0])); else drillState(ab);
-      }
+        if (i >= 0) openDistrictModal(ab, i); else routeState(ab);
+      },
+      district: openDistrictModal,
+      stateFunding: function (host, ab) { const r = byAbbr[ab]; if (host && r) renderFlow(host, MOE && MOE.states[r[0]], r[0] + ', all reporting districts'); },
     };
   })();
 

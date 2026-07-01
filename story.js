@@ -785,10 +785,10 @@
     const E = window.SEA.exit, meta = window.SEA.exitMeta || {};
     const nameOf = {}; I.STATES.forEach(r => { nameOf[r[1]] = r[0]; });
     const states = (meta.altStates || Object.keys(E))
-      .filter(ab => E[ab] && E[ab].altPct != null && E[ab].altPct > 0)
-      .sort((a, b) => E[b].altPct - E[a].altPct);
+      .filter(ab => E[ab] && E[ab].alt != null && E[ab].alt > 0)
+      .sort((a, b) => E[b].alt - E[a].alt);
     if (!states.length) return;
-    const pcts = states.map(ab => E[ab].altPct), mn = Math.min(...pcts), mx = Math.max(...pcts);
+    const cnts = states.map(ab => E[ab].alt), mn = Math.min(...cnts), mx = Math.max(...cnts);
     const stops = [{ t: 0, color: P.greenL }, { t: 1, color: P.greenD }];
     const M = window.USMAP, NS = 'http://www.w3.org/2000/svg';
     if (M && M.paths) {
@@ -796,13 +796,16 @@
       const wrap = document.createElement('div'); wrap.className = 'statecards';
       const cards = [];
       states.forEach(ab => {
-        const v = E[ab].altPct, fill = C.colorFor(stops, (v - mn) / (mx - mn || 1));
-        const card = document.createElement('div'); card.className = 'statecard';
-        const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'statecard-svg'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', (nameOf[ab] || ab) + ': ' + v.toFixed(1) + ' percent alternate diploma');
+        const cnt = E[ab].alt, fill = C.colorFor(stops, (cnt - mn) / (mx - mn || 1));
+        const card = document.createElement('div'); card.className = 'statecard'; card.tabIndex = 0; card.setAttribute('role', 'button'); card.style.cursor = 'pointer';
+        const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'statecard-svg'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', (nameOf[ab] || ab) + ': ' + I.nf(cnt) + ' alternate-diploma graduates');
         const p = document.createElementNS(NS, 'path'); p.setAttribute('d', M.paths[ab]); p.setAttribute('fill', fill);
         p.setAttribute('stroke', P.cream); p.setAttribute('stroke-width', '2'); p.setAttribute('stroke-linejoin', 'round'); p.setAttribute('vector-effect', 'non-scaling-stroke');
         svg.appendChild(p); card.appendChild(svg);
-        card.insertAdjacentHTML('beforeend', `<div class="pct">${v.toFixed(1)}%</div><div class="nm">${nameOf[ab] || ab}</div>`);
+        card.insertAdjacentHTML('beforeend', `<div class="pct">${I.nf(cnt)}</div><div class="nm">${nameOf[ab] || ab}</div>`);
+        const fire = () => openStateModal(ab);
+        card.addEventListener('click', fire);
+        card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fire(); } });
         wrap.appendChild(card); cards.push({ card, svg, p });
       });
       host.innerHTML = ''; host.appendChild(wrap);
@@ -816,9 +819,10 @@
         requestAnimationFrame(() => { o.card.style.opacity = 1; o.card.style.transform = 'none'; });
       }));
     } else {
-      mount('chart-altdip', C.barsH({ labelW: 128, barH: 18, gap: 11, padR: 96, items: states.map(ab => ({ label: nameOf[ab] || ab, value: E[ab].altPct, color: P.green })), xMax: mx * 1.14, valueFmt: v => v.toFixed(1) + '%' }));
+      mount('chart-altdip', C.barsH({ labelW: 128, barH: 18, gap: 11, padR: 96, onClick: (d, i) => openStateModal(states[i]), items: states.map(ab => ({ label: nameOf[ab] || ab, value: E[ab].alt, color: P.green })), xMax: mx * 1.14, valueFmt: v => I.nf(v) }));
     }
-    expbar('chart-altdip', 'idea-alternate-diploma-states-2023-24', [['State', 'Alternate diploma %', 'Alternate diploma graduates'], ...states.map(ab => [nameOf[ab] || ab, E[ab].altPct, E[ab].alt])]);
+    expbar('chart-altdip', 'idea-alternate-diploma-states-2023-24', [['State', 'Alternate diploma graduates', 'Alternate diploma %'], ...states.map(ab => [nameOf[ab] || ab, E[ab].alt, E[ab].altPct])]);
+    hint('chart-altdip', 'Tap a state for its rate and full profile');
     suppNoteTextTo(document.getElementById('chart-altdip').closest('.figure'), 'States that reported no alternate-diploma exiters are shown as none. Where a State reported a count too small to publish, OSEP suppresses it to protect student privacy, so suppressed values are not shown here.');
   })();
 

@@ -177,7 +177,13 @@
           <div class="figure-sub">Percent change in the number of children and students ages 3&ndash;21 served, ${r[0]} against the U.S. total (all states, DC, and the additional reporting entities), selected school years.</div>
           <div class="legend" id="snapTrendLegend"></div>
           <div id="snapTrend" class="chartbox" style="max-width:640px"></div>
-          <div class="snap-links" style="margin-top:12px"><a href="#" id="snapMapLink">See ${r[0]}&rsquo;s districts and funding on the map &rarr;</a></div>
+        </div>
+        <div class="snap-block">
+          <div class="figure-title">Funding and districts</div>
+          <div class="figure-sub">Reported IDEA, Part&nbsp;B funding (Sections 611 and 619), SY&nbsp;2021&ndash;22, and the largest districts by students served. Tap a district for its profile.</div>
+          <div id="snapFunding" class="chartbox"></div>
+          <div class="dist-list" id="snapDistList" style="margin-top:14px"></div>
+          <div class="snap-links" id="snapAllDistWrap" style="margin-top:12px"></div>
         </div>
         ${(CAT && CAT.state[r[1]]) ? `<details class="snap-cats" open><summary>Students served by disability category${chev}</summary>
           <div class="figure-sub" style="margin:0 0 10px">All 13 primary categories, ages 3&ndash;21, School&nbsp;Year 2024&ndash;25. Tap a bar for the category profile.</div>
@@ -201,10 +207,26 @@
       $('#snapTrend').appendChild(combined.node); combined.reveal();
       const SN = window.IDEAStory || {};
       if (SN.legend) SN.legend('snapTrendLegend', [[r[0], P.greenD, true], ['U.S., outlying areas, and freely associated states', P.navy, true]]);
-      const mapLink = out.querySelector('#snapMapLink');
-      if (mapLink) mapLink.addEventListener('click', e => { e.preventDefault();
-        if (window.IDEAUMAP && window.IDEAUMAP.toState) window.IDEAUMAP.toState(ab);
-        const m = document.getElementById('umap'); if (m) m.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+      // funding money-flow + the state's largest districts, in the snapshot (same source as the map)
+      if (window.IDEAUMAP && window.IDEAUMAP.stateFunding) window.IDEAUMAP.stateFunding($('#snapFunding'), ab);
+      const LA = (window.LEAALL && window.LEAALL.states && window.LEAALL.states[ab]) || [];
+      const topD = LA.map((x, i) => ({ x, i })).filter(d => d.x[2] != null).sort((a, b) => b.x[2] - a.x[2]).slice(0, 12);
+      const dl = $('#snapDistList');
+      if (dl && topD.length) {
+        dl.innerHTML = topD.map(d => `<button class="dist-row" data-i="${d.i}"><span class="nm">${d.x[0]}</span><span class="meta">${I.nf(d.x[2])} served</span></button>`).join('');
+        dl.querySelectorAll('.dist-row').forEach(b => b.addEventListener('click', () => { if (window.IDEAUMAP && window.IDEAUMAP.district) window.IDEAUMAP.district(ab, +b.dataset.i); }));
+        if (LA.length > topD.length) {
+          const aw = $('#snapAllDistWrap');
+          if (aw) {
+            aw.innerHTML = `<a href="#" id="snapAllDist">See all ${I.nf(LA.length)} districts in ${r[0]} &rarr;</a>`;
+            aw.querySelector('#snapAllDist').addEventListener('click', e => { e.preventDefault();
+              const lt = document.getElementById('extab-lea'); if (lt) lt.click();
+              const ls = document.getElementById('leaStateSel'); if (ls) { const oi = [...ls.options].findIndex(o => o.textContent === r[0]); if (oi >= 0) { ls.value = String(oi); ls.dispatchEvent(new Event('change')); } }
+              const pnl = document.getElementById('expanel-lea'); if (pnl) pnl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+          }
+        }
+      } else if (dl) { dl.innerHTML = '<div class="map-empty">No district-level data is reported for this state.</div>'; }
 
       // category breakdown is open by default; build it now (bars animate on reveal)
       if (CAT && CAT.state[r[1]]) { const vec = CAT.state[r[1]]; catBars($('#snapCats'), vec, vec.reduce((a, b) => a + b, 0), true); }
@@ -334,7 +356,8 @@
         if (ml) ml.addEventListener('click', e => { e.preventDefault(); if (window.IDEAUMAP && window.IDEAUMAP.toDistrict) window.IDEAUMAP.toDistrict(ab, nces); });
       }
       lout.querySelectorAll('.lea-row[data-i]').forEach(el => {
-        const fire = () => openLeaDist(d.rows[+el.dataset.i]);
+        const fire = () => { const row = d.rows[+el.dataset.i];
+          if (window.IDEAUMAP && window.IDEAUMAP.toDistrict) window.IDEAUMAP.toDistrict(ab, row[1]); else openLeaDist(row); };
         el.addEventListener('click', fire);
         el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fire(); } });
       });
