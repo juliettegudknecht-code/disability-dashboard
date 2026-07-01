@@ -509,6 +509,7 @@ html.js .reveal.in { opacity: 1; transform: none; filter: none; }
 .det-yeartoggle { margin-bottom: 18px; }
 .lea-row[data-i] { cursor: pointer; }
 .lea-row[data-i]:focus-visible { outline: 2px solid var(--green-d); outline-offset: -2px; }
+.lea-cmp { display: block; margin-top: 6px; font-size: 10.5px; color: var(--faint); line-height: 1.45; }
 table.sea tbody tr[data-ab] { cursor: pointer; }
 table.sea tbody tr[data-ab]:focus-visible { outline: 2px solid var(--green-d); outline-offset: -2px; }
 /* chart builder: options row + value-labels off */

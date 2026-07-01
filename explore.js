@@ -179,7 +179,7 @@
           <div id="snapTrend" class="chartbox" style="max-width:640px"></div>
           <div class="snap-links" style="margin-top:12px"><a href="#" id="snapMapLink">See ${r[0]}&rsquo;s districts and funding on the map &rarr;</a></div>
         </div>
-        ${(CAT && CAT.state[r[1]]) ? `<details class="snap-cats"><summary>Students served by disability category${chev}</summary>
+        ${(CAT && CAT.state[r[1]]) ? `<details class="snap-cats" open><summary>Students served by disability category${chev}</summary>
           <div class="figure-sub" style="margin:0 0 10px">All 13 primary categories, ages 3&ndash;21, School&nbsp;Year 2024&ndash;25. Tap a bar for the category profile.</div>
           <div id="snapCats" class="chartbox"></div>
           ${(window.IDEAStory && window.IDEAStory.suppNoteHTML) ? window.IDEAStory.suppNoteHTML('childcount') : ''}</details>` : ''}`;
@@ -206,15 +206,8 @@
         if (window.IDEAUMAP && window.IDEAUMAP.toState) window.IDEAUMAP.toState(ab);
         const m = document.getElementById('umap'); if (m) m.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 
-      // category breakdown is collapsed by default; build it (with its bar animation) on first open
-      const details = out.querySelector('.snap-cats');
-      if (details && CAT && CAT.state[r[1]]) {
-        let built = false;
-        details.addEventListener('toggle', () => {
-          if (!details.open || built) return; built = true;
-          const vec = CAT.state[r[1]]; catBars($('#snapCats'), vec, vec.reduce((a, b) => a + b, 0), true);
-        });
-      }
+      // category breakdown is open by default; build it now (bars animate on reveal)
+      if (CAT && CAT.state[r[1]]) { const vec = CAT.state[r[1]]; catBars($('#snapCats'), vec, vec.reduce((a, b) => a + b, 0), true); }
     }
     sel.addEventListener('change', render); render();
     // let the map (and anything else) route a click straight to this state snapshot
@@ -320,13 +313,18 @@
       lout.innerHTML = summary + `<div class="lea-hint2 fig-hint" style="margin:0 0 12px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11.5 9 5a1.8 1.8 0 0 1 3.6 0v6"/><path d="M12.6 11V8.2a1.7 1.7 0 0 1 3.4 0V11"/><path d="M16 10.5a1.7 1.7 0 0 1 3.4 0V15a5.5 5.5 0 0 1-5.5 5.5h-1.4a5 5 0 0 1-3.6-1.5l-3-3.1a1.8 1.8 0 0 1 2.6-2.5L9 14.5"/></svg>Tap a district for its full profile</div><div class="lea-list">${rows.join('')}</div>` + (SN.suppNoteHTML ? SN.suppNoteHTML('childcount') + SN.suppNoteHTML('exiting') : '');
       function openLeaDist(x) {
         const [nm, nces, tot, sa] = x, ex = LEAEXIT[normN(nces)], vec = CAT && CAT.lea[normN(nces)];
+        const stEx = (X.EXIT_STATE || {})[ab] || {}, usEx = (window.LEAEXIT && window.LEAEXIT.US) || [];
+        const cmp = (v, st, nat) => { const b = [];
+          if (st != null) b.push(`${v - st >= 0 ? '+' : ''}${(v - st).toFixed(1)} pts vs ${r[0]} avg (${st.toFixed(1)}%)`);
+          if (nat != null) b.push(`${v - nat >= 0 ? '+' : ''}${(v - nat).toFixed(1)} pts vs U.S. avg (${nat.toFixed(1)}%)`);
+          return b.length ? `<span class="lea-cmp">${b.join(' &middot; ')}</span>` : ''; };
         SN.openModal && SN.openModal(`<div class="m-kicker">School district &middot; ${r[0]}</div><h3 class="m-title">${nm}</h3>
           <p class="m-dek" style="font-size:12.5px;color:var(--faint)">NCES ${nces}</p>
           <div class="m-grid">
             <div><span class="mv">${tot == null ? 'n/a' : I.nf(tot)}</span><span class="ml">students served, ages 3–21 (2024–25)</span></div>
             ${sa != null ? `<div><span class="mv">${I.nf(sa)}</span><span class="ml">school age (5–21)</span></div>` : ''}
-            ${ex && ex[2] >= 20 && ex[0] != null ? `<div><span class="mv">${ex[0].toFixed(1)}%</span><span class="ml">graduated with a regular diploma, of those who exited (2023–24)</span></div>` : ''}
-            ${ex && ex[2] >= 20 && ex[1] != null ? `<div><span class="mv" style="color:var(--accent)">${ex[1].toFixed(1)}%</span><span class="ml">dropped out, of those who exited (2023–24)</span></div>` : ''}
+            ${ex && ex[2] >= 20 && ex[0] != null ? `<div><span class="mv">${ex[0].toFixed(1)}%</span><span class="ml">graduated with a regular diploma, of those who exited (2023–24)</span>${cmp(ex[0], stEx.gradPct, usEx[0])}</div>` : ''}
+            ${ex && ex[2] >= 20 && ex[1] != null ? `<div><span class="mv" style="color:var(--accent)">${ex[1].toFixed(1)}%</span><span class="ml">dropped out, of those who exited (2023–24)</span>${cmp(ex[1], stEx.dropPct, usEx[1])}</div>` : ''}
           </div>
           ${vec ? `<div class="figure-sub" style="margin:16px 0 6px">Students served by disability category (2024–25)</div><div id="leaDistCats" class="chartbox"></div>${SN.suppNoteHTML ? SN.suppNoteHTML('childcount') : ''}` : ''}
           <div class="snap-links" style="margin-top:14px"><a href="#" id="leaMapLink">See ${nm} on the map &rarr;</a></div>
