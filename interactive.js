@@ -272,8 +272,15 @@
       const usEx = (window.LEAEXIT && window.LEAEXIT.US) || [];
       const cvec = CAT && CAT.lea[normNces(nces)];
       const nkey = normNces(nces);
-      const ccSupp = (CAT && CAT.leaSupp && CAT.leaSupp[nkey]) || 0;
-      const exSupp = (CAT && CAT.leaExitSupp && CAT.leaExitSupp[nkey]) || 0;
+      const ccArr = (CAT && CAT.leaSupp && CAT.leaSupp[nkey]) || [0, 0];
+      const exArr = (CAT && CAT.leaExitSupp && CAT.leaExitSupp[nkey]) || [0, 0];
+      const ccSmall = ccArr[0] || 0, ccQual = ccArr[1] || 0, ccSupp = ccSmall + ccQual;
+      const exSmall = exArr[0] || 0, exQual = exArr[1] || 0, exSupp = exSmall + exQual;
+      // why a value was suppressed, from the source codes: -8 small cell size, -9 data quality
+      const whyShort = (s, q) => [s ? `${s} for small cell size` : '', q ? `${q} for data quality` : ''].filter(Boolean).join(', ');
+      const whyLong = (s, q) => [s ? `${s} because the cell was too small to publish without risking student privacy (code -8)` : '', q ? `${q} because the value was flagged for data quality (code -9)` : ''].filter(Boolean).join(', and ');
+      // MOE/CEIS variables OSEP suppressed for data quality, by state (2021-22 collection)
+      const MOE_SUPP = { 'Arizona': 'the MOE reduction amount', 'California': 'the MOE reduction amount', 'Florida': 'the MOE reduction amount', 'Louisiana': 'the MOE reduction amount', 'Minnesota': 'the required CEIS amounts', 'North Carolina': 'the MOE reduction amount', 'Rhode Island': 'the required CEIS amounts' };
       const SUPP_ICON = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>';
       const suppDetail = (label, text) => `<details class="supp-note"><summary>${SUPP_ICON}${label}</summary><p>${text}</p></details>`;
       const exHide = exShow && exSupp >= 4;    // at least half of the 8 exit-outcome counts suppressed
@@ -284,14 +291,18 @@
       const ccHide = showCat && (!cvec || ccSupp >= 13);
       const ccNote = showCat ? suppDetail('About suppressed category counts',
         (ccSupp
-          ? `For ${nm}, OSEP suppressed ${ccSupp} disability-category child count${ccSupp > 1 ? 's' : ''} (early childhood and school age are counted separately) for small cell size or data quality. Suppressed counts are treated as zero, so any breakdown can undercount the district&rsquo;s true totals. `
+          ? `For ${nm}, OSEP suppressed ${ccSupp} disability-category child count${ccSupp > 1 ? 's' : ''}: ${whyLong(ccSmall, ccQual)}. Early childhood and school age are counted separately, and suppressed counts are treated as zero, so any breakdown can undercount the district&rsquo;s true totals. `
           : `OSEP did not suppress any of ${nm}&rsquo;s disability-category counts, so the zeros shown are actual zeros. `)
         + `At the district level, OSEP suppresses any category count too small to report, which is why the state and national totals in this story come from OSEP&rsquo;s published, unsuppressed state tables rather than sums of districts.`) : '';
       const exNote = exShow ? suppDetail('About suppressed exiting counts',
         (exSupp
-          ? `For ${nm}, OSEP suppressed ${exSupp} of the eight exit-outcome counts (for example died, moved, reached maximum age, or received a certificate) for small cell size or data quality. `
+          ? `For ${nm}, OSEP suppressed ${exSupp} of the eight exit-outcome counts: ${whyLong(exSmall, exQual)}. The counts cover exit reasons such as died, moved, reached maximum age, or received a certificate. `
           : `None of ${nm}&rsquo;s exit-outcome counts were suppressed. `)
         + `Districts with very few students exiting are omitted from this collection altogether.`) : '';
+      const moeNote = f ? suppDetail('About the MOE and CEIS funding figures',
+        `The Section 611 and 619 amounts are reported allocations, which are public dollar figures and are not subject to the small-cell privacy suppression used for student counts. `
+        + (MOE_SUPP[r[0]] ? `OSEP did suppress ${MOE_SUPP[r[0]]} for a small number of ${r[0]} districts in this collection for data quality, so that figure may be withheld for this district. ` : '')
+        + `Where a component is not shown, the district reported it as not applicable, for example it serves no children ages 3 through 5 (Section 619) or was not required to reserve CEIS.`) : '';
       const cmp = (v, st, nat) => { const b = [];
         if (st != null) b.push((v - st >= 0 ? '+' : '') + (v - st).toFixed(1) + ' pts vs ' + r[0] + ' avg (' + st.toFixed(1) + '%)');
         if (nat != null) b.push((v - nat >= 0 ? '+' : '') + (v - nat).toFixed(1) + ' pts vs U.S. avg (' + nat.toFixed(1) + '%)');
@@ -304,10 +315,10 @@
         : (exd[0] != null ? `<div><span class="mv">${exd[0].toFixed(1)}%</span><span class="ml">${gradLbl}</span>${cmp(exd[0], stEx.gradPct, usEx[0])}</div>` : ''));
       const dropItem = !exShow ? '' : (exHide ? naCell(dropLbl)
         : (exd[1] != null ? `<div><span class="mv" style="color:var(--accent)">${exd[1].toFixed(1)}%</span><span class="ml">${dropLbl}</span>${cmp(exd[1], stEx.dropPct, usEx[1])}</div>` : ''));
-      const exNaMsg = exHide ? `<p class="m-na">OSEP suppressed ${exSupp} of this district&rsquo;s eight exit-outcome counts, at least half, so the graduation and dropout shares are not shown here.</p>` : '';
+      const exNaMsg = exHide ? `<p class="m-na">OSEP suppressed ${exSupp} of this district&rsquo;s eight exit-outcome counts (${whyShort(exSmall, exQual)}), at least half, so the graduation and dropout shares are not shown here.</p>` : '';
       const catBlock = !showCat ? '' : `<div class="figure-sub" style="margin:16px 0 6px">Students served by disability category (2024–25)</div>`
         + (ccHide
-            ? `<p class="m-na">OSEP suppressed ${ccSupp} of this district&rsquo;s 26 disability-category counts${ccSupp >= 26 ? ' (every category)' : ', at least half'}, so a category breakdown is not shown here.</p>`
+            ? `<p class="m-na">OSEP suppressed ${ccSupp} of this district&rsquo;s 26 disability-category counts (${whyShort(ccSmall, ccQual)})${ccSupp >= 26 ? ', every category' : ', at least half'}, so a category breakdown is not shown here.</p>`
             : `<div id="dmodCats" class="chartbox"></div>`)
         + ccNote;
       const src = ['U.S. Department of Education, OSEP.'];
@@ -324,6 +335,7 @@
         ${exNaMsg}
         ${exNote}
         ${f ? `<div class="figure-sub" style="margin:16px 0 4px">Where the funding goes</div><div id="dmodFlow" class="chartbox"></div>` : ''}
+        ${moeNote}
         ${catBlock}
         <p class="m-src">${src.join(' ')}</p>`);
       if (f) renderFlow(document.getElementById('dmodFlow'), { f611: f[3], f619: f[4], ceisReq: f[5], ceisVol: 0 }, nm);
