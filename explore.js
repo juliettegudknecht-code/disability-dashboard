@@ -153,13 +153,21 @@
         else if (latestB && /intervention/i.test(latestB)) note = `<p class="snap-note">${r[0]} needs intervention under Part&nbsp;B, the most serious determination short of substantial intervention.</p>`;
         const reps = (DMS.reports || {})[ab];
         let dmsBlock = '';
-        if (reps && reps.length) {
-          const findings = reps.flatMap(rep => (rep.insights || []).slice(0, 2)).map(t => `<li>${t}</li>`).join('');
-          if (findings) dmsBlock = `<div class="snap-sub2">What OSEP monitoring found &middot; DMS, ${reps[0].date}</div><ul class="snap-findings">${findings}</ul>`;
-        }
         const links = [`<a href="${DMS.sppLetter ? DMS.sppLetter(ab, 'B') : '#'}" target="_blank" rel="noopener noreferrer">${r[0]}&rsquo;s SPP/APR (FFY&nbsp;2023) &rarr;</a>`];
-        if (reps && reps.length) reps.forEach(rep => links.push(`<a href="${rep.url}" target="_blank" rel="noopener noreferrer">OSEP DMS report &middot; Part&nbsp;${rep.part} &middot; ${rep.date} &rarr;</a>`));
-        else if (DMS.db) links.push(`<a href="${DMS.db}" target="_blank" rel="noopener noreferrer">OSEP monitoring (DMS) &rarr;</a>`);
+        if (reps && reps.length) {
+          const sorted = reps.slice().sort((a, b) => (b.iso || '').localeCompare(a.iso || ''));
+          // findings come from the most recent report that carries them, once per part (B and C)
+          const seenPart = {}, fEntries = [];
+          sorted.forEach(rep => { if ((rep.insights || []).length && !seenPart[rep.part]) { seenPart[rep.part] = 1; fEntries.push(rep); } });
+          if (fEntries.length) {
+            const findings = fEntries.flatMap(rep => (rep.insights || []).slice(0, 2).map(t => `<li>${t}</li>`)).join('');
+            dmsBlock = `<div class="snap-sub2">What OSEP monitoring found &middot; DMS, ${fEntries[0].date}</div><ul class="snap-findings">${findings}</ul>`;
+          }
+          // every DMS document for the state, newest first, labeled by part and type
+          const docLinks = sorted.map(rep => `<a href="${rep.url}" target="_blank" rel="noopener noreferrer">Part&nbsp;${rep.part} ${(rep.kind || 'monitoring report').toLowerCase()} &middot; ${rep.date} &rarr;</a>`);
+          if (docLinks.length > 4) links.push(`<details class="snap-doclist"><summary>All ${docLinks.length} OSEP monitoring documents (2021&ndash;2026)</summary>${docLinks.join('')}</details>`);
+          else docLinks.forEach(l => links.push(l));
+        } else if (DMS.db) links.push(`<a href="${DMS.db}" target="_blank" rel="noopener noreferrer">OSEP monitoring (DMS) &rarr;</a>`);
         gsBlock = `<div class="snap-block"><div class="figure-title">General supervision</div>
           <div class="figure-sub" style="margin:0 0 8px">IDEA determinations are OSEP&rsquo;s yearly judgment, made from each state&rsquo;s SPP/APR; monitoring (DMS) is its on-site review.</div>
           ${dlines}${note}${dmsBlock}<div class="snap-links">${links.join('')}</div>

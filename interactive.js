@@ -271,10 +271,45 @@
       const stEx = (window.IDEA_X && window.IDEA_X.EXIT_STATE && window.IDEA_X.EXIT_STATE[ab]) || {};
       const usEx = (window.LEAEXIT && window.LEAEXIT.US) || [];
       const cvec = CAT && CAT.lea[normNces(nces)];
+      const nkey = normNces(nces);
+      const ccSupp = (CAT && CAT.leaSupp && CAT.leaSupp[nkey]) || 0;
+      const exSupp = (CAT && CAT.leaExitSupp && CAT.leaExitSupp[nkey]) || 0;
+      const SUPP_ICON = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>';
+      const suppDetail = (label, text) => `<details class="supp-note"><summary>${SUPP_ICON}${label}</summary><p>${text}</p></details>`;
+      const exHide = exShow && exSupp >= 4;    // at least half of the 8 exit-outcome counts suppressed
+      // show a category section whenever there is a breakdown OR the district has students whose
+      // categories were suppressed; hide the chart (show N/A) at >=50% suppressed or when every
+      // category was suppressed (so no usable vector survived)
+      const showCat = !!cvec || ccSupp > 0;
+      const ccHide = showCat && (!cvec || ccSupp >= 13);
+      const ccNote = showCat ? suppDetail('About suppressed category counts',
+        (ccSupp
+          ? `For ${nm}, OSEP suppressed ${ccSupp} disability-category child count${ccSupp > 1 ? 's' : ''} (early childhood and school age are counted separately) for small cell size or data quality. Suppressed counts are treated as zero, so any breakdown can undercount the district&rsquo;s true totals. `
+          : `OSEP did not suppress any of ${nm}&rsquo;s disability-category counts, so the zeros shown are actual zeros. `)
+        + `At the district level, OSEP suppresses any category count too small to report, which is why the state and national totals in this story come from OSEP&rsquo;s published, unsuppressed state tables rather than sums of districts.`) : '';
+      const exNote = exShow ? suppDetail('About suppressed exiting counts',
+        (exSupp
+          ? `For ${nm}, OSEP suppressed ${exSupp} of the eight exit-outcome counts (for example died, moved, reached maximum age, or received a certificate) for small cell size or data quality. `
+          : `None of ${nm}&rsquo;s exit-outcome counts were suppressed. `)
+        + `Districts with very few students exiting are omitted from this collection altogether.`) : '';
       const cmp = (v, st, nat) => { const b = [];
         if (st != null) b.push((v - st >= 0 ? '+' : '') + (v - st).toFixed(1) + ' pts vs ' + r[0] + ' avg (' + st.toFixed(1) + '%)');
         if (nat != null) b.push((v - nat >= 0 ? '+' : '') + (v - nat).toFixed(1) + ' pts vs U.S. avg (' + nat.toFixed(1) + '%)');
         return b.length ? '<span class="lea-cmp">' + b.join(' · ') + '</span>' : ''; };
+      // when at least half of a topic's cells are suppressed, show N/A instead of a rate, with a note
+      const naCell = label => `<div><span class="mv" style="color:var(--faint)">N/A</span><span class="ml">${label}</span></div>`;
+      const gradLbl = 'graduated with a regular diploma, of those who exited (2023–24)';
+      const dropLbl = 'dropped out, of those who exited (2023–24)';
+      const gradItem = !exShow ? '' : (exHide ? naCell(gradLbl)
+        : (exd[0] != null ? `<div><span class="mv">${exd[0].toFixed(1)}%</span><span class="ml">${gradLbl}</span>${cmp(exd[0], stEx.gradPct, usEx[0])}</div>` : ''));
+      const dropItem = !exShow ? '' : (exHide ? naCell(dropLbl)
+        : (exd[1] != null ? `<div><span class="mv" style="color:var(--accent)">${exd[1].toFixed(1)}%</span><span class="ml">${dropLbl}</span>${cmp(exd[1], stEx.dropPct, usEx[1])}</div>` : ''));
+      const exNaMsg = exHide ? `<p class="m-na">OSEP suppressed ${exSupp} of this district&rsquo;s eight exit-outcome counts, at least half, so the graduation and dropout shares are not shown here.</p>` : '';
+      const catBlock = !showCat ? '' : `<div class="figure-sub" style="margin:16px 0 6px">Students served by disability category (2024–25)</div>`
+        + (ccHide
+            ? `<p class="m-na">OSEP suppressed ${ccSupp} of this district&rsquo;s 26 disability-category counts${ccSupp >= 26 ? ' (every category)' : ', at least half'}, so a category breakdown is not shown here.</p>`
+            : `<div id="dmodCats" class="chartbox"></div>`)
+        + ccNote;
       const src = ['U.S. Department of Education, OSEP.'];
       if (exShow) src.push('Graduation and dropout are from the EDFacts IDEA Part B Exiting LEA Collection, School Year 2023–24 (shares of students ages 14–21 who exited school; districts with very few exiters are omitted).');
       if (f) src.push('Funding is from the IDEA Part B MOE Reduction and CEIS Collection, School Year 2021–22 (Sections 611 and 619 reported allocations, including ARP funds).');
@@ -284,14 +319,15 @@
           <div><span class="mv">${tot == null ? 'n/a' : I.nf(tot)}</span><span class="ml">students served, ages 3–21 (2024–25)</span></div>
           ${sa != null ? `<div><span class="mv">${I.nf(sa)}</span><span class="ml">school age (5–21)</span></div>` : ''}
           ${f ? `<div><span class="mv">${fmtMoney(f[2])}</span><span class="ml">reported IDEA, Part B funding (2021–22)</span></div>` : ''}
-          ${exShow && exd[0] != null ? `<div><span class="mv">${exd[0].toFixed(1)}%</span><span class="ml">graduated with a regular diploma, of those who exited (2023–24)</span>${cmp(exd[0], stEx.gradPct, usEx[0])}</div>` : ''}
-          ${exShow && exd[1] != null ? `<div><span class="mv" style="color:var(--accent)">${exd[1].toFixed(1)}%</span><span class="ml">dropped out, of those who exited (2023–24)</span>${cmp(exd[1], stEx.dropPct, usEx[1])}</div>` : ''}
+          ${gradItem}${dropItem}
         </div>
+        ${exNaMsg}
+        ${exNote}
         ${f ? `<div class="figure-sub" style="margin:16px 0 4px">Where the funding goes</div><div id="dmodFlow" class="chartbox"></div>` : ''}
-        ${cvec ? `<div class="figure-sub" style="margin:16px 0 6px">Students served by disability category (2024–25)</div><div id="dmodCats" class="chartbox"></div>${S.suppNoteHTML ? S.suppNoteHTML('childcount') : ''}` : ''}
+        ${catBlock}
         <p class="m-src">${src.join(' ')}</p>`);
       if (f) renderFlow(document.getElementById('dmodFlow'), { f611: f[3], f619: f[4], ceisReq: f[5], ceisVol: 0 }, nm);
-      if (cvec) renderCatBars(document.getElementById('dmodCats'), cvec);
+      if (cvec && !ccHide) renderCatBars(document.getElementById('dmodCats'), cvec);
     }
     function drillState(ab) {
       const r = byAbbr[ab]; if (!r) return;

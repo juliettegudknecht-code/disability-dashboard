@@ -422,6 +422,7 @@ html.js .reveal.in { opacity: 1; transform: none; filter: none; }
 .m-grid .ml { display: block; font-size: 11.5px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
 .m-src { margin-top: 18px; padding-top: 13px; border-top: 1px solid var(--line); font-size: 11px; color: var(--faint); line-height: 1.5; }
 .m-src::before { content: 'Source'; display: block; font-weight: 700; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.m-na { margin: 10px 0 2px; padding: 9px 12px; background: var(--cream); border: 1px solid var(--line); border-left: 3px solid color-mix(in srgb, var(--green) 45%, var(--line)); border-radius: 8px; font-size: 12px; color: var(--muted); line-height: 1.5; }
 
 @media (max-width: 540px) { body { font-size: 14px; } .hstat .num { font-size: 30px; } .m-grid { grid-template-columns: 1fr; } }
 
@@ -795,6 +796,13 @@ html.reduce-motion .cv-enddot { animation: none; }
 .snap-links { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 13px; }
 .snap-links a { font-size: 12.5px; font-weight: 600; color: var(--green-d); text-decoration: none; }
 .snap-links a:hover { text-decoration: underline; }
+.snap-doclist { width: 100%; }
+.snap-doclist > summary { font-size: 12.5px; font-weight: 600; color: var(--green-d); cursor: pointer; list-style: none; }
+.snap-doclist > summary::-webkit-details-marker { display: none; }
+.snap-doclist > summary::before { content: '\25B8'; display: inline-block; margin-right: 6px; transition: transform .15s ease; }
+.snap-doclist[open] > summary::before { transform: rotate(90deg); }
+.snap-doclist[open] > summary { margin-bottom: 8px; }
+.snap-doclist > a { display: block; padding: 3px 0 3px 16px; }
 .snap-block .source { margin-top: 12px; }
 /* collapsible category breakdown — a plain text toggle, no pill */
 .snap-cats { margin-top: 28px; }
