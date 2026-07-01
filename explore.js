@@ -56,43 +56,69 @@
     I.STATES.forEach((r, i) => sel.add(new Option(r[0], i)));
     sel.value = String(I.STATES.reduce((bi, r, i, a) => r[5] > a[bi][5] ? i : bi, 0)); // open on the largest state
     const ranked = I.STATES.slice().sort((a, b) => b[5] - a[5]);
+    // clean typographic stats (no boxes): value over a plain label
+    const stat = (v, k, cls) => `<div class="stat"><div class="stat-v${cls ? ' ' + cls : ''}">${v}</div><div class="stat-k">${k}</div></div>`;
+    const detShort = s => !s ? '' : /^Meets/.test(s) ? 'Meets requirements' : /intervention/i.test(s) ? 'Needs intervention'
+      : /two or more/i.test(s) ? 'Needs assistance (2+ yrs)' : 'Needs assistance (1 yr)';
+    const chev = '<svg class="chev" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+    const DMS = window.DMS || {};
     function render() {
       if (sel.value === '') { out.innerHTML = '<div class="focus-empty">Choose a state above to see its snapshot.</div>'; return; }
-      const r = I.STATES[+sel.value];
-      const dt = window.DET2026 ? { b: window.DET2026.partB[r[0]], c: window.DET2026.partC[r[0]] } : {};
+      const r = I.STATES[+sel.value], ab = r[1];
+      const dt = window.DET2025 ? { b: window.DET2025.partB[r[0]], c: window.DET2025.partC[r[0]] } : {};
       const served = r[5], pe = r[6], growth = (r[5] - r[2]) / r[2] * 100;
       const rank = ranked.findIndex(x => x[1] === r[1]) + 1;
       const ex = (X.EXIT_STATE || {})[r[1]], dc = (X.DISC_STATE || {})[r[1]];
-      const cell = (k, v, sub, cls) => `<div class="snap-cell"><div class="k">${k}</div><div class="v ${cls || ''}">${v}</div><div class="sub">${sub}</div></div>`;
-      const extraCells = [];
-      if (ex && ex.gradPct != null) extraCells.push(cell('Graduated with a regular diploma', ex.gradPct.toFixed(1) + '%', 'of students ages 14&ndash;21 who exited school'));
-      if (ex && ex.dropPct != null) extraCells.push(cell('Dropped out', ex.dropPct.toFixed(1) + '%', 'of students ages 14&ndash;21 who exited school', 'accent'));
-      if (dc && dc.g10 != null) extraCells.push(cell('Removed more than 10 days', I.nf(dc.g10), 'students with disciplinary removals over&nbsp;10 days'));
-      const extra = extraCells.length ? `<div class="snap-compare"><div class="figure-title">Exiting and discipline</div>
-        <div class="figure-sub">Latest reported figures, School&nbsp;Year 2023&ndash;24.</div>
-        <div class="snap-grid" style="margin-top:12px">${extraCells.join('')}</div></div>` : '';
-      const detBlock = dt.b ? `<div class="snap-compare"><div class="figure-title">2026 IDEA determination</div>
-        <div class="figure-sub">Annual determination on the state's implementation of IDEA.</div>
-        <div class="det-pills" style="margin-top:11px"><span class="det-pill ${detCls(dt.b)}">Part&nbsp;B: ${dt.b}</span>${dt.c ? `<span class="det-pill ${detCls(dt.c)}">Part&nbsp;C: ${dt.c}</span>` : ''}</div></div>` : '';
-      out.innerHTML = `<div class="snap-grid">
-        <div class="snap-cell"><div class="k">Students served, ages 3&ndash;21</div><div class="v">${I.nf(served)}</div><div class="sub">School Year 2024&ndash;25</div></div>
-        <div class="snap-cell"><div class="k">Percent of public-school enrollment</div><div class="v">${pe.toFixed(1)}%</div><div class="sub">School Year 2022&ndash;23</div></div>
-        <div class="snap-cell"><div class="k">Growth since 2000&ndash;01</div><div class="v accent">${growth >= 0 ? '+' : ''}${growth.toFixed(0)}%</div><div class="sub">2000&ndash;01 to 2024&ndash;25</div></div>
-        <div class="snap-cell"><div class="k">National rank by number served</div><div class="v">#${rank}</div><div class="sub">of 51 states and DC</div></div>
-      </div>${extra}${detBlock}
-      <div class="snap-compare"><div class="figure-title">Child count trend: ${r[0]} and the United States, side by side</div>
-        <div class="figure-sub">Students served, ages 3&ndash;21, selected school years.</div>
-        <div class="split cols2" style="margin-top:10px">
-          <div><div class="figure-sub" style="margin:0 0 4px;font-weight:700;color:var(--ink)">${r[0]}</div><div id="snapTrend" class="chartbox"></div></div>
-          <div><div class="figure-sub" style="margin:0 0 4px;font-weight:700;color:var(--ink)">United States</div><div id="snapTrendUS" class="chartbox"></div></div>
-        </div></div>
-      ${(CAT && CAT.state[r[1]]) ? `<div class="snap-compare"><div class="figure-title">${r[0]}: students served by disability category</div>
-        <div class="figure-sub">All 13 primary categories, ages 3&ndash;21, School&nbsp;Year 2024&ndash;25. Tap a bar for the category profile.</div>
-        <div id="snapCats" class="chartbox"></div></div>` : ''}`;
+
+      const stats = [
+        stat(I.nf(served), 'Students served, ages 3&ndash;21 &middot; SY&nbsp;2024&ndash;25'),
+        stat('#' + rank + ' of 51', 'Rank by students served'),
+        stat(pe.toFixed(1) + '%', 'Percent of public-school enrollment &middot; 2022&ndash;23'),
+        stat((growth >= 0 ? '+' : '') + growth.toFixed(0) + '%', 'Change since 2000&ndash;01', 'accent'),
+      ];
+      if (ex && ex.gradPct != null) stats.push(stat(ex.gradPct.toFixed(1) + '%', 'Graduated with a regular diploma, of those who exited &middot; 2023&ndash;24'));
+      if (ex && ex.dropPct != null) stats.push(stat(ex.dropPct.toFixed(1) + '%', 'Dropped out, of those who exited &middot; 2023&ndash;24', 'accent'));
+      if (dc && dc.g10 != null) stats.push(stat(I.nf(dc.g10), 'Removed more than 10 days &middot; 2023&ndash;24'));
+
+      // general supervision: 2025 determination, enforcement consequence, and source links
+      let gsBlock = '';
+      if (dt.b || dt.c) {
+        const word = (part, lvl) => lvl ? `<span class="det-word ${detCls(lvl)}">Part&nbsp;${part}: ${detShort(lvl)}</span>` : '';
+        const dline = `<p class="snap-det">2025 IDEA determination &mdash; ${word('B', dt.b)}${dt.b && dt.c ? '<span class="snap-dot">&middot;</span>' : ''}${word('C', dt.c)}</p>`;
+        let note = '';
+        if (dt.b && /two or more/i.test(dt.b)) note = `<p class="snap-note">${r[0]} has needed assistance under Part&nbsp;B for two or more consecutive years, so the Department must take enforcement action &mdash; for example, requiring technical assistance, designating the state a high-risk grantee, or directing state set-aside funds to the areas needing assistance.</p>`;
+        else if (dt.b && /intervention/i.test(dt.b)) note = `<p class="snap-note">${r[0]} needs intervention under Part&nbsp;B &mdash; the most serious determination short of substantial intervention.</p>`;
+        const links = [`<a href="${DMS.sppLetter ? DMS.sppLetter(ab, 'B') : '#'}" target="_blank" rel="noopener noreferrer">${r[0]}&rsquo;s 2025 SPP/APR &rarr;</a>`];
+        const reps = (DMS.reports || {})[ab];
+        if (reps && reps.length) reps.forEach(rep => links.push(`<a href="${rep.url}" target="_blank" rel="noopener noreferrer">OSEP DMS report &middot; Part&nbsp;${rep.part} &middot; ${rep.date} &rarr;</a>`));
+        else if (DMS.db) links.push(`<a href="${DMS.db}" target="_blank" rel="noopener noreferrer">OSEP monitoring (DMS) &rarr;</a>`);
+        gsBlock = `<div class="snap-block"><div class="figure-title">General supervision</div>${dline}${note}<div class="snap-links">${links.join('')}</div>
+          <div class="source"><span class="src-k">Source</span> 2025 Determination Letters and FFY&nbsp;2023 SPP/APR; OSEP Differentiated Monitoring and Support (DMS) reports.</div></div>`;
+      }
+
+      out.innerHTML = `<div class="snap-head">
+          <div class="snap-eyebrow">State snapshot &middot; IDEA Part&nbsp;B</div>
+          <div class="snap-name">${r[0]}</div>
+        </div>
+        <div class="snap-stats">${stats.join('')}</div>
+        ${gsBlock}
+        <div class="snap-block">
+          <div class="figure-title">Students served over time</div>
+          <div class="figure-sub">Children and students ages 3&ndash;21, selected school years &mdash; ${r[0]} beside the national total.</div>
+          <div class="split cols2" style="margin-top:12px">
+            <div><div class="snap-sublab">${r[0]}</div><div id="snapTrend" class="chartbox"></div></div>
+            <div><div class="snap-sublab">United States</div><div id="snapTrendUS" class="chartbox"></div></div>
+          </div>
+        </div>
+        ${(CAT && CAT.state[r[1]]) ? `<details class="snap-cats"><summary>Students served by disability category${chev}</summary>
+          <div class="figure-sub" style="margin:0 0 10px">All 13 primary categories, ages 3&ndash;21, School&nbsp;Year 2024&ndash;25. Tap a bar for the category profile.</div>
+          <div id="snapCats" class="chartbox"></div>
+          ${(window.IDEAStory && window.IDEAStory.suppNoteHTML) ? window.IDEAStory.suppNoteHTML('childcount') : ''}</details>` : ''}`;
+
       const yrLab = ['2000\u201301', '2010\u201311', '2022\u201323', '2024\u201325'], yrXs = [2000, 2010, 2022, 2024];
       const mkTrend = (vals, color, endLab) => C.lineChart({
         labels: yrLab, xs: yrXs, xTicks: [2000, 2010, 2024],
-        series: [{ values: vals, color, area: true, areaOpacity: .12, highlight: true, endLabel: endLab }],
+        series: [{ values: vals, color, area: true, areaOpacity: .16, highlight: true, endDotR: 6, endLabel: endLab }],
         yMin: 0, yMax: Math.max(...vals) * 1.15, yTicks: 3, yFmt: v => v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1000 ? (v / 1000).toFixed(0) + 'k' : Math.round(v),
         height: 250, width: 360, padL: 48,
       });
@@ -100,7 +126,16 @@
       const st = mkTrend(sVals, P.greenD, I.nf(r[5])); $('#snapTrend').appendChild(st.node); st.reveal();
       const usVals = [I.ALL[3], I.ALL[6], I.ALL[18], I.ALL[20]].map(v => v * 1000);   // national totals, same years
       const us = mkTrend(usVals, P.navy, (usVals[3] / 1e6).toFixed(1) + 'M'); $('#snapTrendUS').appendChild(us.node); us.reveal();
-      if (CAT && CAT.state[r[1]]) { const vec = CAT.state[r[1]]; catBars($('#snapCats'), vec, vec.reduce((a, b) => a + b, 0), true); }
+
+      // category breakdown is collapsed by default; build it (with its bar animation) on first open
+      const details = out.querySelector('.snap-cats');
+      if (details && CAT && CAT.state[r[1]]) {
+        let built = false;
+        details.addEventListener('toggle', () => {
+          if (!details.open || built) return; built = true;
+          const vec = CAT.state[r[1]]; catBars($('#snapCats'), vec, vec.reduce((a, b) => a + b, 0), true);
+        });
+      }
     }
     sel.addEventListener('change', render); render();
   }
@@ -238,6 +273,7 @@
             <p class="m-src">U.S. Department of Education, IDEA Part B Discipline Collection and Child Count, School Year 2023–24. Each removal is counted separately, so a student may be counted more than once.</p>`) });
         ddBox.appendChild(ch.node); ch.reveal();
         window.IDEAStory && window.IDEAStory.expbar('moreDiscDis', 'idea-discipline-per-100-2023-24', [['Disability category', 'Removals per 100 served'], ...items.map(d => [d.label, d.value])]);
+        S.suppNoteTextTo && S.suppNoteTextTo(ddBox.closest('.figure'), 'OSEP suppresses small cells in the IDEA Discipline collection to protect student privacy, so removals for small categories may be omitted. Removals are counted as events, not students, so a student removed more than once is counted each time.');
       }
 
       // C. Disproportionality index: removal share ÷ enrollment share, by race (1.0 = proportional)
@@ -254,7 +290,7 @@
         const ch = C.barsH({
           items: items.map(d => ({ label: d.label, value: d.ratio,
             color: d.ratio >= 1.06 ? P.accent : (d.ratio <= 0.94 ? P.green : P.sage) })),
-          labelW: 196, barH: 22, gap: 13, padR: 66, xMax: Math.max(1.8, Math.max(...items.map(d => d.ratio)) * 1.08),
+          labelW: 300, barH: 22, gap: 13, padR: 60, xMax: Math.max(1.8, Math.max(...items.map(d => d.ratio)) * 1.08),
           valueFmt: v => v.toFixed(2) + '×',
           onClick: it => { const d = items.find(x => x.label === it.label);
             popup(`<div class="m-kicker">Discipline · disproportionality</div><h3 class="m-title">${d.label}</h3>
@@ -266,6 +302,7 @@
         window.IDEAStory && window.IDEAStory.expbar('moreDiscRace', 'idea-discipline-disproportionality-2023-24', [['Race/ethnicity', 'Share of students served %', 'Share of removals %', 'Removals ÷ enrollment share'], ...items.map(d => [d.label, d.a, d.b, d.ratio])]);
         const lg = $('#moreRaceLegend');
         if (lg) lg.innerHTML = `<span class="k"><span class="sw" style="background:${P.accent}"></span>Over-represented (above 1.0×)</span><span class="k"><span class="sw" style="background:${P.green}"></span>Under-represented (below 1.0×)</span>`;
+        S.suppNoteTextTo && S.suppNoteTextTo(drBox.closest('.figure'), 'Students of two or more races and students whose race was not reported are not shown. OSEP suppresses small cells in the Discipline collection, so counts for small groups may be omitted.');
       }
 
       // D. Personnel certification (2023-24)

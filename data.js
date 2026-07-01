@@ -126,7 +126,9 @@ const DEMO = {
     ages:{3:37355,4:57205,5:92293,6:103850,7:104315,8:100007,9:93522,10:87797,11:79819,12:76278,13:71488,14:67366,15:64550,16:61534,17:56037,18:29709,19:15430,20:12120,21:8146},
   },
 };
-const RACE_LBL = { White:'White', Hispanic:'Hispanic', Black:'Black', Multi:'Two or more races', Asian:'Asian', AIAN:'Am. Indian / Alaska Native', NHPI:'Native Hawaiian / Pac. Isl.' };
+/* Exact race/ethnicity category names as they appear in the OSEP/EdFacts file
+   specifications (IDEA Part B Child Count file spec C002/C089). */
+const RACE_LBL = { White:'White', Hispanic:'Hispanic/Latino', Black:'Black or African American', Multi:'Two or more races', Asian:'Asian', AIAN:'American Indian or Alaska Native', NHPI:'Native Hawaiian or Other Pacific Islander' };
 
 /* ---- Other collections, latest year ------------------------- */
 const PARTC = { year:'2024-25', total:458920, settings:{ 'Home':406921, 'Community-based setting':35999, 'Other setting':16000 } };

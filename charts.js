@@ -27,7 +27,24 @@
     return s;
   }
   function reduced() {
-    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+      || document.documentElement.classList.contains('reduce-motion');
+  }
+  /* unique id generator + colour helpers for gradient fills */
+  let gradSeq = 0;
+  const uid = pfx => (pfx || 'g') + (gradSeq++).toString(36) + Math.floor(performance.now() % 1e5).toString(36);
+  function toRGB(c) { return c.indexOf('rgb') === 0 ? c.match(/\d+/g).map(Number) : hx(c); }
+  function lighten(c, k) { const [r, g, b] = toRGB(c);
+    return `rgb(${Math.round(r + (255 - r) * k)},${Math.round(g + (255 - g) * k)},${Math.round(b + (255 - b) * k)})`; }
+  function rgba(c, a) { const [r, g, b] = toRGB(c); return `rgba(${r},${g},${b},${a})`; }
+  /* a soft vertical gradient (a light sheen up top settling to the base colour),
+     for bar and column fills — gives flat bars a little depth */
+  function sheenGrad(defs, color) {
+    const id = uid('bar'), lg = mk('linearGradient', { id, x1: 0, y1: 0, x2: 0, y2: 1 });
+    lg.appendChild(mk('stop', { offset: '0%', 'stop-color': lighten(color, .16) }));
+    lg.appendChild(mk('stop', { offset: '60%', 'stop-color': color }));
+    lg.appendChild(mk('stop', { offset: '100%', 'stop-color': color }));
+    defs.appendChild(lg); return `url(#${id})`;
   }
 
   /* make any SVG node behave like a button: pointer cursor, keyboard focus,
@@ -84,6 +101,7 @@
     const x = i => xs ? xVal(xs[i]) : padL + (n === 1 ? plotW / 2 : (i / (n - 1)) * plotW);
     const y = v => padT + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
     const s = svgRoot(w, h, 'cv-line');
+    const defs = mk('defs'); s.appendChild(defs);
 
     // y gridlines + labels
     const ticks = opts.yTicks || 4;
@@ -117,8 +135,14 @@
       if (!pts.length) return;
       const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
       if (ser.area) {
+        // vertical gradient: colour up at the line, fading clear toward the baseline
+        const aOp = ser.areaOpacity ?? 0.14, gid = uid('area');
+        const lg = mk('linearGradient', { id: gid, x1: 0, y1: 0, x2: 0, y2: 1 });
+        lg.appendChild(mk('stop', { offset: '0%', 'stop-color': rgba(ser.color, Math.min(.38, aOp * 2.4)) }));
+        lg.appendChild(mk('stop', { offset: '100%', 'stop-color': rgba(ser.color, 0) }));
+        defs.appendChild(lg);
         const f = mk('path', { d: d + ` L${pts[pts.length-1][0].toFixed(1)} ${y(yMin)} L${pts[0][0].toFixed(1)} ${y(yMin)} Z`,
-          fill: ser.color, 'fill-opacity': ser.areaOpacity ?? 0.14, stroke: 'none' });
+          fill: `url(#${gid})`, 'fill-opacity': 1, stroke: 'none' });
         f.style.opacity = 0; s.appendChild(f); fills.push(f);
       }
       const path = mk('path', { d, fill: 'none', stroke: ser.color,
@@ -138,7 +162,9 @@
           const arrow = mk('path', { d: `M${last[0].toFixed(1)} ${last[1].toFixed(1)} L${(bx + px * wid).toFixed(1)} ${(by + py * wid).toFixed(1)} L${(bx - px * wid).toFixed(1)} ${(by - py * wid).toFixed(1)} Z`, fill: ser.color, 'stroke-linejoin': 'round' });
           arrow.style.opacity = 0; s.appendChild(arrow); dots.push({ el: arrow, x: last[0] });
         } else {
+          const big = !ser.dash && (ser.endDotR || 0) >= 6;   // only the headline dots throb
           const dot = mk('circle', { cx: last[0], cy: last[1], r: ser.endDotR || 5, fill: ser.color, stroke: P.cream, 'stroke-width': 2 });
+          if (big) dot.setAttribute('class', 'cv-enddot');
           dot.style.opacity = 0; s.appendChild(dot); dots.push({ el: dot, x: last[0] });
         }
         if (ser.endLabel) {
@@ -172,6 +198,13 @@
         const yy = below ? (cy + 27 + i * 13) : (cy - 20 - (lines.length - 1 - i) * 13);
         g.appendChild(mk('text', { x: mx, y: yy, 'text-anchor': 'middle', class: i ? 'cv-vmark-sub' : 'cv-vmark-t', text: ln }));
       });
+      if (opts.onVmarker) {
+        // a generous transparent hit target so the whole marker + its label is clickable
+        const top = below ? cy - 8 : cy - 20 - (lines.length - 1) * 13 - 6;
+        const bot = below ? cy + 27 + (lines.length - 1) * 13 + 6 : cy + 8;
+        g.appendChild(mk('rect', { x: mx - 62, y: top, width: 124, height: Math.max(20, bot - top), fill: 'transparent' }));
+        clickify(g, (m.label || []).join(' · '), () => opts.onVmarker(m));
+      }
       g.style.opacity = 0; s.appendChild(g); markers.push({ el: g, x: mx });
     });
 
@@ -193,6 +226,7 @@
           'text-anchor': a.anchor || 'start', class: i ? 'cv-anno-sub' : 'cv-anno-t',
           text: ln }));
       });
+      if (a.onClick) clickify(g, (a.text || []).join(' · '), a.onClick);
       g.style.opacity = 0; s.appendChild(g); annos.push({ el: g, x: ax });
     });
 
@@ -249,6 +283,7 @@
     const scale = v => (v / xMax) * plotW;
     const fmt = opts.valueFmt || (v => Math.round(v).toLocaleString());
     const s = svgRoot(w, h, 'cv-bars');
+    const defs = mk('defs'); s.appendChild(defs);
     const anim = [];
     items.forEach((d, i) => {
       const yTop = padT + i * rowH;
@@ -258,8 +293,9 @@
         class: d.highlight ? 'cv-rowlab hi' : 'cv-rowlab', text: d.label }));
       row.appendChild(mk('rect', { x: labelW, y: yTop, width: plotW, height: barH, rx: 3, fill: P.line, 'fill-opacity': .5 }));
       const fullW = Math.max(2, scale(d.value));
+      const baseColor = d.color || (d.highlight ? P.accent : P.green);
       const bar = mk('rect', { x: labelW, y: yTop, width: 0, height: barH, rx: 3, class: 'cv-bar' + (d.glow ? ' glow' : ''),
-        fill: d.color || (d.highlight ? P.accent : P.green) });
+        fill: sheenGrad(defs, baseColor) });
       if (d.glow) bar.style.setProperty('--glow', d.color || P.accent);
       row.appendChild(bar);
       const inside = false;   // always place the value label outside the bar, in ink (no white-on-bar)
@@ -552,6 +588,7 @@
     const plotW = w - padL - padR, plotH = h - padT - padB;
     const yMax = opts.yMax || niceMax(Math.max(...vals)), Y = v => padT + plotH - (v / yMax) * plotH;
     const s = svgRoot(w, h, 'cv-cols');
+    const defs = mk('defs'); s.appendChild(defs);
     const ticks = opts.yTicks || 3;
     for (let t = 0; t <= ticks; t++) {
       const val = yMax * t / ticks, yy = Y(val);
@@ -566,7 +603,7 @@
     for (let i = 0; i < n; i++) {
       const cx = padL + step * i + step / 2, bh = Math.max(1, (vals[i] / yMax) * plotH), top = padT + plotH - bh;
       const fillC = opts.colors ? opts.colors[i] : (i === peak ? P.accent : P.green);
-      const rect = mk('rect', { x: cx - bw / 2, y: top, width: bw, height: bh, rx: 2.5, fill: fillC });
+      const rect = mk('rect', { x: cx - bw / 2, y: top, width: bw, height: bh, rx: 2.5, fill: sheenGrad(defs, fillC) });
       rect.style.transformBox = 'fill-box'; rect.style.transformOrigin = 'bottom'; rect.style.transform = 'scaleY(0)';
       s.appendChild(rect); bars.push(rect);
       if (vals[i] > 0 && opts.showValues !== false && !(opts.peakLabel && i === maxIdx)) {   // value label above each bar, in ink
@@ -653,7 +690,7 @@
       if (c % colEvery !== 0 && c !== cols - 1) continue;
       s.appendChild(mk('text', { x: labelW + c * cellW + cellW / 2, y: padT - 10, 'text-anchor': 'middle', class: 'cv-axt', text: colLabels[c] }));
     }
-    const cells = [];
+    const anim = [];   // {el, r, c} so the reveal can stagger by true grid position
     for (let r = 0; r < rows; r++) {
       const yy = padT + r * cellH;
       s.appendChild(mk('text', { x: labelW - 10, y: yy + cellH / 2 + 4, 'text-anchor': 'end', class: 'cv-rowlab', text: rowLabels[r] }));
@@ -661,20 +698,25 @@
         const v = M[r][c], xx = labelW + c * cellW;
         const fill = v == null ? P.line : colorFor(v);
         const rect = mk('rect', { x: xx + gap / 2, y: yy + gap / 2, width: cellW - gap, height: cellH - gap, rx: 2.5, fill });
-        rect.style.opacity = 0;
+        rect.style.opacity = 0; rect.style.transformBox = 'fill-box'; rect.style.transformOrigin = 'center'; rect.style.transform = 'scale(.6)';
         if (opts.onClick && v != null) clickify(rect, rowLabels[r] + ' · ' + colLabels[c], () => opts.onClick({ row: rowLabels[r], col: colLabels[c], value: v, r, c }, r, c));
         s.appendChild(rect);
+        anim.push({ el: rect, r, c, scale: true });
         if (opts.showValues && v != null && cellW > 34) {
           const t = mk('text', { x: xx + cellW / 2, y: yy + cellH / 2 + 3.5, 'text-anchor': 'middle', class: 'cv-tilet', fill: colorContrast(fill) ? '#fff' : P.ink, text: fmt(v) });
-          t.style.opacity = 0; s.appendChild(t); cells.push(t);
+          t.style.opacity = 0; s.appendChild(t); anim.push({ el: t, r, c });
         }
-        cells.push(rect);
       }
     }
     let played = false;
     function reveal() {
       if (played) return; played = true;
-      cells.forEach((el, i) => { const d = reduced() ? 0 : (i % cols) * 26 + Math.floor(i / cols) * 55; el.style.transition = `opacity .65s ease ${d}ms`; requestAnimationFrame(() => { el.style.opacity = 1; }); });
+      const rm = reduced();
+      anim.forEach(o => {
+        const d = rm ? 0 : o.c * 42 + o.r * 90 + (o.scale ? 0 : 160);   // left-to-right wave, row by row; labels trail their cell
+        o.el.style.transition = `opacity .5s ease ${d}ms` + (o.scale ? `, transform .55s cubic-bezier(.34,1.2,.5,1) ${d}ms` : '');
+        requestAnimationFrame(() => { o.el.style.opacity = 1; if (o.scale) o.el.style.transform = 'scale(1)'; });
+      });
     }
     return { node: s, reveal };
   }
@@ -770,7 +812,7 @@
       const fw = widths[i], fill = d.color || (d.highlight ? P.accent : P.green);
       const bar = mk('rect', { x: cxp, y: yTop, width: 0, height: barH, rx: 3, fill });
       s.appendChild(bar);
-      const val = mk('text', { x: cxp + fw / 2 + 12, y: cy + 4, 'text-anchor': 'start', class: 'cv-barval', fill: P.ink, text: '' });
+      const val = mk('text', { x: cxp + fw / 2 + 12, y: cy + 4, 'text-anchor': 'start', class: 'cv-barval cv-money', fill: P.greenD, text: '' });
       val.style.opacity = 0; s.appendChild(val);
       if (opts.onClick) {
         const hit = mk('rect', { x: 0, y: yTop, width: w, height: barH, fill: 'transparent' });

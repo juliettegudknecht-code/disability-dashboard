@@ -33,20 +33,20 @@
     m.actual = last[2]; m.actualYear = last[0];
   });
 
-  // 2026 IDEA determinations (FFY 2024 submissions), counts of states + entities.
+  // 2025 IDEA determinations (FFY 2023 SPP/APR), counts of states + entities.
   const DET = {
-    totalB: 64, totalC: 59,
+    totalB: 60, totalC: 56,
     levels: [
-      { key: 'meets', label: 'Meets requirements', color: '#2f8f57', partB: 22, partC: 22 },
-      { key: 'na1', label: 'Needs assistance, one year', color: '#c9a23a', partB: 3, partC: 14 },
-      { key: 'na2', label: 'Needs assistance, two or more years', color: '#cf6b35', partB: 33, partC: 22 },
-      { key: 'int', label: 'Needs intervention', color: '#8f2d2d', partB: 6, partC: 1 },
+      { key: 'meets', label: 'Meets requirements', color: '#2f8f57', partB: 20, partC: 31 },
+      { key: 'na1', label: 'Needs assistance, one year', color: '#c9a23a', partB: 4, partC: 5 },
+      { key: 'na2', label: 'Needs assistance, two or more years', color: '#cf6b35', partB: 34, partC: 16 },
+      { key: 'int', label: 'Needs intervention', color: '#8f2d2d', partB: 2, partC: 4 },
     ],
     blurb: {
       'Meets requirements': 'The state meets the requirements and purposes of IDEA. This is the strongest of the four determination levels.',
       'Needs assistance, one year': 'The state needs assistance in implementing IDEA for the first year. The Department offers technical assistance.',
-      'Needs assistance, two or more years': 'The state has needed assistance for two or more consecutive years, which carries additional required actions.',
-      'Needs intervention': 'The state needs intervention in implementing IDEA. This is the most serious determination short of substantial intervention.',
+      'Needs assistance, two or more years': 'The state has needed assistance for two or more consecutive years. The Department must then take one or more enforcement actions, such as requiring the state to access technical assistance, designating it a high-risk grantee, or directing the use of state set-aside funds to the areas needing assistance.',
+      'Needs intervention': 'The state needs intervention in implementing IDEA. This is the most serious determination short of substantial intervention; three or more consecutive years at this level triggers required enforcement actions.',
     },
   };
 
@@ -94,16 +94,16 @@
     sc.querySelectorAll('.det-score-row').forEach(b2 => b2.addEventListener('click', () => openDetModal(b2.dataset.level)));
     S.legend('detLegend', DET.levels.map(l => [l.label, l.color]), name => openDetModal(name));
     S.hint('chart-det', 'Tap a slice, a key, or a row for what each level means');
-    S.expbar && S.expbar('chart-det', 'idea-determinations-2026', [['Determination level', 'Part B (n=64)', 'Part C (n=59)'], ...DET.levels.map(l => [l.label, l.partB, l.partC])]);
+    S.expbar && S.expbar('chart-det', 'idea-determinations-2025', [['Determination level', 'Part B (n=60)', 'Part C (n=56)'], ...DET.levels.map(l => [l.label, l.partB, l.partC])]);
   })();
 
   function openDetModal(name) {
     const l = DET.levels.find(x => x.label === name); if (!l) return;
-    const D = window.DET2026 || { partB: {}, partC: {} };
+    const D = window.DET2025 || { partB: {}, partC: {} };
     const re = l.key === 'meets' ? /^Meets/ : l.key === 'na1' ? /one year/ : l.key === 'na2' ? /two or more/ : /intervention/;
     const listFor = part => Object.keys(D[part]).filter(s => re.test(D[part][s])).sort();
     const chips = arr => arr.length ? `<div class="det-statelist">${arr.map(s => `<span>${s}</span>`).join('')}</div>` : '<p class="m-dek" style="font-size:13px;margin:0">None.</p>';
-    S.openModal(`<div class="m-kicker">2026 IDEA determination</div><h3 class="m-title">${l.label}</h3>
+    S.openModal(`<div class="m-kicker">2025 IDEA determination</div><h3 class="m-title">${l.label}</h3>
       <p class="m-dek">${DET.blurb[l.label] || ''}</p>
       <div class="m-grid">
         <div><span class="mv">${l.partB}</span><span class="ml">Part B states and entities (of ${DET.totalB})</span></div>
@@ -111,18 +111,20 @@
       </div>
       <div class="figure-sub" style="margin:18px 0 7px">Part&nbsp;B: states and entities at this level</div>${chips(listFor('partB'))}
       <div class="figure-sub" style="margin:16px 0 7px">Part&nbsp;C: states and entities at this level</div>${chips(listFor('partC'))}
-      <p class="m-src">U.S. Department of Education, Office of Special Education Programs, 2026 Determination Letters on State Implementation of IDEA.</p>`);
+      <p class="m-src">U.S. Department of Education, Office of Special Education Programs, 2025 Determination Letters on State Implementation of IDEA (based on Federal Fiscal Year 2023 SPP/APR).</p>`);
   }
 
   /* ---- exhibit C · population context (ACS) ----------------- */
   (function () {
     const box = document.getElementById('chart-acs'); if (!box) return;
-    // creative: a 1-in-7.5 pictograph of all children, then the age-band dip beneath
+    // a clear "1 in 7.5": a big ratio callout over a row of ~8 figures, one shaded
+    const ratio = document.createElement('div'); ratio.style.cssText = 'font-family:var(--font-display);font-weight:800;letter-spacing:-.02em;line-height:1.05;margin:2px 0 16px';
+    ratio.innerHTML = '<span style="font-size:clamp(32px,4.4vw,50px);color:var(--accent)">1 in 7.5</span><span style="font-size:clamp(13px,1.3vw,16px);color:var(--muted);font-weight:600;margin-left:11px">children ages 5&ndash;17 are served under IDEA, Part&nbsp;B</span>';
     const picWrap = document.createElement('div'); picWrap.className = 'chartbox';
-    const pic = C.pictograph({ total: 30, a: 4, cols: 10, cell: 27, aColor: P.greenD, bColor: P.sage });
+    const pic = C.pictograph({ total: 8, a: 1, cols: 8, cell: 44, aColor: P.greenD, bColor: P.sage });
     picWrap.appendChild(pic.node);
-    const cap = document.createElement('div'); cap.className = 'figure-sub'; cap.style.cssText = 'margin:12px 0 26px;max-width:60ch';
-    cap.innerHTML = 'Each figure stands for about 1 in 30 of the roughly 54.6&nbsp;million U.S. children ages 5&ndash;17. The <b style="color:var(--green-d)">4 shaded green</b> represent the about <b style="color:var(--green-d)">1 in 7.5</b> (13.3%) served under IDEA, Part&nbsp;B.';
+    const cap = document.createElement('div'); cap.className = 'figure-sub'; cap.style.cssText = 'margin:10px 0 26px;max-width:62ch';
+    cap.innerHTML = 'About <b style="color:var(--green-d)">1 in 7.5</b> (13.3%) of the roughly 54.6&nbsp;million U.S. children ages 5&ndash;17 are served under IDEA, Part&nbsp;B &mdash; near the <b style="color:var(--green-d)">1 shaded green</b> of every 8 shown here.';
     const sub2 = document.createElement('div'); sub2.className = 'figure-title'; sub2.style.cssText = 'margin:0 0 2px'; sub2.textContent = 'The share served dips through the teen years';
     const sub2b = document.createElement('div'); sub2b.className = 'figure-sub'; sub2b.style.cssText = 'margin:0 0 10px'; sub2b.textContent = 'Percent of U.S. children served under IDEA, Part B, by age band, 2024–25.';
     const barsWrap = document.createElement('div'); barsWrap.className = 'chartbox';
@@ -131,7 +133,7 @@
       labelW: 120, barH: 24, gap: 14, padR: 56, xMax: 20, valueFmt: v => v.toFixed(1) + '%',
     });
     barsWrap.appendChild(ch.node);
-    box.appendChild(picWrap); box.appendChild(cap); box.appendChild(sub2); box.appendChild(sub2b); box.appendChild(barsWrap);
+    box.appendChild(ratio); box.appendChild(picWrap); box.appendChild(cap); box.appendChild(sub2); box.appendChild(sub2b); box.appendChild(barsWrap);
     S.onView(box, () => { pic.reveal(); ch.reveal(); });
     S.expbar && S.expbar('chart-acs', 'idea-population-context', [['Age band', 'Percent of U.S. children served under IDEA Part B (2024-25)'], ...ACS.byAge]);
   })();

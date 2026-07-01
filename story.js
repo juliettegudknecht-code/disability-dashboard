@@ -27,6 +27,16 @@
     const html = suppNoteHTML(key); if (!host || !html) return;
     host.insertAdjacentHTML('beforeend', html);
   }
+  /* same "About suppressed values" affordance, but from arbitrary text (for collections
+     whose suppression isn't tallied in CATDATA.suppress) */
+  const SUPP_ICON = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>';
+  function suppNoteText(text) {
+    return `<details class="supp-note"><summary>${SUPP_ICON}About suppressed values</summary><p>${text}</p></details>`;
+  }
+  function suppNoteTextTo(hostId, text) {
+    const host = typeof hostId === 'string' ? document.getElementById(hostId) : hostId;
+    if (host) host.insertAdjacentHTML('beforeend', suppNoteText(text));
+  }
 
   /* demographics by disability category (national, ages 3-21) from SEA.demoCat,
      falling back to the two profiles in data.js if SEA isn't loaded */
@@ -48,9 +58,11 @@
 
   document.querySelectorAll('.reveal').forEach(el => onView(el, () => el.classList.add('in')));
   // slot-machine roll: each digit spins through 0–9 and locks on its target, left to right
+  const prefersReduced = () => (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    || document.documentElement.classList.contains('reduce-motion');
   function slotRoll(el, to, fmt, dur) {
     const finalStr = fmt(to);
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = finalStr; return; }
+    if (prefersReduced()) { el.textContent = finalStr; return; }
     el.textContent = ''; el.classList.add('slotroll');
     const reels = [];
     finalStr.split('').forEach(ch => {
@@ -122,21 +134,37 @@
   })();
 
   /* shared click-to-open detail popup */
-  let modalEl = null;
+  let modalEl = null, modalLastFocus = null;
+  function closeModal() {
+    if (!modalEl) return;
+    modalEl.classList.remove('show');
+    if (modalLastFocus && modalLastFocus.focus) modalLastFocus.focus();
+    modalLastFocus = null;
+  }
   function openModal(html) {
     if (!modalEl) {
       modalEl = document.createElement('div'); modalEl.className = 'modal-bg';
-      modalEl.innerHTML = '<div class="modal" role="dialog" aria-modal="true"><button class="modal-x" aria-label="Close">\u00d7</button><div class="modal-body"></div></div>';
+      modalEl.innerHTML = '<div class="modal" role="dialog" aria-modal="true" tabindex="-1"><button class="modal-x" aria-label="Close">\u00d7</button><div class="modal-body"></div></div>';
       document.body.appendChild(modalEl);
-      const close = () => modalEl.classList.remove('show');
-      modalEl.addEventListener('click', e => { if (e.target === modalEl) close(); });
-      modalEl.querySelector('.modal-x').addEventListener('click', close);
-      window.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+      modalEl.addEventListener('click', e => { if (e.target === modalEl) closeModal(); });
+      modalEl.querySelector('.modal-x').addEventListener('click', closeModal);
+      window.addEventListener('keydown', e => { if (e.key === 'Escape' && modalEl.classList.contains('show')) closeModal(); });
+      // keep keyboard focus inside the dialog while it is open
+      modalEl.addEventListener('keydown', e => {
+        if (e.key !== 'Tab' || !modalEl.classList.contains('show')) return;
+        const f = [...modalEl.querySelectorAll('a[href],button,select,input,textarea,[tabindex]')].filter(el => !el.disabled && el.offsetParent !== null);
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      });
     }
+    modalLastFocus = document.activeElement;
     modalEl.querySelector('.modal-body').innerHTML = html;
     modalEl.classList.add('show');
+    setTimeout(() => { const x = modalEl.querySelector('.modal-x'); if (x) x.focus(); }, 40);
   }
-  function detLevel(name) { const D = window.DET2026; return D ? { b: D.partB[name], c: D.partC[name] } : {}; }
+  function detLevel(name) { const D = window.DET2025; return D ? { b: D.partB[name], c: D.partC[name] } : {}; }
   function detClass(s) { return !s ? '' : /^Meets/.test(s) ? 'det-meets' : /intervention/i.test(s) ? 'det-int' : /two or more/i.test(s) ? 'det-na2' : 'det-na1'; }
   function openStateModal(ab) {
     const r = I.STATES.find(x => x[1] === ab); if (!r) return;
@@ -161,12 +189,12 @@
         ${se && se.alt != null ? `<div><span class="mv"${se.alt > 0 ? ' style="color:var(--accent)"' : ''}>${I.nf(se.alt)}</span><span class="ml">graduated with an alternate diploma (${se.altPct != null ? se.altPct.toFixed(1) + '% of those who exited' : 'none'}, 2023\u201324)${se.alt === 0 ? '; this State awards none' : ''}</span></div>` : ''}
         ${dc && dc.g10 != null ? `<div><span class="mv">${I.nf(dc.g10)}</span><span class="ml">students with disciplinary removals over 10 days (2023\u201324)</span></div>` : ''}
       </div>
-      ${dt.b ? `<div class="m-det"><div class="figure-sub" style="margin:16px 0 8px">2026 IDEA determination</div>
+      ${dt.b ? `<div class="m-det"><div class="figure-sub" style="margin:16px 0 8px">2025 IDEA determination</div>
         <div class="det-pills"><span class="det-pill ${detClass(dt.b)}">Part&nbsp;B: ${dt.b}</span>${dt.c ? `<span class="det-pill ${detClass(dt.c)}">Part&nbsp;C: ${dt.c}</span>` : ''}</div></div>` : ''}
       <div class="figure-sub" style="margin:18px 0 2px">Students served, ages 3\u201321, by school year</div>
       <div id="m-state-trend" class="chartbox"></div>
       ${vec ? `<div class="figure-sub" style="margin:18px 0 2px">Students served by disability category (2024\u201325)</div><div id="m-state-cats" class="chartbox"></div>` : ''}
-      <p class="m-src">IDEA Part B Child Count, Exiting, and Discipline Collections${dt.b ? '; 2026 Determination Letters on State Implementation of IDEA' : ''}.</p>`);
+      <p class="m-src">IDEA Part B Child Count, Exiting, and Discipline Collections${dt.b ? '; 2025 Determination Letters on State Implementation of IDEA' : ''}.</p>`);
     const th = document.getElementById('m-state-trend');
     if (th) {
       const vals = [r[2], r[3], r[4], r[5]];
@@ -345,20 +373,54 @@
   const startYears = I.YEARS.map(y => +y.slice(0, 4));
   const IDEA_MARKS = [
     { year: 1990, label: ['1990', 'Renamed IDEA'], pos: 'above' },
-    { year: 1997, label: ['1997', 'IDEA amended'], pos: 'below' },
+    { year: 1997, label: ['1997', 'Amendments'], pos: 'below' },
     { year: 2004, label: ['2004', 'Reauthorized'], pos: 'above' },
   ];
+  /* key dates in the law behind the counts; clickable from the child-count chart.
+     Grounded in IDEA's legislative history and the 47th Annual Report to Congress. */
+  const MILESTONES = {
+    1975: { kicker: '1975', title: 'The Education for All Handicapped Children Act',
+      detail: 'Signed November 29, 1975, Public Law 94-142 guaranteed every child with a disability a free appropriate public education in the least restrictive environment, protected the rights of children and parents, and required an individualized education program (IEP). It is IDEA’s foundational law. In its first year of reporting, School Year 1976–77, about 3.7 million children ages 3 through 21 were served.' },
+    1986: { kicker: '1986', title: 'Early intervention added',
+      detail: 'The 1986 amendments (P.L. 99-457) extended services to infants and toddlers, mandating that states serve families of children with disabilities from birth. This early-intervention framework is now IDEA, Part C.' },
+    1990: { kicker: '1990', title: 'Renamed the Individuals with Disabilities Education Act',
+      detail: 'The 1990 reauthorization (P.L. 101-476) changed the law’s name from EHA to IDEA, added autism and traumatic brain injury as distinct disability categories, and required transition planning in the IEP.' },
+    1997: { kicker: '1997', title: 'The 1997 amendments',
+      detail: 'The 1997 amendments (P.L. 105-17) set a goal of improving results, emphasized access to the general education curriculum, brought students with disabilities into state and district assessments, expanded the developmental-delay category through age 9, and strengthened the IEP and the role of parents.' },
+    2004: { kicker: '2004', title: 'Reauthorized as IDEIA',
+      detail: 'Enacted December 2004, the Individuals with Disabilities Education Improvement Act (P.L. 108-446) aligned IDEA with the No Child Left Behind Act, allowed early intervening services and a response-to-intervention approach for identifying specific learning disabilities, and raised qualification standards for special education staff.' },
+  };
+  const MARK_YEAR_IDX = { 1975: 0, 1990: 2 };   // years present in the child-count series
+  function openMilestoneModal(m) {
+    const y = m.year, d = MILESTONES[y]; if (!d) return;
+    const yi = MARK_YEAR_IDX[y], served = yi != null ? I.ALL[yi] * 1000 : null, sy = yi != null ? I.YEARS[yi] : null;
+    openModal(`<div class="m-kicker">IDEA milestone · ${d.kicker}</div><h3 class="m-title">${d.title}</h3>
+      <p class="m-dek">${d.detail}</p>
+      ${served != null ? `<div class="m-grid"><div><span class="mv">${I.nf(served)}</span><span class="ml">children and students ages 3–21 served under IDEA, Part B, in ${sy}</span></div></div>` : ''}
+      <p class="m-src">IDEA legislative history; U.S. Department of Education, 47th Annual Report to Congress on the Implementation of IDEA (2025).</p>`);
+  }
 
   /* ========================================================== *
    * EXHIBIT 1 · CHILD COUNT OVER TIME (count / % toggle)       *
    * ========================================================== */
   const riseBox = document.getElementById('chart-rise');
-  const linreg = (xs, ys) => {   // least-squares slope + intercept -> a predictor
-    const p = xs.map((x, i) => [x, ys[i]]).filter(q => q[1] != null), n = p.length;
-    const sx = p.reduce((s, q) => s + q[0], 0), sy = p.reduce((s, q) => s + q[1], 0);
-    const sxx = p.reduce((s, q) => s + q[0] * q[0], 0), sxy = p.reduce((s, q) => s + q[0] * q[1], 0);
-    const b = (n * sxy - sx * sy) / (n * sxx - sx * sx || 1);
-    return x => (sy - b * sx) / n + b * x;
+  /* Damped-trend (Holt) forecast: a non-linear extrapolation. Unlike a straight
+     regression line, the trend is damped by phi each step, so the projection eases
+     off recent momentum instead of shooting off — the behaviour an ARIMA model with
+     a damped trend produces on a smooth, trending series. Returns `steps` values. */
+  const forecastDamped = (ys, steps) => {
+    const v = ys.filter(x => x != null);
+    if (v.length < 3) return [];
+    const alpha = 0.55, beta = 0.18, phi = 0.9;
+    let l = v[0], b = v[1] - v[0];
+    for (let i = 1; i < v.length; i++) {
+      const lp = l;
+      l = alpha * v[i] + (1 - alpha) * (l + phi * b);
+      b = beta * (l - lp) + (1 - beta) * phi * b;
+    }
+    const out = []; let ph = 0;
+    for (let h = 1; h <= steps; h++) { ph += Math.pow(phi, h); out.push(l + ph * b); }
+    return out;
   };
   let riseShown = false, riseUnit = 'count', riseLabels = true, riseTrend = false;
   function buildRise(unit) {
@@ -374,45 +436,49 @@
       const series = [{ values: vals.slice(), color: P.greenD, area: true, areaOpacity: .22, highlight: true, endDotR: 6, endLabel: '15.2% in 2022–23' }];
       let xs = baseXs, labs = idx.map(i => I.YEARS[i]), xt = [1980, 1990, 2000, 2010, 2020], yMax = 16, proj = null;
       if (riseTrend) {
-        const N = 12, reg = linreg(baseXs.slice(-N), vals.slice(-N)), fut = [lastY + 2, lastY + 4, lastY + 6], startIdx = baseXs.length - N;
+        const fut = [lastY + 2, lastY + 4, lastY + 6], fc = forecastDamped(vals.slice(-14), 6);
         xs = [...baseXs, ...fut]; labs = [...labs, ...fut.map(futLab)]; series[0].values = [...vals, null, null, null];
-        proj = reg(lastY + 6);
-        series.push({ values: xs.map((x, i) => i >= startIdx ? reg(x) : null), color: P.blue, width: 1.8, dash: '6 5', highlight: true, endDotR: 5, endLabel: '~' + proj.toFixed(1) + '% in ' + futLab(lastY + 6) });
+        proj = fc[5];
+        const projVals = baseXs.map((_, i) => i === baseXs.length - 1 ? vals[i] : null).concat([fc[1], fc[3], fc[5]]);
+        series.push({ values: projVals, color: P.blue, width: 1.8, dash: '6 5', highlight: true, endDotR: 5, endLabel: '~' + proj.toFixed(1) + '% in ' + futLab(lastY + 6) });
         xt = [1980, 2000, 2020, lastY + 6]; yMax = 18;
       }
       chart = C.lineChart({
         labels: labs, xs, xTicks: xt, series,
-        yMin: 0, yMax, yTicks: 4, yFmt: v => v.toFixed(0) + '%', vmarkers: marks, drawDur: 3400, drawEase: 'linear',
-        annotations: riseLabels ? [{ atIndex: 0, value: I.ENROLL_PCT[0], text: ['First federal special education law, 1975', '8.3% of enrollment, 1976–77'], dx: 10, dy: -148, anchor: 'start', color: P.navy }] : [],
+        yMin: 0, yMax, yTicks: 4, yFmt: v => v.toFixed(0) + '%', vmarkers: marks, onVmarker: openMilestoneModal, drawDur: 3400, drawEase: 'linear',
+        annotations: riseLabels ? [{ atIndex: 0, value: I.ENROLL_PCT[0], text: ['First federal special education law, 1975', '8.3% of enrollment, 1976–77'], dx: 10, dy: -148, anchor: 'start', color: P.navy, onClick: () => openMilestoneModal({ year: 1975 }) }] : [],
       });
       document.getElementById('riseTitle').textContent = 'Percentage of children and students ages 3 through 21 served under IDEA, Part B, of public school enrollment, by year: School year 1976–77 through 2022–23';
-      sub = 'Served as a percent of public-school enrollment, by school year.';
-      if (proj != null) sub += ' Dashed blue is a linear projection: on the recent trend the share would reach about ' + proj.toFixed(1) + '% by ' + futLab(lastY + 6) + '.';
+      sub = '';
+      if (proj != null) sub = 'Dashed blue is a damped-trend forecast: on recent momentum the share would reach about ' + proj.toFixed(1) + '% by ' + futLab(lastY + 6) + '.';
     } else {
       const vals = I.ALL.map(v => v / 1000), lastY = startYears[startYears.length - 1];
       const series = [{ values: vals.slice(), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endDotR: 6, endLabel: '8.2M in 2024–25' }];
       let xs = startYears, labs = I.YEARS, xt = [1980, 1990, 2000, 2010, 2020, 2024], proj = null, yMaxC = 9;
       if (riseTrend) {
-        const N = 15, reg = linreg(startYears.slice(-N), vals.slice(-N)), fut = [lastY + 2, lastY + 4, lastY + 6], startIdx = startYears.length - N;
+        const fut = [lastY + 2, lastY + 4, lastY + 6], fc = forecastDamped(vals.slice(-15), 6);
         xs = [...startYears, ...fut]; labs = [...I.YEARS, ...fut.map(futLab)]; series[0].values = [...vals, null, null, null];
-        proj = reg(lastY + 6); yMaxC = 10;
-        series.push({ values: xs.map((x, i) => i >= startIdx ? reg(x) : null), color: P.blue, width: 1.8, dash: '6 5', highlight: true, endDotR: 5, endLabel: '~' + proj.toFixed(1) + 'M in ' + futLab(lastY + 6) });
+        proj = fc[5]; yMaxC = 10;
+        const projVals = startYears.map((_, i) => i === startYears.length - 1 ? vals[i] : null).concat([fc[1], fc[3], fc[5]]);
+        series.push({ values: projVals, color: P.blue, width: 1.8, dash: '6 5', highlight: true, endDotR: 5, endLabel: '~' + proj.toFixed(1) + 'M in ' + futLab(lastY + 6) });
         xt = [1980, 2000, 2020, lastY + 6];
       }
       chart = C.lineChart({
         labels: labs, xs, xTicks: xt, series,
-        yMin: 0, yMax: yMaxC, yTicks: 3, yFmt: v => v.toFixed(0) + 'M', vmarkers: marks, drawDur: 3400, drawEase: 'linear',
-        annotations: riseLabels ? [{ atIndex: 0, value: I.ALL[0] / 1000, text: ['First federal special education law, 1975', '3.7M served, 1976–77'], dx: 10, dy: -105, anchor: 'start', color: P.navy }] : [],
+        yMin: 0, yMax: yMaxC, yTicks: 3, yFmt: v => v.toFixed(0) + 'M', vmarkers: marks, onVmarker: openMilestoneModal, drawDur: 3400, drawEase: 'linear',
+        annotations: riseLabels ? [{ atIndex: 0, value: I.ALL[0] / 1000, text: ['First federal special education law, 1975', '3.7M served, 1976–77'], dx: 10, dy: -105, anchor: 'start', color: P.navy, onClick: () => openMilestoneModal({ year: 1975 }) }] : [],
       });
       document.getElementById('riseTitle').textContent = 'Number of children and students ages 3 through 21 served under IDEA, Part B, by year: School year 1976–77 through 2024–25';
-      sub = 'Children and students served under IDEA, Part B, ages 3 through 21, in millions, by school year.';
-      if (proj != null) sub += ' Dashed blue is a linear projection: on the recent trend the count would reach about ' + proj.toFixed(1) + 'M by ' + futLab(lastY + 6) + '.';
+      sub = '';
+      if (proj != null) sub = 'Dashed blue is a damped-trend forecast: on recent momentum the count would reach about ' + proj.toFixed(1) + 'M by ' + futLab(lastY + 6) + '.';
     }
-    document.getElementById('riseSub').textContent = sub;
+    const riseSubEl = document.getElementById('riseSub');
+    riseSubEl.textContent = sub; riseSubEl.style.display = sub ? '' : 'none';
     riseBox.appendChild(chart.node);
     if (riseShown) chart.reveal(); else onView(riseBox, () => { riseShown = true; chart.reveal(); });
   }
   buildRise('count');
+  hint('chart-rise', 'Tap a marked year — 1975, 1990, 1997, 2004 — for the law behind it');
   (function () {
     const chk = document.getElementById('riseLabelsChk');
     if (chk) chk.addEventListener('change', () => { riseLabels = chk.checked; riseShown = true; buildRise(riseUnit); });
@@ -436,24 +502,46 @@
    * EXHIBIT 2 · CATEGORIES (fall 2023 share)                   *
    * ========================================================== */
   (function () {
-    // every primary disability category shown individually (no "Other disabilities combined"
-    // bucket), as a share of all school-age students served, School Year 2024-25.
     const tot = Object.keys(I.INCL).reduce((s, k) => s + I.INCL[k][1], 0);
-    const items = Object.keys(I.INCL).map(k => ({ k, v: I.INCL[k][1] / tot * 100 })).sort((a, b) => b.v - a.v);
     const catRamp = [{ t: 0, color: P.greenL }, { t: .55, color: P.green }, { t: 1, color: P.blue }];
-    const topCatIsSLD = /specific learning/i.test(items[0].k);   // only glow it if it really is #1
-    mount('chart-cats', C.barsH({
-      onClick: d => openCatModal(d.label),
-      labelW: 234, barH: 17, gap: 9, padR: 58,
-      items: items.map((d, i) => {
-        const star = i === 0 && topCatIsSLD;
-        return { label: d.k, value: d.v, highlight: star, glow: star,
-          color: star ? P.accent : C.colorFor(catRamp, Math.min(1, d.v / items[0].v)) };
-      }),
-      xMax: 40, valueFmt: v => v.toFixed(1) + '%',
-    }));
-    expbar('chart-cats', 'idea-categories-2024-25', [['Disability category', 'Percent of school-age students served (2024-25)'], ...items.map(d => [d.k, +d.v.toFixed(1)])]);
+    const y2000 = I.YEARS.indexOf('2000-01'), yLast = I.YEARS.length - 1;
+    const catsBox = document.getElementById('chart-cats');
+    let catMode = 'share', catsShown = false;
+    function catItems() {
+      if (catMode === 'change') {
+        return Object.keys(I.INCL).map(k => { const a = I.DIS[k] && I.DIS[k][y2000], b = I.DIS[k] && I.DIS[k][yLast];
+          return (a != null && b != null && a > 0) ? { k, v: (b - a) / a * 100 } : null; }).filter(Boolean).sort((x, y) => y.v - x.v);
+      }
+      return Object.keys(I.INCL).map(k => ({ k, v: I.INCL[k][1] / tot * 100 })).sort((a, b) => b.v - a.v);
+    }
+    function buildCats() {
+      const items = catItems(), change = catMode === 'change', maxV = Math.max(...items.map(d => d.v));
+      const topSLD = !change && /specific learning/i.test(items[0].k);
+      const ch = C.barsH({
+        onClick: d => openCatModal(d.label),
+        labelW: 234, barH: 17, gap: 9, padR: change ? 74 : 58,
+        items: items.map((d, i) => { const star = i === 0 && topSLD;
+          return { label: d.k, value: d.v, highlight: star, glow: star,
+            color: star ? P.accent : (change ? (d.v >= 0 ? P.green : P.accent) : C.colorFor(catRamp, Math.min(1, d.v / maxV))) }; }),
+        xMax: change ? maxV * 1.14 : 40, valueFmt: change ? (v => (v >= 0 ? '+' : '') + v.toFixed(0) + '%') : (v => v.toFixed(1) + '%'),
+      });
+      catsBox.innerHTML = ''; catsBox.appendChild(ch.node);
+      if (catsShown) ch.reveal(); else onView(catsBox, () => { catsShown = true; ch.reveal(); });
+      document.getElementById('catsTitle').textContent = change
+        ? 'Change in the number of students ages 5 (school age) through 21 served under IDEA, Part B, by disability category: School year 2000–01 to 2024–25'
+        : 'Percentage of students ages 5 (school age) through 21 served under IDEA, Part B, by disability category: School year 2024–25';
+      const catsSubEl = document.getElementById('catsSub');
+      const catsSubTxt = change ? 'Bars to the right grew since 2000–01; bars to the left shrank.' : '';
+      catsSubEl.textContent = catsSubTxt; catsSubEl.style.display = catsSubTxt ? '' : 'none';
+      window.IDEAStory && window.IDEAStory.expbar('chart-cats', change ? 'idea-categories-change-since-2000' : 'idea-categories-2024-25',
+        [[ 'Disability category', change ? 'Percent change since 2000-01' : 'Percent of school-age students served (2024-25)' ], ...items.map(d => [d.k, +d.v.toFixed(1)])]);
+    }
+    buildCats();
     hint('chart-cats', 'Tap any category bar to open its profile');
+    const seg = document.getElementById('catsToggle');
+    if (seg) seg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+      catsShown = true; seg.querySelectorAll('button').forEach(x => { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); });
+      b.classList.add('on'); b.setAttribute('aria-pressed', 'true'); catMode = b.dataset.mode; buildCats(); });
   })();
 
   /* ========================================================== *
@@ -467,21 +555,8 @@
     const series = grayCats.map(k => ({ values: sv(k), color: P.gray, width: 1.4 }));
     series.push({ values: sv('Other health impairment'), color: P.green, width: 2.8, highlight: true, endLabel: 'Other health impairment', endLabelDy: -17 });
     series.push({ values: sv('Autism'), color: P.accent, width: 2.8, highlight: true, endLabel: 'Autism', endLabelDy: 27 });
-    // linear projection (recent-trend forecast, dashed) for autism + other health impairment
-    const areg = ys => { const pts = xs.map((x, i) => [x, ys[i]]).filter(p => p[1] != null).slice(-12);
-      const n = pts.length, sx = pts.reduce((s, p) => s + p[0], 0), sy = pts.reduce((s, p) => s + p[1], 0),
-        sxx = pts.reduce((s, p) => s + p[0] * p[0], 0), sxy = pts.reduce((s, p) => s + p[0] * p[1], 0),
-        b = (n * sxy - sx * sy) / (n * sxx - sx * sx || 1); return x => (sy - b * sx) / n + b * x; };
-    const lastI = xs.length - 1, lastY = xs[lastI], fut = [lastY + 2, lastY + 4, lastY + 6];
-    const exs = [...xs, ...fut], elabs = [...labels, ...fut.map(y => String(y))];
-    series.forEach(s => { s.values = [...s.values, null, null, null]; });
-    const auV = sv('Autism'), ohV = sv('Other health impairment'), auR = areg(auV), ohR = areg(ohV);
-    const foreOf = (v, R) => xs.map((_, i) => i === lastI ? v[i] : null).concat(fut.map(R));
-    const ohProj = ohR(lastY + 6), auProj = auR(lastY + 6);
-    series.push({ values: foreOf(ohV, ohR), color: P.green, width: 1.7, dash: '5 4', highlight: true, endDotR: 4.5, endLabel: '~' + ohProj.toFixed(1) + 'M', endLabelDy: -14 });
-    series.push({ values: foreOf(auV, auR), color: P.accent, width: 1.7, dash: '5 4', highlight: true, endDotR: 4.5, endLabel: '~' + auProj.toFixed(1) + 'M', endLabelDy: 18 });
     mount('chart-autism', C.lineChart({
-      labels: elabs, xs: exs, xTicks: [2000, 2008, 2016, 2024, lastY + 6],
+      labels, xs, xTicks: [2000, 2008, 2016, 2024],
       series, yMin: 0, yMax: 3, yTicks: 3, yFmt: v => v.toFixed(0) + 'M',
     }));
     legend('autismLegend', [['Autism', P.accent, true], ['Other health impairment', P.green, true], ['Other categories', P.gray, true]], t => { if (t === 'Autism') openCatModal('Autism'); else if (/health/i.test(t)) openCatModal('Other health impairment'); });
@@ -577,7 +652,7 @@
       const races = Object.keys(d.race).map(k => ({ k, v: d.race[k] })).sort((a, b) => b.v - a.v);
       play(raceBox, C.barsH({
         onClick: it => openRaceModal(it.key, profile),
-        labelW: 200, barH: 19, gap: 9, padR: 62,
+        labelW: 300, barH: 19, gap: 9, padR: 62,
         items: races.map((r) => ({ label: I.RACE_LBL[r.k], value: r.v, color: P.green, key: r.k })),
         xMax: Math.max(...races.map(r => r.v)) * 1.12, valueFmt: fmtCount,
       }), 'race');
@@ -605,37 +680,40 @@
     hint('chart-sex', 'Tap the figure for the male and female split');
     hint('chart-age', 'Tap any age column for detail');
     (function () {
-      const host = document.getElementById('whoChips');
+      const host = document.getElementById('whoDrop');
       if (!host) return;
-      const items = DEMO_PROFILES;
-      const btns = items.map(p => {
-        const b = document.createElement('button');
-        b.type = 'button'; b.className = 'chip' + (p === profile ? ' on' : '');
-        b.setAttribute('role', 'radio');
-        b.setAttribute('aria-checked', p === profile ? 'true' : 'false');
-        b.tabIndex = p === profile ? 0 : -1;
-        b.textContent = p === 'All Disabilities' ? 'All disabilities' : p;
-        host.appendChild(b);
-        return b;
+      const items = DEMO_PROFILES, nm = p => p === 'All Disabilities' ? 'All disabilities' : p;
+      const totOf = p => { const d = demoOf(p); return d ? (d.total != null ? d.total : d.male + d.female) : null; };
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'who-drop-btn'; btn.setAttribute('aria-haspopup', 'listbox'); btn.setAttribute('aria-expanded', 'false');
+      const menu = document.createElement('div'); menu.className = 'who-drop-menu'; menu.setAttribute('role', 'listbox'); menu.hidden = true;
+      host.appendChild(btn); host.appendChild(menu);
+      const opts = items.map((p, i) => {
+        const o = document.createElement('button'); o.type = 'button'; o.className = 'who-opt'; o.setAttribute('role', 'option'); o.dataset.i = i;
+        o.innerHTML = `<span class="who-opt-nm">${nm(p)}</span><span class="who-opt-n">${totOf(p) != null ? I.nf(totOf(p)) : ''}</span>`;
+        menu.appendChild(o); return o;
       });
-      function choose(i, focus) {
-        profile = items[i]; interacted = true;
-        btns.forEach((b, j) => { const on = j === i; b.classList.toggle('on', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; });
-        if (focus) btns[i].focus();
-        buildAll();
-      }
-      btns.forEach((b, i) => {
-        b.addEventListener('click', () => choose(i, false));
-        b.addEventListener('keydown', e => {           // radiogroup: arrows/Home/End move and select
-          let j = null;
-          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % btns.length;
-          else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + btns.length) % btns.length;
-          else if (e.key === 'Home') j = 0;
-          else if (e.key === 'End') j = btns.length - 1;
-          else return;
-          e.preventDefault(); choose(j, true);
+      let open = false, active = Math.max(0, items.indexOf(profile));
+      const chev = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+      const label = () => { btn.innerHTML = `<span class="who-drop-cur">${nm(profile)}</span>${chev}`; };
+      const hi = () => opts.forEach((o, i) => { o.classList.toggle('active', i === active); o.setAttribute('aria-selected', items[i] === profile ? 'true' : 'false'); });
+      const setOpen = v => { open = v; menu.hidden = !v; btn.setAttribute('aria-expanded', v ? 'true' : 'false'); host.classList.toggle('open', v); if (v) { active = Math.max(0, items.indexOf(profile)); hi(); opts[active] && opts[active].focus(); } };
+      function pick(i) { profile = items[i]; interacted = true; label(); hi(); setOpen(false); btn.focus(); buildAll(); }
+      label(); hi();
+      btn.addEventListener('click', () => setOpen(!open));
+      btn.addEventListener('keydown', e => { if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(true); } });
+      opts.forEach((o, i) => {
+        o.addEventListener('click', () => pick(i));
+        o.addEventListener('keydown', e => {
+          if (e.key === 'ArrowDown') { e.preventDefault(); active = (active + 1) % opts.length; hi(); opts[active].focus(); }
+          else if (e.key === 'ArrowUp') { e.preventDefault(); active = (active - 1 + opts.length) % opts.length; hi(); opts[active].focus(); }
+          else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(i); }
+          else if (e.key === 'Escape') { e.preventDefault(); setOpen(false); btn.focus(); }
+          else if (e.key === 'Home') { e.preventDefault(); active = 0; hi(); opts[0].focus(); }
+          else if (e.key === 'End') { e.preventDefault(); active = opts.length - 1; hi(); opts[active].focus(); }
         });
       });
+      document.addEventListener('click', e => { if (open && !host.contains(e.target)) setOpen(false); });
     })();
     expbar('chart-sex', 'idea-demographics', () => {
       const d = demoOf(profile), rows = [[profile + ' \u2014 School Year 2024-25'], [], ['Sex', 'Count'], ['Male', d.male], ['Female', d.female], [], ['Race/ethnicity', 'Count']];
@@ -736,6 +814,7 @@
       mount('chart-altdip', C.barsH({ labelW: 128, barH: 18, gap: 11, padR: 96, items: states.map(ab => ({ label: nameOf[ab] || ab, value: E[ab].altPct, color: P.green })), xMax: mx * 1.14, valueFmt: v => v.toFixed(1) + '%' }));
     }
     expbar('chart-altdip', 'idea-alternate-diploma-states-2023-24', [['State', 'Alternate diploma %', 'Alternate diploma graduates'], ...states.map(ab => [nameOf[ab] || ab, E[ab].altPct, E[ab].alt])]);
+    suppNoteTextTo(document.getElementById('chart-altdip').closest('.figure'), 'States that reported no alternate-diploma exiters are shown as none. Where a State reported a count too small to publish, OSEP suppresses it to protect student privacy, so suppressed values are not shown here.');
   })();
 
   /* ========================================================== *
@@ -806,7 +885,7 @@
 
   /* shared helpers + drilldowns, for builder.js and extra.js */
   window.IDEAStory = {
-    onView, mount, legend, hint, expbar, swatch, suppNote, suppNoteHTML,
+    onView, mount, legend, hint, expbar, swatch, suppNote, suppNoteHTML, suppNoteText, suppNoteTextTo,
     openModal, openStateModal, openCatModal, openEnvModal, openRaceModal, openPartcModal, openExitModal, openSexModal, openAgeModal,
   };
 })();

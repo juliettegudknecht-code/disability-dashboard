@@ -3,13 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* Apply saved accessibility choices before first paint (no flash of default state).
+     The full settings UI lives in access.js; this only mirrors the saved classes. */
+  (function () { try {
+    var s = JSON.parse(localStorage.getItem('idea618_a11y') || '{}'), d = document.documentElement;
+    if (s.reduce) d.classList.add('reduce-motion');
+    if (s.contrast) d.classList.add('high-contrast');
+    if (s.readable) d.classList.add('readable-font');
+    if (s.links) d.classList.add('underline-links');
+    if (s.calm) d.classList.add('calm-color');
+    if (s.spacing) d.classList.add('line-spacing');
+    if (s.distraction) d.classList.add('fewer-distractions');
+    if (s.focusring) d.classList.add('strong-focus');
+    if (s.ruler) d.classList.add('reading-ruler');
+    if (s.text === 'lg') d.classList.add('text-lg'); else if (s.text === 'xl') d.classList.add('text-xl');
+  } catch (e) {} })();
+</script>
 <title>IDEA Section 618 Dashboard · Children and Students With Disabilities, in Data</title>
 <meta name="description" content="A data story on the children and students with disabilities served under IDEA Section 618, by year, category, educational environment, and state.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%2310324a'/%3E%3Crect x='16' y='32' width='8' height='16' rx='1.5' fill='%237fb0d8'/%3E%3Crect x='28' y='24' width='8' height='24' rx='1.5' fill='%23ffffff'/%3E%3Crect x='40' y='16' width='8' height='32' rx='1.5' fill='%232f8f57'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=48">
+<link rel="stylesheet" href="styles.css?v=54">
 <!-- ============ SOFT PASSWORD GATE ============ -->
 <script>
   /* Light access gate (client-side only, not real security). Lock before render. */
@@ -261,10 +278,16 @@
       (17.4 percent), other health impairment (16.4 percent), and autism (14.8 percent). Every category is shown on its own
       below, down to the smallest.</p>
     <div class="figure reveal d2">
-      <div class="figure-title">Percentage of students ages 5 (school age) through 21 served under IDEA, Part&nbsp;B, by disability category: School year 2024&ndash;25</div>
-      <div class="figure-sub">Percent of all school-age students served, SY 2024&ndash;25.</div>
+      <div class="fig-controls">
+        <div class="seg" id="catsToggle" role="group" aria-label="Show share or change since 2000">
+          <button data-mode="share" class="on" aria-pressed="true">Share, 2024&ndash;25</button>
+          <button data-mode="change" aria-pressed="false">Change since 2000</button>
+        </div>
+      </div>
+      <div class="figure-title" id="catsTitle">Percentage of students ages 5 (school age) through 21 served under IDEA, Part&nbsp;B, by disability category: School year 2024&ndash;25</div>
+      <div class="figure-sub" id="catsSub">Percent of all school-age students served, SY 2024&ndash;25.</div>
       <div class="chartbox" id="chart-cats"></div>
-      <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Year 2024&ndash;25.</div>
+      <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Years 2000&ndash;01 and 2024&ndash;25.</div>
     </div>
   </div>
 </section>
@@ -279,7 +302,6 @@
     <div class="figure reveal d2">
       <div class="legend" id="autismLegend"></div>
       <div class="figure-title">Number of children and students ages 3 through 21 served under IDEA, Part&nbsp;B, by year and disability category: School year 2000&ndash;01 through 2024&ndash;25</div>
-      <div class="figure-sub">Number of students served, in millions, by school year.</div>
       <div class="chartbox" id="chart-autism"></div>
       <button id="idsubBtn" class="figure-link" type="button">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5M21 7h-5"/></svg>
@@ -296,10 +318,9 @@
     <h2 class="scene-h reveal d1">More students than ever spend most of the school day in a regular classroom.</h2>
     <p class="scene-dek reveal d2">From SY 2019&ndash;20 to SY 2023&ndash;24, the share of school-age students served under IDEA, Part&nbsp;B,
       educated inside the regular class 80 percent or more of the day rose from 64.8 percent to 67.8 percent, while the most
-      restrictive settings kept shrinking.</p>
+      restrictive settings kept shrinking. Over the longer run, the Department reports this share climbed from 33.1 percent in 1990 to 67.8 percent in 2023.</p>
     <div class="figure reveal d2">
       <div class="figure-title">Percentage of students ages 5 (school age) through 21 served under IDEA, Part&nbsp;B, by year and educational environment: School year 2012&ndash;13 through 2024&ndash;25</div>
-      <div class="figure-sub">Share of school-age students served under IDEA, Part&nbsp;B, by educational environment, by school year.</div>
       <div class="legend" id="envLegend"></div>
       <div class="chartbox" id="chart-env"></div>
       <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Child Count and Educational Environments Collection. School Years 2012&ndash;13 through 2024&ndash;25.</div>
@@ -322,7 +343,7 @@
       just over 2 in 10 (20.3 percent), and for multiple disabilities, less than 2 in 10 (16.2 percent).</p>
     <div class="figure reveal d2">
       <div class="figure-title">Percentage of students ages 5 (school age) through 21 served under IDEA, Part&nbsp;B, inside the regular class 80 percent or more of the day, by disability category: Fall 2023</div>
-      <div class="figure-sub">Percent of school-age students served, SY 2023&ndash;24. The all-disabilities average is shown in orange.</div>
+      <div class="figure-sub">The all-disabilities average is shown in orange.</div>
       <div class="chartbox" id="chart-envcat"></div>
       <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Year 2023&ndash;24.</div>
     </div>
@@ -339,7 +360,7 @@
     <div class="figure reveal d2">
       <div class="who-controls">
         <span class="src-k who-pick-lab" id="whoPickLab">Disability category</span>
-        <div id="whoChips" class="chips who-chips" role="radiogroup" aria-labelledby="whoPickLab"></div>
+        <div id="whoDrop" class="who-drop" aria-labelledby="whoPickLab"></div>
       </div>
       <div class="split">
         <div>
@@ -349,7 +370,6 @@
         </div>
         <div>
           <div class="figure-title">Number of children and students ages 3 through 21 served under IDEA, Part&nbsp;B, by race/ethnicity: School year 2024&ndash;25</div>
-          <div class="figure-sub">Number of students served, School Year 2024&ndash;25.</div>
           <div class="chartbox" id="chart-race"></div>
         </div>
       </div>
@@ -390,11 +410,10 @@
     <h2 class="scene-h reveal d1">More students who leave are graduating with a diploma, and fewer are dropping out.</h2>
     <p class="scene-dek reveal d2">In School Year 2022&ndash;23, 75.8 percent of students ages 14 through 21 who exited services
       under IDEA, Part&nbsp;B, and school graduated with a regular high school diploma, up from 66.1 percent in 2014&ndash;15.
-      Over the same period, the share who dropped out fell from 18.4 percent to 13.9 percent.</p>
+      Over the same period, the share who dropped out fell from 18.4 percent to 13.9 percent. Measured over decades, the diploma share is up from about 42 percent in 1987&ndash;88.</p>
     <div class="figure reveal d2">
       <div class="legend" id="exitLegend"></div>
       <div class="figure-title">Percentage of students ages 14 through 21 exiting IDEA, Part&nbsp;B, and school, who graduated with a regular high school diploma or dropped out of school, by year: 2014&ndash;15 and 2022&ndash;23</div>
-      <div class="figure-sub">Percent graduating with a regular high school diploma or dropping out, School Years 2014&ndash;15 and 2022&ndash;23.</div>
       <div class="chartbox" id="chart-exit"></div>
       <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Exiting Collection. School Years 2014&ndash;15 and 2022&ndash;23 (students exiting both special education and school).</div>
     </div>
@@ -411,13 +430,13 @@
 <section class="section" id="det">
   <div class="wrap">
     <h2 class="scene-h reveal d1">About <span class="hl-num">2/3</span> of states need assistance or intervention under Part&nbsp;B.</h2>
-    <p class="scene-dek reveal d2">Each year the Department issues a determination on how well each state carries out IDEA, based on its results and compliance. For Part&nbsp;B in 2026, 22 of 64 states and reporting entities met requirements; 36 needed assistance and 6 needed intervention. The Part&nbsp;C determinations, for early intervention, were somewhat stronger.</p>
+    <p class="scene-dek reveal d2">Each year the Department issues a determination on how well each state carries out IDEA, based on its results and compliance. In the 2025 determinations, 20 of 60 states and reporting entities met the requirements under Part&nbsp;B; 38 needed assistance and 2 needed intervention. The Part&nbsp;C determinations, for early intervention, were somewhat stronger: 31 of 56 met requirements.</p>
     <div class="figure reveal d2">
       <div class="legend" id="detLegend"></div>
-      <div class="figure-title">Number of states in each category of determination on meeting IDEA, Part&nbsp;B and Part&nbsp;C, requirements, by part and determination status: 2026</div>
-      <div class="figure-sub">Number of states and reporting entities at each determination level. Part&nbsp;B covers ages 3 through 21; Part&nbsp;C covers birth through age 2.</div>
+      <div class="figure-title">States and reporting entities at each IDEA determination level, by part: 2025</div>
+      <div class="figure-sub">Part&nbsp;B covers ages 3 through 21; Part&nbsp;C covers birth through age 2. Based on each state's Federal Fiscal Year 2023 SPP/APR.</div>
       <div class="chartbox" id="chart-det"></div>
-      <div class="source"><span class="src-k">Source</span> U.S. Department of Education, OSEP, 2026 Determination Letters on State Implementation of IDEA (based on Federal Fiscal Year 2024 State Performance Plan and Annual Performance Report submissions).</div>
+      <div class="source"><span class="src-k">Source</span> U.S. Department of Education, OSEP, 2025 Determination Letters on State Implementation of IDEA (issued June 20, 2025, based on Federal Fiscal Year 2023 State Performance Plan and Annual Performance Report submissions).</div>
     </div>
   </div>
 </section>
@@ -505,7 +524,7 @@
           <div class="expanel" id="expanel-state" data-panel="state" role="tabpanel" aria-labelledby="extab-state" tabindex="0">
             <div class="ex-controls"><label class="src-k" for="exStateSel">Choose a state</label><select id="exStateSel" class="ex-select" aria-label="Choose a state"></select></div>
             <div id="exStateOut"></div>
-            <div class="source"><span class="src-k">Source</span> IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Years 2000&ndash;01 through 2024&ndash;25; NCES public-school enrollment (2022&ndash;23); IDEA Part&nbsp;B Exiting Collection, School Year 2023&ndash;24; 2026 Determination Letters on State Implementation of IDEA.</div>
+            <div class="source"><span class="src-k">Source</span> IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Years 2000&ndash;01 through 2024&ndash;25; NCES public-school enrollment (2022&ndash;23); IDEA Part&nbsp;B Exiting Collection, School Year 2023&ndash;24; 2025 Determination Letters on State Implementation of IDEA.</div>
           </div>
           <div class="expanel" id="expanel-sea" data-panel="sea" role="tabpanel" aria-labelledby="extab-sea" tabindex="0" hidden>
             <div class="ex-controls"><input id="seaSearch" class="ex-search" type="search" placeholder="Search a state"><span class="src-k">Click a column to sort</span></div>
@@ -552,7 +571,7 @@
     <p class="scene-dek reveal d2">Under Section&nbsp;618, states report annual counts on the children and students with disabilities
       they serve: child count and educational environments, discipline, exiting, personnel, assessment, and the Part&nbsp;C
       early intervention collections. A few figures draw on related federal sources, including the U.S. Census Bureau&rsquo;s
-      American Community Survey for population context, the Department&rsquo;s 2026 determination letters, and the IDEA Part&nbsp;B
+      American Community Survey for population context, the Department&rsquo;s 2025 determination letters, and the IDEA Part&nbsp;B
       Maintenance of Effort and CEIS collection for funding.</p>
     <a class="btn reveal d2" href="https://data.ed.gov/dataset/idea-section-618-data-products" target="_blank" rel="noopener noreferrer">
       View the Section 618 data products
@@ -563,30 +582,32 @@
       the Bureau of Indian Education, the outlying areas, and the freely associated states), except where a school year or
       collection is noted otherwise. Percent-of-enrollment and state figures cover the 50 states and DC. Counts reflect each
       child's single primary disability category as recorded on the individualized education program (IEP).
-      Sources: U.S. Department of Education, Office of Special Education Programs (OSEP); National Center for Education
-      Statistics (NCES).
+      Sources: U.S. Department of Education, Office of Special Education Programs (OSEP), including the 47th Annual Report to
+      Congress on the Implementation of IDEA (2025); National Center for Education Statistics (NCES).
     </div>
   </div>
 </section>
 
 <div class="maptip" id="maptip"></div>
 
-<script src="data.js?v=48"></script>
-<script src="enrich.js?v=48"></script>
-<script src="moe.js?v=48"></script>
-<script src="usmap.js?v=48"></script>
-<script src="det.js?v=48"></script>
-<script src="lea.js?v=48"></script>
-<script src="leaexit.js?v=48"></script>
-<script src="catdata.js?v=48"></script>
-<script src="sea.js?v=48"></script>
-<script src="charts.js?v=48"></script>
-<script src="story.js?v=48"></script>
-<script src="explore.js?v=48"></script>
-<script src="extra.js?v=48"></script>
-<script src="interactive.js?v=48"></script>
-<script src="builder.js?v=48"></script>
-<script src="quickstats.js?v=48"></script>
-<script src="type.js?v=48"></script>
+<script src="data.js?v=54"></script>
+<script src="enrich.js?v=54"></script>
+<script src="moe.js?v=54"></script>
+<script src="usmap.js?v=54"></script>
+<script src="det.js?v=54"></script>
+<script src="dms.js?v=54"></script>
+<script src="lea.js?v=54"></script>
+<script src="leaexit.js?v=54"></script>
+<script src="catdata.js?v=54"></script>
+<script src="sea.js?v=54"></script>
+<script src="charts.js?v=54"></script>
+<script src="story.js?v=54"></script>
+<script src="explore.js?v=54"></script>
+<script src="extra.js?v=54"></script>
+<script src="interactive.js?v=54"></script>
+<script src="builder.js?v=54"></script>
+<script src="quickstats.js?v=54"></script>
+<script src="type.js?v=54"></script>
+<script src="access.js?v=54"></script>
 </body>
 </html>

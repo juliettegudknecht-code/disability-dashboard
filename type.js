@@ -7,7 +7,8 @@
 (function () {
   var el = document.querySelector('.hero-main');
   if (!el) return;
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var reduce = (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    || document.documentElement.classList.contains('reduce-motion');
   var full = el.textContent;
   el.setAttribute('aria-label', full);          // accessible name stays complete while we type
   if (reduce) return;                            // reduced motion: leave the full title in place
