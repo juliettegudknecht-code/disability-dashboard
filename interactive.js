@@ -260,23 +260,30 @@
       tip.classList.remove('show');
       choro && choro.select(ab);                          // glowing gold + sparkles on the chosen state
       setCrumb([['United States', showUS], [r[0], null]]);
-      const dt = window.DET2026 ? { b: window.DET2026.partB[r[0]], c: window.DET2026.partC[r[0]] } : {};
+      const d25 = window.DET2025 ? { b: window.DET2025.partB[r[0]], c: window.DET2025.partC[r[0]] } : {};
+      const d26 = window.DET2026 ? { b: window.DET2026.partB[r[0]], c: window.DET2026.partC[r[0]] } : {};
       const rank = I.STATES.slice().sort((a, b) => b[5] - a[5]).findIndex(x => x[1] === ab) + 1;
       const growth = (r[5] - r[2]) / r[2] * 100;
+      const dShort = s => !s ? '' : /^Meets/.test(s) ? 'Meets requirements' : /intervention/i.test(s) ? 'Needs intervention' : /two or more/i.test(s) ? 'Needs assistance (2+ yrs)' : 'Needs assistance (1 yr)';
+      const dWord = (part, lvl) => lvl ? `<span class="det-word ${detClass(lvl)}">Part ${part}: ${dShort(lvl)}</span>` : '';
+      const dLine = (yr, dd) => (dd.b || dd.c) ? `<p class="snap-det"><b class="snap-detyr">${yr}</b> ${dWord('B', dd.b)}${dd.b && dd.c ? '<span class="snap-dot">·</span>' : ''}${dWord('C', dd.c)}</p>` : '';
       let html = `<div class="drill-head"><h3>${r[0]}</h3></div>
-        <div class="snap-grid">
-          <div class="snap-cell"><div class="k">Students served, 3–21</div><div class="v">${I.nf(r[5])}</div><div class="sub">2024–25</div></div>
-          <div class="snap-cell"><div class="k">Percent of enrollment</div><div class="v">${r[6].toFixed(1)}%</div><div class="sub">2022–23</div></div>
-          <div class="snap-cell"><div class="k">National rank</div><div class="v">#${rank}</div><div class="sub">by number served</div></div>
-          <div class="snap-cell"><div class="k">Change since 2000–01</div><div class="v accent">${growth >= 0 ? '+' : ''}${growth.toFixed(0)}%</div><div class="sub">2000–01 to 2024–25</div></div>
+        <div class="snap-links" style="margin:-4px 0 14px"><a href="#" class="drill-snaplink">Open ${r[0]}’s full snapshot →</a></div>
+        <div class="snap-stats">
+          <div class="stat"><div class="stat-v">${I.nf(r[5])}</div><div class="stat-k">Students served, ages 3–21 · 2024–25</div></div>
+          <div class="stat"><div class="stat-v">${r[6].toFixed(1)}%</div><div class="stat-k">Percent of public-school enrollment · 2022–23</div></div>
+          <div class="stat"><div class="stat-v">#${rank}</div><div class="stat-k">Rank by students served</div></div>
+          <div class="stat"><div class="stat-v accent">${growth >= 0 ? '+' : ''}${growth.toFixed(0)}%</div><div class="stat-k">Change since 2000–01</div></div>
         </div>`;
-      if (dt.b) html += `<div class="figure-sub" style="margin:16px 0 6px">2026 IDEA determination</div><div class="det-pills"><span class="det-pill ${detClass(dt.b)}">Part&nbsp;B: ${dt.b}</span>${dt.c ? `<span class="det-pill ${detClass(dt.c)}">Part&nbsp;C: ${dt.c}</span>` : ''}</div>`;
+      if (d25.b || d26.b || d25.c || d26.c) html += `<div class="figure-sub" style="margin:16px 0 4px">IDEA determinations</div>${dLine('2026', d26)}${dLine('2025', d25)}`;
       html += `<div class="figure-sub" style="margin:18px 0 4px">Reported IDEA, Part B funding (Sections 611 and 619), 2021–22</div><div id="drillFlow" class="chartbox"></div>`;
       const nDist = (LEAALL[ab] || []).length;
       html += `<div class="figure-sub" style="margin:18px 0 8px">All ${I.nf(nDist)} districts and programs in ${r[0]}, by students served (2024–25)</div>
         <input id="drillDistSearch" class="ex-search" type="search" placeholder="Search ${r[0]} districts" style="margin-bottom:10px;width:100%;max-width:360px">
         <div id="drillDist" class="dist-list"></div>`;
       drillEl.innerHTML = html; drillEl.classList.add('show');
+      const sl = drillEl.querySelector('.drill-snaplink');
+      if (sl) sl.addEventListener('click', e => { e.preventDefault(); if (window.IDEAExplore && window.IDEAExplore.showState) window.IDEAExplore.showState(ab); });
       renderFlow($('drillFlow'), MOE && MOE.states[r[0]], r[0] + ', all reporting districts');
       renderDistList($('drillDist'), ab, r);
       drillEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -312,7 +319,6 @@
         <div class="snap-grid">
           <div class="snap-cell"><div class="k">Students served, 3–21</div><div class="v">${tot == null ? 'n/a' : I.nf(tot)}</div><div class="sub">2024–25</div></div>
           ${sa != null ? `<div class="snap-cell"><div class="k">School age (5–21)</div><div class="v">${I.nf(sa)}</div><div class="sub">2024–25</div></div>` : ''}
-          ${aut != null && aut > 0 ? `<div class="snap-cell"><div class="k">Served under primary disability category of autism</div><div class="v">${I.nf(aut)}</div><div class="sub">2024–25</div></div>` : ''}
           ${exShow && exd[0] != null ? `<div class="snap-cell"><div class="k">Graduated, regular diploma</div><div class="v">${exd[0].toFixed(1)}%</div><div class="sub">of those who exited, 2023–24</div></div>` : ''}
           ${exShow && exd[1] != null ? `<div class="snap-cell"><div class="k">Dropped out</div><div class="v accent">${exd[1].toFixed(1)}%</div><div class="sub">of those who exited, 2023–24</div></div>` : ''}
         </div>`;
