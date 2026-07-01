@@ -187,6 +187,7 @@
       'Section 619 — preschool (3–5)': 'Section 619 is a smaller, separate Part B grant. It funds special education and related services for preschool children, ages 3 through 5.',
       'Special education & related services': 'The share of the reported allocation that pays for special education and related services, after any amount set aside for Coordinated Early Intervening Services (CEIS).',
       'Reserved for CEIS': 'Coordinated Early Intervening Services (CEIS): funds a district may set aside, sometimes required because of significant disproportionality, for students not yet identified as needing special education.',
+      'Total reported IDEA, Part B funding': 'The Sections 611 and 619 grant funds reported by districts for School Year 2021–22 (FFY 2021, including American Rescue Plan supplemental funds). This is the amount that funnels down into the uses below.',
     };
     function openMoneyModal(node, selLabel) {
       S.openModal(`<div class="m-kicker">IDEA, Part&nbsp;B funding · ${selLabel}</div><h3 class="m-title">${node.label}</h3>
@@ -199,9 +200,12 @@
       if (!host) return;
       if (!st || (st.f611 + st.f619) <= 0) { host.innerHTML = '<div class="map-empty">No 2021–22 funding reported for this selection.</div>'; return; }
       const total = st.f611 + st.f619, ceis = Math.min((st.ceisReq || 0) + (st.ceisVol || 0), total), services = Math.max(0, total - ceis);
-      const right = [{ label: 'Special education & related services', value: services, color: P.green }];
-      if (ceis > 0) right.push({ label: 'Reserved for CEIS', value: ceis, color: P.accent });
-      const ch = C.moneyFlow({ left: [{ label: 'Section 611 — school-age (3–21)', value: st.f611, color: P.greenD }, { label: 'Section 619 — preschool (3–5)', value: st.f619, color: P.greenL }], right, total, totalLabel: 'Reported allocation', fmt: fmtMoney, width: 720, height: 320, onClick: node => openMoneyModal(node, label) });
+      // a money funnel: the total narrows down to where it actually lands
+      const items = [{ label: 'Total reported IDEA, Part B funding', value: total, color: P.navy, highlight: true },
+        { label: 'Special education & related services', value: services, color: P.green }];
+      if (ceis > 0) items.push({ label: 'Reserved for CEIS', value: ceis, color: P.accent });
+      const ch = C.funnel({ items, width: 720, labelW: 262, padR: 108, barH: 50, gap: 26, valueFmt: fmtMoney,
+        onClick: d => openMoneyModal({ label: d.label, value: d.value, pct: total ? d.value / total * 100 : 0 }, label) });
       host.innerHTML = ''; host.appendChild(ch.node); ch.reveal();
     }
 
@@ -428,6 +432,19 @@
     viewSel && viewSel.addEventListener('change', render);
     stateSel && stateSel.addEventListener('change', () => { if (viewSel.value === 'state') render(); });
     S.onView(box, render);
+    /* drag to rotate the cloud in 3D (mouse/pen only; no auto-motion). Double-click resets flat. */
+    (function () {
+      box.classList.add('grabbable');
+      let rx = 0, ry = 0, drag = false, moved = 0, sx = 0, sy = 0;
+      const apply = () => { const svg = box.querySelector('.cv-scatter'); if (svg) svg.style.transform = `rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg)`; };
+      box.addEventListener('pointerdown', e => { if (e.pointerType === 'touch') return; drag = true; moved = 0; sx = e.clientX; sy = e.clientY; box.classList.add('dragging'); try { box.setPointerCapture(e.pointerId); } catch (_) {} });
+      box.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - sx, dy = e.clientY - sy; moved += Math.abs(dx) + Math.abs(dy); ry = Math.max(-58, Math.min(58, ry + dx * 0.45)); rx = Math.max(-46, Math.min(46, rx - dy * 0.45)); sx = e.clientX; sy = e.clientY; apply(); });
+      const end = () => { drag = false; box.classList.remove('dragging'); };
+      box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
+      box.addEventListener('click', e => { if (moved > 6) { e.stopPropagation(); e.preventDefault(); moved = 0; } }, true);   // a drag shouldn't open a district
+      box.addEventListener('dblclick', () => { rx = 0; ry = 0; apply(); });
+      new MutationObserver(apply).observe(box, { childList: true });   // keep the angle after the chart re-renders
+    })();
     S.expbar && S.expbar('chart-scatter', 'idea-funding-vs-served', () => {
       const view = viewSel ? viewSel.value : 'all';
       const pts = view === 'state' ? districtPoints(stateSel.value) : districtPoints(null);

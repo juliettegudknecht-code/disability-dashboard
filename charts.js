@@ -126,15 +126,25 @@
         'stroke-linejoin': 'round', 'stroke-linecap': 'round' });
       if (ser.dash) path.setAttribute('stroke-dasharray', ser.dash);
       s.appendChild(path); paths.push(path);
-      // end dot + inline label for highlighted series
+      // end dot (or a stock-ticker-style arrowhead) + inline label for highlighted series
       if (ser.highlight || ser.dot) {
         const last = pts[pts.length - 1];
-        const dot = mk('circle', { cx: last[0], cy: last[1], r: 4.5, fill: ser.color });
-        dot.style.opacity = 0; s.appendChild(dot); dots.push(dot);
+        if (ser.endArrow && pts.length >= 2) {
+          const prev = pts[pts.length - 2];
+          let ang = Math.atan2(last[1] - prev[1], last[0] - prev[0]);
+          if (ang > -0.28) ang = -0.52;                 // if the last tick is flat/down, tilt the arrow confidently up-right
+          const ux = Math.cos(ang), uy = Math.sin(ang), px = -uy, py = ux, len = 16, wid = 9;
+          const bx = last[0] - ux * len, by = last[1] - uy * len;
+          const arrow = mk('path', { d: `M${last[0].toFixed(1)} ${last[1].toFixed(1)} L${(bx + px * wid).toFixed(1)} ${(by + py * wid).toFixed(1)} L${(bx - px * wid).toFixed(1)} ${(by - py * wid).toFixed(1)} Z`, fill: ser.color, 'stroke-linejoin': 'round' });
+          arrow.style.opacity = 0; s.appendChild(arrow); dots.push({ el: arrow, x: last[0] });
+        } else {
+          const dot = mk('circle', { cx: last[0], cy: last[1], r: ser.endDotR || 5, fill: ser.color, stroke: P.cream, 'stroke-width': 2 });
+          dot.style.opacity = 0; s.appendChild(dot); dots.push({ el: dot, x: last[0] });
+        }
         if (ser.endLabel) {
           const tx = mk('text', { x: last[0] - 6, y: last[1] - 9 + (ser.endLabelDy || 0), 'text-anchor': 'end',
             class: 'cv-end', fill: ser.color, text: ser.endLabel });
-          tx.style.opacity = 0; s.appendChild(tx); dots.push(tx);
+          tx.style.opacity = 0; s.appendChild(tx); dots.push({ el: tx, x: last[0] });
         }
       }
     });
@@ -153,12 +163,16 @@
     (opts.vmarkers || []).forEach(m => {
       const mx = xs ? xVal(m.year) : x(m.frac);
       const cv = valAt(m.year), cy = cv == null ? padT + 10 : y(cv);
-      const labY = padT + 8 + (m.row || 0) * 30;        // labels sit in a clear band at the top, staggered by row
+      const below = m.pos === 'below';                  // labels tuck just above or below the point (distributed, not all at top)
+      const lines = m.label || [];
       const g = mk('g', { class: 'cv-vmark' });
-      g.appendChild(mk('line', { x1: mx, y1: cy - 5, x2: mx, y2: labY + 20, stroke: m.color || P.navy, 'stroke-width': 1, 'stroke-dasharray': '2 3', opacity: .45 }));
+      g.appendChild(mk('line', { x1: mx, y1: below ? cy + 6 : cy - 6, x2: mx, y2: below ? cy + 13 : cy - 13, stroke: m.color || P.navy, 'stroke-width': 1, opacity: .5 }));
       g.appendChild(mk('circle', { cx: mx, cy, r: 4, fill: m.color || P.navy, stroke: P.cream, 'stroke-width': 2 }));
-      (m.label || []).forEach((ln, i) => g.appendChild(mk('text', { x: mx, y: labY + i * 13, 'text-anchor': 'middle', class: i ? 'cv-vmark-sub' : 'cv-vmark-t', text: ln })));
-      g.style.opacity = 0; s.appendChild(g); markers.push(g);
+      lines.forEach((ln, i) => {
+        const yy = below ? (cy + 27 + i * 13) : (cy - 20 - (lines.length - 1 - i) * 13);
+        g.appendChild(mk('text', { x: mx, y: yy, 'text-anchor': 'middle', class: i ? 'cv-vmark-sub' : 'cv-vmark-t', text: ln }));
+      });
+      g.style.opacity = 0; s.appendChild(g); markers.push({ el: g, x: mx });
     });
 
     // annotations {atIndex, value, text:[lines], color, anchor}
@@ -179,13 +193,14 @@
           'text-anchor': a.anchor || 'start', class: i ? 'cv-anno-sub' : 'cv-anno-t',
           text: ln }));
       });
-      g.style.opacity = 0; s.appendChild(g); annos.push(g);
+      g.style.opacity = 0; s.appendChild(g); annos.push({ el: g, x: ax });
     });
 
     let played = false;
     function reveal() {
       if (played) return; played = true;
-      const drawDur = 1500, pStag = 140, rm = reduced();
+      const drawDur = opts.drawDur || 1500, pStag = 140, rm = reduced();
+      const drawEase = opts.drawEase || 'cubic-bezier(.33,.08,.24,1)';
       paths.forEach((p, i) => {
         if (rm) return;
         const L = p.getTotalLength();
@@ -194,7 +209,7 @@
         p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
         // keep dashed styling for dashed lines after draw
         void p.getBoundingClientRect();
-        p.style.transition = `stroke-dashoffset ${drawDur}ms cubic-bezier(.33,.08,.24,1) ${i * pStag}ms`;
+        p.style.transition = `stroke-dashoffset ${drawDur}ms ${drawEase} ${i * pStag}ms`;
         p.style.strokeDashoffset = 0;
         if (base) setTimeout(() => { p.style.strokeDasharray = base; }, drawDur + 60 + i * pStag);
       });
@@ -206,13 +221,14 @@
         if (rm) { f.style.clipPath = 'none'; return; }
         f.style.clipPath = 'inset(0 100% 0 0)';
         void f.getBoundingClientRect();
-        f.style.transition = `clip-path ${drawDur}ms cubic-bezier(.33,.08,.24,1)`;
+        f.style.transition = `clip-path ${drawDur}ms ${drawEase}`;
         f.style.clipPath = 'inset(0 -1% 0 0)';
       });
-      // end dots + labels land with the line tip; markers and annotations follow
-      [...dots, ...markers, ...annos].forEach((d, i) => {
-        d.style.transition = `opacity .5s ease ${lastDone + (rm ? 0 : i * 80)}ms`;
-        d.style.opacity = 1;
+      // dots, markers and annotations pop in exactly as the drawing line sweeps past their x
+      const revealAt = x => rm ? 0 : Math.max(0, Math.round(((x - padL) / plotW) * drawDur + 40));
+      [...dots, ...markers, ...annos].forEach(o => {
+        o.el.style.transition = `opacity .45s ease ${revealAt(o.x)}ms`;
+        o.el.style.opacity = 1;
       });
     }
     return { node: s, reveal };
@@ -416,22 +432,28 @@
       return lerpStops(stops, t);
     };
     const tiles = [];
+    const nullText = P.faint || P.muted || '#8c8e87';
     Object.keys(GRID).forEach(ab => {
       const [r, c] = GRID[ab];
-      const xx = c * cell, yy = padT + r * cell;
+      const xx = c * cell, yy = padT + r * cell, cx = xx + (cell - gap) / 2, cy = yy + (cell - gap) / 2;
       const v = vals[ab];
       const g = mk('g', { class: 'tile', tabindex: 0, role: 'img',
-        'aria-label': `${opts.nameOf ? opts.nameOf(ab) : ab}: ${opts.fmt ? opts.fmt(v) : v}` });
+        'aria-label': `${opts.nameOf ? opts.nameOf(ab) : ab}: ${v == null ? 'none' : (opts.fmt ? opts.fmt(v) : v)}` });
       const rect = mk('rect', { x: xx, y: yy, width: cell - gap, height: cell - gap, rx: 5,
         fill: v == null ? P.line : colorFor(v) });
       rect.style.opacity = 0; rect.style.transformBox = 'fill-box'; rect.style.transformOrigin = 'center';
-      const t = mk('text', { x: xx + (cell - gap) / 2, y: yy + (cell - gap) / 2 + 4, 'text-anchor': 'middle',
-        class: 'cv-tilet', fill: v != null && colorContrast(colorFor(v)) ? '#fff' : P.ink, text: ab });
-      t.style.opacity = 0;
-      g.appendChild(rect); g.appendChild(t);
+      const fill = v != null && colorContrast(colorFor(v)) ? '#fff' : (v == null ? nullText : P.ink);
+      const texts = [];
+      if (opts.showValue && v != null) {                    // stack the abbr over its value
+        texts.push(mk('text', { x: cx, y: cy - 2, 'text-anchor': 'middle', class: 'cv-tilet', fill, text: ab }));
+        texts.push(mk('text', { x: cx, y: cy + 12, 'text-anchor': 'middle', class: 'cv-tileval', fill, text: opts.fmt ? opts.fmt(v) : String(v) }));
+      } else {
+        texts.push(mk('text', { x: cx, y: cy + 4, 'text-anchor': 'middle', class: 'cv-tilet', fill, text: ab }));
+      }
+      g.appendChild(rect); texts.forEach(t => { t.style.opacity = 0; g.appendChild(t); });
       g.dataset.abbr = ab;
       s.appendChild(g);
-      tiles.push({ g, rect, t });
+      tiles.push({ g, rect, texts });
     });
     let played = false;
     function reveal() {
@@ -439,8 +461,8 @@
       tiles.forEach((tl, i) => {
         const d = reduced() ? 0 : 40 + (i % 12) * 25 + Math.floor(i / 12) * 60;
         tl.rect.style.transition = `opacity .5s ease ${d}ms`;
-        tl.t.style.transition = `opacity .5s ease ${d + 120}ms`;
-        requestAnimationFrame(() => { tl.rect.style.opacity = 1; tl.t.style.opacity = 1; });
+        tl.texts.forEach(t => { t.style.transition = `opacity .5s ease ${d + 120}ms`; });
+        requestAnimationFrame(() => { tl.rect.style.opacity = 1; tl.texts.forEach(t => { t.style.opacity = 1; }); });
       });
     }
     return { node: s, reveal, tiles };
@@ -496,22 +518,26 @@
     clip.appendChild(cr); s.appendChild(clip);
     const areaG = mk('g', { 'clip-path': `url(#${clipId})` });
     const cum = new Array(n).fill(0);
+    const bands = [];
     opts.series.forEach((ser, si) => {
       const top = [], bot = [];
       for (let i = 0; i < n; i++) { const y0 = cum[i], y1 = cum[i] + ser.values[i]; bot.push([X(i), Y(y0)]); top.push([X(i), Y(y1)]); cum[i] = y1; }
       const d = 'M' + top.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L ') + ' L ' + bot.reverse().map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L ') + ' Z';
       const band = mk('path', { d, fill: ser.color, 'fill-opacity': ser.opacity ?? 0.92 });
+      band.style.opacity = 0;
       if (opts.onClick) clickify(band, ser.name || '', () => opts.onClick(ser, si));
-      areaG.appendChild(band);
+      areaG.appendChild(band); bands.push(band);
     });
     s.appendChild(areaG);
     let played = false;
     function reveal() {
       if (played) return; played = true;
-      if (reduced()) { cr.setAttribute('width', plotW); return; }
-      const t0 = performance.now(), dur = 1100;
-      (function step(t) { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
-        cr.setAttribute('width', (plotW * e).toFixed(1)); if (k < 1) requestAnimationFrame(step); })(t0);
+      cr.setAttribute('width', plotW);                        // no horizontal wipe
+      const rm = reduced();
+      bands.forEach((b, i) => {                               // bands rise in one at a time, bottom to top
+        b.style.transition = rm ? 'none' : `opacity .55s ease ${i * 340}ms`;
+        requestAnimationFrame(() => { b.style.opacity = 1; });
+      });
     }
     return { node: s, reveal };
   }
@@ -542,7 +568,7 @@
       const rect = mk('rect', { x: cx - bw / 2, y: top, width: bw, height: bh, rx: 2.5, fill: fillC });
       rect.style.transformBox = 'fill-box'; rect.style.transformOrigin = 'bottom'; rect.style.transform = 'scaleY(0)';
       s.appendChild(rect); bars.push(rect);
-      if (vals[i] > 0 && !(opts.peakLabel && i === maxIdx)) {   // value label above each bar, in ink
+      if (vals[i] > 0 && opts.showValues !== false && !(opts.peakLabel && i === maxIdx)) {   // value label above each bar, in ink
         const vl = mk('text', { x: cx, y: top - 5, 'text-anchor': 'middle', class: 'cv-colval', fill: P.ink, text: colFmt(vals[i]) });
         vl.style.opacity = 0; s.appendChild(vl); valLabels.push(vl);
       }

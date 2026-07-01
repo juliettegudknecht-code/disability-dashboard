@@ -73,7 +73,11 @@ summary:focus-visible, [tabindex]:focus-visible {
 .eyebrow { font-weight: 700; font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
   color: var(--navy); margin-bottom: 18px; }
 .hero h1 { line-height: 1.05; letter-spacing: -.018em; max-width: 34ch; text-wrap: balance; }
-.hero h1 .hero-main { display: block; font-size: clamp(27px, 4.3vw, 50px); line-height: 1.04; letter-spacing: -.02em; }
+.hero h1 .hero-main { display: block; font-size: clamp(27px, 4.3vw, 50px); line-height: 1.04; letter-spacing: -.02em; min-height: 1.04em; }
+.hero-main.typing::after { content: ''; display: inline-block; width: 3px; height: .82em; margin-left: 4px;
+  vertical-align: -.04em; background: var(--green-d); border-radius: 1px; animation: heroCaret .85s steps(1) infinite; }
+@keyframes heroCaret { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .hero-main.typing::after { display: none; } }
 .hero h1 .hero-tagline { display: block; margin-top: 12px; font-size: clamp(15px, 1.9vw, 23px);
   font-weight: 700; line-height: 1.16; letter-spacing: -.02em; color: var(--muted); }
 .hero h1 .hero-tagline .u-green { color: var(--green-d); }
@@ -98,6 +102,13 @@ summary:focus-visible, [tabindex]:focus-visible {
   max-width: 42ch; text-wrap: balance; }
 .scene-h em { font-style: normal; color: var(--accent); }
 .scene-h .u-green { color: var(--green-d); }
+/* emphasised key figure in a scene heading: bigger, accent-coloured, pops in on reveal */
+.scene-h .hl-num { color: var(--accent); font-size: 1.3em; font-weight: 800; letter-spacing: -.02em;
+  display: inline-block; white-space: nowrap; }
+html.js .reveal .hl-num { opacity: 0; transform: scale(.5) translateY(4px); }
+html.js .reveal.in .hl-num { opacity: 1; transform: none;
+  transition: opacity .5s ease .18s, transform .6s cubic-bezier(.2,1.35,.4,1) .18s; }
+@media (prefers-reduced-motion: reduce) { html.js .reveal .hl-num, html.js .reveal.in .hl-num { opacity: 1 !important; transform: none !important; } }
 .scene-dek { margin-top: 12px; font-size: clamp(13px, 1vw, 14.5px); color: var(--muted);
   max-width: 66ch; line-height: 1.55; }
 .scene-dek strong { color: var(--ink); font-weight: 600; }
@@ -132,13 +143,23 @@ summary:focus-visible, [tabindex]:focus-visible {
 .cv-rowlab { fill: var(--ink); font-size: 13px; font-weight: 500; }
 .cv-rowlab.hi { fill: var(--navy); font-weight: 700; }
 .cv-barval { font-size: 13px; font-weight: 700; }
-.cv-end { font-size: 13px; font-weight: 700; }
+.cv-end { font-size: 13px; font-weight: 700; paint-order: stroke; stroke: var(--cream); stroke-width: 3.4px; stroke-linejoin: round; }
 .cv-anno-t { fill: var(--ink); font-size: 13px; font-weight: 700; }
 .cv-anno-sub { fill: var(--muted); font-size: 11.5px; font-weight: 500; }
 .cv-vmark-t { fill: var(--ink); font-size: 12px; font-weight: 700; }
 .cv-vmark-sub { fill: var(--muted); font-size: 10.5px; font-weight: 500; }
 .cv-dbval { font-size: 12.5px; font-weight: 700; }
 .cv-tilet { font-size: 12px; font-weight: 700; }
+.cv-tileval { font-size: 9.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+/* alternate-diploma "state medallions": each state drawn on its own */
+.statecards { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin: 8px 0 2px; }
+.statecard { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 104px;
+  padding: 6px 6px 4px; border: none; background: none; }
+.statecard-svg { height: 58px; width: auto; max-width: 96px; display: block; overflow: visible; }
+.statecard .pct { font-family: var(--font-display); font-weight: 800; font-size: 18px; letter-spacing: -.01em;
+  color: var(--green-d); font-variant-numeric: tabular-nums; line-height: 1; }
+.statecard .nm { font-size: 11.5px; color: var(--muted); text-align: center; line-height: 1.2; }
+@media (max-width: 540px) { .statecard { width: calc(33.333% - 10px); } }
 .cv-donut-big { fill: var(--ink); font-family: var(--font-display); font-weight: 800; font-size: 28px; letter-spacing: -.02em; }
 .cv-donut-sub { fill: var(--muted); font-size: 11px; font-weight: 500; }
 .cv-map .tile { cursor: pointer; outline: none; }
@@ -275,11 +296,23 @@ table.sea .nm { font-weight: 600; color: var(--ink); }
 .explore-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
 .expanels { min-width: 0; }
 @media (min-width: 780px) {
-  .explore-grid { grid-template-columns: 210px minmax(0, 1fr); gap: 34px; align-items: start; }
-  .explore-grid .extabs { display: flex; flex-direction: column; align-items: stretch; gap: 3px;
-    margin-bottom: 0; position: sticky; top: 62px; }
-  .explore-grid .extab { text-align: left; padding: 9px 14px; }
+  .explore-grid { grid-template-columns: 200px minmax(0, 1fr); gap: 36px; align-items: start; }
+  /* side rail: a clean vertical menu, not a boxed card */
+  .explore-grid .extabs { display: flex; flex-direction: column; align-items: stretch; gap: 2px;
+    margin-bottom: 0; position: sticky; top: 62px; background: none; border: none; padding: 0; }
+  .explore-grid .extab { text-align: left; padding: 10px 12px; border-radius: 8px; color: var(--muted); }
+  .explore-grid .extab:not(.on):hover { background: color-mix(in srgb, var(--line) 45%, transparent); }
+  .explore-grid .extab.on { background: color-mix(in srgb, var(--green-l) 22%, transparent); color: var(--green-d);
+    box-shadow: inset 3px 0 0 var(--green-d); }
 }
+/* lighter, more transparent containers (less "card") */
+.explore .tablewrap, .explore .lea-list { background: color-mix(in srgb, var(--card) 45%, transparent);
+  border-color: color-mix(in srgb, var(--line) 78%, transparent); }
+.explore .snap-grid { background: color-mix(in srgb, var(--line) 72%, transparent);
+  border-color: color-mix(in srgb, var(--line) 78%, transparent); }
+.explore .snap-cell { background: color-mix(in srgb, var(--card) 55%, var(--cream)); }
+.explore table.sea thead th { background: color-mix(in srgb, var(--cream) 82%, transparent); }
+.explore table.sea th:first-child, .explore table.sea td:first-child { background: transparent; }
 
 /* ---- scroll reveal (gated on JS so exports/no-JS stay visible) */
 /* upcoming content sits faintly grayed-out until you scroll onto it, then brightens to full color */
@@ -573,6 +606,15 @@ html.js .reveal.in { opacity: 1; transform: none; filter: none; }
 /* scatter (funding vs served) */
 .cv-axt-bold { fill: var(--muted); font-size: 11.5px; font-weight: 700; }
 .cv-scatter { cursor: crosshair; }
+
+/* funding-vs-served scatter: drag to rotate the whole point cloud in 3D (one GPU layer,
+   cheap even at ~14k dots). It does not move on its own; double-click resets it flat. */
+#chart-scatter { perspective: 1200px; }
+#chart-scatter.grabbable { cursor: grab; }
+#chart-scatter.dragging { cursor: grabbing; }
+#chart-scatter .cv-scatter { transform-origin: 50% 56%; backface-visibility: hidden; will-change: transform;
+  transition: transform .5s cubic-bezier(.22,.61,.36,1); }
+#chart-scatter.dragging .cv-scatter { transition: none; cursor: grabbing; }
 
 /* ---- popup polish: Focus popup matches the detail modal ---- */
 .focuspop { background: rgba(11,22,18,.5); -webkit-backdrop-filter: blur(7px) saturate(118%); backdrop-filter: blur(7px) saturate(118%); }

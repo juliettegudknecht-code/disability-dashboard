@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=32">
+<link rel="stylesheet" href="styles.css?v=41">
 <!-- ============ SOFT PASSWORD GATE ============ -->
 <script>
   /* Light access gate (client-side only, not real security). Lock before render. */
@@ -241,7 +241,7 @@
           <button data-unit="count" class="on" aria-pressed="true">Number served</button>
           <button data-unit="rate" aria-pressed="false">Percent of enrollment</button>
         </div>
-        <label class="chk-toggle"><input type="checkbox" id="riseLabelsChk"> Turn off labels</label>
+        <label class="chk-toggle"><input type="checkbox" id="riseLabelsChk" checked> Show labels</label>
       </div>
       <div class="figure-title" id="riseTitle">Children and students with disabilities served under IDEA, Part&nbsp;B, ages 3 through 21</div>
       <div class="figure-sub" id="riseSub">By school year, in millions.</div>
@@ -303,6 +303,12 @@
       <div class="chartbox" id="chart-env"></div>
       <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Child Count and Educational Environments Collection. School Years 2012&ndash;13 through 2024&ndash;25.</div>
     </div>
+    <div class="figure reveal d2">
+      <div class="figure-title">The same shift, year by year, at a glance</div>
+      <div class="figure-sub">Each cell is the share of school-age students served in that setting that year; darker means a larger share.</div>
+      <div class="chartbox" id="chart-envheat"></div>
+      <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Child Count and Educational Environments Collection. School Years 2012&ndash;13 through 2024&ndash;25.</div>
+    </div>
   </div>
 </section>
 
@@ -325,7 +331,7 @@
 <!-- ============ EXHIBIT 6 · WHO IS SERVED ============ -->
 <section class="section" id="who">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">About two-thirds of students served are male, and the share varies by disability.</h2>
+    <h2 class="scene-h reveal d1">About <span class="hl-num">2/3</span> of students served are male, and the share varies by disability.</h2>
     <p class="scene-dek reveal d2">Pick a disability category to see who is served under it, by sex, race and ethnicity, and
       single year of age. Across all disabilities, about two-thirds of students served are male. For some
       categories the split is closer to even.</p>
@@ -349,7 +355,7 @@
       <div style="margin-top:36px">
         <div class="figure-title">Number of children and students ages 3 through 21 served under IDEA, Part&nbsp;B, by single year of age: School year 2024&ndash;25</div>
         <div class="figure-sub">Number of students served at each age, School Year 2024&ndash;25. Part&nbsp;B preschool (ages 3&ndash;5) and school age (6&ndash;21) are shaded separately; infants and toddlers (birth&ndash;age&nbsp;2) are served under Part&nbsp;C, a separate collection.</div>
-        <div class="legend" id="ageLegend"></div>
+        <div class="fig-controls" style="margin:2px 0 6px"><div class="legend" id="ageLegend" style="margin:0"></div><label class="chk-toggle"><input type="checkbox" id="ageLabelsChk"> Show counts</label></div>
         <div class="chartbox" id="chart-age"></div>
       </div>
       <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Year 2024&ndash;25. Sex shares exclude a small number of records reported without sex.</div>
@@ -360,7 +366,7 @@
 <!-- ============ EXHIBIT 8 · PART C ============ -->
 <section class="section" id="partc">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">Nearly 9 in 10 infants and toddlers receive early intervention in the home.</h2>
+    <h2 class="scene-h reveal d1">Nearly <span class="hl-num">9 in 10</span> infants and toddlers receive early intervention in the home.</h2>
     <p class="scene-dek reveal d2">In SY 2024&ndash;25, of the 458,920 infants and toddlers served under IDEA, Part&nbsp;C, 88.7 percent
       received their early intervention services primarily in the home. A community-based setting was the primary setting for
       7.8 percent.</p>
@@ -393,7 +399,7 @@
     </div>
     <div class="figure reveal d2">
       <div class="figure-title">Only a handful of states award an alternate diploma</div>
-      <div class="figure-sub">Students who graduated with an alternate diploma, as a percent of all students ages 14&ndash;21 who exited school, by state: School year 2023&ndash;24. Every other state and the District of Columbia reported none.</div>
+      <div class="figure-sub">Each state that awards an alternate diploma is lit green with its rate, the percent of students ages 14&ndash;21 who exited school in School&nbsp;Year 2023&ndash;24. Every other state and the District of Columbia reported none.</div>
       <div class="chartbox" id="chart-altdip"></div>
       <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Exiting Collection, School Year 2023&ndash;24 (All Disabilities; states reporting any alternate-diploma exiters). Nationally, alternate diplomas were 0.5 percent of all exiters.</div>
     </div>
@@ -403,7 +409,7 @@
 <!-- ============ EXHIBIT 11 · DETERMINATIONS ============ -->
 <section class="section" id="det">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">About two-thirds of states need assistance or intervention under Part&nbsp;B.</h2>
+    <h2 class="scene-h reveal d1">About <span class="hl-num">2/3</span> of states need assistance or intervention under Part&nbsp;B.</h2>
     <p class="scene-dek reveal d2">Each year the Department issues a determination on how well each state carries out IDEA, based on its results and compliance. For Part&nbsp;B in 2026, 22 of 64 states and reporting entities met requirements; 36 needed assistance and 6 needed intervention. The Part&nbsp;C determinations, for early intervention, were somewhat stronger.</p>
     <div class="figure reveal d2">
       <div class="legend" id="detLegend"></div>
@@ -418,7 +424,7 @@
 <!-- ============ EXHIBIT 12 · POPULATION CONTEXT (ACS) ============ -->
 <section class="section" id="acs">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">About 1 in 7.5 children are served under IDEA, and the share dips in the teen years.</h2>
+    <h2 class="scene-h reveal d1">About <span class="hl-num">1 in 7.5</span> children are served under IDEA, and the share dips in the teen years.</h2>
     <p class="scene-dek reveal d2">Set against the U.S. population, the children served under IDEA, Part&nbsp;B, are a sizable share of all children. Of the roughly 54.6&nbsp;million children ages 5 through 17 in the 2024 American Community Survey, about 7.2&nbsp;million, or 1 in 7.5, were served under IDEA, Part&nbsp;B. Students served are also more likely to be male: 64.7 percent, against 49.5 percent of the U.S. population.</p>
     <div class="figure reveal d2">
       <div class="figure-title">Percentage of children ages 5 through 17 served under IDEA, Part&nbsp;B, of the U.S. population, by age group: School year 2024&ndash;25</div>
@@ -564,21 +570,22 @@
 
 <div class="maptip" id="maptip"></div>
 
-<script src="data.js?v=32"></script>
-<script src="enrich.js?v=32"></script>
-<script src="moe.js?v=32"></script>
-<script src="usmap.js?v=32"></script>
-<script src="det.js?v=32"></script>
-<script src="lea.js?v=32"></script>
-<script src="leaexit.js?v=32"></script>
-<script src="catdata.js?v=32"></script>
-<script src="sea.js?v=32"></script>
-<script src="charts.js?v=32"></script>
-<script src="story.js?v=32"></script>
-<script src="explore.js?v=32"></script>
-<script src="extra.js?v=32"></script>
-<script src="interactive.js?v=32"></script>
-<script src="builder.js?v=32"></script>
-<script src="quickstats.js?v=32"></script>
+<script src="data.js?v=41"></script>
+<script src="enrich.js?v=41"></script>
+<script src="moe.js?v=41"></script>
+<script src="usmap.js?v=41"></script>
+<script src="det.js?v=41"></script>
+<script src="lea.js?v=41"></script>
+<script src="leaexit.js?v=41"></script>
+<script src="catdata.js?v=41"></script>
+<script src="sea.js?v=41"></script>
+<script src="charts.js?v=41"></script>
+<script src="story.js?v=41"></script>
+<script src="explore.js?v=41"></script>
+<script src="extra.js?v=41"></script>
+<script src="interactive.js?v=41"></script>
+<script src="builder.js?v=41"></script>
+<script src="quickstats.js?v=41"></script>
+<script src="type.js?v=41"></script>
 </body>
 </html>

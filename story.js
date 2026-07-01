@@ -320,9 +320,9 @@
 
   const startYears = I.YEARS.map(y => +y.slice(0, 4));
   const IDEA_MARKS = [
-    { year: 1990, label: ['1990', 'Renamed IDEA'], row: 0 },
-    { year: 1997, label: ['1997', 'IDEA amended'], row: 1 },
-    { year: 2004, label: ['2004', 'Reauthorized'], row: 0 },
+    { year: 1990, label: ['1990', 'Renamed IDEA'], pos: 'above' },
+    { year: 1997, label: ['1997', 'IDEA amended'], pos: 'below' },
+    { year: 2004, label: ['2004', 'Reauthorized'], pos: 'above' },
   ];
 
   /* ========================================================== *
@@ -340,18 +340,18 @@
       chart = C.lineChart({
         labels: idx.map(i => I.YEARS[i]), xs: idx.map(i => startYears[i]),
         xTicks: [1980, 1990, 2000, 2010, 2020],
-        series: [{ values: idx.map(i => I.ENROLL_PCT[i]), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endLabel: '15.2% in 2022–23' }],
-        yMin: 0, yMax: 16, yTicks: 4, yFmt: v => v.toFixed(0) + '%', vmarkers: marks,
-        annotations: riseLabels ? [{ atIndex: 0, value: I.ENROLL_PCT[0], text: ['First federal special education law, 1975', '8.3% of enrollment, 1976–77'], dx: 10, dy: -50, anchor: 'start', color: P.navy }] : [],
+        series: [{ values: idx.map(i => I.ENROLL_PCT[i]), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endArrow: true, endLabel: '15.2% in 2022–23' }],
+        yMin: 0, yMax: 16, yTicks: 4, yFmt: v => v.toFixed(0) + '%', vmarkers: marks, drawDur: 3400, drawEase: 'linear',
+        annotations: riseLabels ? [{ atIndex: 0, value: I.ENROLL_PCT[0], text: ['First federal special education law, 1975', '8.3% of enrollment, 1976–77'], dx: 10, dy: -100, anchor: 'start', color: P.navy }] : [],
       });
       document.getElementById('riseTitle').textContent = 'Percentage of children and students ages 3 through 21 served under IDEA, Part B, of public school enrollment, by year: School year 1976–77 through 2022–23';
       document.getElementById('riseSub').textContent = 'Served as a percent of public-school enrollment, by school year.';
     } else {
       chart = C.lineChart({
         labels: I.YEARS, xs: startYears, xTicks: [1980, 1990, 2000, 2010, 2020, 2024],
-        series: [{ values: I.ALL.map(v => v / 1000), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endLabel: '8.2M in 2024–25' }],
-        yMin: 0, yMax: 9, yTicks: 3, yFmt: v => v.toFixed(0) + 'M', vmarkers: marks,
-        annotations: riseLabels ? [{ atIndex: 0, value: I.ALL[0] / 1000, text: ['First federal special education law, 1975', '3.7M served, 1976–77'], dx: 10, dy: -52, anchor: 'start', color: P.navy }] : [],
+        series: [{ values: I.ALL.map(v => v / 1000), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endArrow: true, endLabel: '8.2M in 2024–25' }],
+        yMin: 0, yMax: 9, yTicks: 3, yFmt: v => v.toFixed(0) + 'M', vmarkers: marks, drawDur: 3400, drawEase: 'linear',
+        annotations: riseLabels ? [{ atIndex: 0, value: I.ALL[0] / 1000, text: ['First federal special education law, 1975', '3.7M served, 1976–77'], dx: 10, dy: -105, anchor: 'start', color: P.navy }] : [],
       });
       document.getElementById('riseTitle').textContent = 'Number of children and students ages 3 through 21 served under IDEA, Part B, by year: School year 1976–77 through 2024–25';
       document.getElementById('riseSub').textContent = 'Children and students served under IDEA, Part B, ages 3 through 21, in millions, by school year.';
@@ -362,7 +362,7 @@
   buildRise('count');
   (function () {
     const chk = document.getElementById('riseLabelsChk');
-    if (chk) chk.addEventListener('change', () => { riseLabels = !chk.checked; riseShown = true; buildRise(riseUnit); });
+    if (chk) chk.addEventListener('change', () => { riseLabels = chk.checked; riseShown = true; buildRise(riseUnit); });
   })();
   document.getElementById('riseToggle').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
@@ -385,10 +385,11 @@
     // bucket), as a share of all school-age students served, School Year 2024-25.
     const tot = Object.keys(I.INCL).reduce((s, k) => s + I.INCL[k][1], 0);
     const items = Object.keys(I.INCL).map(k => ({ k, v: I.INCL[k][1] / tot * 100 })).sort((a, b) => b.v - a.v);
+    const catRamp = [{ t: 0, color: P.greenL }, { t: .55, color: P.green }, { t: 1, color: P.blue }];
     mount('chart-cats', C.barsH({
       onClick: d => openCatModal(d.label),
       labelW: 234, barH: 17, gap: 9, padR: 58,
-      items: items.map(d => ({ label: d.k, value: d.v, color: P.green })),
+      items: items.map(d => ({ label: d.k, value: d.v, color: C.colorFor(catRamp, Math.min(1, d.v / items[0].v)) })),
       xMax: 40, valueFmt: v => v.toFixed(1) + '%',
     }));
     expbar('chart-cats', 'idea-categories-2024-25', [['Disability category', 'Percent of school-age students served (2024-25)'], ...items.map(d => [d.k, +d.v.toFixed(1)])]);
@@ -404,8 +405,8 @@
     // every other category as a gray context line (all 13 shown), autism + OHI highlighted
     const grayCats = Object.keys(I.DIS).filter(k => k !== 'Autism' && k !== 'Other health impairment');
     const series = grayCats.map(k => ({ values: sv(k), color: P.gray, width: 1.4 }));
-    series.push({ values: sv('Other health impairment'), color: P.green, width: 2.8, highlight: true, endLabel: 'Other health impairment', endLabelDy: -13 });
-    series.push({ values: sv('Autism'), color: P.navy, width: 2.8, highlight: true, endLabel: 'Autism', endLabelDy: 15 });
+    series.push({ values: sv('Other health impairment'), color: P.green, width: 2.8, highlight: true, endLabel: 'Other health impairment', endLabelDy: -17 });
+    series.push({ values: sv('Autism'), color: P.navy, width: 2.8, highlight: true, endLabel: 'Autism', endLabelDy: 27 });
     mount('chart-autism', C.lineChart({
       labels, xs, xTicks: [2000, 2008, 2012, 2016, 2020, 2024],
       series, yMin: 0, yMax: 3, yTicks: 3, yFmt: v => v.toFixed(0) + 'M',
@@ -448,6 +449,18 @@
       I.ENV_LBL.forEach((y, i) => rows.push([y].concat(series.map(x => x.values[i]))));
       return rows;
     });
+    // the same data as a year-by-setting heatmap
+    if (document.getElementById('chart-envheat') && C.heatmap) {
+      mount('chart-envheat', C.heatmap({
+        rowLabels: ['Regular class, 80%+', 'Regular class, 40–79%', 'Regular class, under 40%', 'Other settings'],
+        colLabels: I.ENV_LBL.map(y => '’' + y.slice(2, 4)),
+        matrix: [sh(b80), sh(b40), sh(b0), other],
+        labelW: 176, cellH: 34, colEvery: 1,
+        stops: [{ t: 0, color: '#eef4f0' }, { t: .5, color: P.green }, { t: 1, color: P.greenD }],
+        showValues: true, valueFmt: v => v.toFixed(0) + '%',
+        onClick: d => openEnvModal(series[d.r] ? series[d.r].name : d.row),
+      }));
+    }
   })();
 
   /* ========================================================== *
@@ -469,7 +482,7 @@
    * EXHIBIT 6 · WHO IS SERVED (sex / race / age toggle)        *
    * ========================================================== */
   (function () {
-    let profile = 'All Disabilities';
+    let profile = 'All Disabilities', ageLabels = false;
     const sexBox = document.getElementById('chart-sex'), raceBox = document.getElementById('chart-race'), ageBox = document.getElementById('chart-age');
     const seen = {};
     let interacted = false;
@@ -502,10 +515,16 @@
       play(ageBox, C.columns({
         labels: ages.map(String), values: counts, colors: ageColors,
         yMax: Math.max(...counts) * 1.2, yTicks: 3, yFmt: v => v === 0 ? '0' : (v / 1000).toFixed(0) + 'k',
-        xEvery: 2, padL: 44, height: 300, onClick: d2 => openAgeModal(+d2.label, d2.value, profile),
+        xEvery: 2, padL: 44, height: 300, showValues: ageLabels,
+        peakLabel: (Math.max(...counts) / 1000).toFixed(0) + 'k',
+        onClick: d2 => openAgeModal(+d2.label, d2.value, profile),
       }), 'age');
     }
     buildAll();
+    (function () {
+      const chk = document.getElementById('ageLabelsChk');
+      if (chk) chk.addEventListener('change', () => { ageLabels = chk.checked; interacted = true; buildAll(); });
+    })();
     sexBox.style.cursor = 'pointer'; sexBox.setAttribute('role', 'button'); sexBox.tabIndex = 0;
     const fireSex = () => openSexModal(profile);
     sexBox.addEventListener('click', fireSex);
@@ -613,12 +632,36 @@
       .filter(ab => E[ab] && E[ab].altPct != null && E[ab].altPct > 0)
       .sort((a, b) => E[b].altPct - E[a].altPct);
     if (!states.length) return;
-    mount('chart-altdip', C.barsH({
-      labelW: 128, barH: 18, gap: 11, padR: 96,
-      items: states.map(ab => ({ label: nameOf[ab] || ab, value: E[ab].altPct, color: P.green, key: ab })),
-      xMax: Math.max(...states.map(ab => E[ab].altPct)) * 1.14,
-      valueFmt: v => v.toFixed(1) + '%',
-    }));
+    const pcts = states.map(ab => E[ab].altPct), mn = Math.min(...pcts), mx = Math.max(...pcts);
+    const stops = [{ t: 0, color: P.greenL }, { t: 1, color: P.greenD }];
+    const M = window.USMAP, NS = 'http://www.w3.org/2000/svg';
+    if (M && M.paths) {
+      // each applicable state drawn on its own, as a real outline "medallion" with its rate
+      const wrap = document.createElement('div'); wrap.className = 'statecards';
+      const cards = [];
+      states.forEach(ab => {
+        const v = E[ab].altPct, fill = C.colorFor(stops, (v - mn) / (mx - mn || 1));
+        const card = document.createElement('div'); card.className = 'statecard';
+        const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'statecard-svg'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', (nameOf[ab] || ab) + ': ' + v.toFixed(1) + ' percent alternate diploma');
+        const p = document.createElementNS(NS, 'path'); p.setAttribute('d', M.paths[ab]); p.setAttribute('fill', fill);
+        p.setAttribute('stroke', P.cream); p.setAttribute('stroke-width', '2'); p.setAttribute('stroke-linejoin', 'round'); p.setAttribute('vector-effect', 'non-scaling-stroke');
+        svg.appendChild(p); card.appendChild(svg);
+        card.insertAdjacentHTML('beforeend', `<div class="pct">${v.toFixed(1)}%</div><div class="nm">${nameOf[ab] || ab}</div>`);
+        wrap.appendChild(card); cards.push({ card, svg, p });
+      });
+      host.innerHTML = ''; host.appendChild(wrap);
+      cards.forEach(o => {                                   // crop each mini-svg to its own state's bounds
+        const b = o.p.getBBox(), pad = Math.max(b.width, b.height) * 0.09;
+        o.svg.setAttribute('viewBox', `${(b.x - pad).toFixed(1)} ${(b.y - pad).toFixed(1)} ${(b.width + 2 * pad).toFixed(1)} ${(b.height + 2 * pad).toFixed(1)}`);
+        o.card.style.opacity = 0; o.card.style.transform = 'translateY(10px)';
+      });
+      onView(host, () => cards.forEach((o, i) => {
+        o.card.style.transition = `opacity .5s ease ${i * 70}ms, transform .5s cubic-bezier(.22,.61,.36,1) ${i * 70}ms`;
+        requestAnimationFrame(() => { o.card.style.opacity = 1; o.card.style.transform = 'none'; });
+      }));
+    } else {
+      mount('chart-altdip', C.barsH({ labelW: 128, barH: 18, gap: 11, padR: 96, items: states.map(ab => ({ label: nameOf[ab] || ab, value: E[ab].altPct, color: P.green })), xMax: mx * 1.14, valueFmt: v => v.toFixed(1) + '%' }));
+    }
     expbar('chart-altdip', 'idea-alternate-diploma-states-2023-24', [['State', 'Alternate diploma %', 'Alternate diploma graduates'], ...states.map(ab => [nameOf[ab] || ab, E[ab].altPct, E[ab].alt])]);
   })();
 
