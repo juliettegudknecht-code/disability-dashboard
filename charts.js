@@ -132,7 +132,7 @@
         const dot = mk('circle', { cx: last[0], cy: last[1], r: 4.5, fill: ser.color });
         dot.style.opacity = 0; s.appendChild(dot); dots.push(dot);
         if (ser.endLabel) {
-          const tx = mk('text', { x: last[0] - 6, y: last[1] - 9, 'text-anchor': 'end',
+          const tx = mk('text', { x: last[0] - 6, y: last[1] - 9 + (ser.endLabelDy || 0), 'text-anchor': 'end',
             class: 'cv-end', fill: ser.color, text: ser.endLabel });
           tx.style.opacity = 0; s.appendChild(tx); dots.push(tx);
         }
@@ -165,11 +165,17 @@
     const annos = [];
     (opts.annotations || []).forEach(a => {
       const ax = x(a.atIndex), ay = y(a.value);
-      const dot = mk('circle', { cx: ax, cy: ay, r: 4, fill: a.color || P.ink });
+      const dx = a.dx ?? 8, dy = a.dy ?? -10, lines = (a.text || []).length;
       const g = mk('g', { class: 'cv-anno' });
-      g.appendChild(dot);
+      // faint leader from the dot up/down to the label block when it sits clear of the point
+      if (Math.abs(dy) > 18) {
+        const ty = dy < 0 ? ay + dy + (lines - 1) * 14 + 4 : ay + dy - 11;
+        g.appendChild(mk('line', { x1: ax, y1: ay, x2: ax + dx, y2: ty,
+          stroke: a.color || P.ink, 'stroke-width': 1, opacity: .32 }));
+      }
+      g.appendChild(mk('circle', { cx: ax, cy: ay, r: 4, fill: a.color || P.ink }));
       (a.text || []).forEach((ln, i) => {
-        g.appendChild(mk('text', { x: ax + (a.dx ?? 8), y: ay + (a.dy ?? -10) + i * 14,
+        g.appendChild(mk('text', { x: ax + dx, y: ay + dy + i * 14,
           'text-anchor': a.anchor || 'start', class: i ? 'cv-anno-sub' : 'cv-anno-t',
           text: ln }));
       });

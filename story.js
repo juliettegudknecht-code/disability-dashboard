@@ -340,18 +340,18 @@
       chart = C.lineChart({
         labels: idx.map(i => I.YEARS[i]), xs: idx.map(i => startYears[i]),
         xTicks: [1980, 1990, 2000, 2010, 2020],
-        series: [{ values: idx.map(i => I.ENROLL_PCT[i]), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endLabel: '15.2%' }],
+        series: [{ values: idx.map(i => I.ENROLL_PCT[i]), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endLabel: '15.2% in 2022–23' }],
         yMin: 0, yMax: 16, yTicks: 4, yFmt: v => v.toFixed(0) + '%', vmarkers: marks,
-        annotations: riseLabels ? [{ atIndex: 0, value: I.ENROLL_PCT[0], text: ['Public Law 94-142 enacted, 1975', '8.3% of enrollment, 1976–77'], dx: 8, dy: 24, anchor: 'start', color: P.navy }] : [],
+        annotations: riseLabels ? [{ atIndex: 0, value: I.ENROLL_PCT[0], text: ['First federal special education law, 1975', '8.3% of enrollment, 1976–77'], dx: 10, dy: -50, anchor: 'start', color: P.navy }] : [],
       });
       document.getElementById('riseTitle').textContent = 'Percentage of children and students ages 3 through 21 served under IDEA, Part B, of public school enrollment, by year: School year 1976–77 through 2022–23';
       document.getElementById('riseSub').textContent = 'Served as a percent of public-school enrollment, by school year.';
     } else {
       chart = C.lineChart({
         labels: I.YEARS, xs: startYears, xTicks: [1980, 1990, 2000, 2010, 2020, 2024],
-        series: [{ values: I.ALL.map(v => v / 1000), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endLabel: '8.2M' }],
+        series: [{ values: I.ALL.map(v => v / 1000), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endLabel: '8.2M in 2024–25' }],
         yMin: 0, yMax: 9, yTicks: 3, yFmt: v => v.toFixed(0) + 'M', vmarkers: marks,
-        annotations: riseLabels ? [{ atIndex: 0, value: I.ALL[0] / 1000, text: ['Public Law 94-142 enacted, 1975', '3.7M served, 1976–77'], dx: 8, dy: 26, anchor: 'start', color: P.navy }] : [],
+        annotations: riseLabels ? [{ atIndex: 0, value: I.ALL[0] / 1000, text: ['First federal special education law, 1975', '3.7M served, 1976–77'], dx: 10, dy: -52, anchor: 'start', color: P.navy }] : [],
       });
       document.getElementById('riseTitle').textContent = 'Number of children and students ages 3 through 21 served under IDEA, Part B, by year: School year 1976–77 through 2024–25';
       document.getElementById('riseSub').textContent = 'Children and students served under IDEA, Part B, ages 3 through 21, in millions, by school year.';
@@ -404,8 +404,8 @@
     // every other category as a gray context line (all 13 shown), autism + OHI highlighted
     const grayCats = Object.keys(I.DIS).filter(k => k !== 'Autism' && k !== 'Other health impairment');
     const series = grayCats.map(k => ({ values: sv(k), color: P.gray, width: 1.4 }));
-    series.push({ values: sv('Other health impairment'), color: P.green, width: 2.8, highlight: true });
-    series.push({ values: sv('Autism'), color: P.navy, width: 2.8, highlight: true });
+    series.push({ values: sv('Other health impairment'), color: P.green, width: 2.8, highlight: true, endLabel: 'Other health impairment', endLabelDy: -13 });
+    series.push({ values: sv('Autism'), color: P.navy, width: 2.8, highlight: true, endLabel: 'Autism', endLabelDy: 15 });
     mount('chart-autism', C.lineChart({
       labels, xs, xTicks: [2000, 2008, 2012, 2016, 2020, 2024],
       series, yMin: 0, yMax: 3, yTicks: 3, yFmt: v => v.toFixed(0) + 'M',
@@ -473,7 +473,10 @@
     const sexBox = document.getElementById('chart-sex'), raceBox = document.getElementById('chart-race'), ageBox = document.getElementById('chart-age');
     const seen = {};
     let interacted = false;
-    const fmtCount = v => v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : Math.round(v / 1e3) + 'k';
+    const fmtCount = v => v >= 1e6 ? (v / 1e6).toFixed(1) + 'M'
+      : v >= 1e4 ? Math.round(v / 1e3) + 'k'
+      : v >= 1e3 ? (v / 1e3).toFixed(1) + 'k'
+      : I.nf(Math.round(v));   // small counts: show the exact number, never "0k"
     function play(box, chart, key) {
       box.innerHTML = ''; box.appendChild(chart.node);
       if (interacted || seen[key]) chart.reveal();
@@ -510,11 +513,37 @@
     hint('chart-sex', 'Tap the figure for the male and female split');
     hint('chart-age', 'Tap any age column for detail');
     (function () {
-      const sel = document.getElementById('whoProfile');
-      if (!sel) return;
-      DEMO_PROFILES.forEach(p => sel.add(new Option(p === 'All Disabilities' ? 'All disabilities' : p, p)));
-      sel.value = profile;
-      sel.addEventListener('change', () => { interacted = true; profile = sel.value; buildAll(); });
+      const host = document.getElementById('whoChips');
+      if (!host) return;
+      const items = DEMO_PROFILES;
+      const btns = items.map(p => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'chip' + (p === profile ? ' on' : '');
+        b.setAttribute('role', 'radio');
+        b.setAttribute('aria-checked', p === profile ? 'true' : 'false');
+        b.tabIndex = p === profile ? 0 : -1;
+        b.textContent = p === 'All Disabilities' ? 'All disabilities' : p;
+        host.appendChild(b);
+        return b;
+      });
+      function choose(i, focus) {
+        profile = items[i]; interacted = true;
+        btns.forEach((b, j) => { const on = j === i; b.classList.toggle('on', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; });
+        if (focus) btns[i].focus();
+        buildAll();
+      }
+      btns.forEach((b, i) => {
+        b.addEventListener('click', () => choose(i, false));
+        b.addEventListener('keydown', e => {           // radiogroup: arrows/Home/End move and select
+          let j = null;
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % btns.length;
+          else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + btns.length) % btns.length;
+          else if (e.key === 'Home') j = 0;
+          else if (e.key === 'End') j = btns.length - 1;
+          else return;
+          e.preventDefault(); choose(j, true);
+        });
+      });
     })();
     expbar('chart-sex', 'idea-demographics', () => {
       const d = demoOf(profile), rows = [[profile + ' \u2014 School Year 2024-25'], [], ['Sex', 'Count'], ['Male', d.male], ['Female', d.female], [], ['Race/ethnicity', 'Count']];
@@ -572,6 +601,25 @@
     legend('exitLegend', [['School Year 2014\u201315', P.greenL], ['School Year 2022\u201323', P.greenD]]);
     hint('chart-exit', 'Tap a row for the graduation or dropout trend');
     expbar('chart-exit', 'idea-exiting-grad-dropout', [['Category', '2014-15 %', '2022-23 %'], ['Graduated, regular diploma', A.exit.gradPrev, A.exit.gradDiplomaPct], ['Dropped out', A.exit.dropoutPrev, A.exit.dropoutPct]]);
+  })();
+
+  /* alternate diploma: only a few states award them \u2014 show those states, ranked */
+  (function () {
+    const host = document.getElementById('chart-altdip');
+    if (!host || !window.SEA || !window.SEA.exit) return;
+    const E = window.SEA.exit, meta = window.SEA.exitMeta || {};
+    const nameOf = {}; I.STATES.forEach(r => { nameOf[r[1]] = r[0]; });
+    const states = (meta.altStates || Object.keys(E))
+      .filter(ab => E[ab] && E[ab].altPct != null && E[ab].altPct > 0)
+      .sort((a, b) => E[b].altPct - E[a].altPct);
+    if (!states.length) return;
+    mount('chart-altdip', C.barsH({
+      labelW: 128, barH: 18, gap: 11, padR: 96,
+      items: states.map(ab => ({ label: nameOf[ab] || ab, value: E[ab].altPct, color: P.green, key: ab })),
+      xMax: Math.max(...states.map(ab => E[ab].altPct)) * 1.14,
+      valueFmt: v => v.toFixed(1) + '%',
+    }));
+    expbar('chart-altdip', 'idea-alternate-diploma-states-2023-24', [['State', 'Alternate diploma %', 'Alternate diploma graduates'], ...states.map(ab => [nameOf[ab] || ab, E[ab].altPct, E[ab].alt])]);
   })();
 
   /* ========================================================== *

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=23">
+<link rel="stylesheet" href="styles.css?v=32">
 <!-- ============ SOFT PASSWORD GATE ============ -->
 <script>
   /* Light access gate (client-side only, not real security). Lock before render. */
@@ -231,7 +231,7 @@
 <!-- ============ EXHIBIT 1 · CHILD COUNT OVER TIME ============ -->
 <section class="section" id="rise">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">For nearly five decades, the number of children and students served has kept climbing.</h2>
+    <h2 class="scene-h reveal d1">For nearly five decades, the number of children and students served under IDEA has kept climbing.</h2>
     <p class="scene-dek reveal d2">In School Year 1976&ndash;77, the first year of reporting, about 3.7&nbsp;million children
       ages 3 through 21 were served under IDEA, Part&nbsp;B. By 2024&ndash;25 the count was about 8.2&nbsp;million. Measured
       against public-school enrollment, the share served rose from roughly 8 percent to about 15 percent.</p>
@@ -292,7 +292,7 @@
 <!-- ============ EXHIBIT 4 · ENVIRONMENTS OVER TIME ============ -->
 <section class="section" id="env">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">More and more students spend most of the school day in a regular classroom, right alongside their classmates.</h2>
+    <h2 class="scene-h reveal d1">More students than ever spend most of the school day in a regular classroom.</h2>
     <p class="scene-dek reveal d2">From SY 2019&ndash;20 to SY 2023&ndash;24, the share of school-age students served under IDEA, Part&nbsp;B,
       educated inside the regular class 80 percent or more of the day rose from 64.8 percent to 67.8 percent, while the most
       restrictive settings kept shrinking.</p>
@@ -325,14 +325,14 @@
 <!-- ============ EXHIBIT 6 · WHO IS SERVED ============ -->
 <section class="section" id="who">
   <div class="wrap">
-    <h2 class="scene-h reveal d1">About two-thirds of students served are male, and the picture shifts by disability.</h2>
-    <p class="scene-dek reveal d2">Choose any disability category to see who is served under it, by sex, race and ethnicity, and
-      single year of age. Across all disabilities, about two-thirds of students served are male; that share runs higher
-      for some categories and closer to even for others.</p>
+    <h2 class="scene-h reveal d1">About two-thirds of students served are male, and the share varies by disability.</h2>
+    <p class="scene-dek reveal d2">Pick a disability category to see who is served under it, by sex, race and ethnicity, and
+      single year of age. Across all disabilities, about two-thirds of students served are male. For some
+      categories the split is closer to even.</p>
     <div class="figure reveal d2">
-      <div class="fig-controls">
-        <label class="who-pick"><span class="src-k">Disability category</span>
-          <select id="whoProfile" class="ex-select" aria-label="Choose a disability category"></select></label>
+      <div class="who-controls">
+        <span class="src-k who-pick-lab" id="whoPickLab">Disability category</span>
+        <div id="whoChips" class="chips who-chips" role="radiogroup" aria-labelledby="whoPickLab"></div>
       </div>
       <div class="split">
         <div>
@@ -391,6 +391,12 @@
       <div class="chartbox" id="chart-exit"></div>
       <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Exiting Collection. School Years 2014&ndash;15 and 2022&ndash;23 (students exiting both special education and school).</div>
     </div>
+    <div class="figure reveal d2">
+      <div class="figure-title">Only a handful of states award an alternate diploma</div>
+      <div class="figure-sub">Students who graduated with an alternate diploma, as a percent of all students ages 14&ndash;21 who exited school, by state: School year 2023&ndash;24. Every other state and the District of Columbia reported none.</div>
+      <div class="chartbox" id="chart-altdip"></div>
+      <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Exiting Collection, School Year 2023&ndash;24 (All Disabilities; states reporting any alternate-diploma exiters). Nationally, alternate diplomas were 0.5 percent of all exiters.</div>
+    </div>
   </div>
 </section>
 
@@ -427,7 +433,7 @@
 <section class="section" id="explore">
   <div class="wrap">
     <h2 class="scene-h reveal d1">Explore states, districts, and funding.</h2>
-    <p class="scene-dek reveal d2">Tap the map to drill from a state down into its districts and the dollars behind them. Prefer a table? Use the tabs lower down to pull up any state, district, or collection.</p>
+    <p class="scene-dek reveal d2">Tap the map to drill from a state down into its districts and the dollars behind them. Prefer a table? Look up any state or district below.</p>
 
     <div class="figure reveal d2" id="umap">
       <div class="umap-controls">
@@ -448,54 +454,62 @@
       <div class="source" id="umapSource"></div>
     </div>
 
-    <div class="explore reveal d2">
-      <div class="explore-lead">Or look it up directly</div>
-      <div class="extabs" role="tablist" aria-label="Explore views">
-        <button class="extab on" data-tab="state" role="tab" aria-selected="true">State snapshot</button>
-        <button class="extab" data-tab="sea" role="tab" aria-selected="false">All states</button>
-        <button class="extab" data-tab="lea" role="tab" aria-selected="false">Districts (LEA)</button>
-        <button class="extab" data-tab="more" role="tab" aria-selected="false">Other collections</button>
-      </div>
-      <div class="expanel" data-panel="state">
-        <div class="ex-controls"><label class="src-k" for="exStateSel">Choose a state</label><select id="exStateSel" class="ex-select" aria-label="Choose a state"></select></div>
-        <div id="exStateOut"></div>
-        <div class="source"><span class="src-k">Source</span> IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Years 2000&ndash;01 through 2024&ndash;25; NCES public-school enrollment (2022&ndash;23); IDEA Part&nbsp;B Exiting Collection, School Year 2023&ndash;24; 2026 Determination Letters on State Implementation of IDEA.</div>
-      </div>
-      <div class="expanel" data-panel="sea" hidden>
-        <div class="ex-controls"><input id="seaSearch" class="ex-search" type="search" placeholder="Search a state"><span class="src-k">Click a column to sort</span></div>
-        <div class="tablewrap"><table class="sea" id="seaTable"><thead></thead><tbody></tbody></table></div>
-        <div class="source"><span class="src-k">Source</span> IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Years 2000&ndash;01 through 2024&ndash;25; IDEA Part&nbsp;B Exiting Collection, School Year 2023&ndash;24 (graduation and dropout, as a percent of students ages 14&ndash;21 who exited school).</div>
-      </div>
-      <div class="expanel" data-panel="lea" hidden>
-        <div class="ex-controls"><label class="src-k" for="leaStateSel">Choose a state</label><select id="leaStateSel" class="ex-select" aria-label="Choose a state"></select></div>
-        <div id="leaOut"></div>
-        <div class="source"><span class="src-k">Source</span> IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Year 2024&ndash;25 (local educational agencies that reported a child count). District counts may not sum to the State total because small cells are suppressed.</div>
-      </div>
-      <div class="expanel" data-panel="more" hidden>
+    <!-- other Section 618 collections, surfaced in the flow (no longer behind a tab) -->
+    <div class="more-collections reveal d2">
+      <div class="explore-lead">More from the Section 618 collections</div>
+      <div class="more-grid">
         <div class="figure" style="margin-top:0">
           <div class="figure-title">Graduation and dropout among students who exited school, by disability</div>
           <div class="figure-sub">Graduated with a regular high school diploma, as a percent of students ages 14&ndash;21 who exited school, School Year 2023&ndash;24.</div>
           <div class="chartbox" id="moreExit"></div>
           <div class="source"><span class="src-k">Source</span> U.S. Department of Education, Office of Special Education Programs, IDEA Part&nbsp;B Exiting Collection, School Year 2023&ndash;24 (national totals, including the additional reporting entities).</div>
         </div>
-        <div class="figure">
+        <div class="figure" style="margin-top:0">
           <div class="figure-title">Disciplinary removals per 100 students served, by disability</div>
           <div class="figure-sub">Total disciplinary removals divided by the child count, by primary disability category, School Year 2023&ndash;24. Emotional disturbance shown in navy; autism in dark green.</div>
           <div class="chartbox" id="moreDiscDis"></div>
           <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Discipline Collection and Child Count, School Year 2023&ndash;24. Each disciplinary removal is counted separately, so a student may be counted more than once.</div>
         </div>
-        <div class="figure">
+        <div class="figure" style="margin-top:0">
           <div class="figure-title">Share of students served and share of disciplinary removals, by race and ethnicity</div>
           <div class="figure-sub">Each row compares a group's share of all students served with its share of all disciplinary removals.</div>
           <div class="legend" id="moreRaceLegend"></div>
           <div class="chartbox" id="moreDiscRace"></div>
           <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Discipline Collection (disciplinary removals, School Year 2023&ndash;24) and Child Count (students served, School Year 2024&ndash;25). Students of two or more races and students whose race was not reported are not shown.</div>
         </div>
-        <div class="figure">
+        <div class="figure" style="margin-top:0">
           <div class="figure-title">Special education staff who are fully certified or qualified</div>
           <div class="figure-sub">Share of the special education workforce meeting state certification or qualification standards, School Year 2023&ndash;24.</div>
           <div id="morePersonnel"></div>
           <div class="source"><span class="src-k">Source</span> U.S. Department of Education, IDEA Part&nbsp;B Personnel Collection, School Year 2023&ndash;24 (full-time-equivalent staff; national totals, including the additional reporting entities).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="explore reveal d2">
+      <div class="explore-lead">Look up any state or district</div>
+      <div class="explore-grid">
+        <div class="extabs" role="tablist" aria-label="Explore views" aria-orientation="vertical">
+          <button class="extab on" id="extab-state" data-tab="state" role="tab" aria-selected="true" aria-controls="expanel-state" tabindex="0">State snapshot</button>
+          <button class="extab" id="extab-sea" data-tab="sea" role="tab" aria-selected="false" aria-controls="expanel-sea" tabindex="-1">All states</button>
+          <button class="extab" id="extab-lea" data-tab="lea" role="tab" aria-selected="false" aria-controls="expanel-lea" tabindex="-1">Districts (LEA)</button>
+        </div>
+        <div class="expanels">
+          <div class="expanel" id="expanel-state" data-panel="state" role="tabpanel" aria-labelledby="extab-state" tabindex="0">
+            <div class="ex-controls"><label class="src-k" for="exStateSel">Choose a state</label><select id="exStateSel" class="ex-select" aria-label="Choose a state"></select></div>
+            <div id="exStateOut"></div>
+            <div class="source"><span class="src-k">Source</span> IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Years 2000&ndash;01 through 2024&ndash;25; NCES public-school enrollment (2022&ndash;23); IDEA Part&nbsp;B Exiting Collection, School Year 2023&ndash;24; 2026 Determination Letters on State Implementation of IDEA.</div>
+          </div>
+          <div class="expanel" id="expanel-sea" data-panel="sea" role="tabpanel" aria-labelledby="extab-sea" tabindex="0" hidden>
+            <div class="ex-controls"><input id="seaSearch" class="ex-search" type="search" placeholder="Search a state"><span class="src-k">Click a column to sort</span></div>
+            <div class="tablewrap"><table class="sea" id="seaTable"><thead></thead><tbody></tbody></table></div>
+            <div class="source"><span class="src-k">Source</span> IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Years 2000&ndash;01 through 2024&ndash;25; IDEA Part&nbsp;B Exiting Collection, School Year 2023&ndash;24 (graduation and dropout, as a percent of students ages 14&ndash;21 who exited school).</div>
+          </div>
+          <div class="expanel" id="expanel-lea" data-panel="lea" role="tabpanel" aria-labelledby="extab-lea" tabindex="0" hidden>
+            <div class="ex-controls"><label class="src-k" for="leaStateSel">Choose a state</label><select id="leaStateSel" class="ex-select" aria-label="Choose a state"></select></div>
+            <div id="leaOut"></div>
+            <div class="source"><span class="src-k">Source</span> IDEA Part&nbsp;B Child Count and Educational Environments Collection, School Year 2024&ndash;25 (local educational agencies that reported a child count). District counts may not sum to the State total because small cells are suppressed.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -550,21 +564,21 @@
 
 <div class="maptip" id="maptip"></div>
 
-<script src="data.js?v=23"></script>
-<script src="enrich.js?v=23"></script>
-<script src="moe.js?v=23"></script>
-<script src="usmap.js?v=23"></script>
-<script src="det.js?v=23"></script>
-<script src="lea.js?v=23"></script>
-<script src="leaexit.js?v=23"></script>
-<script src="catdata.js?v=23"></script>
-<script src="sea.js?v=23"></script>
-<script src="charts.js?v=23"></script>
-<script src="story.js?v=23"></script>
-<script src="explore.js?v=23"></script>
-<script src="extra.js?v=23"></script>
-<script src="interactive.js?v=23"></script>
-<script src="builder.js?v=23"></script>
-<script src="quickstats.js?v=23"></script>
+<script src="data.js?v=32"></script>
+<script src="enrich.js?v=32"></script>
+<script src="moe.js?v=32"></script>
+<script src="usmap.js?v=32"></script>
+<script src="det.js?v=32"></script>
+<script src="lea.js?v=32"></script>
+<script src="leaexit.js?v=32"></script>
+<script src="catdata.js?v=32"></script>
+<script src="sea.js?v=32"></script>
+<script src="charts.js?v=32"></script>
+<script src="story.js?v=32"></script>
+<script src="explore.js?v=32"></script>
+<script src="extra.js?v=32"></script>
+<script src="interactive.js?v=32"></script>
+<script src="builder.js?v=32"></script>
+<script src="quickstats.js?v=32"></script>
 </body>
 </html>

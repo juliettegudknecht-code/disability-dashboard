@@ -20,12 +20,33 @@
     host.appendChild(ch.node); ch.reveal();
   }
 
-  /* tab switching */
-  document.querySelectorAll('.extab').forEach(b => b.addEventListener('click', () => {
-    document.querySelectorAll('.extab').forEach(x => { x.classList.remove('on'); x.setAttribute('aria-selected', 'false'); });
-    b.classList.add('on'); b.setAttribute('aria-selected', 'true');
-    document.querySelectorAll('.expanel').forEach(p => { p.hidden = p.dataset.panel !== b.dataset.tab; });
-  }));
+  /* tab switching — accessible tablist: roving tabindex + arrow/Home/End keys */
+  (function () {
+    const tabs = [...document.querySelectorAll('.extab')];
+    function activate(tab) {
+      tabs.forEach(t => {
+        const on = t === tab;
+        t.classList.toggle('on', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+      });
+      document.querySelectorAll('.expanel').forEach(p => { p.hidden = p.dataset.panel !== tab.dataset.tab; });
+    }
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => activate(tab));
+      tab.addEventListener('keydown', e => {
+        let j = null;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % tabs.length;
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home') j = 0;
+        else if (e.key === 'End') j = tabs.length - 1;
+        else return;
+        e.preventDefault();
+        tabs[j].click();   // selection follows focus (also runs the lazy "more" builder)
+        tabs[j].focus();
+      });
+    });
+  })();
 
   /* ---- State snapshot --------------------------------------- */
   const sel = $('#exStateSel'), out = $('#exStateOut');
@@ -91,7 +112,7 @@
     const cols = [{ k: 'name', t: 'State' }, { k: 2, t: '2000\u201301' }, { k: 3, t: '2010\u201311' },
       { k: 4, t: '2022\u201323' }, { k: 5, t: '2024\u201325' }, { k: 'g', t: 'Growth' }, { k: 6, t: '% enroll' },
       { k: 'grad', t: 'Grad %' }, { k: 'drop', t: 'Dropout %' }];
-    let sortK = 5, sortDir = -1, filter = '';
+    let sortK = 5, sortDir = -1, filter = '', focusK = null;
     const exv = (r, f) => EX[r[1]] && EX[r[1]][f] != null ? EX[r[1]][f] : null;
     const cell = (r, k) => k === 'name' ? r[0] : k === 'g' ? (r[5] - r[2]) / r[2] * 100
       : k === 'grad' ? exv(r, 'gradPct') : k === 'drop' ? exv(r, 'dropPct') : r[k];
@@ -100,7 +121,8 @@
     function build() {
       const thead = tbl.querySelector('thead'), tb = tbl.querySelector('tbody');
       thead.innerHTML = '<tr>' + cols.map(c => {
-        const on = c.k === sortK; return `<th data-k="${c.k}">${c.t}${on ? '<span class="ar">' + (sortDir < 0 ? '\u2193' : '\u2191') + '</span>' : ''}</th>`;
+        const on = c.k === sortK, sortAttr = on ? ` aria-sort="${sortDir < 0 ? 'descending' : 'ascending'}"` : '';
+        return `<th data-k="${c.k}" tabindex="0" aria-label="${c.t}, activate to sort"${sortAttr}>${c.t}${on ? '<span class="ar" aria-hidden="true">' + (sortDir < 0 ? '\u2193' : '\u2191') + '</span>' : ''}</th>`;
       }).join('') + '</tr>';
       const rows = I.STATES.filter(r => r[0].toLowerCase().includes(filter)).sort((a, b) => {
         const av = cell(a, sortK), bv = cell(b, sortK);
@@ -113,11 +135,16 @@
         const g = (r[5] - r[2]) / r[2] * 100, gp = exv(r, 'gradPct'), dp = exv(r, 'dropPct');
         return `<tr><td class="nm">${r[0]}</td><td>${I.nf(r[2])}</td><td>${I.nf(r[3])}</td><td>${I.nf(r[4])}</td><td>${I.nf(r[5])}</td><td class="pos">${g >= 0 ? '+' : ''}${g.toFixed(0)}%</td><td>${r[6].toFixed(1)}%</td><td>${gp != null ? gp.toFixed(1) + '%' : dash}</td><td>${dp != null ? dp.toFixed(1) + '%' : dash}</td></tr>`;
       }).join('');
-      thead.querySelectorAll('th').forEach(th => th.addEventListener('click', () => {
-        const raw = th.dataset.k, k = STR.has(raw) ? raw : +raw;
-        if (sortK === k) sortDir *= -1; else { sortK = k; sortDir = (k === 'name') ? 1 : -1; }
-        build();
-      }));
+      thead.querySelectorAll('th').forEach(th => {
+        const doSort = () => {
+          const raw = th.dataset.k, k = STR.has(raw) ? raw : +raw;
+          if (sortK === k) sortDir *= -1; else { sortK = k; sortDir = (k === 'name') ? 1 : -1; }
+          focusK = th.dataset.k; build();                       // keep keyboard focus on the column after re-render
+        };
+        th.addEventListener('click', doSort);
+        th.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doSort(); } });
+      });
+      if (focusK != null) { const el = thead.querySelector(`th[data-k="${focusK}"]`); if (el) el.focus(); focusK = null; }
     }
     build();
     const search = $('#seaSearch');
@@ -148,30 +175,30 @@
       const summary = `<div class="figure-sub" style="margin:0 0 14px">${sumTxt}</div>`;
       const rows = d.rows.map(x => {
         const [nm, nces, tot, sa, ec, aut] = x, bits = [];
-        if (sa != null) bits.push(`${I.nf(sa)} school age`);
-        if (aut != null && aut > 0) bits.push(`${I.nf(aut)} autism`);
+        if (sa != null) bits.push(`<b>${I.nf(sa)}</b> school-age`);
         const ex = LEAEXIT[normN(nces)];                        // per-district exiting (2023-24)
         if (ex && ex[2] >= 20) {
-          if (ex[0] != null) bits.push(`${Math.round(ex[0])}% graduated`);
-          if (ex[1] != null) bits.push(`${Math.round(ex[1])}% dropped out`);
+          if (ex[0] != null) bits.push(`<b>${Math.round(ex[0])}%</b> grad`);
+          if (ex[1] != null) bits.push(`<b>${Math.round(ex[1])}%</b> dropout`);
         }
+        const meta = `<span class="lea-nces">NCES&nbsp;${nces}</span>${bits.length ? ' &middot; ' + bits.join(' &middot; ') : ''}`;
         return `<div class="lea-row">
-          <span class="nm">${nm}<small>NCES&nbsp;${nces}${bits.length ? ' &middot; ' + bits.join(' &middot; ') : ''}</small></span>
-          <span class="v">${I.nf(tot)}<small> served</small></span></div>`;
+          <div class="lea-id"><span class="nm">${nm}</span><span class="lea-meta">${meta}</span></div>
+          <div class="v">${I.nf(tot)}<small>served</small></div></div>`;
       });
-      if (otherN > 0 && other > 0) rows.push(`<div class="lea-row">
-          <span class="nm" style="color:var(--muted)">All other districts<small>${I.nf(otherN)} additional districts and programs</small></span>
-          <span class="v" style="color:var(--faint)">${I.nf(other)}<small> served</small></span></div>`);
+      if (otherN > 0 && other > 0) rows.push(`<div class="lea-row is-other">
+          <div class="lea-id"><span class="nm">All other districts</span><span class="lea-meta">${I.nf(otherN)} additional districts and programs</span></div>
+          <div class="v">${I.nf(other)}<small>served</small></div></div>`);
       const SN = window.IDEAStory || {};
       lout.innerHTML = summary + `<div class="lea-list">${rows.join('')}</div>` + (SN.suppNoteHTML ? SN.suppNoteHTML('childcount') + SN.suppNoteHTML('exiting') : '');
     }
     lsel.addEventListener('change', renderLea); renderLea();
   }
 
-  /* ---- Other collections tab (exiting / discipline / personnel) ---- */
+  /* ---- Other Section 618 collections (exiting / discipline / personnel) ----
+     Surfaced directly in the page flow (no longer behind a tab); built on load. */
   (function () {
-    const moreTab = [...document.querySelectorAll('.extab')].find(b => b.dataset.tab === 'more');
-    if (!moreTab) return;
+    if (!$('#moreExit') && !$('#morePersonnel')) return;
     let built = false;
     function buildMore() {
       if (built) return; built = true;
@@ -230,6 +257,7 @@
         pBox.innerHTML = `<div class="snap-grid">${cells.join('')}</div>`;
       }
     }
-    moreTab.addEventListener('click', buildMore);
+    if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', buildMore);
+    else buildMore();
   })();
 })();
