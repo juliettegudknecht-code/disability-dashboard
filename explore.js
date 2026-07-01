@@ -65,8 +65,9 @@
   if (sel && out) {
     sel.add(new Option('Choose a state', ''));
     I.STATES.forEach((r, i) => sel.add(new Option(r[0], i)));
-    sel.value = String(I.STATES.reduce((bi, r, i, a) => r[5] > a[bi][5] ? i : bi, 0)); // open on the largest state
+    sel.value = ''; // start empty; the reader picks a state
     const ranked = I.STATES.slice().sort((a, b) => b[5] - a[5]);
+    const SEA = window.SEA || {};
     // clean typographic stats (no boxes): value over a plain label
     const stat = (v, k, cls) => `<div class="stat"><div class="stat-v${cls ? ' ' + cls : ''}">${v}</div><div class="stat-k">${k}</div></div>`;
     const detShort = s => !s ? '' : /^Meets/.test(s) ? 'Meets requirements' : /intervention/i.test(s) ? 'Needs intervention'
@@ -95,6 +96,11 @@
       if (ex && ex.dropPct != null) stats.push(stat(ex.dropPct.toFixed(1) + '%', 'Dropped out, of those who exited &middot; 2023&ndash;24 (Indicator&nbsp;2)', 'accent'));
       if (dc && dc.g10 != null) stats.push(stat(I.nf(dc.g10), 'Removed more than 10 days &middot; 2023&ndash;24 (discipline)'));
       if (PERS[ab] != null) stats.push(stat(PERS[ab].toFixed(1) + '%', 'Special education teachers fully certified &middot; 2022&ndash;23'));
+      const se = (SEA.exit || {})[ab];
+      if (se && se.altPct != null && se.altPct > 0) stats.push(stat(se.altPct.toFixed(1) + '%', 'Graduated with an alternate diploma, of those who exited &middot; 2023&ndash;24'));
+      const cvec = CAT && CAT.state[ab];
+      if (cvec) { const ti = cvec.indexOf(Math.max(...cvec)), ctot = cvec.reduce((a, b) => a + b, 0);
+        stats.push(stat((cvec[ti] / ctot * 100).toFixed(0) + '%', 'Served under ' + CAT.cats[ti].toLowerCase() + ', the most common category here &middot; 2024&ndash;25')); }
 
       // general supervision: BOTH the 2025 and 2026 determinations, the enforcement
       // consequence, key OSEP monitoring (DMS) findings, and source links
@@ -128,29 +134,38 @@
         <div class="snap-stats">${stats.join('')}</div>
         ${gsBlock}
         <div class="snap-block">
-          <div class="figure-title">Students served over time</div>
-          <div class="figure-sub">Children and students ages 3&ndash;21, selected school years, with ${r[0]} beside the national total.</div>
-          <div class="split cols2" style="margin-top:12px">
-            <div><div class="snap-sublab">${r[0]}</div><div id="snapTrend" class="chartbox"></div></div>
-            <div><div class="snap-sublab">United States</div><div id="snapTrendUS" class="chartbox"></div></div>
-          </div>
+          <div class="figure-title">Growth in students served since 2000&ndash;01</div>
+          <div class="figure-sub">Percent change in the number of children and students ages 3&ndash;21 served, ${r[0]} against the U.S. total (all states, DC, and the additional reporting entities), selected school years.</div>
+          <div class="legend" id="snapTrendLegend"></div>
+          <div id="snapTrend" class="chartbox" style="max-width:640px"></div>
+          <div class="snap-links" style="margin-top:12px"><a href="#" id="snapMapLink">See ${r[0]}&rsquo;s districts and funding on the map &rarr;</a></div>
         </div>
         ${(CAT && CAT.state[r[1]]) ? `<details class="snap-cats"><summary>Students served by disability category${chev}</summary>
           <div class="figure-sub" style="margin:0 0 10px">All 13 primary categories, ages 3&ndash;21, School&nbsp;Year 2024&ndash;25. Tap a bar for the category profile.</div>
           <div id="snapCats" class="chartbox"></div>
           ${(window.IDEAStory && window.IDEAStory.suppNoteHTML) ? window.IDEAStory.suppNoteHTML('childcount') : ''}</details>` : ''}`;
 
+      // one combined chart: percent growth for the state and the U.S. total, on the same axis
       const yrLab = ['2000\u201301', '2010\u201311', '2022\u201323', '2024\u201325'], yrXs = [2000, 2010, 2022, 2024];
-      const mkTrend = (vals, color, endLab) => C.lineChart({
-        labels: yrLab, xs: yrXs, xTicks: [2000, 2010, 2024],
-        series: [{ values: vals, color, area: true, areaOpacity: .16, highlight: true, endDotR: 6, endLabel: endLab }],
-        yMin: 0, yMax: Math.max(...vals) * 1.15, yTicks: 3, yFmt: v => v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1000 ? (v / 1000).toFixed(0) + 'k' : Math.round(v),
-        height: 250, width: 360, padL: 48,
-      });
       const sVals = [r[2], r[3], r[4], r[5]];
-      const st = mkTrend(sVals, P.greenD, I.nf(r[5])); $('#snapTrend').appendChild(st.node); st.reveal();
-      const usVals = [I.ALL[3], I.ALL[6], I.ALL[18], I.ALL[20]].map(v => v * 1000);   // national totals, same years
-      const us = mkTrend(usVals, P.navy, (usVals[3] / 1e6).toFixed(1) + 'M'); $('#snapTrendUS').appendChild(us.node); us.reveal();
+      const usVals = [I.ALL[3], I.ALL[6], I.ALL[18], I.ALL[20]].map(v => v * 1000);
+      const grow = a => a.map(v => (v - a[0]) / a[0] * 100), sG = grow(sVals), usG = grow(usVals), allG = sG.concat(usG);
+      const combined = C.lineChart({
+        labels: yrLab, xs: yrXs, xTicks: [2000, 2010, 2024],
+        series: [
+          { values: sG, color: P.greenD, width: 2.8, highlight: true, endDotR: 5, endLabel: (sG[3] >= 0 ? '+' : '') + sG[3].toFixed(0) + '%' },
+          { values: usG, color: P.navy, width: 2.2, highlight: true, endDotR: 5, endLabel: (usG[3] >= 0 ? '+' : '') + usG[3].toFixed(0) + '%' },
+        ],
+        yMin: Math.min(0, ...allG), yMax: Math.max(...allG) * 1.15, yTicks: 4, yFmt: v => (v >= 0 ? '+' : '') + v.toFixed(0) + '%',
+        height: 280, width: 640, padL: 52,
+      });
+      $('#snapTrend').appendChild(combined.node); combined.reveal();
+      const SN = window.IDEAStory || {};
+      if (SN.legend) SN.legend('snapTrendLegend', [[r[0], P.greenD, true], ['U.S., outlying areas, and freely associated states', P.navy, true]]);
+      const mapLink = out.querySelector('#snapMapLink');
+      if (mapLink) mapLink.addEventListener('click', e => { e.preventDefault();
+        if (window.IDEAUMAP && window.IDEAUMAP.toState) window.IDEAUMAP.toState(ab);
+        const m = document.getElementById('umap'); if (m) m.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 
       // category breakdown is collapsed by default; build it (with its bar animation) on first open
       const details = out.querySelector('.snap-cats');
@@ -163,6 +178,14 @@
       }
     }
     sel.addEventListener('change', render); render();
+    // let the map (and anything else) route a click straight to this state snapshot
+    window.IDEAExplore = { showState(ab) {
+      const i = I.STATES.findIndex(r => r[1] === ab); if (i < 0) return;
+      const tab = document.getElementById('extab-state'); if (tab) tab.click();
+      sel.value = String(i); render();
+      const panel = document.getElementById('expanel-state') || out;
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } };
   }
 
   /* ---- All-states table (SEA) ------------------------------- */
@@ -193,7 +216,7 @@
       });
       tb.innerHTML = rows.map(r => {
         const g = (r[5] - r[2]) / r[2] * 100, gp = exv(r, 'gradPct'), dp = exv(r, 'dropPct');
-        return `<tr><td class="nm">${r[0]}</td><td>${I.nf(r[2])}</td><td>${I.nf(r[3])}</td><td>${I.nf(r[4])}</td><td>${I.nf(r[5])}</td><td class="pos">${g >= 0 ? '+' : ''}${g.toFixed(0)}%</td><td>${r[6].toFixed(1)}%</td><td>${gp != null ? gp.toFixed(1) + '%' : dash}</td><td>${dp != null ? dp.toFixed(1) + '%' : dash}</td></tr>`;
+        return `<tr data-ab="${r[1]}" tabindex="0"><td class="nm">${r[0]}</td><td>${I.nf(r[2])}</td><td>${I.nf(r[3])}</td><td>${I.nf(r[4])}</td><td>${I.nf(r[5])}</td><td class="pos">${g >= 0 ? '+' : ''}${g.toFixed(0)}%</td><td>${r[6].toFixed(1)}%</td><td>${gp != null ? gp.toFixed(1) + '%' : dash}</td><td>${dp != null ? dp.toFixed(1) + '%' : dash}</td></tr>`;
       }).join('');
       thead.querySelectorAll('th').forEach(th => {
         const doSort = () => {
@@ -207,6 +230,11 @@
       if (focusK != null) { const el = thead.querySelector(`th[data-k="${focusK}"]`); if (el) el.focus(); focusK = null; }
     }
     build();
+    // clicking a state row opens that state's snapshot (same click-through as the map)
+    const tb0 = tbl.querySelector('tbody');
+    const goRow = tr => { if (tr && tr.dataset.ab && window.IDEAExplore) window.IDEAExplore.showState(tr.dataset.ab); };
+    tb0.addEventListener('click', e => goRow(e.target.closest('tr[data-ab]')));
+    tb0.addEventListener('keydown', e => { if (e.key === 'Enter') goRow(e.target.closest('tr[data-ab]')); });
     const search = $('#seaSearch');
     if (search) search.addEventListener('input', e => { filter = e.target.value.toLowerCase().trim(); build(); });
   }
@@ -233,7 +261,8 @@
       else if (shown >= n) sumTxt = `All ${I.nf(n)} school districts in ${r[0]} that reported a child count for School&nbsp;Year 2024&ndash;25 are listed below, ranked by number of students served.`;
       else sumTxt = `${I.nf(n)} school districts in ${r[0]} reported a child count for School&nbsp;Year 2024&ndash;25. The ${shown} largest by number of students served are listed below.`;
       const summary = `<div class="figure-sub" style="margin:0 0 14px">${sumTxt}</div>`;
-      const rows = d.rows.map(x => {
+      const SN = window.IDEAStory || {};
+      const rows = d.rows.map((x, i) => {
         const [nm, nces, tot, sa, ec, aut] = x, bits = [];
         if (sa != null) bits.push(`<b>${I.nf(sa)}</b> school-age`);
         const ex = LEAEXIT[normN(nces)];                        // per-district exiting (2023-24)
@@ -242,15 +271,36 @@
           if (ex[1] != null) bits.push(`<b>${Math.round(ex[1])}%</b> dropout`);
         }
         const meta = `<span class="lea-nces">NCES&nbsp;${nces}</span>${bits.length ? ' &middot; ' + bits.join(' &middot; ') : ''}`;
-        return `<div class="lea-row">
+        return `<div class="lea-row" data-i="${i}" role="button" tabindex="0">
           <div class="lea-id"><span class="nm">${nm}</span><span class="lea-meta">${meta}</span></div>
           <div class="v">${I.nf(tot)}<small>served</small></div></div>`;
       });
       if (otherN > 0 && other > 0) rows.push(`<div class="lea-row is-other">
           <div class="lea-id"><span class="nm">All other districts</span><span class="lea-meta">${I.nf(otherN)} additional districts and programs</span></div>
           <div class="v">${I.nf(other)}<small>served</small></div></div>`);
-      const SN = window.IDEAStory || {};
-      lout.innerHTML = summary + `<div class="lea-list">${rows.join('')}</div>` + (SN.suppNoteHTML ? SN.suppNoteHTML('childcount') + SN.suppNoteHTML('exiting') : '');
+      lout.innerHTML = summary + `<div class="lea-hint2 fig-hint" style="margin:0 0 12px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11.5 9 5a1.8 1.8 0 0 1 3.6 0v6"/><path d="M12.6 11V8.2a1.7 1.7 0 0 1 3.4 0V11"/><path d="M16 10.5a1.7 1.7 0 0 1 3.4 0V15a5.5 5.5 0 0 1-5.5 5.5h-1.4a5 5 0 0 1-3.6-1.5l-3-3.1a1.8 1.8 0 0 1 2.6-2.5L9 14.5"/></svg>Tap a district for its full profile</div><div class="lea-list">${rows.join('')}</div>` + (SN.suppNoteHTML ? SN.suppNoteHTML('childcount') + SN.suppNoteHTML('exiting') : '');
+      function openLeaDist(x) {
+        const [nm, nces, tot, sa] = x, ex = LEAEXIT[normN(nces)], vec = CAT && CAT.lea[normN(nces)];
+        SN.openModal && SN.openModal(`<div class="m-kicker">School district &middot; ${r[0]}</div><h3 class="m-title">${nm}</h3>
+          <p class="m-dek" style="font-size:12.5px;color:var(--faint)">NCES ${nces}</p>
+          <div class="m-grid">
+            <div><span class="mv">${tot == null ? 'n/a' : I.nf(tot)}</span><span class="ml">students served, ages 3–21 (2024–25)</span></div>
+            ${sa != null ? `<div><span class="mv">${I.nf(sa)}</span><span class="ml">school age (5–21)</span></div>` : ''}
+            ${ex && ex[2] >= 20 && ex[0] != null ? `<div><span class="mv">${ex[0].toFixed(1)}%</span><span class="ml">graduated with a regular diploma, of those who exited (2023–24)</span></div>` : ''}
+            ${ex && ex[2] >= 20 && ex[1] != null ? `<div><span class="mv" style="color:var(--accent)">${ex[1].toFixed(1)}%</span><span class="ml">dropped out, of those who exited (2023–24)</span></div>` : ''}
+          </div>
+          ${vec ? `<div class="figure-sub" style="margin:16px 0 6px">Students served by disability category (2024–25)</div><div id="leaDistCats" class="chartbox"></div>${SN.suppNoteHTML ? SN.suppNoteHTML('childcount') : ''}` : ''}
+          <div class="snap-links" style="margin-top:14px"><a href="#" id="leaMapLink">See ${nm} on the map &rarr;</a></div>
+          <p class="m-src">IDEA Part B Child Count (SY 2024–25) and Exiting LEA Collection (SY 2023–24).</p>`);
+        if (vec) catBars(document.getElementById('leaDistCats'), vec, vec.reduce((a, b) => a + b, 0), true);
+        const ml = document.getElementById('leaMapLink');
+        if (ml) ml.addEventListener('click', e => { e.preventDefault(); if (window.IDEAUMAP && window.IDEAUMAP.toDistrict) window.IDEAUMAP.toDistrict(ab, nces); });
+      }
+      lout.querySelectorAll('.lea-row[data-i]').forEach(el => {
+        const fire = () => openLeaDist(d.rows[+el.dataset.i]);
+        el.addEventListener('click', fire);
+        el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fire(); } });
+      });
     }
     lsel.addEventListener('change', renderLea); renderLea();
   }
@@ -318,6 +368,9 @@
           const a = +(race[dk] / totServed * 100).toFixed(1), b = +(rem / discTot * 100).toFixed(1);
           return { label: I.RACE_LBL[dk] || rk, a, b, ratio: +(b / a).toFixed(2) };
         }).filter(Boolean).sort((x, y) => y.ratio - x.ratio);
+        // removals per 100 served, by disability — shown in the popup so the topic also breaks out by category
+        const yi = I.YEARS.indexOf('2023-24');
+        const disPer100 = (X.DISC_DIS || []).map(([d, rem]) => { const cc = I.DIS[d] && I.DIS[d][yi] != null ? I.DIS[d][yi] * 1000 : null; return cc ? { label: d, value: +(rem / cc * 100).toFixed(1) } : null; }).filter(Boolean).sort((a, b) => b.value - a.value);
         const ch = C.barsH({
           items: items.map(d => ({ label: d.label, value: d.ratio,
             color: d.ratio >= 1.06 ? P.accent : (d.ratio <= 0.94 ? P.green : P.sage) })),
@@ -328,7 +381,11 @@
               <div class="m-grid"><div><span class="mv">${d.a}%</span><span class="ml">of all students served</span></div>
               <div><span class="mv">${d.b}%</span><span class="ml">of all disciplinary removals</span></div>
               <div><span class="mv"${d.ratio >= 1.06 ? ' style="color:var(--accent)"' : ''}>${d.ratio.toFixed(2)}×</span><span class="ml">removals relative to enrollment share (1.0 = proportional)</span></div></div>
-              <p class="m-src">U.S. Department of Education, IDEA Part B Discipline Collection (removals, 2023–24) and Child Count (students served, 2024–25).</p>`); } });
+              <div class="figure-sub" style="margin:18px 0 6px">Discipline also varies sharply by disability: removals per 100 students served</div>
+              <div id="drDisBreak" class="chartbox"></div>
+              <p class="m-src">U.S. Department of Education, IDEA Part B Discipline Collection (removals, 2023–24) and Child Count (students served, 2024–25). The rate by race/ethnicity is not published crossed with disability category.</p>`);
+            const bd = document.getElementById('drDisBreak');
+            if (bd && disPer100.length) { const bch = C.barsH({ items: disPer100.map(o => ({ label: o.label, value: o.value, color: o.label === 'Emotional disturbance' ? P.navy : P.green, highlight: o.label === 'Emotional disturbance' })), labelW: 220, barH: 13, gap: 6, padR: 52, xMax: 120, valueFmt: v => v.toFixed(0) }); bd.appendChild(bch.node); bch.reveal(); } } });
         drBox.appendChild(ch.node); ch.reveal();
         window.IDEAStory && window.IDEAStory.expbar('moreDiscRace', 'idea-discipline-disproportionality-2023-24', [['Race/ethnicity', 'Share of students served %', 'Share of removals %', 'Removals ÷ enrollment share'], ...items.map(d => [d.label, d.a, d.b, d.ratio])]);
         const lg = $('#moreRaceLegend');
@@ -350,10 +407,10 @@
             <div class="m-grid">
               ${pers.teachers ? `<div><span class="mv">${pers.teachers.pct.toFixed(1)}%</span><span class="ml">of special education teachers fully certified (${I.nf(Math.round(pers.teachers.total))} FTE)</span></div>` : ''}
               ${pers.paras ? `<div><span class="mv">${pers.paras.pct.toFixed(1)}%</span><span class="ml">of paraprofessionals qualified (${I.nf(Math.round(pers.paras.total))} FTE)</span></div>` : ''}
-              ${nat.relatedPct != null ? `<div><span class="mv">${nat.relatedPct}%</span><span class="ml">of related-services staff fully certified (${I.nf(nat.relatedFTE)} FTE), fall 2022</span></div>` : ''}
+              ${nat.relatedPct != null ? `<div><span class="mv">${nat.relatedPct}%</span><span class="ml">of related-services staff fully certified (${I.nf(nat.relatedFTE)} FTE), SY 2022–23</span></div>` : ''}
             </div>
             <p class="m-dek" style="margin-top:14px;font-size:13px">Related-services staff include speech-language pathologists, school psychologists, occupational and physical therapists, counselors, audiologists, and interpreters. "Fully certified" follows 34&nbsp;CFR&nbsp;300.156: full state certification (including approved alternate routes), no emergency or temporary waiver.</p>
-            <p class="m-src">U.S. Department of Education, IDEA Part&nbsp;B Personnel Collection, School Year 2023&ndash;24; related-services figure from the 47th Annual Report to Congress on the Implementation of IDEA (Exhibit 45, fall 2022).</p>`);
+            <p class="m-src">U.S. Department of Education, IDEA Part&nbsp;B Personnel Collection, School Year 2023&ndash;24; related-services figure from the 47th Annual Report to Congress on the Implementation of IDEA (Exhibit 45, SY 2022–23).</p>`);
         }
         pBox.style.cursor = 'pointer'; pBox.tabIndex = 0; pBox.setAttribute('role', 'button');
         pBox.addEventListener('click', openPersonnelModal);

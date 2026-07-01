@@ -273,6 +273,54 @@
         };
       },
     },
+    /* personnel: teachers fully certified, by state */
+    {
+      id: 'personnel', label: 'Teachers fully certified, by state', types: ['bars', 'columns', 'map'],
+      render(sel, type) {
+        const pers = (window.DMS && window.DMS.personnel && window.DMS.personnel.byState) || {};
+        const rows = I.STATES.filter(r => pers[r[1]] != null).map(r => ({ name: r[0], ab: r[1], v: pers[r[1]] })).sort((a, b) => b.v - a.v);
+        const fmt = v => v.toFixed(1) + '%';
+        let ch;
+        if (type === 'map') {
+          const vals = {}; rows.forEach(x => vals[x.ab] = x.v); const arr = rows.map(x => x.v), min = Math.min(...arr), max = Math.max(...arr);
+          const stops = [{ t: 0, color: '#e7efe9' }, { t: .5, color: '#5aa377' }, { t: 1, color: '#0f3d2c' }];
+          ch = window.USMAP ? C.choropleth({ values: vals, min, max, stops, fmt, nameOf: a => (I.STATES.find(r => r[1] === a) || [a])[0], onClick: ab => drillState(ab) }) : C.tileMap({ values: vals, min, max, stops, fmt, nameOf: a => (I.STATES.find(r => r[1] === a) || [a])[0] });
+        } else if (type === 'columns') ch = C.columns({ labels: rows.map(x => x.ab), values: rows.map(x => x.v), yMax: 100, yFmt: v => v + '%', xEvery: 2, height: 340, onClick: (x, i) => drillState(rows[i].ab) });
+        else ch = C.barsH({ onClick: (x, i) => drillState(rows[i].ab), items: rows.map(x => ({ label: x.name, value: x.v, color: P.green })), labelW: 150, barH: 15, gap: 6, padR: 56, xMax: 100, valueFmt: fmt });
+        return {
+          node: ch.node, reveal: ch.reveal,
+          title: 'Percentage of special education teachers who are fully certified, by State: School year 2022–23',
+          sub: 'Full-time-equivalent special education teachers fully certified.',
+          source: 'U.S. Department of Education, EDFacts IDEA Part B Personnel Collection, School Year 2022–23; 47th Annual Report to Congress.',
+          csv: [['State', 'Percent of teachers fully certified (2022-23)'], ...rows.map(x => [x.name, x.v])],
+        };
+      },
+    },
+    /* IDEA determinations by level and year */
+    {
+      id: 'determinations', label: 'State determinations, by level', types: ['bars', 'columns'],
+      opts: [
+        { key: 'year', kind: 'toggle', label: 'Year', choices: [['2026', '2026'], ['2025', '2025']], def: '2026' },
+        { key: 'part', kind: 'toggle', label: 'IDEA part', choices: [['partB', 'Part B'], ['partC', 'Part C']], def: 'partB' },
+      ],
+      render(sel, type) {
+        const map = (sel.year === '2025' ? window.DET2025 : window.DET2026) || { partB: {}, partC: {} };
+        const obj = map[sel.part] || {};
+        const LV = [['Meets requirements', /^Meets/, P.green], ['Needs assistance, one year', /one year/, '#c9a23a'], ['Needs assistance, two or more years', /two or more/, P.accent], ['Needs intervention', /intervention/, '#8f2d2d']];
+        const items = LV.map(([lab, re, col]) => ({ label: lab, value: Object.values(obj).filter(v => re.test(v)).length, color: col }));
+        const total = Object.keys(obj).length;
+        let ch;
+        if (type === 'columns') ch = C.columns({ labels: items.map(d => d.label.replace('Needs assistance, ', 'NA ').replace('Needs intervention', 'Intervention').replace('Meets requirements', 'Meets')), values: items.map(d => d.value), colors: items.map(d => d.color), yFmt: v => Math.round(v), xEvery: 1, height: 320 });
+        else ch = C.barsH({ items, labelW: 260, barH: 26, gap: 15, padR: 48, valueFmt: v => Math.round(v) });
+        return {
+          node: ch.node, reveal: ch.reveal,
+          title: 'Number of states and reporting entities at each IDEA ' + (sel.part === 'partB' ? 'Part B' : 'Part C') + ' determination level: ' + sel.year,
+          sub: 'Of ' + total + ' states and reporting entities, based on ' + (sel.year === '2025' ? 'FFY 2023' : 'FFY 2024') + ' SPP/APR.',
+          source: 'U.S. Department of Education, OSEP, ' + sel.year + ' Determination Letters on State Implementation of IDEA.',
+          csv: [['Determination level', 'States and entities'], ...items.map(d => [d.label, d.value])],
+        };
+      },
+    },
     /* part C settings */
     {
       id: 'partc', label: 'Part C early-intervention settings', types: ['donut', 'bars', 'columns'],
@@ -312,6 +360,10 @@
         <select id="cb-topic"></select></label>
       <div id="cb-opts"></div>
       <div class="cb-field"><span>Chart type</span><div id="cb-types" class="cb-types"></div></div>
+      <div class="cb-field"><span>Options</span><div class="cb-optrow">
+        <div class="cb-seg" id="cb-labels"><button type="button" data-v="on" class="on">Value labels on</button><button type="button" data-v="off">Labels off</button></div>
+        <div class="cb-seg" id="cb-legendtog"><button type="button" data-v="on" class="on">Legend on</button><button type="button" data-v="off">Legend off</button></div>
+      </div></div>
       <div class="cb-preview">
         <input id="cb-title" class="cb-title-input" aria-label="Chart title (editable)" placeholder="Chart title">
         <div class="figure-sub" id="cb-sub"></div>
@@ -330,6 +382,7 @@
   TOPICS.forEach((t, i) => topicSel.add(new Option(t.label, i)));
   const state = {}; // per-topic option selections
   let curType = null, lastCsv = null, lastName = 'chart';
+  const OPT = { labels: true, legend: true };   // global display options (labels, legend)
 
   function optDefaults(t) {
     const s = {}; (t.opts || []).forEach(o => s[o.key] = Array.isArray(o.def) ? o.def.slice() : o.def); return s;
@@ -388,8 +441,9 @@
     panel.querySelector('#cb-sub').textContent = res.sub || '';
     panel.querySelector('#cb-source').innerHTML = '<span class="src-k">Source</span> ' + (res.source || '');
     const lg = panel.querySelector('#cb-legend'); lg.innerHTML = '';
-    (res.legend || []).forEach(([txt, c]) => { const k = document.createElement('span'); k.className = 'k'; const sw = document.createElement('span'); sw.className = 'sw'; sw.style.background = c; k.appendChild(sw); k.appendChild(document.createTextNode(txt)); lg.appendChild(k); });
+    if (OPT.legend) (res.legend || []).forEach(([txt, c]) => { const k = document.createElement('span'); k.className = 'k'; const sw = document.createElement('span'); sw.className = 'sw'; sw.style.background = c; k.appendChild(sw); k.appendChild(document.createTextNode(txt)); lg.appendChild(k); });
     const host = panel.querySelector('#cb-chart'); host.innerHTML = ''; host.appendChild(res.node);
+    host.classList.toggle('cb-nolabels', !OPT.labels);
     res.reveal && res.reveal();
     lastCsv = res.csv; lastName = 'idea-' + t.id + '-' + curType;
   }
@@ -400,6 +454,9 @@
     buildOptsUI(t); buildTypeUI(t); draw();
   }
   topicSel.addEventListener('change', selectTopic);
+  function wireSeg(id, key) { const seg = panel.querySelector(id); if (!seg) return;
+    seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { OPT[key] = b.dataset.v === 'on'; seg.querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); draw(); })); }
+  wireSeg('#cb-labels', 'labels'); wireSeg('#cb-legendtog', 'legend');
 
   panel.querySelector('#cb-png').addEventListener('click', () => {
     const src = (panel.querySelector('#cb-source').textContent || '').replace(/^\s*source\s*/i, '').replace(/\s+/g, ' ').trim();

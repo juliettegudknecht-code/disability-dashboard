@@ -140,7 +140,7 @@
     bg = document.createElement('div'); bg.className = 'a11y-bg';
     const textRow = `<div class="a11y-row">
         <div class="a11y-txt">
-          <div class="a11y-name"><span class="a11y-ic"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5h16v2M9 19h6M12 5v14"/></svg></span>Text size</div>
+          <div class="a11y-name">Text size</div>
           <div class="a11y-desc">Enlarge every figure, label, and paragraph.</div>
         </div>
         <div class="a11y-seg" role="group" aria-label="Text size">
@@ -151,7 +151,7 @@
       </div>`;
     const rowHtml = o => `<div class="a11y-row">
         <div class="a11y-txt">
-          <div class="a11y-name"><span class="a11y-ic">${o.ic}</span>${o.name}</div>
+          <div class="a11y-name">${o.name}</div>
           <div class="a11y-desc">${o.desc}</div>
         </div>
         <button class="a11y-switch" role="switch" aria-checked="false" data-k="${o.k}" aria-label="${o.name}"><span class="a11y-knob"></span></button>

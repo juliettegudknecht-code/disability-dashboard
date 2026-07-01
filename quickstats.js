@@ -107,7 +107,7 @@
     { c: 'Personnel', q: 'What share of special education teachers are fully certified?', v: teachPct, copy: teachPct,
       n: 'Special education teachers fully certified or qualified' + (pers.teachers ? ', of about ' + nf(Math.round(pers.teachers.total)) + ' full-time equivalents' : '') + '. Nationally about 91.2% (fall 2022).', s: 'IDEA Part B Personnel Collection; 47th Annual Report to Congress (Exhibit 43).', go: 'explore', t: 'personnel teachers certified qualified staff workforce fully certified special education teacher shortage' },
     { c: 'Personnel', q: 'What share of related-services staff are fully certified?', v: '97%', copy: '97%',
-      n: 'Related-services staff (speech-language pathologists, psychologists, therapists, and others) fully certified, about 253,386 full-time equivalents (fall 2022).', s: '47th Annual Report to Congress on IDEA (Exhibit 45).', go: 'explore', t: 'related services staff speech psychologist therapist certified personnel' },
+      n: 'Related-services staff (speech-language pathologists, psychologists, therapists, and others) fully certified, about 253,386 full-time equivalents (SY 2022–23).', s: '47th Annual Report to Congress on IDEA (Exhibit 45).', go: 'explore', t: 'related services staff speech psychologist therapist certified personnel' },
     { c: 'Outcomes', q: 'How many students had a long suspension or expulsion?', v: nf(65104), copy: '65,104',
       n: 'Students ages 3–21 with out-of-school suspensions or expulsions of more than 10 days (2022–23), about 85 per 10,000 served.', s: '47th Annual Report to Congress on IDEA (Exhibit 46).', go: 'explore', t: 'discipline suspension expulsion removal out of school more than 10 days' },
     { c: 'Outcomes', q: 'How often are due process complaints filed?', v: '45 per 10,000', copy: '45 per 10,000 served',
@@ -208,7 +208,7 @@
     bg.innerHTML = `<div class="qs-card" role="dialog" aria-modal="true" aria-label="Quick statistics finder">
       <button class="qs-x" aria-label="Close">×</button>
       <div class="m-kicker">Quick statistics finder</div>
-      <h3 class="m-title" style="margin-bottom:4px">The numbers people ask for, in one place</h3>
+      <h3 class="m-title" style="margin-bottom:4px">The facts people commonly reach for about IDEA, in one place</h3>
       <p class="m-dek" style="font-size:13.5px">Search a question or a keyword, or filter by IDEA part. Click any card to copy it.</p>
       <div class="qs-search">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>

@@ -92,10 +92,11 @@
       const row = document.createElement('div'); row.className = 'det-row';
       row.appendChild(a.wrap); row.appendChild(b.wrap); holder.appendChild(row);
       const sc = document.createElement('div'); sc.className = 'det-score';
+      const pct = (n, tot) => tot ? Math.round(n / tot * 100) + '%' : '';
       sc.innerHTML = `<div class="det-score-head"><span></span><span>Part&nbsp;B</span><span>Part&nbsp;C</span></div>` + LV.map(l => `<button class="det-score-row" data-level="${l.label}" style="--c:${l.color}">
           <span class="det-score-lab"><span class="det-ic">${l.key === 'meets' ? CHECK : ALERT}</span>${l.label}</span>
-          <span class="det-score-n">${l.partB}</span>
-          <span class="det-score-n">${l.partC}</span>
+          <span class="det-score-n">${l.partB}<small>${pct(l.partB, T.B)}</small></span>
+          <span class="det-score-n">${l.partC}<small>${pct(l.partC, T.C)}</small></span>
         </button>`).join('');
       holder.appendChild(sc);
       sc.querySelectorAll('.det-score-row').forEach(b2 => b2.addEventListener('click', () => openDetModal(b2.dataset.level, year)));

@@ -505,6 +505,17 @@ html.js .reveal.in { opacity: 1; transform: none; filter: none; }
 .det-score-lab .det-ic { flex: none; display: inline-flex; width: 26px; height: 26px; align-items: center; justify-content: center; border-radius: 50%;
   color: #fff; background: var(--c); }
 .det-score-n { text-align: right; font-family: var(--font-display); font-weight: 800; font-size: 19px; color: var(--c); font-variant-numeric: tabular-nums; }
+.det-score-n small { display: block; font-size: 10px; font-weight: 600; color: var(--muted); margin-top: 1px; }
+.det-yeartoggle { margin-bottom: 18px; }
+.lea-row[data-i] { cursor: pointer; }
+.lea-row[data-i]:focus-visible { outline: 2px solid var(--green-d); outline-offset: -2px; }
+table.sea tbody tr[data-ab] { cursor: pointer; }
+table.sea tbody tr[data-ab]:focus-visible { outline: 2px solid var(--green-d); outline-offset: -2px; }
+/* chart builder: options row + value-labels off */
+.cb-optrow { display: flex; flex-wrap: wrap; gap: 8px; }
+.cb-nolabels .cv-barval, .cb-nolabels .cv-colval, .cb-nolabels .cv-end,
+.cb-nolabels .cv-tileval, .cb-nolabels .cv-dbval, .cb-nolabels .cv-bub-val,
+.cb-nolabels .cv-flow-val { display: none !important; }
 
 /* ---- Money flow chart text ---- */
 .cv-flow-lab { fill: var(--ink); font-size: 12.5px; font-weight: 600; }
