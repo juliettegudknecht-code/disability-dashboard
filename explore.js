@@ -63,9 +63,20 @@
   const sel = $('#exStateSel'), out = $('#exStateOut');
   const detCls = s => !s ? '' : /^Meets/.test(s) ? 'det-meets' : /intervention/i.test(s) ? 'det-int' : /two or more/i.test(s) ? 'det-na2' : 'det-na1';
   if (sel && out) {
-    sel.add(new Option('Choose a state', ''));
-    I.STATES.forEach((r, i) => sel.add(new Option(r[0], i)));
-    sel.value = ''; // start empty; the reader picks a state
+    // the additional IDEA reporting entities: names match the determination-letter keys in det.js
+    const ENTITIES = [
+      ['Puerto Rico', 'PR'], ['Bureau of Indian Education', 'BIE'], ['American Samoa', 'AS'],
+      ['Guam', 'GU'], ['Commonwealth of the Northern Mariana Islands', 'MP'], ['Virgin Islands', 'VI'],
+      ['Republic of the Marshall Islands', 'MH'], ['Federated States of Micronesia', 'FM'], ['Republic of Palau', 'PW'],
+    ];
+    sel.add(new Option('Choose a state or entity', ''));
+    const sgS = document.createElement('optgroup'); sgS.label = 'States and the District of Columbia';
+    I.STATES.forEach((r, i) => sgS.appendChild(new Option(r[0], String(i))));
+    sel.appendChild(sgS);
+    const sgE = document.createElement('optgroup'); sgE.label = 'Additional reporting entities';
+    ENTITIES.forEach(([nm, ab]) => sgE.appendChild(new Option(nm, 'ent:' + ab)));
+    sel.appendChild(sgE);
+    sel.value = ''; // start empty; the reader picks a state or entity
     const ranked = I.STATES.slice().sort((a, b) => b[5] - a[5]);
     const SEA = window.SEA || {};
     // clean typographic stats (no boxes): value over a plain label
@@ -76,9 +87,37 @@
     const DMS = window.DMS || {};
     const PERS = (DMS.personnel && DMS.personnel.byState) || {};
     const detWord = (part, lvl) => lvl ? `<span class="det-word ${detCls(lvl)}">Part&nbsp;${part}: ${detShort(lvl)}</span>` : '';
+    function renderEntity(ab) {
+      const ent = ENTITIES.find(e => e[1] === ab); if (!ent) { out.innerHTML = ''; return; }
+      const name = ent[0];
+      const d25 = window.DET2025 ? { b: window.DET2025.partB[name], c: window.DET2025.partC[name] } : {};
+      const d26 = window.DET2026 ? { b: window.DET2026.partB[name], c: window.DET2026.partC[name] } : {};
+      const yrLine = (yr, dd) => (dd.b || dd.c) ? `<p class="snap-det"><b class="snap-detyr">${yr}</b> ${detWord('B', dd.b)}${dd.b && dd.c ? '<span class="snap-dot">&middot;</span>' : ''}${detWord('C', dd.c)}</p>` : '';
+      const dlines = yrLine('2026', d26) + yrLine('2025', d25);
+      const latestB = d26.b || d25.b;
+      let note = '';
+      if (latestB && /two or more/i.test(latestB)) note = `<p class="snap-note">${name} has needed assistance under Part&nbsp;B for two or more consecutive years, so the Department must take enforcement action, for example requiring technical assistance, designating it a high-risk grantee, or directing set-aside funds to the areas needing assistance.</p>`;
+      else if (latestB && /intervention/i.test(latestB)) note = `<p class="snap-note">${name} needs intervention under Part&nbsp;B, the most serious determination short of substantial intervention.</p>`;
+      const isC = !!(d25.c || d26.c);
+      const links = [`<a href="https://sites.ed.gov/idea/spp-apr-letters" target="_blank" rel="noopener noreferrer">${name}&rsquo;s SPP/APR letters &rarr;</a>`,
+        `<a href="https://sites.ed.gov/idea/idea-files/2026-determination-letters-on-state-implementation-of-idea/" target="_blank" rel="noopener noreferrer">Determination letters &rarr;</a>`];
+      out.innerHTML = `<div class="snap-head">
+          <div class="snap-eyebrow">Reporting entity &middot; IDEA</div>
+          <div class="snap-name">${name}</div>
+        </div>
+        <p class="figure-sub" style="max-width:76ch">${name} is one of the additional reporting entities served under IDEA${isC ? ' Parts&nbsp;B and C' : ', Part&nbsp;B'}. Its child count, environments, exiting, discipline, and personnel are folded into the national totals shown elsewhere in this story (which cover the 50 states, DC, and the additional entities) rather than broken out separately here. Its IDEA determinations, the clearest entity-level figure, are below.</p>
+        <div class="snap-block"><div class="figure-title">General supervision</div>
+          <div class="figure-sub" style="margin:0 0 8px">IDEA determinations are OSEP&rsquo;s yearly judgment, made from each grantee&rsquo;s SPP/APR.</div>
+          ${dlines || '<p class="snap-det">No determination on record.</p>'}${note}
+          <div class="snap-links">${links.join('')}</div>
+          <div class="source"><span class="src-k">Source</span> 2025 and 2026 Determination Letters on State Implementation of IDEA; OSEP SPP/APR letters.</div>
+        </div>`;
+    }
     function render() {
-      if (sel.value === '') { out.innerHTML = '<div class="focus-empty">Choose a state above to see its snapshot.</div>'; return; }
-      const r = I.STATES[+sel.value], ab = r[1];
+      const v = sel.value;
+      if (v === '') { out.innerHTML = '<div class="focus-empty">Choose a state or entity above to see its snapshot.</div>'; return; }
+      if (v.slice(0, 4) === 'ent:') { renderEntity(v.slice(4)); return; }
+      const r = I.STATES[+v], ab = r[1];
       const d25 = window.DET2025 ? { b: window.DET2025.partB[r[0]], c: window.DET2025.partC[r[0]] } : {};
       const d26 = window.DET2026 ? { b: window.DET2026.partB[r[0]], c: window.DET2026.partC[r[0]] } : {};
       const served = r[5], pe = r[6], growth = (r[5] - r[2]) / r[2] * 100;
