@@ -199,7 +199,7 @@
     let played = false;
     function reveal() {
       if (played) return; played = true;
-      const drawDur = opts.drawDur || 1500, pStag = 140, rm = reduced();
+      const drawDur = opts.drawDur || 2000, pStag = 180, rm = reduced();
       const drawEase = opts.drawEase || 'cubic-bezier(.33,.08,.24,1)';
       paths.forEach((p, i) => {
         if (rm) return;
@@ -227,7 +227,7 @@
       // dots, markers and annotations pop in exactly as the drawing line sweeps past their x
       const revealAt = x => rm ? 0 : Math.max(0, Math.round(((x - padL) / plotW) * drawDur + 40));
       [...dots, ...markers, ...annos].forEach(o => {
-        o.el.style.transition = `opacity .45s ease ${revealAt(o.x)}ms`;
+        o.el.style.transition = `opacity .6s ease ${revealAt(o.x)}ms`;
         o.el.style.opacity = 1;
       });
     }
@@ -281,11 +281,11 @@
     function reveal() {
       if (played) return; played = true;
       anim.forEach((a, i) => {
-        const delay = reduced() ? 0 : i * 80;
-        a.bar.style.transition = `width 1s cubic-bezier(.22,.61,.36,1) ${delay}ms`;
+        const delay = reduced() ? 0 : i * 110;
+        a.bar.style.transition = `width 1.5s cubic-bezier(.22,.61,.36,1) ${delay}ms`;
         requestAnimationFrame(() => { a.bar.style.width = a.fullW; });
-        setTimeout(() => { a.val.style.opacity = 1; countUp(a.val, a.value, fmt, 900); },
-          delay + (reduced() ? 0 : 350));
+        setTimeout(() => { a.val.style.opacity = 1; countUp(a.val, a.value, fmt, 1300); },
+          delay + (reduced() ? 0 : 520));
       });
     }
     return { node: s, reveal };
@@ -536,7 +536,7 @@
       cr.setAttribute('width', plotW);                        // no horizontal wipe
       const rm = reduced();
       bands.forEach((b, i) => {                               // bands rise in one at a time, bottom to top
-        b.style.transition = rm ? 'none' : `opacity .55s ease ${i * 340}ms`;
+        b.style.transition = rm ? 'none' : `opacity .8s ease ${i * 460}ms`;
         requestAnimationFrame(() => { b.style.opacity = 1; });
       });
     }
@@ -594,11 +594,11 @@
     function reveal() {
       if (played) return; played = true;
       bars.forEach((b, i) => {
-        const d = reduced() ? 0 : i * 30;
-        b.style.transition = `transform .65s cubic-bezier(.22,.61,.36,1) ${d}ms`;
+        const d = reduced() ? 0 : i * 45;
+        b.style.transition = `transform .9s cubic-bezier(.22,.61,.36,1) ${d}ms`;
         requestAnimationFrame(() => { b.style.transform = 'scaleY(1)'; });
       });
-      valLabels.forEach((vl, i) => { vl.style.transition = `opacity .4s ease ${reduced() ? 0 : i * 30 + 280}ms`; requestAnimationFrame(() => { vl.style.opacity = 1; }); });
+      valLabels.forEach((vl, i) => { vl.style.transition = `opacity .5s ease ${reduced() ? 0 : i * 45 + 420}ms`; requestAnimationFrame(() => { vl.style.opacity = 1; }); });
       if (pk) { pk.style.transition = `opacity .5s ease ${reduced() ? 0 : n * 30 + 120}ms`; requestAnimationFrame(() => { pk.style.opacity = 1; }); }
     }
     return { node: s, reveal };
@@ -674,7 +674,7 @@
     let played = false;
     function reveal() {
       if (played) return; played = true;
-      cells.forEach((el, i) => { const d = reduced() ? 0 : (i % cols) * 18 + Math.floor(i / cols) * 40; el.style.transition = `opacity .5s ease ${d}ms`; requestAnimationFrame(() => { el.style.opacity = 1; }); });
+      cells.forEach((el, i) => { const d = reduced() ? 0 : (i % cols) * 26 + Math.floor(i / cols) * 55; el.style.transition = `opacity .65s ease ${d}ms`; requestAnimationFrame(() => { el.style.opacity = 1; }); });
     }
     return { node: s, reveal };
   }

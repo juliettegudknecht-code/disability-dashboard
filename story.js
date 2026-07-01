@@ -367,31 +367,46 @@
     const marks = riseLabels ? IDEA_MARKS : [];
     const growth = (v) => { const a = v.find(x => x != null), b = [...v].reverse().find(x => x != null); return (b - a) / a * 100; };
     let chart, sub;
+    const futLab = y => y + '–' + String(y + 1).slice(2);
     if (unit === 'rate') {
       const idx = I.ENROLL_PCT.map((v, i) => v == null ? null : i).filter(v => v != null);
-      const xs = idx.map(i => startYears[i]), vals = idx.map(i => I.ENROLL_PCT[i]);
-      const series = [{ values: vals, color: P.greenD, area: true, areaOpacity: .12, highlight: true, endDotR: 6, endLabel: '15.2% in 2022–23' }];
-      if (riseTrend) { const reg = linreg(xs, vals); series.push({ values: xs.map(reg), color: P.blue, width: 1.8, dash: '6 5' }); }
+      const baseXs = idx.map(i => startYears[i]), vals = idx.map(i => I.ENROLL_PCT[i]), lastY = baseXs[baseXs.length - 1];
+      const series = [{ values: vals.slice(), color: P.greenD, area: true, areaOpacity: .22, highlight: true, endDotR: 6, endLabel: '15.2% in 2022–23' }];
+      let xs = baseXs, labs = idx.map(i => I.YEARS[i]), xt = [1980, 1990, 2000, 2010, 2020], yMax = 16, proj = null;
+      if (riseTrend) {
+        const N = 12, reg = linreg(baseXs.slice(-N), vals.slice(-N)), fut = [lastY + 2, lastY + 4, lastY + 6], startIdx = baseXs.length - N;
+        xs = [...baseXs, ...fut]; labs = [...labs, ...fut.map(futLab)]; series[0].values = [...vals, null, null, null];
+        proj = reg(lastY + 6);
+        series.push({ values: xs.map((x, i) => i >= startIdx ? reg(x) : null), color: P.blue, width: 1.8, dash: '6 5', highlight: true, endDotR: 5, endLabel: '~' + proj.toFixed(1) + '% in ' + futLab(lastY + 6) });
+        xt = [1980, 2000, 2020, lastY + 6]; yMax = 18;
+      }
       chart = C.lineChart({
-        labels: idx.map(i => I.YEARS[i]), xs, xTicks: [1980, 1990, 2000, 2010, 2020], series,
-        yMin: 0, yMax: 16, yTicks: 4, yFmt: v => v.toFixed(0) + '%', vmarkers: marks, drawDur: 3400, drawEase: 'linear',
+        labels: labs, xs, xTicks: xt, series,
+        yMin: 0, yMax, yTicks: 4, yFmt: v => v.toFixed(0) + '%', vmarkers: marks, drawDur: 3400, drawEase: 'linear',
         annotations: riseLabels ? [{ atIndex: 0, value: I.ENROLL_PCT[0], text: ['First federal special education law, 1975', '8.3% of enrollment, 1976–77'], dx: 10, dy: -148, anchor: 'start', color: P.navy }] : [],
       });
       document.getElementById('riseTitle').textContent = 'Percentage of children and students ages 3 through 21 served under IDEA, Part B, of public school enrollment, by year: School year 1976–77 through 2022–23';
       sub = 'Served as a percent of public-school enrollment, by school year.';
-      if (riseTrend) { const g = growth(vals); sub += ' Dashed line: linear trend. The share rose about ' + (g >= 0 ? '+' : '') + g.toFixed(0) + '% since 1976–77.'; }
+      if (proj != null) sub += ' Dashed blue is a linear projection: on the recent trend the share would reach about ' + proj.toFixed(1) + '% by ' + futLab(lastY + 6) + '.';
     } else {
-      const vals = I.ALL.map(v => v / 1000);
-      const series = [{ values: vals, color: P.greenD, area: true, areaOpacity: .12, highlight: true, endDotR: 6, endLabel: '8.2M in 2024–25' }];
-      if (riseTrend) { const reg = linreg(startYears, vals); series.push({ values: startYears.map(reg), color: P.blue, width: 1.8, dash: '6 5' }); }
+      const vals = I.ALL.map(v => v / 1000), lastY = startYears[startYears.length - 1];
+      const series = [{ values: vals.slice(), color: P.greenD, area: true, areaOpacity: .12, highlight: true, endDotR: 6, endLabel: '8.2M in 2024–25' }];
+      let xs = startYears, labs = I.YEARS, xt = [1980, 1990, 2000, 2010, 2020, 2024], proj = null, yMaxC = 9;
+      if (riseTrend) {
+        const N = 15, reg = linreg(startYears.slice(-N), vals.slice(-N)), fut = [lastY + 2, lastY + 4, lastY + 6], startIdx = startYears.length - N;
+        xs = [...startYears, ...fut]; labs = [...I.YEARS, ...fut.map(futLab)]; series[0].values = [...vals, null, null, null];
+        proj = reg(lastY + 6); yMaxC = 10;
+        series.push({ values: xs.map((x, i) => i >= startIdx ? reg(x) : null), color: P.blue, width: 1.8, dash: '6 5', highlight: true, endDotR: 5, endLabel: '~' + proj.toFixed(1) + 'M in ' + futLab(lastY + 6) });
+        xt = [1980, 2000, 2020, lastY + 6];
+      }
       chart = C.lineChart({
-        labels: I.YEARS, xs: startYears, xTicks: [1980, 1990, 2000, 2010, 2020, 2024], series,
-        yMin: 0, yMax: 9, yTicks: 3, yFmt: v => v.toFixed(0) + 'M', vmarkers: marks, drawDur: 3400, drawEase: 'linear',
+        labels: labs, xs, xTicks: xt, series,
+        yMin: 0, yMax: yMaxC, yTicks: 3, yFmt: v => v.toFixed(0) + 'M', vmarkers: marks, drawDur: 3400, drawEase: 'linear',
         annotations: riseLabels ? [{ atIndex: 0, value: I.ALL[0] / 1000, text: ['First federal special education law, 1975', '3.7M served, 1976–77'], dx: 10, dy: -105, anchor: 'start', color: P.navy }] : [],
       });
       document.getElementById('riseTitle').textContent = 'Number of children and students ages 3 through 21 served under IDEA, Part B, by year: School year 1976–77 through 2024–25';
       sub = 'Children and students served under IDEA, Part B, ages 3 through 21, in millions, by school year.';
-      if (riseTrend) { const g = growth(vals); sub += ' Dashed line: linear trend. The count grew about ' + (g >= 0 ? '+' : '') + g.toFixed(0) + '% since 1976–77.'; }
+      if (proj != null) sub += ' Dashed blue is a linear projection: on the recent trend the count would reach about ' + proj.toFixed(1) + 'M by ' + futLab(lastY + 6) + '.';
     }
     document.getElementById('riseSub').textContent = sub;
     riseBox.appendChild(chart.node);
@@ -452,8 +467,21 @@
     const series = grayCats.map(k => ({ values: sv(k), color: P.gray, width: 1.4 }));
     series.push({ values: sv('Other health impairment'), color: P.green, width: 2.8, highlight: true, endLabel: 'Other health impairment', endLabelDy: -17 });
     series.push({ values: sv('Autism'), color: P.accent, width: 2.8, highlight: true, endLabel: 'Autism', endLabelDy: 27 });
+    // linear projection (recent-trend forecast, dashed) for autism + other health impairment
+    const areg = ys => { const pts = xs.map((x, i) => [x, ys[i]]).filter(p => p[1] != null).slice(-12);
+      const n = pts.length, sx = pts.reduce((s, p) => s + p[0], 0), sy = pts.reduce((s, p) => s + p[1], 0),
+        sxx = pts.reduce((s, p) => s + p[0] * p[0], 0), sxy = pts.reduce((s, p) => s + p[0] * p[1], 0),
+        b = (n * sxy - sx * sy) / (n * sxx - sx * sx || 1); return x => (sy - b * sx) / n + b * x; };
+    const lastI = xs.length - 1, lastY = xs[lastI], fut = [lastY + 2, lastY + 4, lastY + 6];
+    const exs = [...xs, ...fut], elabs = [...labels, ...fut.map(y => String(y))];
+    series.forEach(s => { s.values = [...s.values, null, null, null]; });
+    const auV = sv('Autism'), ohV = sv('Other health impairment'), auR = areg(auV), ohR = areg(ohV);
+    const foreOf = (v, R) => xs.map((_, i) => i === lastI ? v[i] : null).concat(fut.map(R));
+    const ohProj = ohR(lastY + 6), auProj = auR(lastY + 6);
+    series.push({ values: foreOf(ohV, ohR), color: P.green, width: 1.7, dash: '5 4', highlight: true, endDotR: 4.5, endLabel: '~' + ohProj.toFixed(1) + 'M', endLabelDy: -14 });
+    series.push({ values: foreOf(auV, auR), color: P.accent, width: 1.7, dash: '5 4', highlight: true, endDotR: 4.5, endLabel: '~' + auProj.toFixed(1) + 'M', endLabelDy: 18 });
     mount('chart-autism', C.lineChart({
-      labels, xs, xTicks: [2000, 2008, 2012, 2016, 2020, 2024],
+      labels: elabs, xs: exs, xTicks: [2000, 2008, 2016, 2024, lastY + 6],
       series, yMin: 0, yMax: 3, yTicks: 3, yFmt: v => v.toFixed(0) + 'M',
     }));
     legend('autismLegend', [['Autism', P.accent, true], ['Other health impairment', P.green, true], ['Other categories', P.gray, true]], t => { if (t === 'Autism') openCatModal('Autism'); else if (/health/i.test(t)) openCatModal('Other health impairment'); });

@@ -432,18 +432,30 @@
     viewSel && viewSel.addEventListener('change', render);
     stateSel && stateSel.addEventListener('change', () => { if (viewSel.value === 'state') render(); });
     S.onView(box, render);
-    /* drag to rotate the cloud in 3D (mouse/pen only; no auto-motion). Double-click resets flat. */
+    /* zoom controls: scale the plot up and scroll to explore the dense cluster */
     (function () {
-      box.classList.add('grabbable');
-      let rx = 0, ry = 0, drag = false, moved = 0, sx = 0, sy = 0;
-      const apply = () => { const g = box.querySelector('.cv-dots'); if (g) g.style.transform = `perspective(1200px) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg)`; };
-      box.addEventListener('pointerdown', e => { if (e.pointerType === 'touch') return; drag = true; moved = 0; sx = e.clientX; sy = e.clientY; box.classList.add('dragging'); try { box.setPointerCapture(e.pointerId); } catch (_) {} });
-      box.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - sx, dy = e.clientY - sy; moved += Math.abs(dx) + Math.abs(dy); ry = Math.max(-58, Math.min(58, ry + dx * 0.45)); rx = Math.max(-46, Math.min(46, rx - dy * 0.45)); sx = e.clientX; sy = e.clientY; apply(); });
-      const end = () => { drag = false; box.classList.remove('dragging'); };
-      box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
-      box.addEventListener('click', e => { if (moved > 6) { e.stopPropagation(); e.preventDefault(); moved = 0; } }, true);   // a drag shouldn't open a district
-      box.addEventListener('dblclick', () => { rx = 0; ry = 0; apply(); });
-      new MutationObserver(apply).observe(box, { childList: true });   // keep the angle after the chart re-renders
+      let zoom = 1;
+      const fig = box.closest('.figure') || box.parentElement;
+      const ctrls = document.createElement('div'); ctrls.className = 'scatter-zoom';
+      ctrls.innerHTML = '<button type="button" data-z="in" aria-label="Zoom in">+</button>'
+        + '<button type="button" data-z="out" aria-label="Zoom out">−</button>'
+        + '<button type="button" data-z="reset" aria-label="Reset zoom">↺</button>';
+      fig.appendChild(ctrls);
+      const place = () => { ctrls.style.top = (box.offsetTop + 8) + 'px'; };
+      const applyZoom = () => {
+        const svg = box.querySelector('.cv-scatter');
+        if (svg) { svg.style.width = (100 * zoom) + '%'; svg.style.maxWidth = 'none'; svg.style.height = 'auto'; }
+        box.classList.toggle('zoomed', zoom > 1); place();
+      };
+      ctrls.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        if (b.dataset.z === 'in') zoom = Math.min(5, +(zoom + 0.5).toFixed(1));
+        else if (b.dataset.z === 'out') zoom = Math.max(1, +(zoom - 0.5).toFixed(1));
+        else zoom = 1;
+        applyZoom();
+      });
+      new MutationObserver(applyZoom).observe(box, { childList: true });
+      place();
     })();
     S.expbar && S.expbar('chart-scatter', 'idea-funding-vs-served', () => {
       const view = viewSel ? viewSel.value : 'all';

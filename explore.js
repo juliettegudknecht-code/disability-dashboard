@@ -202,6 +202,8 @@
     let built = false;
     function buildMore() {
       if (built) return; built = true;
+      const S = window.IDEAStory || {};
+      const popup = html => S.openModal && S.openModal(html);
 
       // A. Graduation with a regular diploma, by disability (Exiting, 2023-24)
       const exBox = $('#moreExit');
@@ -209,7 +211,12 @@
         const items = X.EXIT_DIS.slice().sort((a, b) => b[1] - a[1]).map(([d, g]) => ({
           label: d, value: g, color: P.green,
         }));
-        const ch = C.barsH({ items, labelW: 232, barH: 17, gap: 9, padR: 54, xMax: 100, valueFmt: v => v.toFixed(1) + '%' });
+        const ch = C.barsH({ items, labelW: 232, barH: 17, gap: 9, padR: 54, xMax: 100, valueFmt: v => v.toFixed(1) + '%',
+          onClick: it => { const r = X.EXIT_DIS.find(x => x[0] === it.label) || [it.label, it.value, null];
+            popup(`<div class="m-kicker">Exiting · by disability</div><h3 class="m-title">${it.label}</h3>
+              <div class="m-grid"><div><span class="mv">${(+r[1]).toFixed(1)}%</span><span class="ml">graduated with a regular diploma</span></div>
+              ${r[2] != null ? `<div><span class="mv">${(+r[2]).toFixed(1)}%</span><span class="ml">dropped out</span></div>` : ''}</div>
+              <p class="m-src">U.S. Department of Education, IDEA Part B Exiting Collection, School Year 2023–24 (students ages 14–21 who exited school).</p>`); } });
         exBox.appendChild(ch.node); ch.reveal();
         window.IDEAStory && window.IDEAStory.expbar('moreExit', 'idea-exiting-by-disability-2023-24', [['Disability category', 'Graduated regular diploma %', 'Dropped out %'], ...X.EXIT_DIS.map(r => [r[0], r[1], r[2]])]);
       }
@@ -225,12 +232,15 @@
           label: o.label, value: o.value, highlight: o.label === 'Emotional disturbance' || o.label === 'Autism',
           color: o.label === 'Emotional disturbance' ? P.navy : (o.label === 'Autism' ? P.accent : P.green),
         }));
-        const ch = C.barsH({ items, labelW: 232, barH: 17, gap: 9, padR: 60, xMax: 120, valueFmt: v => v.toFixed(0) });
+        const ch = C.barsH({ items, labelW: 232, barH: 17, gap: 9, padR: 60, xMax: 120, valueFmt: v => v.toFixed(0),
+          onClick: it => popup(`<div class="m-kicker">Discipline · by disability</div><h3 class="m-title">${it.label}</h3>
+            <div class="m-grid"><div><span class="mv">${it.value}</span><span class="ml">disciplinary removals per 100 students served</span></div></div>
+            <p class="m-src">U.S. Department of Education, IDEA Part B Discipline Collection and Child Count, School Year 2023–24. Each removal is counted separately, so a student may be counted more than once.</p>`) });
         ddBox.appendChild(ch.node); ch.reveal();
         window.IDEAStory && window.IDEAStory.expbar('moreDiscDis', 'idea-discipline-per-100-2023-24', [['Disability category', 'Removals per 100 served'], ...items.map(d => [d.label, d.value])]);
       }
 
-      // C. Disproportionality: share of students served vs share of removals, by race
+      // C. Disproportionality index: removal share ÷ enrollment share, by race (1.0 = proportional)
       const drBox = $('#moreDiscRace'), discTot = X.DISC_NAT && X.DISC_NAT.rem;
       if (drBox && X.DISC_RACE && discTot) {
         const race = I.DEMO['All Disabilities'].race, totServed = I.DEMO['All Disabilities'].total;
@@ -238,14 +248,24 @@
           'Asian': 'Asian', 'American Indian or Alaska Native': 'AIAN', 'Native Hawaiian or Other Pacific Islander': 'NHPI' };
         const items = X.DISC_RACE.map(([rk, rem]) => {
           const dk = map[rk]; if (!dk || race[dk] == null) return null;
-          return { label: I.RACE_LBL[dk] || rk, a: +(race[dk] / totServed * 100).toFixed(1), b: +(rem / discTot * 100).toFixed(1) };
-        }).filter(Boolean).sort((x, y) => y.a - x.a);
-        const ch = C.dumbbell({ items, labelW: 196, rowH: 42, ticks: 5, xMin: 0, xMax: 50,
-          aColor: P.greenL, bColor: P.accent, showValues: true, valueFmt: v => v.toFixed(0) + '%' });
+          const a = +(race[dk] / totServed * 100).toFixed(1), b = +(rem / discTot * 100).toFixed(1);
+          return { label: I.RACE_LBL[dk] || rk, a, b, ratio: +(b / a).toFixed(2) };
+        }).filter(Boolean).sort((x, y) => y.ratio - x.ratio);
+        const ch = C.barsH({
+          items: items.map(d => ({ label: d.label, value: d.ratio,
+            color: d.ratio >= 1.06 ? P.accent : (d.ratio <= 0.94 ? P.green : P.sage) })),
+          labelW: 196, barH: 22, gap: 13, padR: 66, xMax: Math.max(1.8, Math.max(...items.map(d => d.ratio)) * 1.08),
+          valueFmt: v => v.toFixed(2) + '×',
+          onClick: it => { const d = items.find(x => x.label === it.label);
+            popup(`<div class="m-kicker">Discipline · disproportionality</div><h3 class="m-title">${d.label}</h3>
+              <div class="m-grid"><div><span class="mv">${d.a}%</span><span class="ml">of all students served</span></div>
+              <div><span class="mv">${d.b}%</span><span class="ml">of all disciplinary removals</span></div>
+              <div><span class="mv"${d.ratio >= 1.06 ? ' style="color:var(--accent)"' : ''}>${d.ratio.toFixed(2)}×</span><span class="ml">removals relative to enrollment share (1.0 = proportional)</span></div></div>
+              <p class="m-src">U.S. Department of Education, IDEA Part B Discipline Collection (removals, 2023–24) and Child Count (students served, 2024–25).</p>`); } });
         drBox.appendChild(ch.node); ch.reveal();
-        window.IDEAStory && window.IDEAStory.expbar('moreDiscRace', 'idea-discipline-by-race-2023-24', [['Race/ethnicity', 'Share of students served %', 'Share of removals %'], ...items.map(d => [d.label, d.a, d.b])]);
+        window.IDEAStory && window.IDEAStory.expbar('moreDiscRace', 'idea-discipline-disproportionality-2023-24', [['Race/ethnicity', 'Share of students served %', 'Share of removals %', 'Removals ÷ enrollment share'], ...items.map(d => [d.label, d.a, d.b, d.ratio])]);
         const lg = $('#moreRaceLegend');
-        if (lg) lg.innerHTML = `<span class="k"><span class="sw" style="background:${P.greenL}"></span>Share of students served (2024&ndash;25)</span><span class="k"><span class="sw" style="background:${P.accent}"></span>Share of disciplinary removals (2023&ndash;24)</span>`;
+        if (lg) lg.innerHTML = `<span class="k"><span class="sw" style="background:${P.accent}"></span>Over-represented (above 1.0×)</span><span class="k"><span class="sw" style="background:${P.green}"></span>Under-represented (below 1.0×)</span>`;
       }
 
       // D. Personnel certification (2023-24)
